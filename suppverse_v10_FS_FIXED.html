@@ -11673,7 +11673,7 @@ html[data-theme="light"] .s-seg{background:rgba(0,0,0,0.1)}
 html[data-theme="light"] .s-seg.done{background:#2f9b68}
 html[data-theme="light"] .s-seg.active{background:#0284c7}
 html[data-theme="light"] .s-step-current-label{color:rgba(0,0,0,0.45)}
-.sticky-preview-shell{flex-shrink:0;position:sticky;top:0;z-index:auto;margin:0 -18px 0 -18px;transform:translateY(0);opacity:1;transition:transform 0.35s cubic-bezier(0.4,0,0.2,1),opacity 0.3s ease;overflow:visible;background:transparent}.sticky-pad{padding:12px 18px;background:#162130;overflow:visible;border-bottom:1px solid rgba(22,130,181,0.35)}.preview-bar{display:none;background:transparent;border-bottom:1px solid rgba(255,255,255,0.06);padding:0}.preview-bar.visible{display:block}.preview-inner{display:none}
+.sticky-preview-shell{flex-shrink:0;position:sticky;top:0;z-index:100;margin:0 -18px 0 -18px;transform:translateY(0);opacity:1;transition:transform 0.35s cubic-bezier(0.4,0,0.2,1),opacity 0.3s ease;overflow:visible;background:transparent}.sticky-pad{padding:12px 18px;background:#162130;overflow:visible;border-bottom:1px solid rgba(22,130,181,0.35)}.preview-bar{display:none;background:transparent;border-bottom:1px solid rgba(255,255,255,0.06);padding:0}.preview-bar.visible{display:block}.preview-inner{display:none}
 .preview-inner.visible{display:block;overflow:visible}
 .sticky-preview-label{font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:rgba(255,255,255,0.45);font-family:'Inter',sans-serif;display:flex;align-items:center;justify-content:center;gap:6px;padding:6px 0 6px;line-height:10px;background:#1a2d40;position:relative}
 .sticky-preview-label::after{content:'LIVE';font-size:8px;background:#22c55e;color:#fff;padding:1px 5px;border-radius:4px;letter-spacing:0.04em}
@@ -12724,9 +12724,9 @@ function updateStep() {
   document.getElementById('btn-next').style.display   = S.step === S.totalSteps ? 'none' : 'flex';
   document.getElementById('btn-create').style.display = S.step === S.totalSteps ? 'flex' : 'none';
 
-  const showPreview = S.step >= 1;
+  const showPreview = S.step >= 2;
   document.getElementById('preview-inner').classList.toggle('visible', showPreview);
-  /* preview-bar always visible */
+  /* preview-bar always visible — voucher card only shown from step 2+ to avoid step-1 overlap */
 
   const condProd = document.getElementById('cond-products');
   condProd.classList.toggle('show', S.step === 4 && S.type === 'product');
@@ -16580,7 +16580,11 @@ function openIssueVoucherModal() {
   if (!overlay || !frame || !src) return;
   // Inject current theme directly into HTML — no postMessage race condition
   const dark = document.documentElement.getAttribute('data-theme') === 'dark';
-  const vcHtml = src.value.replace('data-theme="dark"','data-theme="'+(dark?'dark':'light')+'"');
+  // <\/textarea> inside vc-src is not a valid HTML end tag — leaves inner textarea unclosed
+  // in srcdoc, which swallows the main script block. Replace with real closing tag first.
+  const vcHtml = src.value
+    .replace('data-theme="dark"','data-theme="'+(dark?'dark':'light')+'"')
+    .replace(/<\\\/textarea>/g, '<\/textarea>');
   if (!frame._vcHtml || frame._vcHtml !== dark) {
     frame._vcHtml = dark;
     frame.srcdoc = vcHtml;
