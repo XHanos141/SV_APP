@@ -6,6 +6,7 @@
 <title>Voucher Hub — SuppVerse BD</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Courier+Prime:wght@400;700&family=Righteous&family=Alexandria:wght@700&family=Chiron+Hei+HK:wght@500;600&display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Roboto+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 
@@ -1626,11 +1627,7 @@ html[data-theme="light"] .mini-voucher {
 .mini-voucher .validity-date { font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 500; letter-spacing: 0.01em; color: #a85e5e; margin-top: 1px; line-height: 1; }
 html[data-theme="light"] .mini-voucher .tear-notch { background: #fff; }
 
-</style>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Courier+Prime:wght@400;700&family=Righteous&family=Alexandria:wght@700&family=Chiron+Hei+HK:wght@500;600&display=swap" rel="stylesheet">
-</head>
+</style></head>
 <body>
 
 <div class="app-shell">
@@ -2822,7 +2819,8 @@ function openAnalytics(code) {
   // Only set srcdoc once — subsequent opens reuse the same loaded iframe
   const alreadyLoaded = !!frame.srcdoc;
   if (!alreadyLoaded) {
-    frame.srcdoc = src.value;
+    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+    frame.srcdoc = src.value.replace('data-theme="dark"', 'data-theme="' + (isDark ? 'dark' : 'light') + '"');
   }
 
   // Show overlay (triggers slide-in CSS transition)
@@ -2871,11 +2869,10 @@ function cloneVoucher(code) {
 }
 function openCreateVoucher() {
   showToast('Opens your existing voucher creation form', 'success');
-  // TODO: postMessage to parent or iframe link to creation form
+  window.parent.postMessage({ type: 'open-voucher-create' }, '*');
 }
 function goBack() {
-  showToast('Returns to hamburger drawer', 'success');
-  // TODO: window.history.back() or postMessage to parent
+  window.parent.postMessage({ type: 'close-voucher-hub' }, '*');
 }
 
 // =============================================
@@ -4332,5 +4329,3 @@ document.addEventListener('DOMContentLoaded', () => {
 </body>
 </html>
 </textarea>
-</body>
-</html>
