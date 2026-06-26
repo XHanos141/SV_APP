@@ -15431,7 +15431,10 @@ document.addEventListener('DOMContentLoaded', () => {
             </div>
             <div class="voucher-empty-title">No vouchers yet</div>
             <div class="voucher-empty-subtitle">Create discount vouchers for your customers</div>
-            <button class="voucher-create-btn" onclick="openVoucherHub()" style="margin-bottom:8px;background:rgba(124,111,247,0.12);color:#7c6ff7;border-color:rgba(124,111,247,0.25)">
+          </div>
+          <div id="voucherListContainer"></div>
+          <div style="display:flex;flex-direction:column;gap:8px;margin-top:10px">
+            <button class="voucher-create-btn" onclick="openVoucherHub()" style="background:rgba(124,111,247,0.12);color:#7c6ff7;border-color:rgba(124,111,247,0.25)">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
               Manage Vouchers
             </button>
@@ -15440,7 +15443,6 @@ document.addEventListener('DOMContentLoaded', () => {
               Create Voucher
             </button>
           </div>
-          <div id="voucherListContainer"></div>
         </div>
       </div>
     </div>
@@ -20967,8 +20969,6 @@ function renderDrawerVouchers() {
 }
 
 function openVoucherHub() {
-  const menuCb = document.getElementById('menuState');
-  if (menuCb) menuCb.checked = false;
   const overlay = document.getElementById('voucherHubOverlay');
   const frame   = document.getElementById('voucherHubFrame');
   const src     = document.getElementById('voucher-hub-src');
@@ -20980,6 +20980,9 @@ function openVoucherHub() {
     frame.srcdoc = src.value.replace('data-theme="dark"', 'data-theme="' + (dark ? 'dark' : 'light') + '"');
   }
   overlay.style.display = 'block';
+  // Close drawer after hub is shown
+  const menuCb = document.getElementById('menuState');
+  if (menuCb) menuCb.checked = false;
 }
 function openIssueVoucherModal() {
   closeActionSheet();
