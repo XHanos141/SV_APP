@@ -5990,6 +5990,20 @@ html[data-theme="dark"] .batch-units { background: rgba(255,255,255,0.08); color
 #voucherHubFrame{position:absolute;inset:0;width:100%;height:100%;border:none;display:block;background:#162130}
 
 
+
+.hub-subpanel {
+  position: absolute;
+  inset: 0;
+  background: inherit;
+  z-index: 200;
+  transform: translateX(100%);
+  transition: transform 0.3s cubic-bezier(0.25,0.46,0.45,0.94);
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+.hub-subpanel.open {
+  transform: translateX(0);
+}
 </style>
 <base target="_blank">
 </head>
@@ -15702,6 +15716,12 @@ document.addEventListener('DOMContentLoaded', () => {
     </div>
 
     <div class="drawer-footer">v2.0 &middot; SuppVerse BD</div>
+
+  <!-- VOUCHER HUB SUB-PANEL -->
+  <div class="hub-subpanel" id="hubSubPanel">
+    <iframe id="voucherHubFrame2" style="width:100%;height:100%;border:none;display:block;background:#060f1e;"></iframe>
+  </div>
+
   </aside>
 
   <!-- TAB CONTAINER -->
@@ -20965,20 +20985,24 @@ function renderDrawerVouchers() {
 }
 
 function openVoucherHub() {
-  const overlay = document.getElementById('voucherHubOverlay');
-  const frame   = document.getElementById('voucherHubFrame');
-  const src     = document.getElementById('voucher-hub-src');
-  if (!overlay || !frame || !src) return;
+  const panel = document.getElementById('hubSubPanel');
+  const frame = document.getElementById('voucherHubFrame2');
+  const src   = document.getElementById('voucher-hub-src');
+  if (!panel || !frame || !src) return;
   const dark = document.documentElement.getAttribute('data-theme') === 'dark';
-  if (!frame._hubLoaded || frame._hubDark !== dark) {
-    frame._hubLoaded = true;
-    frame._hubDark = dark;
-    frame.srcdoc = src.value.replace('data-theme="dark"', 'data-theme="' + (dark ? 'dark' : 'light') + '"');
+  if (!frame._loaded || frame._dark !== dark) {
+    frame._loaded = true;
+    frame._dark = dark;
+    frame.srcdoc = src.value
+      .replace('data-theme="dark"', 'data-theme="' + (dark ? 'dark' : 'light') + '"')
+      .replace(/<\/textarea>/g, '</textarea>');
   }
-  overlay.style.display = 'block';
-  // Close drawer after hub is shown
-  const menuCb = document.getElementById('menuState');
-  if (menuCb) menuCb.checked = false;
+  panel.classList.add('open');
+}
+
+function closeVoucherHub() {
+  const panel = document.getElementById('hubSubPanel');
+  if (panel) panel.classList.remove('open');
 }
 function openIssueVoucherModal() {
   closeActionSheet();
@@ -22544,8 +22568,7 @@ window.addEventListener('message', function(e) {
     if (ov) ov.style.display = 'none';
   }
   if (e.data && e.data.type === 'close-voucher-hub') {
-    const ov = document.getElementById('voucherHubOverlay');
-    if (ov) ov.style.display = 'none';
+    closeVoucherHub();
     renderDrawerVouchers();
   }
   if (e.data && e.data.type === 'voucher-created') {
