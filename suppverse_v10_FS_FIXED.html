@@ -16864,7 +16864,20 @@ function createVoucher() {
 
   console.log('[SuppVerse BD] Voucher Payload:', payload);
 
+  // Save to localStorage
+  const existing = JSON.parse(localStorage.getItem('sv_vouchers') || '[]');
+  existing.unshift(payload);
+  localStorage.setItem('sv_vouchers', JSON.stringify(existing));
+
+  // Tell parent app to refresh drawer voucher list
+  window.parent.postMessage({ type: 'voucher-created', voucher: payload }, '*');
+
   showToast('Voucher created successfully!', S.code, false);
+
+  // Close form after short delay
+  setTimeout(function() {
+    window.parent.postMessage({ type: 'close-voucher' }, '*');
+  }, 1800);
 }
 
 function render() {
@@ -20917,8 +20930,45 @@ function openReturnModal() {
 }
 
 
+function renderDrawerVouchers() {
+  const container = document.getElementById('voucherListContainer');
+  const emptyEl   = document.getElementById('voucherEmpty');
+  if (!container) return;
+  const vouchers = JSON.parse(localStorage.getItem('sv_vouchers') || '[]');
+  if (!vouchers.length) {
+    if (emptyEl) emptyEl.style.display = '';
+    container.innerHTML = '';
+    return;
+  }
+  if (emptyEl) emptyEl.style.display = 'none';
+  const typeColors = { regular:'#38bdf8', event:'#f4c55a', product:'#22c55e', newcustomer:'#a78bfa' };
+  const typeLabels = { regular:'Regular', event:'Event', product:'Product', newcustomer:'New Customer' };
+  container.innerHTML = vouchers.slice(0, 5).map(v => {
+    const color = typeColors[v.type] || '#7c6ff7';
+    const label = typeLabels[v.type] || v.type;
+    const expiry = v.expiry_date ? new Date(v.expiry_date).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}) : 'No expiry';
+    const discStr = v.discount_type === 'flat' ? '৳'+v.discount_amount+' OFF' : v.discount_amount+'% OFF';
+    const isExpired = v.expiry_date && new Date(v.expiry_date) < new Date();
+    const statusColor = isExpired ? '#94a3b8' : (v.status === 'active' ? '#22c55e' : '#d95353');
+    return \`<div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);border-radius:12px;padding:12px 14px;margin-bottom:8px;cursor:pointer" onclick="openVoucherHub()">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+        <span style="font-family:'Roboto Mono',monospace;font-size:12px;font-weight:600;color:\${color};letter-spacing:0.04em">\${v.voucher_code}</span>
+        <span style="font-size:10px;font-weight:700;color:\${statusColor};background:\${statusColor}22;padding:2px 8px;border-radius:20px;text-transform:uppercase">\${isExpired?'Expired':v.status}</span>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:space-between">
+        <span style="font-size:11px;color:rgba(255,255,255,0.4)">\${label} · \${expiry}</span>
+        <span style="font-size:12px;font-weight:700;color:#d95353">\${discStr}</span>
+      </div>
+    </div>\`;
+  }).join('');
+  if (vouchers.length > 5) {
+    container.innerHTML += \`<div style="text-align:center;font-size:11px;color:rgba(255,255,255,0.35);padding:4px 0">\${vouchers.length - 5} more — tap Manage Vouchers</div>\`;
+  }
+}
+
 function openVoucherHub() {
-  closeDrawer();
+  const menuCb = document.getElementById('menuState');
+  if (menuCb) menuCb.checked = false;
   const overlay = document.getElementById('voucherHubOverlay');
   const frame   = document.getElementById('voucherHubFrame');
   const src     = document.getElementById('voucher-hub-src');
@@ -22482,6 +22532,8 @@ function setSalesFilter(f) {
   } catch(e) { console.error('Overview load error:', e); }
 })();
 
+renderDrawerVouchers();
+
 // Listen for iframe messages
 window.addEventListener('message', function(e) {
   if (e.data && e.data.type === 'toggle-drawer') {
@@ -22495,6 +22547,10 @@ window.addEventListener('message', function(e) {
   if (e.data && e.data.type === 'close-voucher-hub') {
     const ov = document.getElementById('voucherHubOverlay');
     if (ov) ov.style.display = 'none';
+    renderDrawerVouchers();
+  }
+  if (e.data && e.data.type === 'voucher-created') {
+    renderDrawerVouchers();
   }
   if (e.data && e.data.type === 'open-voucher-create') {
     const ov = document.getElementById('voucherHubOverlay');
