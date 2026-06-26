@@ -13639,7 +13639,7 @@ function openAnalytics(code) {
   const alreadyLoaded = !!frame.srcdoc;
   if (!alreadyLoaded) {
     const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-    frame.srcdoc = src.value.replace('data-theme="dark"', 'data-theme="' + (isDark ? 'dark' : 'light') + '"');
+    frame.srcdoc = src.value.replace('data-theme="dark"', 'data-theme="' + (isDark ? 'dark' : 'light') + '"').replace(/<\\\/textarea>/g, '<\/textarea>');
   }
 
   // Show overlay (triggers slide-in CSS transition)
@@ -15147,11 +15147,10 @@ document.addEventListener('DOMContentLoaded', () => {
 </script>
 </body>
 </html>
-</textarea>
-</textarea>
-
+<\/textarea>
 </body>
-</html></textarea>
+</html>
+</textarea>
 
 <input class="ui-control" type="checkbox" id="menuState">
 
