@@ -21572,7 +21572,43 @@ window.addEventListener('message', function(e) {
     if (ov) ov.style.display = 'none';
     openIssueVoucherModal();
   }
+  if (e.data && e.data.type === 'CLOSE_ANALYTICS') {
+    closeAnalytics();
+  }
 });
+
+function openAnalytics(code) {
+  const overlay = document.getElementById('analyticsOverlay');
+  const frame   = document.getElementById('analyticsFrame');
+  const src     = document.getElementById('analytics-src');
+  if (!overlay || !frame || !src) return;
+
+  const alreadyLoaded = !!frame.srcdoc;
+  if (!alreadyLoaded) {
+    const dark = document.documentElement.getAttribute('data-theme') === 'dark';
+    frame.srcdoc = src.value.replace('data-theme="dark"', 'data-theme="' + (dark ? 'dark' : 'light') + '"');
+  }
+
+  overlay.classList.remove('closing');
+  overlay.classList.add('open');
+
+  const sendCode = () => {
+    try { frame.contentWindow.postMessage({ type: 'OPEN_VOUCHER', code: code }, '*'); } catch(e) {}
+  };
+
+  if (alreadyLoaded) {
+    requestAnimationFrame(() => setTimeout(sendCode, 30));
+  } else {
+    frame.onload = () => setTimeout(sendCode, 80);
+  }
+}
+
+function closeAnalytics() {
+  const overlay = document.getElementById('analyticsOverlay');
+  if (!overlay) return;
+  overlay.classList.add('closing');
+  setTimeout(() => overlay.classList.remove('open', 'closing'), 420);
+}
 </script>
 
 <style id="hub-styles">
