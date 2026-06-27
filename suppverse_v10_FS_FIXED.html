@@ -12481,11 +12481,7 @@ html[data-theme="light"] .mini-voucher .tear-notch { background: #fff; }
       <div class="header-title">🎟️ Vouchers &amp; Promos</div>
       <div class="header-subtitle">Manage all your discount campaigns</div>
     </div>
-    <button class="theme-toggle-btn" onclick="toggleTheme()" title="Toggle theme">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="themeIcon">
-        <circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
-      </svg>
-    </button>
+
   </div>
 
   <!-- STATS BAR -->
@@ -17116,12 +17112,14 @@ function toggleTheme() {
   if(_vf&&_vo&&_vo.style.display!=='none'&&_vf.contentWindow){
     try{_vf.contentWindow.postMessage({type:'sv-theme',dark:!isDark},'*');}catch(e){}
   }
-  // Also reload iframe with new theme so next open gets correct theme
   if(_vf) _vf._vcHtml = null;
   isDark = !isDark;
   const theme = isDark ? "dark" : "light";
   document.documentElement.setAttribute("data-theme", theme);
   localStorage.setItem("svbd-theme", theme);
+  // Sync hub panel theme
+  const hubPanel = document.getElementById('voucherHubPanel');
+  if (hubPanel) hubPanel.setAttribute('data-theme', theme);
 }
 
 /* SECTIONS */
@@ -23250,11 +23248,7 @@ html[data-theme="light"] .mini-voucher .tear-notch { background: #fff; }
       <div class="header-title">🎟️ Vouchers &amp; Promos</div>
       <div class="header-subtitle">Manage all your discount campaigns</div>
     </div>
-    <button class="theme-toggle-btn" onclick="toggleTheme()" title="Toggle theme">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="themeIcon">
-        <circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
-      </svg>
-    </button>
+
   </div>
 
   <!-- STATS BAR -->
@@ -25546,35 +25540,83 @@ window.addEventListener('resize', () => {
   _resizeTimer = setTimeout(initSlideIndicators, 80);
 });
 document.addEventListener('DOMContentLoaded', () => {
-  // Restore saved theme
+  // Sync theme from main app
   try {
     const saved = localStorage.getItem('svbd-theme');
-    if (saved) {
-      document.documentElement.setAttribute('data-theme', saved);
-      document.getElementById('themeIcon').innerHTML = isDark
-        ? '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>'
-        : '<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>';
-    }
+    if (saved) document.documentElement.setAttribute('data-theme', saved);
   } catch(e) {}
-  renderSubSelector('event');
-  renderAll('SUP-EVT-EID24');
-  // Defer until next frame so all layout is settled
-  requestAnimationFrame(() => requestAnimationFrame(initSlideIndicators));
 
-  // Animate KPI bars - force a paint cycle first so 0% is rendered,
-  // then the width set by renderAll triggers the CSS transition
+  // Init hub
+  initSlideIndicators();
+
+  // Render mini vouchers + barcodes
   setTimeout(() => {
-    document.querySelectorAll('.kpi-mini-bar-fill, .aov-bar-fill').forEach(el => {
-      // Trigger transition by ensuring browser has painted the initial 0% state
-      void el.offsetWidth;
-    });
-  }, 50);
+    scaleMiniVouchers();
+    drawMiniBarcodes();
+    setTimeout(scaleMiniVouchers, 300);
+  }, 150);
+});
+
+// Listen for theme change from main app
+window.addEventListener('message', function(e) {
+  if (e.data && e.data.type === 'sv-theme') {
+    document.documentElement.setAttribute('data-theme', e.data.dark ? 'dark' : 'light');
+  }
 });
 
 
 function closeVoucherHubPanel() {
   document.getElementById("voucherHubPanel").classList.remove("open");
 }
+
+// =============================================
+// MINI VOUCHER BARCODE + SCALING
+// =============================================
+const MiniB128 = (function() {
+  const T = ["11011001100","11001101100","11001100110","10010011000","10010001100","10001001100","10011001000","10011000100","10001100100","11001001000","11001000100","11000100100","10110011100","10011011100","10011001110","10111001100","10011101100","10011100110","11001110010","11001011100","11001001110","11011100100","11001110100","11101101110","11101001100","11100101100","11100100110","11101100100","11100110100","11100110010","11011011000","11011000110","11000110110","10100011000","10001011000","10001000110","10110001000","10001101000","10001100010","11010001000","11000101000","11000100010","10110111000","10110001110","10001101110","10111011000","10111000110","10001110110","11101110110","11010001110","11000101110","11011101000","11011100010","11011101110","11101011000","11101000110","11100010110","11101101000","11101100010","11100011010","11101111010","11001000010","11110001010","10100110000","10100001100","10010110000","10010000110","10000101100","10000100110","10110010000","10110000100","10011010000","10011000010","10000110100","10000110010","11000010010","11001010000","11110111010","11000010100","10001111010","10100111100","10010111100","10010011110","10111100100","10011110100","10011110010","11110100100","11110010100","11110010010","11011011110","11011110110","11110110110","10101111000","10100011110","10001011110","10111101000","10111100010","11110101000","11110100010","10111011110","10111101110","11101011110","11110101110","11010000100","11010010000","11010011100","1100011101011"];
+  function enc(s) {
+    for(let i=0;i<s.length;i++){const c=s.charCodeAt(i);if(c<32||c>126)return null;}
+    let bits=T[104],sum=104;
+    for(let i=0;i<s.length;i++){const v=s.charCodeAt(i)-32;bits+=T[v];sum+=v*(i+1);}
+    bits+=T[sum%103];bits+=T[106];return bits;
+  }
+  return {
+    draw: function(text, id) {
+      const c = document.getElementById(id); if(!c) return;
+      const ctx = c.getContext('2d'); if(!text){ctx.clearRect(0,0,c.width,c.height);return;}
+      const bits = enc(text); if(!bits){ctx.clearRect(0,0,c.width,c.height);return;}
+      const parent = c.parentElement, availW = parent ? parent.clientWidth : 200;
+      const quiet=10, totalModules=bits.length+quiet*2, barH=32, bw=2, aw=totalModules*bw;
+      c.width=aw; c.height=barH; c.style.width=availW+'px'; c.style.height=barH+'px';
+      ctx.fillStyle='#fff'; ctx.fillRect(0,0,aw,barH); ctx.fillStyle='#1a2a3a';
+      for(let i=0;i<bits.length;i++){if(bits[i]==='1')ctx.fillRect((i+quiet)*bw,0,bw,barH);}
+    }
+  };
+})();
+
+function scaleMiniVouchers() {
+  document.querySelectorAll('.mini-voucher-wrap').forEach(wrap => {
+    const scaler = wrap.querySelector('.mini-voucher-scaler');
+    const voucher = wrap.querySelector('.mini-voucher');
+    if (!scaler || !voucher) return;
+    const wrapW = wrap.getBoundingClientRect().width;
+    if (wrapW <= 0) return;
+    const scale = Math.min(1, (wrapW - 4) / 700);
+    voucher.style.transform = 'scale(' + scale.toFixed(5) + ')';
+    voucher.style.transformOrigin = 'top left';
+    scaler.style.height = Math.ceil(260 * scale) + 'px';
+    wrap.style.height = Math.ceil(260 * scale + 4) + 'px';
+  });
+}
+
+function drawMiniBarcodes() {
+  document.querySelectorAll('.mini-voucher[data-code]').forEach(v => {
+    const code = v.dataset.code;
+    if (code) MiniB128.draw(code, 'bar-' + code);
+  });
+}
+
+window.addEventListener('resize', () => { requestAnimationFrame(scaleMiniVouchers); });
 </script>
 </body>
 </html>
