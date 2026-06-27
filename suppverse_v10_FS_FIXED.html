@@ -15164,7 +15164,6 @@ html[data-theme="light"] .fs-modal-title{color:#fff}
 html[data-theme="light"] .vc-float-close{background:rgba(240,244,248,0.95);border-color:rgba(0,0,0,0.14);color:#1a2a3a}
 
 </style>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 </head>
 <body>
 
@@ -16178,6 +16177,7 @@ window.addEventListener('message',function(e){
 // Scroll-hide removed — preview stays permanently visible
 
 </script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 </body>
 </html>
 </textarea>
@@ -20008,11 +20008,8 @@ function openIssueVoucherModal() {
   if (!overlay || !frame || !src) return;
   // Inject current theme directly into HTML — no postMessage race condition
   const dark = document.documentElement.getAttribute('data-theme') === 'dark';
-  // <\/textarea> inside vc-src is not a valid HTML end tag — leaves inner textarea unclosed
-  // in srcdoc, which swallows the main script block. Replace with real closing tag first.
   const vcHtml = src.value
-    .replace('data-theme="dark"','data-theme="'+(dark?'dark':'light')+'"')
-    .replace(/<\\\/textarea>/g, '<\/textarea>');
+    .replace('data-theme="dark"','data-theme="'+(dark?'dark':'light')+'"');
   if (!frame._vcHtml || frame._vcHtml !== dark) {
     frame._vcHtml = dark;
     frame.srcdoc = vcHtml;
