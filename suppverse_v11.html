@@ -20000,11 +20000,14 @@ function openVoucherHub() {
   const menuCb = document.getElementById('menuState');
   if (menuCb) menuCb.checked = false;
   document.getElementById('voucherHubPanel').classList.add('open');
-  // Reset tab highlight to Active tab
-  const firstBtn = document.getElementById('tab0');
-  if (firstBtn) {
-    switchHubTab(0, firstBtn);
-  }
+  // Sync theme with main app
+  const theme = document.documentElement.getAttribute('data-theme') || 'dark';
+  document.getElementById('voucherHubPanel').setAttribute('data-theme', theme);
+  // Init tab indicator and mini vouchers
+  requestAnimationFrame(() => {
+    if (typeof hubInitTabIndicator === 'function') hubInitTabIndicator();
+    if (typeof renderMiniVouchers === 'function') renderMiniVouchers();
+  });
 }
 
 function closeVoucherHub() {
@@ -21631,8 +21634,14 @@ function closeAnalytics() {
 }
 </script>
 
-<style id="hub-styles">
 
+<div id="voucherHubPanel">
+
+<style id="hub-styles">
+/* =============================================
+   VOUCHER HUB — SCOPED STYLES
+   (All styles from standalone VoucherHub_merged.html)
+   ============================================= */
 
 /* =============================================
    RESET & BASE
@@ -22950,7 +22959,7 @@ html[data-theme="dark"] .ch-count {
 .analytics-overlay {
   position: fixed;
   inset: 0;
-  z-index: 9100;
+  z-index: 200;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -22992,7 +23001,7 @@ html[data-theme="dark"] .ch-count {
   position: absolute;
   bottom: 18px;
   right: 16px;
-  z-index: 9050;
+  z-index: 20;
   display: flex;
   align-items: center;
   gap: 8px;
@@ -23254,14 +23263,11 @@ html[data-theme="light"] .mini-voucher .tear-notch { background: #fff; }
 
 </style>
 
-<div id="voucherHubPanel">
-
-
 <div class="app-shell">
 
   <!-- TOP HEADER -->
   <div class="hub-header">
-    <button class="back-btn" onclick="closeVoucherHubPanel()" title="Back to Drawer">
+    <button class="back-btn" onclick="hubGoBack()" title="Back to Drawer">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
         <line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/>
       </svg>
@@ -23270,7 +23276,11 @@ html[data-theme="light"] .mini-voucher .tear-notch { background: #fff; }
       <div class="header-title">🎟️ Vouchers &amp; Promos</div>
       <div class="header-subtitle">Manage all your discount campaigns</div>
     </div>
-
+    <button class="theme-toggle-btn" onclick="hubToggleTheme()" title="Toggle theme">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="hubThemeIcon">
+        <circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+      </svg>
+    </button>
   </div>
 
   <!-- STATS BAR -->
@@ -23293,7 +23303,7 @@ html[data-theme="light"] .mini-voucher .tear-notch { background: #fff; }
   <div class="search-bar">
     <div class="search-wrap">
       <span class="search-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
-      <input class="search-input" type="text" placeholder="Search voucher code or title..." oninput="filterVouchers(this.value)" id="searchInput">
+      <input class="search-input" type="text" placeholder="Search voucher code or title..." oninput="hubFilterVouchers(this.value)" id="hubSearchInput">
     </div>
     <button class="filter-btn">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="6" x2="20" y2="6"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="11" y1="18" x2="13" y2="18"/></svg>
@@ -23302,14 +23312,15 @@ html[data-theme="light"] .mini-voucher .tear-notch { background: #fff; }
   </div>
 
   <!-- TAB BAR -->
-  <div class="tab-bar" style="padding:0 16px;gap:0;">
-    <button class="tab-btn active" onclick="switchHubTab(0,this)" id="tab0" style="border-bottom:2.5px solid transparent;">
+  <div class="tab-bar">
+    <div class="tab-indicator" id="hubTabIndicator"></div>
+    <button class="tab-btn active" onclick="hubSwitchTab(0,this)" id="tab0">
       Active
     </button>
-    <button class="tab-btn" onclick="switchHubTab(1,this)" id="tab1" style="border-bottom:2.5px solid transparent;">
+    <button class="tab-btn" onclick="hubSwitchTab(1,this)" id="tab1">
       Inactive
     </button>
-    <button class="tab-btn" onclick="switchHubTab(2,this)" id="tab2">
+    <button class="tab-btn" onclick="hubSwitchTab(2,this)" id="tab2">
       Archive
     </button>
   </div>
@@ -24215,7 +24226,7 @@ html[data-theme="light"] .mini-voucher .tear-notch { background: #fff; }
   </div><!-- end scroll-body -->
 
   <!-- FAB CREATE BUTTON -->
-  <button class="fab" onclick="openCreateVoucher()">
+  <button class="fab" onclick="hubOpenCreateVoucher()">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
     New Voucher
   </button>
@@ -24273,13 +24284,304 @@ html[data-theme="light"] .mini-voucher .tear-notch { background: #fff; }
 </div>
 
 <!-- TOAST -->
-<div class="toast" id="toast">
-  <div class="toast-dot" id="toastDot"></div>
-  <span id="toastMsg">Copied!</span>
+<div class="toast" id="hubToast">
+  <div class="toast-dot" id="hubToastDot"></div>
+  <span id="hubToastMsg">Copied!</span>
 </div>
 
 
+<script>
+// =============================================
+// STATE
+// =============================================
+let currentTab = 0;
+let pendingCode = '';
+let isDark = true;
 
+// =============================================
+// THEME TOGGLE
+// =============================================
+function hubToggleTheme() { toggleTheme(); /* delegates to main app theme toggle */ }
+
+// =============================================
+// TAB SWITCHING
+// =============================================
+function hubSwitchTab(idx, btn) {
+  currentTab = idx;
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('panel-' + idx).classList.add('active');
+  document.getElementById('searchInput').value = '';
+  hubShowAllCards();
+  hubUpdateEmptyState(idx);
+  hubMoveTabIndicator(btn);
+}
+
+function hubMoveTabIndicator(btn) {
+  const indicator = document.getElementById('tabIndicator');
+  if (!indicator || !btn) return;
+  const bar = indicator.parentElement;
+  const barRect = bar.getBoundingClientRect();
+  const btnRect = btn.getBoundingClientRect();
+  indicator.style.left = (btnRect.left - barRect.left) + 'px';
+  indicator.style.width = btnRect.width + 'px';
+}
+
+function hubInitTabIndicator() {
+  const activeBtn = document.querySelector('.tab-btn.active');
+  if (activeBtn) moveTabIndicator(activeBtn);
+}
+
+// =============================================
+// EMPTY STATE
+// =============================================
+function hubUpdateEmptyState(idx) {
+  const panel = document.getElementById('panel-' + idx);
+  const emptyEl = document.getElementById('empty-' + idx);
+  if (!panel || !emptyEl) return;
+  const visibleCards = Array.from(panel.querySelectorAll('.voucher-card'))
+    .filter(c => c.style.display !== 'none');
+  emptyEl.style.display = visibleCards.length === 0 ? 'flex' : 'none';
+}
+
+// =============================================
+// SEARCH / FILTER
+// =============================================
+function hubFilterVouchers(query) {
+  const q = query.toLowerCase().trim();
+  const panel = document.getElementById('panel-' + currentTab);
+  const cards = panel.querySelectorAll('.voucher-card');
+  cards.forEach(card => {
+    const searchText = card.dataset.search || '';
+    card.style.display = (q === '' || searchText.includes(q)) ? 'block' : 'none';
+  });
+  hubUpdateEmptyState(currentTab);
+}
+
+function hubShowAllCards() {
+  document.querySelectorAll('.voucher-card').forEach(c => c.style.display = 'block');
+}
+
+// =============================================
+// COPY CODE
+// =============================================
+function copyCode(code) {
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(code).then(() => hubShowToast('Code copied: ' + code, 'success'));
+  } else {
+    hubShowToast('Code copied: ' + code, 'success');
+  }
+}
+
+// =============================================
+// MODAL HELPERS
+// =============================================
+function openModal(id) {
+  document.getElementById(id).classList.add('open');
+}
+function closeModal(id) {
+  document.getElementById(id).classList.remove('open');
+}
+
+// Deactivate
+function openDeactivateModal(code) {
+  pendingCode = code;
+  document.getElementById('deactivateCode').textContent = code;
+  openModal('deactivateModal');
+}
+function confirmDeactivate() {
+  closeModal('deactivateModal');
+  hubShowToast(pendingCode + ' paused successfully', 'warning');
+  // TODO: Supabase UPDATE vouchers SET status='inactive' WHERE voucher_code=pendingCode
+}
+
+// Reactivate
+function openReactivateModal(code) {
+  pendingCode = code;
+  document.getElementById('reactivateCode').textContent = code;
+  openModal('reactivateModal');
+}
+function confirmReactivate() {
+  closeModal('reactivateModal');
+  hubShowToast(pendingCode + ' is now live again!', 'success');
+  // TODO: Supabase UPDATE vouchers SET status='active' WHERE voucher_code=pendingCode
+}
+
+// Delete
+function openDeleteModal(code) {
+  pendingCode = code;
+  document.getElementById('deleteCode').textContent = code;
+  openModal('deleteModal');
+}
+function confirmDelete() {
+  closeModal('deleteModal');
+  hubShowToast(pendingCode + ' deleted', 'warning');
+  // TODO: Supabase soft-delete or hard DELETE WHERE voucher_code=pendingCode
+}
+
+// Close modal on overlay click
+document.querySelectorAll('.modal-overlay').forEach(overlay => {
+  overlay.addEventListener('click', function(e) {
+    if (e.target === this) this.classList.remove('open');
+  });
+});
+
+// =============================================
+// STUB HANDLERS
+// =============================================
+function openEditModal(code) {
+  hubShowToast('Edit modal coming in Build #3 →', 'success');
+  // TODO: Open VoucherEditModal.html with code param
+}
+function cloneVoucher(code) {
+  hubShowToast('Clone ready — opens creation form pre-filled', 'success');
+  // TODO: Open voucher creation form with pre-filled values
+}
+function hubOpenCreateVoucher() {
+  hubShowToast('Opens your existing voucher creation form', 'success');
+  openIssueVoucherModal();
+}
+function hubGoBack() {
+  closeVoucherHubPanel();
+}
+
+// =============================================
+// TOAST
+// =============================================
+let toastTimer;
+function hubShowToast(msg, type) {
+  const toast = document.getElementById('hubToast');
+  const dot   = document.getElementById('hubToastDot');
+  const msgEl = document.getElementById('hubToastMsg');
+
+  msgEl.textContent = msg;
+  toast.className = 'toast ' + type;
+  dot.style.background = type === 'success'
+    ? 'var(--success)'
+    : type === 'warning'
+    ? 'var(--warning)'
+    : 'var(--danger)';
+
+  toast.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => toast.classList.remove('show'), 2800);
+}
+
+// =============================================
+// ANIMATE BARS ON LOAD
+// =============================================
+document.addEventListener('DOMContentLoaded', () => {
+  hubInitTabIndicator();
+  // Reset all fills to 0 then animate to their target width
+  document.querySelectorAll('.ch-fill, .usage-bar-fill').forEach(el => {
+    if (el.classList.contains('unlimited')) return;
+    const target = el.style.width;
+    el.style.width = '0%';
+    requestAnimationFrame(() => {
+      setTimeout(() => { el.style.width = target; }, 120);
+    });
+  });
+});
+
+
+// =============================================
+// MINI VOUCHER SCALING & BARCODES
+// =============================================
+const MiniB128 = (function() {
+  const T = [
+    "11011001100","11001101100","11001100110","10010011000","10010001100",
+    "10001001100","10011001000","10011000100","10001100100","11001001000",
+    "11001000100","11000100100","10110011100","10011011100","10011001110",
+    "10111001100","10011101100","10011100110","11001110010","11001011100",
+    "11001001110","11011100100","11001110100","11101101110","11101001100",
+    "11100101100","11100100110","11101100100","11100110100","11100110010",
+    "11011011000","11011000110","11000110110","10100011000","10001011000",
+    "10001000110","10110001000","10001101000","10001100010","11010001000",
+    "11000101000","11000100010","10110111000","10110001110","10001101110",
+    "10111011000","10111000110","10001110110","11101110110","11010001110",
+    "11000101110","11011101000","11011100010","11011101110","11101011000",
+    "11101000110","11100010110","11101101000","11101100010","11100011010",
+    "11101111010","11001000010","11110001010","10100110000","10100001100",
+    "10010110000","10010000110","10000101100","10000100110","10110010000",
+    "10110000100","10011010000","10011000010","10000110100","10000110010",
+    "11000010010","11001010000","11110111010","11000010100","10001111010",
+    "10100111100","10010111100","10010011110","10111100100","10011110100",
+    "10011110010","11110100100","11110010100","11110010010","11011011110",
+    "11011110110","11110110110","10101111000","10100011110","10001011110",
+    "10111101000","10111100010","11110101000","11110100010","10111011110",
+    "10111101110","11101011110","11110101110","11010000100","11010010000",
+    "11010011100","1100011101011"
+  ];
+  function encB(s) {
+    for (let i = 0; i < s.length; i++) { const c = s.charCodeAt(i); if (c < 32 || c > 126) return null; }
+    let bits = T[104], sum = 104;
+    for (let i = 0; i < s.length; i++) { const v = s.charCodeAt(i) - 32; bits += T[v]; sum += v * (i + 1); }
+    bits += T[sum % 103]; bits += T[106]; return bits;
+  }
+  return {
+    draw: function(text, id) {
+      const c = document.getElementById(id); if (!c) return;
+      const ctx = c.getContext('2d'); if (!text) { ctx.clearRect(0,0,c.width,c.height); return; }
+      const bits = encB(text); if (!bits) { ctx.clearRect(0,0,c.width,c.height); return; }
+      const parent = c.parentElement, availW = parent ? parent.clientWidth : 200;
+      const quiet = 10, totalModules = bits.length + quiet * 2, barH = 32, bw = 2, aw = totalModules * bw;
+      c.width = aw; c.height = barH; c.style.width = availW + 'px'; c.style.height = barH + 'px';
+      ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, aw, barH); ctx.fillStyle = '#1a2a3a';
+      for (let i = 0; i < bits.length; i++) { if (bits[i] === '1') ctx.fillRect((i + quiet) * bw, 0, bw, barH); }
+    }
+  };
+})();
+
+function scaleMiniVouchers() {
+  document.querySelectorAll('.mini-voucher-wrap').forEach(wrap => {
+    const scaler = wrap.querySelector('.mini-voucher-scaler');
+    const voucher = wrap.querySelector('.mini-voucher');
+    if (!scaler || !voucher) return;
+    const wrapW = wrap.getBoundingClientRect().width;
+    if (wrapW <= 0) return;
+    const scale = Math.min(1, (wrapW - 4) / 700);
+    voucher.style.transform = 'scale(' + scale.toFixed(5) + ')';
+    voucher.style.transformOrigin = 'top left';
+    scaler.style.height = Math.ceil(260 * scale) + 'px';
+    wrap.style.height = Math.ceil(260 * scale + 4) + 'px';
+  });
+}
+
+function drawMiniBarcodes() {
+  document.querySelectorAll('.mini-voucher').forEach(v => {
+    const code = v.dataset.code; if (code) MiniB128.draw(code, 'bar-' + code);
+  });
+}
+
+function renderMiniVouchers() {
+  // Run scale first, then barcodes after layout settles
+  requestAnimationFrame(() => {
+    scaleMiniVouchers();
+    requestAnimationFrame(() => {
+      drawMiniBarcodes();
+      // One final scale pass after barcodes are drawn
+      requestAnimationFrame(scaleMiniVouchers);
+    });
+  });
+}
+
+// Initial render — wait for full page load + extra settle time
+window.addEventListener('load', () => {
+  setTimeout(renderMiniVouchers, 150);
+  // Second pass for slow devices
+  setTimeout(renderMiniVouchers, 600);
+});
+
+window.addEventListener('resize', () => { requestAnimationFrame(scaleMiniVouchers); hubInitTabIndicator(); });
+
+const origHubSwitchTab = hubSwitchTab;
+hubSwitchTab = function(idx, btn) {
+  origHubSwitchTab(idx, btn);
+  // Re-render vouchers in the newly active tab
+  setTimeout(renderMiniVouchers, 50);
+};
+</script>
 
 <!-- ============================================
      ANALYTICS OVERLAY
@@ -24424,7 +24726,7 @@ html[data-theme="light"] .timeframe-bar .slide-indicator{
 }
 
 /* SCROLL BODY */
-.scroll-body{flex:1;overflow-y:auto;padding:12px 14px 110px;-webkit-overflow-scrolling:touch}
+.scroll-body{flex:1;overflow-y:auto;padding:12px 14px 80px;-webkit-overflow-scrolling:touch}
 .scroll-body::-webkit-scrollbar{width:3px}
 .scroll-body::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px}
 
@@ -24754,7 +25056,7 @@ html[data-theme="light"] .channel-filter-bar .slide-indicator{
 
   <!-- HEADER -->
   <div class="analytics-header">
-    <button class="back-btn" onclick="goBack()">
+    <button class="back-btn" onclick="hubGoBack()">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
     </button>
     <div class="header-info">
@@ -24763,8 +25065,8 @@ html[data-theme="light"] .channel-filter-bar .slide-indicator{
     </div>
     <div class="header-right">
       <div class="header-badge" id="headerBadge"><div class="pulse-dot"></div> Active</div>
-      <button class="theme-toggle-btn" onclick="toggleTheme()" id="themeBtn">
-        <svg id="themeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      <button class="theme-toggle-btn" onclick="hubToggleTheme()" id="themeBtn">
+        <svg id="hubThemeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
       </button>
     </div>
   </div>
@@ -24935,6 +25237,7 @@ html[data-theme="light"] .channel-filter-bar .slide-indicator{
         WhatsApp
       </button>
     </div>
+    <div class="log-card" id="logCard"></div>
     <button class="load-more-btn" onclick="showToast('Full history coming with Supabase')">Load More Redemptions</button>
     <div style="height:14px"></div>
   </div><!-- end scroll-body -->
@@ -24945,47 +25248,9 @@ html[data-theme="light"] .channel-filter-bar .slide-indicator{
   </button>
 </div>
 
-<div class="toast" id="toast"><div class="toast-dot"></div><span id="toastMsg">Done</span></div>
-
-
-
-</div>
-</body></html></textarea>
+<div class="toast" id="hubToast"><div class="toast-dot"></div><span id="hubToastMsg">Done</span></div>
 
 <script>
-// === VOUCHER HUB JS ===
-
-// =============================================
-// TAB SWITCHING
-// =============================================
-function switchHubTab(idx, btn) {
-  const hub = document.getElementById('voucherHubPanel');
-  if (!hub) return;
-  hub.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
-  hub.querySelectorAll('.tab-btn').forEach(b => {
-    b.classList.remove('active');
-    b.style.borderBottom = '2.5px solid transparent';
-    b.style.color = '';
-  });
-  const panel = hub.querySelector('#panel-' + idx);
-  if (panel) panel.classList.add('active');
-  if (btn) {
-    btn.classList.add('active');
-    btn.style.borderBottom = '2.5px solid #7c6ff7';
-    btn.style.color = '#7c6ff7';
-  }
-}
-
-function filterVouchers(query) {
-  const hub = document.getElementById('voucherHubPanel');
-  if (!hub) return;
-  const q = query.trim().toLowerCase();
-  hub.querySelectorAll('.voucher-card').forEach(card => {
-    const searchStr = (card.dataset.search || '') + ' ' + (card.dataset.code || '') + ' ' + (card.dataset.title || '');
-    card.style.display = (!q || searchStr.toLowerCase().includes(q)) ? '' : 'none';
-  });
-}
-
 // =============================================
 // DATA — organised by TYPE then individual voucher
 // =============================================
@@ -25528,13 +25793,26 @@ function renderLog(log, filterCh) {
 // =============================================
 // THEME TOGGLE
 // =============================================
-
+function hubToggleTheme() {
+  const html = document.documentElement;
+  const isDark = html.getAttribute('data-theme') === 'dark';
+  const newTheme = isDark ? 'light' : 'dark';
+  html.setAttribute('data-theme', newTheme);
+  try { localStorage.setItem('svbd-theme', newTheme); } catch(e) {}
+  document.getElementById('themeIcon').innerHTML = isDark
+    ? '<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>'
+    : '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>';
+}
 
 // =============================================
 // NAVIGATION
 // =============================================
-function goBack() {
-  closeVoucherHubPanel();
+function hubGoBack() {
+  try {
+    window.parent.postMessage({ type: 'CLOSE_ANALYTICS' }, '*');
+  } catch(e) {
+    window.history.back();
+  }
 }
 
 // Listen for OPEN_VOUCHER message from Hub
@@ -25576,150 +25854,54 @@ window.addEventListener('message', (e) => {
 // TOAST
 // =============================================
 let tt;
-
+function showToast(msg) {
+  const t = document.getElementById('hubToast');
+  document.getElementById('hubToastMsg').textContent = msg;
+  t.classList.add('show');
+  clearTimeout(tt);
+  tt = setTimeout(() => t.classList.remove('show'), 2500);
+}
 
 // =============================================
-// INIT — DOM already ready, call directly
+// INIT
 // =============================================
 let _resizeTimer;
 window.addEventListener('resize', () => {
   clearTimeout(_resizeTimer);
   _resizeTimer = setTimeout(initSlideIndicators, 80);
 });
-
-// Run immediately (DOM already loaded when this script executes)
-(function hubInit() {
-  // Sync theme from main app's localStorage
+document.addEventListener('DOMContentLoaded', () => {
+  // Restore saved theme
   try {
     const saved = localStorage.getItem('svbd-theme');
-    if (saved) document.documentElement.setAttribute('data-theme', saved);
-  } catch(e) {}
-
-  // Init hub
-  initSlideIndicators();
-
-  // Render mini vouchers + barcodes
-  setTimeout(() => {
-    scaleMiniVouchers();
-    drawMiniBarcodes();
-    setTimeout(scaleMiniVouchers, 300);
-  }, 150);
-})();
-
-// Theme is handled by main app's html[data-theme] attribute — no listener needed here
-
-
-function closeVoucherHubPanel() {
-  document.getElementById("voucherHubPanel").classList.remove("open");
-}
-
-// =============================================
-// MINI VOUCHER BARCODE + SCALING
-// =============================================
-const MiniB128 = (function() {
-  const T = ["11011001100","11001101100","11001100110","10010011000","10010001100","10001001100","10011001000","10011000100","10001100100","11001001000","11001000100","11000100100","10110011100","10011011100","10011001110","10111001100","10011101100","10011100110","11001110010","11001011100","11001001110","11011100100","11001110100","11101101110","11101001100","11100101100","11100100110","11101100100","11100110100","11100110010","11011011000","11011000110","11000110110","10100011000","10001011000","10001000110","10110001000","10001101000","10001100010","11010001000","11000101000","11000100010","10110111000","10110001110","10001101110","10111011000","10111000110","10001110110","11101110110","11010001110","11000101110","11011101000","11011100010","11011101110","11101011000","11101000110","11100010110","11101101000","11101100010","11100011010","11101111010","11001000010","11110001010","10100110000","10100001100","10010110000","10010000110","10000101100","10000100110","10110010000","10110000100","10011010000","10011000010","10000110100","10000110010","11000010010","11001010000","11110111010","11000010100","10001111010","10100111100","10010111100","10010011110","10111100100","10011110100","10011110010","11110100100","11110010100","11110010010","11011011110","11011110110","11110110110","10101111000","10100011110","10001011110","10111101000","10111100010","11110101000","11110100010","10111011110","10111101110","11101011110","11110101110","11010000100","11010010000","11010011100","1100011101011"];
-  function enc(s) {
-    for(let i=0;i<s.length;i++){const c=s.charCodeAt(i);if(c<32||c>126)return null;}
-    let bits=T[104],sum=104;
-    for(let i=0;i<s.length;i++){const v=s.charCodeAt(i)-32;bits+=T[v];sum+=v*(i+1);}
-    bits+=T[sum%103];bits+=T[106];return bits;
-  }
-  return {
-    draw: function(text, id) {
-      const c = document.getElementById(id); if(!c) return;
-      const ctx = c.getContext('2d'); if(!text){ctx.clearRect(0,0,c.width,c.height);return;}
-      const bits = enc(text); if(!bits){ctx.clearRect(0,0,c.width,c.height);return;}
-      const parent = c.parentElement, availW = parent ? parent.clientWidth : 200;
-      const quiet=10, totalModules=bits.length+quiet*2, barH=32, bw=2, aw=totalModules*bw;
-      c.width=aw; c.height=barH; c.style.width=availW+'px'; c.style.height=barH+'px';
-      ctx.fillStyle='#fff'; ctx.fillRect(0,0,aw,barH); ctx.fillStyle='#1a2a3a';
-      for(let i=0;i<bits.length;i++){if(bits[i]==='1')ctx.fillRect((i+quiet)*bw,0,bw,barH);}
+    if (saved) {
+      document.documentElement.setAttribute('data-theme', saved);
+      const isDark = saved === 'dark';
+      document.getElementById('themeIcon').innerHTML = isDark
+        ? '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>'
+        : '<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>';
     }
-  };
-})();
+  } catch(e) {}
+  renderSubSelector('event');
+  renderAll('SUP-EVT-EID24');
+  // Defer until next frame so all layout is settled
+  requestAnimationFrame(() => requestAnimationFrame(initSlideIndicators));
 
-function scaleMiniVouchers() {
-  document.querySelectorAll('.mini-voucher-wrap').forEach(wrap => {
-    const scaler = wrap.querySelector('.mini-voucher-scaler');
-    const voucher = wrap.querySelector('.mini-voucher');
-    if (!scaler || !voucher) return;
-    const wrapW = wrap.getBoundingClientRect().width;
-    if (wrapW <= 0) return;
-    const scale = Math.min(1, (wrapW - 4) / 700);
-    voucher.style.transform = 'scale(' + scale.toFixed(5) + ')';
-    voucher.style.transformOrigin = 'top left';
-    scaler.style.height = Math.ceil(260 * scale) + 'px';
-    wrap.style.height = Math.ceil(260 * scale + 4) + 'px';
-  });
-}
-
-function drawMiniBarcodes() {
-  document.querySelectorAll('.mini-voucher[data-code]').forEach(v => {
-    const code = v.dataset.code;
-    if (code) MiniB128.draw(code, 'bar-' + code);
-  });
-}
-
-window.addEventListener('resize', () => { requestAnimationFrame(scaleMiniVouchers); });
-
-// =============================================
-// CARD ACTION FUNCTIONS
-// =============================================
-
-function copyCode(code) {
-  if (navigator.clipboard && navigator.clipboard.writeText) {
-    navigator.clipboard.writeText(code).then(() => showToast('Code copied: ' + code));
-  } else {
-    const el = document.createElement('textarea');
-    el.value = code; el.style.position = 'fixed'; el.style.opacity = '0';
-    document.body.appendChild(el); el.select();
-    try { document.execCommand('copy'); showToast('Code copied: ' + code); } catch(e) {}
-    document.body.removeChild(el);
-  }
-}
-
-function openEditModal(code) {
-  showToast('Edit coming soon — ' + code, null, false);
-}
-
-function openDeactivateModal(code) {
-  if (!confirm('Deactivate voucher ' + code + '?')) return;
-  const hub = document.getElementById('voucherHubPanel');
-  if (!hub) return;
-  const card = hub.querySelector('[data-code="' + code + '"]');
-  if (card) {
-    card.classList.remove('active-card');
-    card.classList.add('inactive-card');
-    card.querySelector('.status-badge') && (card.querySelector('.status-badge').textContent = 'Inactive');
-  }
-  showToast('Voucher deactivated');
-}
-
-function openReactivateModal(code) {
-  if (!confirm('Reactivate voucher ' + code + '?')) return;
-  const hub = document.getElementById('voucherHubPanel');
-  if (!hub) return;
-  const card = hub.querySelector('[data-code="' + code + '"]');
-  if (card) {
-    card.classList.remove('inactive-card');
-    card.classList.add('active-card');
-  }
-  showToast('Voucher reactivated');
-}
-
-function cloneVoucher(code) {
-  showToast('Clone coming soon — ' + code, null, false);
-}
-
-function openDeleteModal(code) {
-  if (!confirm('Permanently delete voucher ' + code + '? This cannot be undone.')) return;
-  const hub = document.getElementById('voucherHubPanel');
-  if (!hub) return;
-  const card = hub.querySelector('[data-code="' + code + '"]');
-  if (card) card.remove();
-  showToast('Voucher deleted');
-}
-
+  // Animate KPI bars - force a paint cycle first so 0% is rendered,
+  // then the width set by renderAll triggers the CSS transition
+  setTimeout(() => {
+    document.querySelectorAll('.kpi-mini-bar-fill, .aov-bar-fill').forEach(el => {
+      // Trigger transition by ensuring browser has painted the initial 0% state
+      void el.offsetWidth;
+    });
+  }, 50);
+});
 </script>
+</body>
+</html>
+</textarea>
+
+</div><!-- end voucherHubPanel -->
+
 </body>
 </html>
