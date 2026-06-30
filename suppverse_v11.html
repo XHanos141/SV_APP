@@ -24292,11 +24292,15 @@ html[data-theme="light"] .mini-voucher .tear-notch { background: #fff; }
 
 <script>
 // =============================================
-// STATE
+// STATE (hub-scoped — isDark from main app)
+const _hub = () => document.getElementById('voucherHubPanel');
+const _hid = (id) => _hub() ? _hub().querySelector('#' + id) : document.getElementById(id);
+const _hq  = (sel) => _hub() ? _hub().querySelectorAll(sel) : document.querySelectorAll(sel);
+
+
 // =============================================
 let currentTab = 0;
 let pendingCode = '';
-let isDark = true;
 
 // =============================================
 // THEME TOGGLE
@@ -24307,19 +24311,21 @@ function hubToggleTheme() { toggleTheme(); /* delegates to main app theme toggle
 // TAB SWITCHING
 // =============================================
 function hubSwitchTab(idx, btn) {
+  const hub = document.getElementById('voucherHubPanel');
   currentTab = idx;
-  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  hub.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  hub.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
   btn.classList.add('active');
-  document.getElementById('panel-' + idx).classList.add('active');
-  document.getElementById('searchInput').value = '';
+  hub.querySelector('#panel-' + idx).classList.add('active');
+  const si = hub.querySelector('#hubSearchInput');
+  if (si) si.value = '';
   hubShowAllCards();
   hubUpdateEmptyState(idx);
   hubMoveTabIndicator(btn);
 }
 
 function hubMoveTabIndicator(btn) {
-  const indicator = document.getElementById('tabIndicator');
+  const indicator = _hid('hubTabIndicator');
   if (!indicator || !btn) return;
   const bar = indicator.parentElement;
   const barRect = bar.getBoundingClientRect();
@@ -24329,16 +24335,16 @@ function hubMoveTabIndicator(btn) {
 }
 
 function hubInitTabIndicator() {
-  const activeBtn = document.querySelector('.tab-btn.active');
-  if (activeBtn) moveTabIndicator(activeBtn);
+  const activeBtn = _hub() && _hub().querySelector('.tab-btn.active');
+  if (activeBtn) hubMoveTabIndicator(activeBtn);
 }
 
 // =============================================
 // EMPTY STATE
 // =============================================
 function hubUpdateEmptyState(idx) {
-  const panel = document.getElementById('panel-' + idx);
-  const emptyEl = document.getElementById('empty-' + idx);
+  const panel = _hid('panel-' + idx);
+  const emptyEl = _hid('empty-' + idx);
   if (!panel || !emptyEl) return;
   const visibleCards = Array.from(panel.querySelectorAll('.voucher-card'))
     .filter(c => c.style.display !== 'none');
@@ -24350,7 +24356,7 @@ function hubUpdateEmptyState(idx) {
 // =============================================
 function hubFilterVouchers(query) {
   const q = query.toLowerCase().trim();
-  const panel = document.getElementById('panel-' + currentTab);
+  const panel = _hid('panel-' + currentTab);
   const cards = panel.querySelectorAll('.voucher-card');
   cards.forEach(card => {
     const searchText = card.dataset.search || '';
@@ -24360,7 +24366,7 @@ function hubFilterVouchers(query) {
 }
 
 function hubShowAllCards() {
-  document.querySelectorAll('.voucher-card').forEach(c => c.style.display = 'block');
+  _hq('.voucher-card').forEach(c => c.style.display = 'block');
 }
 
 // =============================================
@@ -24378,16 +24384,16 @@ function copyCode(code) {
 // MODAL HELPERS
 // =============================================
 function openModal(id) {
-  document.getElementById(id).classList.add('open');
+  _hid(id).classList.add('open');
 }
 function closeModal(id) {
-  document.getElementById(id).classList.remove('open');
+  _hid(id).classList.remove('open');
 }
 
 // Deactivate
 function openDeactivateModal(code) {
   pendingCode = code;
-  document.getElementById('deactivateCode').textContent = code;
+  _hid('deactivateCode').textContent = code;
   openModal('deactivateModal');
 }
 function confirmDeactivate() {
@@ -24399,7 +24405,7 @@ function confirmDeactivate() {
 // Reactivate
 function openReactivateModal(code) {
   pendingCode = code;
-  document.getElementById('reactivateCode').textContent = code;
+  _hid('reactivateCode').textContent = code;
   openModal('reactivateModal');
 }
 function confirmReactivate() {
@@ -24411,7 +24417,7 @@ function confirmReactivate() {
 // Delete
 function openDeleteModal(code) {
   pendingCode = code;
-  document.getElementById('deleteCode').textContent = code;
+  _hid('deleteCode').textContent = code;
   openModal('deleteModal');
 }
 function confirmDelete() {
@@ -24421,7 +24427,7 @@ function confirmDelete() {
 }
 
 // Close modal on overlay click
-document.querySelectorAll('.modal-overlay').forEach(overlay => {
+_hq('.modal-overlay').forEach(overlay => {
   overlay.addEventListener('click', function(e) {
     if (e.target === this) this.classList.remove('open');
   });
@@ -24451,9 +24457,9 @@ function hubGoBack() {
 // =============================================
 let toastTimer;
 function hubShowToast(msg, type) {
-  const toast = document.getElementById('hubToast');
-  const dot   = document.getElementById('hubToastDot');
-  const msgEl = document.getElementById('hubToastMsg');
+  const toast = _hid('hubToast');
+  const dot   = _hid('hubToastDot');
+  const msgEl = _hid('hubToastMsg');
 
   msgEl.textContent = msg;
   toast.className = 'toast ' + type;
@@ -24474,7 +24480,7 @@ function hubShowToast(msg, type) {
 document.addEventListener('DOMContentLoaded', () => {
   hubInitTabIndicator();
   // Reset all fills to 0 then animate to their target width
-  document.querySelectorAll('.ch-fill, .usage-bar-fill').forEach(el => {
+  _hq('.ch-fill, .usage-bar-fill').forEach(el => {
     if (el.classList.contains('unlimited')) return;
     const target = el.style.width;
     el.style.width = '0%';
@@ -24521,7 +24527,7 @@ const MiniB128 = (function() {
   }
   return {
     draw: function(text, id) {
-      const c = document.getElementById(id); if (!c) return;
+      const c = _hid(id); if (!c) return;
       const ctx = c.getContext('2d'); if (!text) { ctx.clearRect(0,0,c.width,c.height); return; }
       const bits = encB(text); if (!bits) { ctx.clearRect(0,0,c.width,c.height); return; }
       const parent = c.parentElement, availW = parent ? parent.clientWidth : 200;
@@ -24534,7 +24540,7 @@ const MiniB128 = (function() {
 })();
 
 function scaleMiniVouchers() {
-  document.querySelectorAll('.mini-voucher-wrap').forEach(wrap => {
+  _hq('.mini-voucher-wrap').forEach(wrap => {
     const scaler = wrap.querySelector('.mini-voucher-scaler');
     const voucher = wrap.querySelector('.mini-voucher');
     if (!scaler || !voucher) return;
@@ -24549,7 +24555,7 @@ function scaleMiniVouchers() {
 }
 
 function drawMiniBarcodes() {
-  document.querySelectorAll('.mini-voucher').forEach(v => {
+  _hq('.mini-voucher').forEach(v => {
     const code = v.dataset.code; if (code) MiniB128.draw(code, 'bar-' + code);
   });
 }
@@ -25855,8 +25861,8 @@ window.addEventListener('message', (e) => {
 // =============================================
 let tt;
 function showToast(msg) {
-  const t = document.getElementById('hubToast');
-  document.getElementById('hubToastMsg').textContent = msg;
+  const t = _hid('hubToast');
+  _hid('hubToastMsg').textContent = msg;
   t.classList.add('show');
   clearTimeout(tt);
   tt = setTimeout(() => t.classList.remove('show'), 2500);
