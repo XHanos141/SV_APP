@@ -6010,7 +6010,8 @@ html[data-theme="dark"] .batch-units { background: rgba(255,255,255,0.08); color
 
 /* === VOUCHER HUB PANEL === */
 #voucherHubPanel { display:none; position:fixed; inset:0; z-index:8500; overflow:hidden; }
-#voucherHubPanel.open { display:flex; flex-direction:column; }
+#voucherHubPanel.open { display:flex; flex-direction:column; animation:hubSlideUp 0.28s cubic-bezier(0.4,0,0.2,1) forwards; }
+@keyframes hubSlideUp { from { opacity:0; transform:translateY(18px); } to { opacity:1; transform:translateY(0); } }
 #voucherHubPanel .app-shell { position:relative; flex:1; display:flex; flex-direction:column; overflow:hidden; background:#060f1e; }
 </style>
 <base target="_blank">
@@ -11189,7 +11190,7 @@ html[data-theme="light"] .hub-header {
   width: 50%;
   height: 100%;
   background: linear-gradient(90deg, transparent, rgba(255,255,255,0.35), transparent);
-  animation: stripeShimmer 3s ease-in-out infinite;
+  animation: stripeShimmer 4s ease-in-out infinite;
 }
 @keyframes stripeShimmer {
   0% { left: -100%; }
@@ -12167,7 +12168,7 @@ html[data-theme="dark"] .ch-count {
 .analytics-overlay {
   position: fixed;
   inset: 0;
-  z-index: 200;
+  z-index: 9000;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -14111,7 +14112,7 @@ html[data-theme="light"] .channel-filter-bar .slide-indicator{
         By Channel
       </div>
     </div>
-    <div class="channel-card" id="channelCard"></div>
+    <div class="channel-card" id="channelCard" style="display:none"></div>
 
     <div class="section-header">
       <div class="section-title">
@@ -14119,7 +14120,7 @@ html[data-theme="light"] .channel-filter-bar .slide-indicator{
         Top Products Redeemed
       </div>
     </div>
-    <div class="products-card" id="productsCard"></div>
+    <div class="products-card" id="productsCard" style="display:none"></div>
 
     <div class="section-header">
       <div class="section-title">
@@ -14848,16 +14849,16 @@ html[data-theme="dark"] .fs-modal{background:#1a2a3a}
 .step-seg{height:3px;border-radius:2px;flex:1;background:rgba(255,255,255,0.18);transition:background 0.4s cubic-bezier(0.4,0,0.2,1)}
 .step-seg.active{background:#38bdf8}
 .step-seg.done{background:#2f9b68}
-.fs-modal-body{flex:1;overflow-y:auto;padding:0 18px 14px;background:#162130;-webkit-overflow-scrolling:touch}
+.fs-modal-body{flex:1;overflow-y:auto;padding:0 18px 14px;background:#162130;touch-action:pan-y;overscroll-behavior:contain}
 .fs-modal-body::-webkit-scrollbar{width:3px}
 .fs-modal-body::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.15);border-radius:2px}
-.step-panel{display:none;animation:stepFadeIn 0.3s cubic-bezier(0.4,0,0.2,1) both;padding-top:12px}
+.step-panel{display:none;animation:stepFadeIn 0.3s cubic-bezier(0.4,0,0.2,1) both;padding-top:12px;pointer-events:auto}
 .step-panel.active{display:block}
 @keyframes stepFadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
 .step-heading{font-family:'Alexandria',sans-serif;font-size:16px;font-weight:700;color:#fff;margin-bottom:4px;letter-spacing:0.02em}
 .step-subheading{font-family:'Chiron Hei HK',sans-serif;font-size:11px;font-weight:500;color:rgba(255,255,255,0.5);margin-bottom:14px;line-height:1.4}
-.theme-carousel-wrap{margin:0}
-.theme-carousel{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:0;overflow:visible}
+.theme-carousel-wrap{margin:0;user-select:none;-webkit-user-select:none}
+.theme-carousel{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:0;overflow:visible;pointer-events:auto}
 .theme-card *{pointer-events:none}
 
 .theme-card{border:2px solid rgba(255,255,255,0.1);border-radius:14px;overflow:hidden;cursor:pointer;transition:border-color 0.2s ease,box-shadow 0.2s ease,transform 0.15s ease;background:rgba(255,255,255,0.05);min-width:0;touch-action:manipulation;-webkit-tap-highlight-color:rgba(0,0,0,0);user-select:none;-webkit-user-select:none;position:relative}
@@ -15040,7 +15041,7 @@ html[data-theme="light"] .s-seg{background:rgba(0,0,0,0.1)}
 html[data-theme="light"] .s-seg.done{background:#2f9b68}
 html[data-theme="light"] .s-seg.active{background:#0284c7}
 html[data-theme="light"] .s-step-current-label{color:rgba(0,0,0,0.45)}
-.sticky-preview-shell{flex-shrink:0;position:sticky;top:0;z-index:100;margin:0 -18px 0 -18px;transform:translateY(0);opacity:1;transition:transform 0.35s cubic-bezier(0.4,0,0.2,1),opacity 0.3s ease;overflow:visible;background:transparent}.sticky-pad{padding:12px 18px;background:#162130;overflow:visible;border-bottom:1px solid rgba(22,130,181,0.35)}.preview-bar{display:none;background:transparent;border-bottom:1px solid rgba(255,255,255,0.06);padding:0}.preview-bar.visible{display:block}.preview-inner{display:none}
+.sticky-preview-shell{flex-shrink:0;position:sticky;top:0;z-index:100;margin:0 -18px 0 -18px;transform:translateY(0);opacity:1;transition:transform 0.35s cubic-bezier(0.4,0,0.2,1),opacity 0.3s ease;overflow:visible;background:transparent;pointer-events:none}.sticky-preview-shell *{pointer-events:none}.sticky-pad{padding:12px 18px;background:#162130;overflow:visible;border-bottom:1px solid rgba(22,130,181,0.35)}.preview-bar{display:none;background:transparent;border-bottom:1px solid rgba(255,255,255,0.06);padding:0}.preview-bar.visible{display:block}.preview-inner{display:none}
 .preview-inner.visible{display:block;overflow:visible}
 .sticky-preview-label{font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:rgba(255,255,255,0.45);font-family:'Inter',sans-serif;display:flex;align-items:center;justify-content:center;gap:6px;padding:6px 0 6px;line-height:10px;background:#1a2d40;position:relative}
 .sticky-preview-label::after{content:'LIVE';font-size:8px;background:#22c55e;color:#fff;padding:1px 5px;border-radius:4px;letter-spacing:0.04em}
@@ -16122,6 +16123,18 @@ function setMinExpiry() {
 document.addEventListener('DOMContentLoaded', () => {
   setMinExpiry();
   selectTheme('blue', document.querySelector('.theme-card.blue-theme'));
+
+  // Android touch fallback — ensure theme cards fire even if onclick is swallowed
+  document.querySelectorAll('.theme-card').forEach(function(card) {
+    card.addEventListener('touchend', function(e) {
+      e.preventDefault();
+      var theme = card.classList.contains('blue-theme') ? 'blue'
+        : card.classList.contains('gold-theme') ? 'gold'
+        : card.classList.contains('green-theme') ? 'green'
+        : card.classList.contains('vault-theme') ? 'vault' : null;
+      if (theme) selectTheme(theme, card);
+    }, { passive: false });
+  });
   selectDiscType('flat', document.getElementById('pill-flat'));
   selectUsage('single', document.getElementById('pill-single'));
   selectMaxUses('limited', document.getElementById('pill-limited'));
@@ -20026,11 +20039,9 @@ function openIssueVoucherModal() {
   // Inject current theme directly into HTML — no postMessage race condition
   const dark = document.documentElement.getAttribute('data-theme') === 'dark';
   const vcHtml = src.value
+    .replace(/\<\\\/textarea\>/g, '</textarea>')
     .replace('data-theme="dark"','data-theme="'+(dark?'dark':'light')+'"');
-  if (!frame._vcHtml || frame._vcHtml !== dark) {
-    frame._vcHtml = dark;
-    frame.srcdoc = vcHtml;
-  }
+  frame.srcdoc = vcHtml; // always reload for fresh state
   overlay.style.display = 'block';
   // No body overflow lock — causes touch freeze on iOS
 }
@@ -21984,7 +21995,7 @@ html[data-theme="light"] .hub-header {
   width: 50%;
   height: 100%;
   background: linear-gradient(90deg, transparent, rgba(255,255,255,0.35), transparent);
-  animation: stripeShimmer 3s ease-in-out infinite;
+  animation: stripeShimmer 4s ease-in-out infinite;
 }
 @keyframes stripeShimmer {
   0% { left: -100%; }
@@ -22962,7 +22973,7 @@ html[data-theme="dark"] .ch-count {
 .analytics-overlay {
   position: fixed;
   inset: 0;
-  z-index: 200;
+  z-index: 9000;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -23279,11 +23290,7 @@ html[data-theme="light"] .mini-voucher .tear-notch { background: #fff; }
       <div class="header-title">🎟️ Vouchers &amp; Promos</div>
       <div class="header-subtitle">Manage all your discount campaigns</div>
     </div>
-    <button class="theme-toggle-btn" onclick="hubToggleTheme()" title="Toggle theme">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="hubThemeIcon">
-        <circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
-      </svg>
-    </button>
+
   </div>
 
   <!-- STATS BAR -->
@@ -25074,9 +25081,7 @@ html[data-theme="light"] .channel-filter-bar .slide-indicator{
     </div>
     <div class="header-right">
       <div class="header-badge" id="headerBadge"><div class="pulse-dot"></div> Active</div>
-      <button class="theme-toggle-btn" onclick="hubToggleTheme()" id="themeBtn">
-        <svg id="hubThemeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
-      </button>
+
     </div>
   </div>
 
@@ -25207,7 +25212,7 @@ html[data-theme="light"] .channel-filter-bar .slide-indicator{
         By Channel
       </div>
     </div>
-    <div class="channel-card" id="channelCard"></div>
+    <div class="channel-card" id="channelCard" style="display:none"></div>
 
     <div class="section-header">
       <div class="section-title">
@@ -25215,7 +25220,7 @@ html[data-theme="light"] .channel-filter-bar .slide-indicator{
         Top Products Redeemed
       </div>
     </div>
-    <div class="products-card" id="productsCard"></div>
+    <div class="products-card" id="productsCard" style="display:none"></div>
 
     <div class="section-header">
       <div class="section-title">
