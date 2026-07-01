@@ -20014,6 +20014,9 @@ function closeVoucherHub() {
   const panel = document.getElementById('hubSubPanel');
   if (panel) panel.classList.remove('open');
 }
+function closeVoucherHubPanel() {
+  document.getElementById('voucherHubPanel').classList.remove('open');
+}
 function openIssueVoucherModal() {
   closeActionSheet();
   const overlay = document.getElementById('voucherOverlay');
