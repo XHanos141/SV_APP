@@ -17111,13 +17111,10 @@ window.addEventListener('message',function(e){
 let isDark = false;
 
 function initTheme() {
-  const saved = localStorage.getItem("svbd-theme");
-  if (saved === "dark") {
-    isDark = true;
-    document.documentElement.setAttribute("data-theme", "dark");
-  } else {
-    document.documentElement.setAttribute("data-theme", "light");
-  }
+  let saved = null;
+  try { saved = localStorage.getItem("svbd-theme"); } catch(e) {}
+  isDark = saved !== "light";
+  document.documentElement.setAttribute("data-theme", isDark ? "dark" : "light");
 }
 
 function toggleTheme() {
@@ -21570,7 +21567,7 @@ function setSalesFilter(f) {
 }
 
 
-(function() {
+function _loadOverviewFrame() {
   try {
     var src = document.getElementById('sv-ov-src');
     var frame = document.getElementById('overviewFrame');
@@ -21583,7 +21580,12 @@ function setSalesFilter(f) {
       });
     }
   } catch(e) { console.error('Overview load error:', e); }
-})();
+}
+if ('requestIdleCallback' in window) {
+  requestIdleCallback(_loadOverviewFrame, { timeout: 800 });
+} else {
+  setTimeout(_loadOverviewFrame, 50);
+}
 
 renderDrawerVouchers();
 
@@ -21694,7 +21696,7 @@ html[data-theme="light"] body {
   /* channels */
   --fb:   #1877F2;
   --ig:   #E1306C;
-  --web:  #2f9b68;
+  --web:  #7c6ff7;
   --wp:   #25D366;
 
   --surface:      #162130;
@@ -21974,7 +21976,6 @@ html[data-theme="light"] .hub-header {
   border-color: rgba(124,111,247,0.55);
   box-shadow: 0 0 0 3px rgba(124,111,247,0.08);
 }
-.voucher-card:hover { border-color: rgba(124,111,247,0.3); }
 .voucher-card.active-card { border-left: 3px solid var(--success); }
 .voucher-card.inactive-card { border-left: 3px solid var(--text-dim); }
 .voucher-card.warning-card { border-left: 3px solid rgba(167,139,250,0.8); }
@@ -22218,17 +22219,17 @@ html[data-theme="dark"] .stat-item-val.offer-value {
 .stat-item.type-event {
   background: rgba(244,197,90,0.08);
   border-color: rgba(244,197,90,0.25);
-  text-indent: 34px;
+  text-indent: 32px;
   position: relative;
 }
 .stat-item.type-event::before {
   content: '';
   position: absolute;
-  left: 0px;
+  left: 8px;
   top: 50%;
   transform: translateY(-50%);
-  width: 30px;
-  height: 30px;
+  width: 18px;
+  height: 18px;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none'%3E%3Cpath d='M12 1.5l3 7 7.5 1.5-5.5 5 1.5 7.5-6.5-4-6.5 4 1.5-7.5-5.5-5L9 8.5z' fill='%23f4c55a' stroke='%23f4c55a' stroke-width='1.5' stroke-linejoin='round'/%3E%3C/svg%3E");
   background-size: contain;
   background-repeat: no-repeat;
@@ -22245,17 +22246,17 @@ html[data-theme="dark"] .stat-item-val.offer-value {
 .stat-item.type-newcustomer {
   background: rgba(192,132,252,0.08);
   border-color: rgba(192,132,252,0.25);
-  text-indent: 34px;
+  text-indent: 32px;
   position: relative;
 }
 .stat-item.type-newcustomer::before {
   content: '';
   position: absolute;
-  left: 0px;
+  left: 8px;
   top: 50%;
   transform: translateY(-50%);
-  width: 30px;
-  height: 30px;
+  width: 18px;
+  height: 18px;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none'%3E%3Ccircle cx='10' cy='8' r='4' fill='%23c084fc' stroke='%23c084fc' stroke-width='1'/%3E%3Cpath d='M2 20c0-3.31 3.58-6 8-6' stroke='%23c084fc' stroke-width='1.5' stroke-linecap='round'/%3E%3Ccircle cx='19' cy='16' r='3' fill='none' stroke='%23c084fc' stroke-width='1.5'/%3E%3Cpath d='M19 14.5v3M17.5 16h3' stroke='%23c084fc' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");
   background-size: contain;
   background-repeat: no-repeat;
@@ -22272,17 +22273,17 @@ html[data-theme="dark"] .stat-item-val.offer-value {
 .stat-item.type-regular {
   background: rgba(56,189,248,0.08);
   border-color: rgba(56,189,248,0.25);
-  text-indent: 34px;
+  text-indent: 32px;
   position: relative;
 }
 .stat-item.type-regular::before {
   content: '';
   position: absolute;
-  left: 0px;
+  left: 8px;
   top: 50%;
   transform: translateY(-50%);
-  width: 30px;
-  height: 30px;
+  width: 18px;
+  height: 18px;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none'%3E%3Cpath d='M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2z' fill='%2338bdf8' stroke='%2338bdf8' stroke-width='1.5' stroke-linejoin='round'/%3E%3Cpath d='M13 5v14' stroke='%2338bdf8' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");
   background-size: contain;
   background-repeat: no-repeat;
@@ -22299,17 +22300,17 @@ html[data-theme="dark"] .stat-item-val.offer-value {
 .stat-item.type-product {
   background: rgba(34,197,94,0.08);
   border-color: rgba(34,197,94,0.25);
-  text-indent: 34px;
+  text-indent: 32px;
   position: relative;
 }
 .stat-item.type-product::before {
   content: '';
   position: absolute;
-  left: 0px;
+  left: 8px;
   top: 50%;
   transform: translateY(-50%);
-  width: 30px;
-  height: 30px;
+  width: 18px;
+  height: 18px;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none'%3E%3Cpath d='M21 16.5V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8.5a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4a2 2 0 0 0 1-1.73z' fill='%234ade80' stroke='%234ade80' stroke-width='1.5' stroke-linejoin='round'/%3E%3Cpath d='M3.27 7.27L12 12l8.73-4.73M12 22V12' stroke='%234ade80' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
   background-size: contain;
   background-repeat: no-repeat;
@@ -22395,7 +22396,7 @@ html[data-theme="dark"] .stat-item.days-unlimited .stat-item-lbl {
 html[data-theme="light"] .stat-item.type-event {
   background: rgba(244,197,90,0.18);
   border-color: rgba(244,197,90,0.45);
-  text-indent: 34px;
+  text-indent: 32px;
   position: relative;
 }
 html[data-theme="light"] .stat-item.type-event .stat-item-val {
@@ -22409,7 +22410,7 @@ html[data-theme="light"] .stat-item.type-event .stat-item-lbl {
 html[data-theme="light"] .stat-item.type-newcustomer {
   background: rgba(192,132,252,0.18);
   border-color: rgba(192,132,252,0.45);
-  text-indent: 34px;
+  text-indent: 32px;
   position: relative;
 }
 html[data-theme="light"] .stat-item.type-newcustomer .stat-item-val {
@@ -22423,7 +22424,7 @@ html[data-theme="light"] .stat-item.type-newcustomer .stat-item-lbl {
 html[data-theme="light"] .stat-item.type-regular {
   background: rgba(56,189,248,0.18);
   border-color: rgba(56,189,248,0.45);
-  text-indent: 34px;
+  text-indent: 32px;
   position: relative;
 }
 html[data-theme="light"] .stat-item.type-regular .stat-item-val {
@@ -22437,7 +22438,7 @@ html[data-theme="light"] .stat-item.type-regular .stat-item-lbl {
 html[data-theme="light"] .stat-item.type-product {
   background: rgba(34,197,94,0.18);
   border-color: rgba(34,197,94,0.45);
-  text-indent: 34px;
+  text-indent: 32px;
   position: relative;
 }
 html[data-theme="light"] .stat-item.type-product .stat-item-val {
@@ -22451,17 +22452,17 @@ html[data-theme="light"] .stat-item.type-product .stat-item-lbl {
 html[data-theme="dark"] .stat-item.type-event {
   background: rgba(244,197,90,0.08);
   border-color: rgba(244,197,90,0.25);
-  text-indent: 34px;
+  text-indent: 32px;
   position: relative;
 }
 .stat-item.type-event::before {
   content: '';
   position: absolute;
-  left: 0px;
+  left: 8px;
   top: 50%;
   transform: translateY(-50%);
-  width: 30px;
-  height: 30px;
+  width: 18px;
+  height: 18px;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none'%3E%3Cpath d='M12 1.5l3 7 7.5 1.5-5.5 5 1.5 7.5-6.5-4-6.5 4 1.5-7.5-5.5-5L9 8.5z' fill='%23f4c55a' stroke='%23f4c55a' stroke-width='1.5' stroke-linejoin='round'/%3E%3C/svg%3E");
   background-size: contain;
   background-repeat: no-repeat;
@@ -22477,17 +22478,17 @@ html[data-theme="dark"] .stat-item.type-event .stat-item-lbl {
 html[data-theme="dark"] .stat-item.type-newcustomer {
   background: rgba(192,132,252,0.08);
   border-color: rgba(192,132,252,0.25);
-  text-indent: 34px;
+  text-indent: 32px;
   position: relative;
 }
 .stat-item.type-newcustomer::before {
   content: '';
   position: absolute;
-  left: 0px;
+  left: 8px;
   top: 50%;
   transform: translateY(-50%);
-  width: 30px;
-  height: 30px;
+  width: 18px;
+  height: 18px;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none'%3E%3Ccircle cx='10' cy='8' r='4' fill='%23c084fc' stroke='%23c084fc' stroke-width='1'/%3E%3Cpath d='M2 20c0-3.31 3.58-6 8-6' stroke='%23c084fc' stroke-width='1.5' stroke-linecap='round'/%3E%3Ccircle cx='19' cy='16' r='3' fill='none' stroke='%23c084fc' stroke-width='1.5'/%3E%3Cpath d='M19 14.5v3M17.5 16h3' stroke='%23c084fc' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");
   background-size: contain;
   background-repeat: no-repeat;
@@ -22503,17 +22504,17 @@ html[data-theme="dark"] .stat-item.type-newcustomer .stat-item-lbl {
 html[data-theme="dark"] .stat-item.type-regular {
   background: rgba(56,189,248,0.08);
   border-color: rgba(56,189,248,0.25);
-  text-indent: 34px;
+  text-indent: 32px;
   position: relative;
 }
 .stat-item.type-regular::before {
   content: '';
   position: absolute;
-  left: 0px;
+  left: 8px;
   top: 50%;
   transform: translateY(-50%);
-  width: 30px;
-  height: 30px;
+  width: 18px;
+  height: 18px;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none'%3E%3Cpath d='M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2z' fill='%2338bdf8' stroke='%2338bdf8' stroke-width='1.5' stroke-linejoin='round'/%3E%3Cpath d='M13 5v14' stroke='%2338bdf8' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");
   background-size: contain;
   background-repeat: no-repeat;
@@ -22529,17 +22530,17 @@ html[data-theme="dark"] .stat-item.type-regular .stat-item-lbl {
 html[data-theme="dark"] .stat-item.type-product {
   background: rgba(34,197,94,0.08);
   border-color: rgba(34,197,94,0.25);
-  text-indent: 34px;
+  text-indent: 32px;
   position: relative;
 }
 .stat-item.type-product::before {
   content: '';
   position: absolute;
-  left: 0px;
+  left: 8px;
   top: 50%;
   transform: translateY(-50%);
-  width: 30px;
-  height: 30px;
+  width: 18px;
+  height: 18px;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none'%3E%3Cpath d='M21 16.5V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8.5a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4a2 2 0 0 0 1-1.73z' fill='%234ade80' stroke='%234ade80' stroke-width='1.5' stroke-linejoin='round'/%3E%3Cpath d='M3.27 7.27L12 12l8.73-4.73M12 22V12' stroke='%234ade80' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
   background-size: contain;
   background-repeat: no-repeat;
@@ -23251,7 +23252,7 @@ html[data-theme="light"] .mini-voucher {
 .mini-voucher .desc { font-family: 'Chiron Hei HK', sans-serif; font-size: 15px; font-weight: 600; margin: 11px 0 0 0; padding: 0; max-width: 60%; line-height: 1.4; color: rgba(255,255,255,0.68); word-spacing: 0.12em; }
 .mini-voucher .bottom-row { display: flex; align-items: center; justify-content: space-between; margin-top: auto; padding-top: 7px; position: relative; z-index: 3; }
 .mini-voucher .discount-pill { display: inline-flex; align-items: center; gap: 5px; padding: 8px 22px; border-radius: 100px; font-family: 'Inter', sans-serif; font-size: 16px; font-weight: 800; background: rgba(255,255,255,0.88); color: #1a2a3a; }
-.mini-voucher .meta-row { display: flex; flex-direction: column; align-items: flex-end; gap: 1px; }
+.mini-voucher .meta-row { display: flex; flex-direction: column; align-items: flex-end; gap: 1px; margin-left: auto; }
 .mini-voucher .meta-text { font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 500; color: rgba(255,255,255,0.45); display: flex; align-items: center; gap: 5px; }
 .mini-voucher .meta-text svg { width: 14px; height: 14px; flex-shrink: 0; }
 .mini-voucher .sell-icon-wrap { position: absolute; right: 26px; top: 50%; transform: translateY(-50%); width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; z-index: 3; }
@@ -23272,7 +23273,7 @@ html[data-theme="light"] .mini-voucher {
 .mini-voucher .validity-box { text-align: center; width: 100%; padding: 3px 4px; background: rgba(26,42,58,0.045); border-radius: 9px; border: 1px solid rgba(26,42,58,0.1); transform: translateX(-2px); display: flex; flex-direction: column; align-items: center; justify-content: center; }
 .mini-voucher .validity-label { font-family: 'Inter', sans-serif; font-size: 10px; font-weight: 400; letter-spacing: 0.02em; text-transform: uppercase; color: #7a8fa3; line-height: 1; }
 .mini-voucher .validity-date { font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 500; letter-spacing: 0.01em; color: #a85e5e; margin-top: 1px; line-height: 1; }
-html[data-theme="light"] .mini-voucher .tear-notch { background: #fff; }
+html[data-theme="light"] .mini-voucher .tear-notch { background: var(--surface-2); }
 
 
 </style>
@@ -23346,7 +23347,7 @@ html[data-theme="light"] .mini-voucher .tear-notch { background: #fff; }
         <!-- MINI VOUCHER PREVIEW -->
                         <div class="card-top">
           <div class="card-icon-wrap event">
-            <svg viewBox="0 0 24 24" fill="none"><path d="M12 1.5l3 7 7.5 1.5-5.5 5 1.5 7.5-6.5-4-6.5 4 1.5-7.5-5.5-5L9 8.5z" fill="#f4c55a" stroke="#d4a017" stroke-width="2.5" stroke-linejoin="round"/></svg>
+            <svg viewBox="0 0 24 24" width="17" height="17" fill="none"><defs><linearGradient id="star3d-1" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#f4c55a"/><stop offset="100%" stop-color="#a16207"/></linearGradient></defs><path d="M12 1.5l3 7 7.5 1.5-5.5 5 1.5 7.5-6.5-4-6.5 4 1.5-7.5-5.5-5L9 8.5z" fill="url(#star3d-1)" stroke="#d4a017" stroke-width="2.5" stroke-linejoin="round"/><circle cx="12" cy="11" r="2.5" fill="#fff" stroke="#d4a017" stroke-width="1.5"/></svg>
             </div>
           <div class="card-info">
             <div class="card-code">
@@ -23362,20 +23363,20 @@ html[data-theme="light"] .mini-voucher .tear-notch { background: #fff; }
         <div class="mini-voucher-wrap" id="mini-wrap-SUP-EVT-EID24">
           <div class="mini-voucher-scaler">
             <div class="mini-voucher" id="mini-SUP-EVT-EID24" data-code="SUP-EVT-EID24">
-              <div class="left-panel" style="background: linear-gradient(135deg, #234060 0%, #1a2d4a 100%)">
+              <div class="left-panel" style="background: linear-gradient(135deg,#2a1f0a 0%,#1a1305 100%)">
                 <div class="wave-svg wave-1">
                   <svg viewBox="0 0 537 365" preserveAspectRatio="none">
-                    <path d="M 537 235 C 350 322, 201 156, 0 294 L 0 0 L 537 0 Z" fill="#7c5c10" opacity="0.35"/>
+                    <path d="M 537 235 C 350 322, 201 156, 0 294 L 0 0 L 537 0 Z" fill="#92700a" opacity="0.35"/>
                   </svg>
                 </div>
                 <div class="wave-svg wave-2">
                   <svg viewBox="0 0 513 313" preserveAspectRatio="none">
-                    <path d="M 513 164 C 350 251, 201 107, 0 207 L 0 0 L 513 0 Z" fill="#b8892e" opacity="0.35"/>
+                    <path d="M 513 164 C 350 251, 201 107, 0 207 L 0 0 L 513 0 Z" fill="#c9922a" opacity="0.35"/>
                   </svg>
                 </div>
                 <div class="wave-svg wave-3">
                   <svg viewBox="0 0 490 260" preserveAspectRatio="none">
-                    <path d="M 490 97 C 350 184, 201 40, 0 140 L 0 0 L 490 0 Z" fill="#f0c55a" opacity="0.50"/>
+                    <path d="M 490 97 C 350 184, 201 40, 0 140 L 0 0 L 490 0 Z" fill="#e8c46a" opacity="0.50"/>
                   </svg>
                 </div>
                 <div class="logo-row">
@@ -23396,6 +23397,7 @@ html[data-theme="light"] .mini-voucher .tear-notch { background: #fff; }
                   <div class="desc">Enjoy 20% off your entire order. Valid on all items during Eid celebration.</div>
                 </div>
                 <div class="bottom-row">
+                  <div class="discount-pill">20% OFF</div>
                   <div class="meta-row">
                     <div class="meta-text"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="rgba(255,255,255,0.45)" stroke-width="1.5"/><ellipse cx="12" cy="12" rx="4" ry="9" stroke="rgba(255,255,255,0.45)" stroke-width="1.5"/><line x1="3" y1="12" x2="21" y2="12" stroke="rgba(255,255,255,0.45)" stroke-width="1.5"/></svg> suppversebd.com</div>
                     <div class="meta-text"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.58.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1C7.61 21 3 16.39 3 10.74c0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.23 1.01z" stroke="rgba(255,255,255,0.45)" stroke-width="1.5" stroke-linejoin="round"/></svg> +880 1644232935</div>
@@ -23531,7 +23533,7 @@ html[data-theme="light"] .mini-voucher .tear-notch { background: #fff; }
         <!-- MINI VOUCHER PREVIEW -->
                         <div class="card-top">
           <div class="card-icon-wrap newcustomer">
-            <svg viewBox="0 0 24 24" fill="none"><circle cx="10" cy="8" r="4" fill="#c084fc" stroke="#9333ea" stroke-width="1.5"/><path d="M2 20c0-3.31 3.58-6 8-6" stroke="#c084fc" stroke-width="2" stroke-linecap="round"/><circle cx="19" cy="16" r="3" fill="none" stroke="#c084fc" stroke-width="2"/><path d="M19 14.5v3M17.5 16h3" stroke="#c084fc" stroke-width="1.8" stroke-linecap="round"/></svg>
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none"><defs><linearGradient id="newCustGrad-1" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#c084fc"/><stop offset="100%" stop-color="#7c3aed"/></linearGradient></defs><circle cx="10" cy="8" r="4" fill="url(#newCustGrad-1)" stroke="#9333ea" stroke-width="1.5"/><path d="M2 20c0-3.31 3.58-6 8-6" stroke="url(#newCustGrad-1)" stroke-width="2" stroke-linecap="round"/><circle cx="19" cy="16" r="3" fill="none" stroke="#c084fc" stroke-width="2"/><path d="M19 14.5v3M17.5 16h3" stroke="#c084fc" stroke-width="1.8" stroke-linecap="round"/></svg>
             </div>
           <div class="card-info">
             <div class="card-code">
@@ -23582,6 +23584,7 @@ html[data-theme="light"] .mini-voucher .tear-notch { background: #fff; }
                   <div class="desc">New customer exclusive. Flat ৳500 off on your first order with us.</div>
                 </div>
                 <div class="bottom-row">
+                  <div class="discount-pill">৳500 OFF</div>
                   <div class="meta-row">
                     <div class="meta-text"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="rgba(255,255,255,0.45)" stroke-width="1.5"/><ellipse cx="12" cy="12" rx="4" ry="9" stroke="rgba(255,255,255,0.45)" stroke-width="1.5"/><line x1="3" y1="12" x2="21" y2="12" stroke="rgba(255,255,255,0.45)" stroke-width="1.5"/></svg> suppversebd.com</div>
                     <div class="meta-text"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.58.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1C7.61 21 3 16.39 3 10.74c0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.23 1.01z" stroke="rgba(255,255,255,0.45)" stroke-width="1.5" stroke-linejoin="round"/></svg> +880 1644232935</div>
@@ -23730,7 +23733,7 @@ html[data-theme="light"] .mini-voucher .tear-notch { background: #fff; }
         <!-- MINI VOUCHER PREVIEW -->
                         <div class="card-top">
           <div class="card-icon-wrap regular">
-            <svg viewBox="0 0 24 24" fill="none"><path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2z" fill="rgba(56,189,248,0.2)" stroke="#38bdf8" stroke-width="2" stroke-linejoin="round"/><path d="M13 5v14" stroke="#38bdf8" stroke-width="2" stroke-linecap="round"/></svg>
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none"><defs><linearGradient id="ticketGrad-1" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#38bdf8"/><stop offset="100%" stop-color="#0284c7"/></linearGradient></defs><path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2z" fill="url(#ticketGrad-1)" stroke="#0ea5e9" stroke-width="2" stroke-linejoin="round" opacity="0.9"/><path d="M13 5v14" stroke="#fff" stroke-width="2" stroke-linecap="round" opacity="0.6"/><path d="M7 9h3" stroke="#fff" stroke-width="2" stroke-linecap="round" opacity="0.7"/><path d="M7 12h3" stroke="#fff" stroke-width="2" stroke-linecap="round" opacity="0.7"/></svg>
             </div>
           <div class="card-info">
             <div class="card-code">
@@ -23746,20 +23749,20 @@ html[data-theme="light"] .mini-voucher .tear-notch { background: #fff; }
         <div class="mini-voucher-wrap" id="mini-wrap-SUP-REG-FLASH1">
           <div class="mini-voucher-scaler">
             <div class="mini-voucher" id="mini-SUP-REG-FLASH1" data-code="SUP-REG-FLASH1">
-              <div class="left-panel" style="background: linear-gradient(135deg, #0c4a6e 0%, #0a2e47 100%)">
+              <div class="left-panel" style="background: linear-gradient(135deg,#14532d 0%,#0d3320 100%)">
                 <div class="wave-svg wave-1">
                   <svg viewBox="0 0 537 365" preserveAspectRatio="none">
-                    <path d="M 537 235 C 350 322, 201 156, 0 294 L 0 0 L 537 0 Z" fill="#0e6ba8" opacity="0.35"/>
+                    <path d="M 537 235 C 350 322, 201 156, 0 294 L 0 0 L 537 0 Z" fill="#166534" opacity="0.35"/>
                   </svg>
                 </div>
                 <div class="wave-svg wave-2">
                   <svg viewBox="0 0 513 313" preserveAspectRatio="none">
-                    <path d="M 513 164 C 350 251, 201 107, 0 207 L 0 0 L 513 0 Z" fill="#38bdf8" opacity="0.35"/>
+                    <path d="M 513 164 C 350 251, 201 107, 0 207 L 0 0 L 513 0 Z" fill="#22c55e" opacity="0.35"/>
                   </svg>
                 </div>
                 <div class="wave-svg wave-3">
                   <svg viewBox="0 0 490 260" preserveAspectRatio="none">
-                    <path d="M 490 97 C 350 184, 201 40, 0 140 L 0 0 L 490 0 Z" fill="#7dd3fc" opacity="0.50"/>
+                    <path d="M 490 97 C 350 184, 201 40, 0 140 L 0 0 L 490 0 Z" fill="#86efac" opacity="0.50"/>
                   </svg>
                 </div>
                 <div class="logo-row">
@@ -23780,6 +23783,7 @@ html[data-theme="light"] .mini-voucher .tear-notch { background: #fff; }
                   <div class="desc">Limited time 15% off on all products this weekend only.</div>
                 </div>
                 <div class="bottom-row">
+                  <div class="discount-pill">15% OFF</div>
                   <div class="meta-row">
                     <div class="meta-text"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="rgba(255,255,255,0.45)" stroke-width="1.5"/><ellipse cx="12" cy="12" rx="4" ry="9" stroke="rgba(255,255,255,0.45)" stroke-width="1.5"/><line x1="3" y1="12" x2="21" y2="12" stroke="rgba(255,255,255,0.45)" stroke-width="1.5"/></svg> suppversebd.com</div>
                     <div class="meta-text"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.58.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1C7.61 21 3 16.39 3 10.74c0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.23 1.01z" stroke="rgba(255,255,255,0.45)" stroke-width="1.5" stroke-linejoin="round"/></svg> +880 1644232935</div>
@@ -23816,7 +23820,7 @@ html[data-theme="light"] .mini-voucher .tear-notch { background: #fff; }
             </div>
           </div>
         </div>
-<div class="card-stripe stripe-blue"></div>
+<div class="card-stripe stripe-green"></div>
 
         
 
@@ -23935,7 +23939,7 @@ html[data-theme="light"] .mini-voucher .tear-notch { background: #fff; }
         <!-- MINI VOUCHER PREVIEW -->
                         <div class="card-top">
           <div class="card-icon-wrap event" style="opacity:0.6">
-            <svg viewBox="0 0 24 24" fill="none"><path d="M12 1.5l3 7 7.5 1.5-5.5 5 1.5 7.5-6.5-4-6.5 4 1.5-7.5-5.5-5L9 8.5z" fill="#f4c55a" stroke="#d4a017" stroke-width="2.5" stroke-linejoin="round"/></svg>
+            <svg viewBox="0 0 24 24" width="17" height="17" fill="none"><defs><linearGradient id="star3d-2" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#f4c55a"/><stop offset="100%" stop-color="#a16207"/></linearGradient></defs><path d="M12 1.5l3 7 7.5 1.5-5.5 5 1.5 7.5-6.5-4-6.5 4 1.5-7.5-5.5-5L9 8.5z" fill="url(#star3d-2)" stroke="#d4a017" stroke-width="2.5" stroke-linejoin="round"/><circle cx="12" cy="11" r="2.5" fill="#fff" stroke="#d4a017" stroke-width="1.5"/></svg>
             </div>
           <div class="card-info">
             <div class="card-code" style="opacity:0.7">SUP-EVT-EID23</div>
@@ -23946,20 +23950,20 @@ html[data-theme="light"] .mini-voucher .tear-notch { background: #fff; }
         <div class="mini-voucher-wrap" id="mini-wrap-SUP-EVT-EID23">
           <div class="mini-voucher-scaler">
             <div class="mini-voucher" id="mini-SUP-EVT-EID23" data-code="SUP-EVT-EID23">
-              <div class="left-panel" style="background: linear-gradient(135deg, #234060 0%, #1a2d4a 100%)">
+              <div class="left-panel" style="background: linear-gradient(135deg,#2a1f0a 0%,#1a1305 100%)">
                 <div class="wave-svg wave-1">
                   <svg viewBox="0 0 537 365" preserveAspectRatio="none">
-                    <path d="M 537 235 C 350 322, 201 156, 0 294 L 0 0 L 537 0 Z" fill="#7c5c10" opacity="0.35"/>
+                    <path d="M 537 235 C 350 322, 201 156, 0 294 L 0 0 L 537 0 Z" fill="#92700a" opacity="0.35"/>
                   </svg>
                 </div>
                 <div class="wave-svg wave-2">
                   <svg viewBox="0 0 513 313" preserveAspectRatio="none">
-                    <path d="M 513 164 C 350 251, 201 107, 0 207 L 0 0 L 513 0 Z" fill="#b8892e" opacity="0.35"/>
+                    <path d="M 513 164 C 350 251, 201 107, 0 207 L 0 0 L 513 0 Z" fill="#c9922a" opacity="0.35"/>
                   </svg>
                 </div>
                 <div class="wave-svg wave-3">
                   <svg viewBox="0 0 490 260" preserveAspectRatio="none">
-                    <path d="M 490 97 C 350 184, 201 40, 0 140 L 0 0 L 490 0 Z" fill="#f0c55a" opacity="0.50"/>
+                    <path d="M 490 97 C 350 184, 201 40, 0 140 L 0 0 L 490 0 Z" fill="#e8c46a" opacity="0.50"/>
                   </svg>
                 </div>
                 <div class="logo-row">
@@ -23980,6 +23984,7 @@ html[data-theme="light"] .mini-voucher .tear-notch { background: #fff; }
                   <div class="desc">Eid 2023 special offer. 25% off on all products.</div>
                 </div>
                 <div class="bottom-row">
+                  <div class="discount-pill">25% OFF</div>
                   <div class="meta-row">
                     <div class="meta-text"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="rgba(255,255,255,0.45)" stroke-width="1.5"/><ellipse cx="12" cy="12" rx="4" ry="9" stroke="rgba(255,255,255,0.45)" stroke-width="1.5"/><line x1="3" y1="12" x2="21" y2="12" stroke="rgba(255,255,255,0.45)" stroke-width="1.5"/></svg> suppversebd.com</div>
                     <div class="meta-text"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.58.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1C7.61 21 3 16.39 3 10.74c0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.23 1.01z" stroke="rgba(255,255,255,0.45)" stroke-width="1.5" stroke-linejoin="round"/></svg> +880 1644232935</div>
@@ -24095,7 +24100,7 @@ html[data-theme="light"] .mini-voucher .tear-notch { background: #fff; }
         <!-- MINI VOUCHER PREVIEW -->
                         <div class="card-top">
           <div class="card-icon-wrap regular" style="opacity:0.6">
-            <svg viewBox="0 0 24 24" fill="none"><path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2z" fill="rgba(56,189,248,0.2)" stroke="#38bdf8" stroke-width="2"/></svg>
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none"><defs><linearGradient id="ticketGrad-2" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#38bdf8"/><stop offset="100%" stop-color="#0284c7"/></linearGradient></defs><path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2z" fill="url(#ticketGrad-2)" stroke="#0ea5e9" stroke-width="2" stroke-linejoin="round" opacity="0.9"/><path d="M13 5v14" stroke="#fff" stroke-width="2" stroke-linecap="round" opacity="0.6"/><path d="M7 9h3" stroke="#fff" stroke-width="2" stroke-linecap="round" opacity="0.7"/><path d="M7 12h3" stroke="#fff" stroke-width="2" stroke-linecap="round" opacity="0.7"/></svg>
             </div>
           <div class="card-info">
             <div class="card-code" style="opacity:0.7">SUP-REG-DEC22</div>
@@ -24140,6 +24145,7 @@ html[data-theme="light"] .mini-voucher .tear-notch { background: #fff; }
                   <div class="desc">End of year celebration. Flat ৳300 off on all orders.</div>
                 </div>
                 <div class="bottom-row">
+                  <div class="discount-pill">৳300 OFF</div>
                   <div class="meta-row">
                     <div class="meta-text"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="rgba(255,255,255,0.45)" stroke-width="1.5"/><ellipse cx="12" cy="12" rx="4" ry="9" stroke="rgba(255,255,255,0.45)" stroke-width="1.5"/><line x1="3" y1="12" x2="21" y2="12" stroke="rgba(255,255,255,0.45)" stroke-width="1.5"/></svg> suppversebd.com</div>
                     <div class="meta-text"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.58.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1C7.61 21 3 16.39 3 10.74c0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.23 1.01z" stroke="rgba(255,255,255,0.45)" stroke-width="1.5" stroke-linejoin="round"/></svg> +880 1644232935</div>
@@ -24630,7 +24636,7 @@ html[data-theme="light"] body{background:#f0f4f9;color:#001f3c}
   --success:#2f9b68;--success-dim:rgba(47,155,104,0.14);
   --warning:#F4A922;--warning-dim:rgba(244,169,34,0.14);
   --danger:#d95353;--danger-dim:rgba(217,83,83,0.14);
-  --fb:#1877F2;--ig:#E1306C;--web:#2f9b68;--wp:#25D366;
+  --fb:#1877F2;--ig:#E1306C;--web:#7c6ff7;--wp:#25D366;
   --surface:#162130;--surface-2:#1d2c3e;--surface-3:#243447;
   --border:rgba(255,255,255,0.07);--border-soft:rgba(255,255,255,0.04);
   --text-primary:#eef4ff;--text-muted:rgba(238,244,255,0.45);--text-dim:rgba(238,244,255,0.28);
@@ -25885,16 +25891,15 @@ window.addEventListener('resize', () => {
   _resizeTimer = setTimeout(initSlideIndicators, 80);
 });
 document.addEventListener('DOMContentLoaded', () => {
-  // Restore saved theme
+  // Sync theme icon to whatever theme is already active (set by initTheme earlier)
   try {
-    const saved = localStorage.getItem('svbd-theme');
-    if (saved) {
-      document.documentElement.setAttribute('data-theme', saved);
-      const isDark = saved === 'dark';
-      document.getElementById('themeIcon').innerHTML = isDark
-        ? '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>'
-        : '<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>';
+    if (!document.documentElement.getAttribute('data-theme')) {
+      document.documentElement.setAttribute('data-theme', 'dark');
     }
+    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+    document.getElementById('themeIcon').innerHTML = isDark
+      ? '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>'
+      : '<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>';
   } catch(e) {}
   renderSubSelector('event');
   renderAll('SUP-EVT-EID24');
