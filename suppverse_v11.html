@@ -4885,8 +4885,9 @@ html[data-theme="dark"] .summary-bar-value.discount-red { color: #ff6b6b !import
 html[data-theme="dark"] .products-title { color: #ffffff; }
 
 .products-search {
-  position: relative; margin-bottom: 12px;
+  display: flex; align-items: center; gap: 8px; margin-bottom: 12px;
 }
+.products-search-input-wrap { position: relative; flex: 1; min-width: 0; }
 .products-search-input {
   width: 100%; height: 38px;
   background: #f8f9fb; border: 1px solid #ececec; border-radius: 10px;
@@ -4904,6 +4905,52 @@ html[data-theme="dark"] .products-search-input {
   color: #c5c9d4; pointer-events: none;
 }
 .products-search-icon svg { width: 16px; height: 16px; }
+
+.products-category-wrap { position: relative; flex-shrink: 0; }
+.products-category-btn {
+  position: relative; width: 38px; height: 38px; border-radius: 10px;
+  background: #f8f9fb; border: 1px solid #ececec;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; transition: background 0.2s ease, border-color 0.2s ease;
+}
+.products-category-btn svg { width: 17px; height: 17px; color: #556070; }
+html[data-theme="dark"] .products-category-btn { background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.1); }
+html[data-theme="dark"] .products-category-btn svg { color: rgba(255,255,255,0.7); }
+.products-category-btn:hover { background: #eef0f4; }
+html[data-theme="dark"] .products-category-btn:hover { background: rgba(255,255,255,0.12); }
+.products-category-btn.active { background: #7C6FF7; border-color: #7C6FF7; }
+.products-category-btn.active svg { color: #fff; }
+.products-category-dot {
+  position: absolute; top: -3px; right: -3px; width: 9px; height: 9px; border-radius: 50%;
+  background: #F4A922; border: 2px solid #fff;
+}
+html[data-theme="dark"] .products-category-dot { border-color: #162130; }
+.products-category-menu {
+  position: absolute; top: 46px; right: 0; z-index: 40; min-width: 190px;
+  background: #fff; border: 1px solid #ececec; border-radius: 12px;
+  box-shadow: 0 8px 28px rgba(0,0,0,0.14); padding: 6px; display: none;
+}
+.products-category-menu.open { display: block; }
+html[data-theme="dark"] .products-category-menu { background: #1b2738; border-color: rgba(255,255,255,0.1); box-shadow: 0 8px 28px rgba(0,0,0,0.4); }
+.pcm-item {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  padding: 9px 10px; border-radius: 8px; cursor: pointer;
+  font-family: "Plus Jakarta Sans", sans-serif; font-size: 12.5px; font-weight: 600; color: #2f3a4a;
+  transition: background 0.15s ease;
+}
+.pcm-item:hover { background: #f4f5f9; }
+html[data-theme="dark"] .pcm-item { color: rgba(255,255,255,0.85); }
+html[data-theme="dark"] .pcm-item:hover { background: rgba(255,255,255,0.07); }
+.pcm-item.active { color: #7C6FF7; font-weight: 800; }
+html[data-theme="dark"] .pcm-item.active { color: #9d94ff; }
+.pcm-count { font-size: 11px; font-weight: 700; color: #8c92a1; }
+.prod-category-tag {
+  display: inline-flex; align-items: center; gap: 4px; font-size: 9.5px; font-weight: 700; letter-spacing: 0.03em;
+  text-transform: uppercase; color: #7C6FF7; background: rgba(124,111,247,0.1);
+  padding: 2px 7px 2px 6px; border-radius: 5px; margin-top: 3px;
+}
+.cat-icon { width: 17px; height: 17px; flex-shrink: 0; fill: currentColor; }
+.pcm-item .cat-icon { width: 22px; height: 22px; }
 
 .products-filter-row {
   display: flex; gap: 7px; margin-bottom: 14px; overflow-x: auto;
@@ -5416,6 +5463,27 @@ html[data-theme="dark"] .np-auto-field {
 .np-color-row {
   display: flex; gap: 8px; align-items: center; flex-wrap: wrap;
 }
+
+/* Category picker */
+.np-cat-row {
+  display: flex; gap: 8px; overflow-x: auto; padding-bottom: 2px; -webkit-overflow-scrolling: touch;
+}
+.np-cat-row::-webkit-scrollbar { display: none; }
+.np-cat-opt {
+  flex-shrink: 0; display: flex; flex-direction: column; align-items: center; gap: 6px;
+  padding: 10px 14px; border-radius: 12px; border: 1.5px solid #ececec; background: #f8f9fb;
+  cursor: pointer; min-width: 74px; transition: all 0.2s ease;
+}
+html[data-theme="dark"] .np-cat-opt { background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.1); }
+.np-cat-opt .cat-icon { width: 22px; height: 22px; color: #556070; }
+html[data-theme="dark"] .np-cat-opt .cat-icon { color: rgba(255,255,255,0.7); }
+.np-cat-opt span {
+  font-family: "Plus Jakarta Sans", sans-serif; font-size: 10.5px; font-weight: 700; color: #556070; white-space: nowrap;
+}
+html[data-theme="dark"] .np-cat-opt span { color: rgba(255,255,255,0.7); }
+.np-cat-opt.selected { background: #7C6FF7; border-color: #7C6FF7; }
+.np-cat-opt.selected .cat-icon, .np-cat-opt.selected span { color: #fff; }
+html[data-theme="dark"] .np-cat-opt.selected { background: #7C6FF7; border-color: #7C6FF7; }
 .np-color-swatch {
   width: 26px; height: 26px; border-radius: 8px; cursor: pointer; flex-shrink: 0;
   border: 2.5px solid transparent; transition: transform 0.15s ease, border-color 0.15s ease;
@@ -6012,7 +6080,7 @@ html[data-theme="dark"] .batch-units { background: rgba(255,255,255,0.08); color
 #voucherHubPanel { display:none; position:fixed; inset:0; z-index:8500; overflow:hidden; }
 #voucherHubPanel.open { display:flex; flex-direction:column; animation:hubSlideUp 0.28s cubic-bezier(0.4,0,0.2,1) forwards; }
 @keyframes hubSlideUp { from { opacity:0; transform:translateY(18px); } to { opacity:1; transform:translateY(0); } }
-#voucherHubPanel .app-shell { position:relative; flex:1; display:flex; flex-direction:column; overflow:hidden; background:#060f1e; }
+#voucherHubPanel .app-shell { position:relative; flex:1; display:flex; flex-direction:column; overflow:hidden; background:var(--surface); transition:background .3s ease; }
 </style>
 <base target="_blank">
 </head>
@@ -14735,7 +14803,123 @@ html[data-theme="light"] .channel-filter-bar .slide-indicator{
   <iframe id="overviewFrame" style="width:100%;flex:1;border:none;display:block;height:100%;" scrolling="yes"></iframe>
 </div>
 
+  <!-- CATEGORY ICON SPRITE — used by Products tab category picker and card tags -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <symbol id="cat-icon-supplement" viewBox="-72.68 -72.68 655.36 655.36">
+      <g transform="translate(-1,-1)">
+        <path fill="currentColor" stroke="currentColor" stroke-width="11" stroke-linejoin="round" d="M357.4,136.09v-17.623H383c13.653,0,25.6-11.093,25.6-25.6V24.6C408.6,10.947,397.507-1,383-1H127
+          c-13.653,0-25.6,11.093-25.6,25.6v68.267c0,13.653,11.093,25.6,25.6,25.6h25.6v17.623c-33.555,4.235-59.733,33.054-59.733,67.71
+          v25.6v187.733v25.6c0,37.547,30.72,68.267,68.267,68.267h187.733c37.547,0,68.267-30.72,68.267-68.267v-25.6V229.4v-25.6
+          C417.133,169.144,390.955,140.325,357.4,136.09z M118.467,92.867v-8.533H203.8c4.267,0,8.533-3.413,8.533-8.533
+          s-3.413-8.533-8.533-8.533h-85.333V50.2H152.6c4.267,0,8.533-3.413,8.533-8.533s-3.413-8.533-8.533-8.533h-34.133V24.6
+          c0-4.267,3.413-8.533,8.533-8.533h256c4.267,0,8.533,3.413,8.533,8.533v8.533H306.2c-5.12,0-8.533,3.413-8.533,8.533
+          c0,4.267,3.413,8.533,8.533,8.533h85.333v17.067H357.4c-4.267,0-8.533,3.413-8.533,8.533c0,4.267,3.413,8.533,8.533,8.533h34.133
+          v8.533c0,4.267-3.413,8.533-8.533,8.533h-34.133H161.133H127C122.733,101.4,118.467,97.987,118.467,92.867z M340.333,118.467
+          v17.067H169.667v-17.067H340.333z M161.133,152.6h187.733c28.16,0,51.2,23.04,51.2,51.2v17.067H109.933V203.8
+          C109.933,175.64,132.973,152.6,161.133,152.6z M400.067,408.6H109.933V237.933h290.133V408.6z M348.867,493.933H161.133
+          c-28.16,0-51.2-23.04-51.2-51.2v-17.067h290.133v17.067C400.067,470.893,377.027,493.933,348.867,493.933z"/>
+        <path fill="currentColor" stroke="currentColor" stroke-width="11" stroke-linejoin="round" d="M220.867,332.653h49.493l-39.253,45.227c-3.413,3.413-2.56,8.533,0.853,11.947c1.707,0.853,4.267,1.707,5.973,1.707
+          c2.56,0,5.12-0.853,6.827-2.56l51.2-59.733c1.707-2.56,2.56-5.973,0.853-9.387s-4.267-5.12-7.68-5.12H239.64l38.4-45.227
+          c3.413-3.413,2.56-8.533-0.853-11.947s-8.533-2.56-11.947,0.853l-51.2,59.733c-1.707,2.56-2.56,5.973-0.853,9.387
+          S217.453,332.653,220.867,332.653z"/>
+      </g>
+    </symbol>
+    <symbol id="cat-icon-electronics" viewBox="-5.11 -5.07 74.23 74.23">
+      <path fill="currentColor" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" d="M60.9,49.3l-4.9-26.2c-0.4-2.1-2-3.6-4.1-4V18c0-1.7-1.3-3-3-3h-2c-1.7,0-3,1.3-3,3v1H33v-4.1c1.7-0.4,3-2,3-3.9
+        c0-2.2-1.8-4-4-4s-4,1.8-4,4c0,1.9,1.3,3.4,3,3.9V19H20v-1c0-1.7-1.3-3-3-3h-2c-1.7,0-3,1.3-3,3v1.1c-2,0.4-3.7,1.9-4.1,4
+        L3.1,49.3c-0.5,2.4,1,4.8,3.4,5.6l5.9,1.9c0.5,0.2,1.1,0.3,1.6,0.3c1.7,0,3.3-0.8,4.3-2.3l5.3-7.8h17.2l5.1,7.8
+        c1.3,1.9,3.7,2.7,5.9,2l5.9-1.9C59.9,54.1,61.4,51.7,60.9,49.3z M30,11c0-1.1,0.9-2,2-2s2,0.9,2,2s-0.9,2-2,2S30,12.1,30,11z
+        M46,18c0-0.6,0.4-1,1-1h2c0.6,0,1,0.4,1,1v1h-4V18z M14,18c0-0.6,0.4-1,1-1h2c0.6,0,1,0.4,1,1v1h-4V18z M56.9,53L51,54.9
+        c-1.3,0.4-2.8-0.1-3.6-1.2l-5.4-8.2c-0.2-0.3-0.5-0.5-0.8-0.5H23c-0.3,0-0.6,0.2-0.8,0.4l-5.7,8.2c-0.8,1.2-2.2,1.7-3.6,1.2
+        L7.1,53c-1.4-0.5-2.3-1.9-2-3.3l4.9-26.2c0.3-1.4,1.5-2.4,3-2.4H13h6h26h6h0.1c1.5,0,2.8,1,3,2.4L59,49.6
+        C59.2,51.1,58.4,52.5,56.9,53z"/>
+      <path fill="currentColor" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" d="M20,26c-3.9,0-7,3.1-7,7s3.1,7,7,7s7-3.1,7-7S23.9,26,20,26z M20,38c-2.8,0-5-2.2-5-5s2.2-5,5-5s5,2.2,5,5S22.8,38,20,38z"/>
+      <path fill="currentColor" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" d="M44,26c-3.9,0-7,3.1-7,7s3.1,7,7,7s7-3.1,7-7S47.9,26,44,26z M44,38c-2.8,0-5-2.2-5-5s2.2-5,5-5s5,2.2,5,5S46.8,38,44,38z"/>
+    </symbol>
+    <symbol id="cat-icon-cosmetic" viewBox="-71.68 -71.68 655.36 655.36">
+      <path fill="currentColor" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round" d="M252.534,54.19c0-22.605-18.392-40.997-40.997-40.997H40.996C18.391,13.193,0,31.585,0,54.19
+        c0,0.779,0.045,1.557,0.135,2.332l25.831,223.196c0,0.005,0.001,0.011,0.001,0.016L37.624,380.45
+        c0.453,13.785,7.748,25.87,18.589,32.964v65.114c0,11.199,9.08,20.279,20.279,20.279h99.554c11.199,0,20.279-9.079,20.279-20.279
+        v-65.111c10.842-7.094,18.139-19.178,18.59-32.967l37.487-323.928C252.49,55.748,252.534,54.969,252.534,54.19z M155.765,458.248
+        H96.769v-38.165h58.996V458.248z M174.512,376.755c-0.089,0.773-0.135,1.552-0.135,2.331c0,0.119-0.05,0.226-0.127,0.304H78.284
+        c-0.077-0.078-0.127-0.185-0.127-0.304c0-0.779-0.045-1.557-0.135-2.332L67.547,286.24L197.51,178.018L174.512,376.755z
+        M204.27,119.611L61.977,238.103L40.66,53.908c0.081-0.096,0.201-0.157,0.335-0.157h170.54c0.135,0,0.255,0.061,0.337,0.157
+        L204.27,119.611z"/>
+      <path fill="currentColor" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round" d="M453.219,258.76v-73.923c0-11.199-9.079-20.279-20.279-20.279H315.734c-11.199,0-20.279,9.079-20.279,20.279v73.923
+        c-33.453,6.539-58.78,36.062-58.78,71.4v95.882c0,40.122,32.642,72.763,72.763,72.763h129.799
+        c40.122,0,72.763-32.642,72.763-72.763V330.16C512,294.822,486.672,265.299,453.219,258.76z M336.013,205.116h76.648v52.281
+        h-76.648V205.116z M439.237,458.248H309.438c-17.759,0-32.205-14.448-32.205-32.205V330.16c0-17.757,14.448-32.205,32.205-32.205
+        h6.296H432.94h6.296c17.759,0,32.205,14.448,32.205,32.205v95.882h0.001C471.442,443.801,456.995,458.248,439.237,458.248z"/>
+      <path fill="currentColor" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round" d="M374.337,316.385c-34.031,0-61.715,27.686-61.715,61.716c0,34.031,27.686,61.716,61.715,61.716
+        c34.03,0,61.716-27.686,61.716-61.716C436.053,344.071,408.367,316.385,374.337,316.385z M374.337,399.261
+        c-11.667,0-21.158-9.492-21.158-21.159s9.492-21.159,21.158-21.159c11.667,0,21.159,9.492,21.159,21.159
+        S386.004,399.261,374.337,399.261z"/>
+    </symbol>
+    <symbol id="cat-icon-clothing" viewBox="-71.68 -71.68 655.36 655.36">
+      <path fill="currentColor" stroke="currentColor" stroke-width="11" stroke-linejoin="round" d="M511.648,303.523c-0.002-0.023-0.006-0.047-0.008-0.069c-1.256-9.999-5.776-19.419-13.21-26.85
+        c-3.973-3.959-8.571-7.134-13.685-9.443c-5.149-2.311-10.593-3.632-16.188-3.927c-44.836-2.319-85.944-15.74-119.795-31.581
+        c1.444-3.065,0.93-6.831-1.578-9.394c-3.224-3.294-8.51-3.353-11.804-0.127l-1.98,1.938c-8.642-4.498-16.683-9.073-24.074-13.552
+        c0.492-2.617-0.273-5.423-2.296-7.449c-2.953-2.955-7.567-3.226-10.834-0.827c-7.758-5.085-14.914-10.116-21.414-14.924
+        c1.823-3.187,1.384-7.316-1.337-10.038c-3.249-3.251-8.513-3.262-11.775-0.032c-18.407-14.676-28.903-25.398-29.065-25.564
+        c-0.04-0.041-0.085-0.076-0.125-0.116c-0.016-0.016-0.029-0.033-0.046-0.049l-31.982-31.151
+        c-3.294-3.209-8.566-3.149-11.788,0.137l-21.576,22.017c-3.182,3.247-3.18,8.444,0.003,11.69l25.726,26.222l-24.636,25.478
+        c-8.632,8.929-20.149,13.846-32.431,13.846c-18.691,0-35.271-11.192-42.243-28.514l-6.263-15.564
+        c-1.27-3.154-4.327-5.224-7.727-5.232l-45.812-0.092c-0.006,0-0.011,0-0.017,0c-3.827,0-7.164,2.601-8.097,6.313L2.351,269.132
+        c-5.229,20.791-1.671,42.147,10.019,60.133c11.391,17.529,29.657,29.746,50.273,33.735l-0.011,5.547
+        c-0.027,13.661,11.043,24.797,24.676,24.825c0.018,0,0.035,0,0.051,0c6.589,0,12.788-2.567,17.456-7.231
+        c4.674-4.669,7.255-10.883,7.268-17.495l0.01-5.136l19.421,0.039l-0.01,5.136c-0.013,6.613,2.543,12.837,7.198,17.525
+        c4.662,4.695,10.869,7.287,17.479,7.301c0.018,0,0.034,0,0.051,0c6.589,0,12.787-2.567,17.455-7.231
+        c4.674-4.669,7.255-10.883,7.268-17.497l0.01-5.136l125.855,0.252l-0.01,5.136c-0.013,6.613,2.542,12.837,7.198,17.526
+        c4.662,4.694,10.87,7.287,17.478,7.301c0.018,0,0.035,0,0.052,0c6.591,0,12.787-2.567,17.456-7.231
+        c4.674-4.669,7.255-10.883,7.267-17.495l0.01-5.136l13.91,0.028l-0.01,5.147c-0.013,6.613,2.542,12.837,7.198,17.526
+        c4.662,4.695,10.869,7.287,17.478,7.301c0.018,0,0.034,0,0.052,0c6.591,0,12.787-2.567,17.456-7.231
+        c4.674-4.669,7.255-10.883,7.267-17.495l0.011-5.326c4.597-0.169,9.184-0.489,13.757-0.949l-0.007,2.989
+        c-0.026,13.661,11.044,24.797,24.676,24.825c0.018,0,0.034,0,0.052,0c6.591,0,12.788-2.567,17.456-7.231
+        c4.674-4.668,7.256-10.883,7.268-17.495l0.027-13.503c0-0.114-0.012-0.224-0.017-0.336c13.84-5.408,24.097-17.017,27.755-31.678
+        C512.027,314.868,512.34,309.108,511.648,303.523z M184.743,148.36l10.021-10.227l20.061,19.539l-10.397,10.752L184.743,148.36z
+        M95.388,368.613c-0.004,2.163-0.847,4.194-2.372,5.718c-1.515,1.513-3.523,2.345-5.657,2.345c-0.006,0-0.011,0-0.017,0
+        c-4.428-0.009-8.022-3.641-8.013-8.095l0.01-5.136l16.06,0.032L95.388,368.613z M104.158,346.798
+        c-0.126-0.006-0.25-0.02-0.377-0.02c-0.124,0-0.244,0.013-0.366,0.018l-32.008-0.065c-0.127-0.006-0.253-0.02-0.382-0.02
+        c-0.006,0-0.011,0-0.018,0c-0.124,0-0.244,0.013-0.366,0.019l-4.358-0.009c-16.608-3.064-30.764-12.474-39.913-26.552
+        c-9.131-14.049-11.91-30.727-7.826-46.962l4.347-17.291l1.927,0.708c41.727,15.337,74.577,48.615,89.688,90.195L104.158,346.798z
+        M164.263,368.751c-0.004,2.163-0.847,4.194-2.372,5.718c-1.515,1.513-3.523,2.345-5.658,2.345c-0.006,0-0.011,0-0.017,0
+        c-2.139-0.004-4.151-0.846-5.663-2.369c-1.519-1.531-2.354-3.564-2.35-5.728l0.01-5.136l16.06,0.032L164.263,368.751z
+        M339.569,369.103c-0.004,2.163-0.847,4.193-2.372,5.717c-1.515,1.513-3.523,2.345-5.657,2.345c-0.006,0-0.012,0-0.018,0
+        c-2.139-0.004-4.151-0.846-5.664-2.369c-1.518-1.531-2.353-3.564-2.349-5.727l0.01-5.136l16.06,0.032L339.569,369.103z
+        M402.931,369.242c-0.005,2.162-0.847,4.192-2.372,5.717c-1.515,1.513-3.523,2.345-5.657,2.345c-0.006,0-0.012,0-0.018,0
+        c-2.139-0.004-4.151-0.846-5.664-2.369c-1.518-1.53-2.353-3.564-2.349-5.727l0.01-5.147l16.06,0.032L402.931,369.242z
+        M466.144,366.052c-0.003,2.164-0.846,4.194-2.372,5.718c-1.514,1.513-3.523,2.345-5.657,2.345c-0.006,0-0.012,0-0.018,0
+        c-4.428-0.009-8.022-3.641-8.013-8.094l0.011-5.348c4.406-0.794,8.786-1.719,13.131-2.785c0.987-0.243,1.96-0.493,2.935-0.742
+        L466.144,366.052z M494.403,316.531c-2.513,10.09-9.92,17.918-19.8,20.936c-4.845,1.476-10.014,2.892-15.361,4.209
+        c-15.521,3.808-31.516,5.74-47.543,5.74h-0.23c-0.049-0.001-0.097-0.008-0.147-0.008c-0.006,0-0.011,0-0.017,0
+        c-0.047,0-0.094,0.007-0.14,0.007l-32.449-0.065c-0.051-0.001-0.1-0.008-0.15-0.008c-0.006,0-0.011,0-0.017,0
+        c-0.049,0-0.096,0.007-0.145,0.008l-30.077-0.06c-0.124-0.006-0.244-0.019-0.368-0.019c-0.006,0-0.011,0-0.017,0
+        c-0.119,0-0.236,0.013-0.354,0.018l-32.012-0.065c-0.125-0.006-0.247-0.019-0.373-0.02c-0.006,0-0.011,0-0.017,0
+        c-0.121,0-0.238,0.013-0.358,0.018l-141.803-0.284c-0.125-0.006-0.247-0.019-0.373-0.02c-0.006,0-0.011,0-0.017,0
+        c-0.121,0-0.239,0.013-0.358,0.018l-32.002-0.065c-0.126-0.006-0.25-0.02-0.377-0.02c-0.006,0-0.011,0-0.018,0
+        c-0.122,0-0.242,0.013-0.363,0.018l-7.351-0.014c-2.047-6.34-4.46-12.518-7.217-18.511c21.257-0.135,42.874-0.063,64.477,0.242
+        c0.04,0.001,0.08,0.001,0.12,0.001c4.556,0,8.28-3.661,8.345-8.23c0.066-4.61-3.619-8.4-8.229-8.465
+        c-24.67-0.349-49.373-0.403-73.519-0.18c-19.493-32.265-49.557-57.523-85.568-70.759l-3.594-1.321l13.213-52.568l33.662,0.068
+        l4.163,10.344c9.528,23.677,32.188,38.977,57.731,38.977c16.848,0,32.629-6.725,44.433-18.937l28.975-29.965
+        c0.461-0.299,0.9-0.649,1.308-1.049c0.506-0.498,0.927-1.047,1.28-1.627l15.049-15.563c4.924,4.617,12.692,11.583,22.963,19.832
+        l-13.817,13.803c-3.261,3.258-3.265,8.544-0.006,11.805c1.63,1.632,3.768,2.448,5.906,2.448c2.135,0,4.27-0.814,5.9-2.442
+        l15.328-15.314c6.36,4.743,13.366,9.721,20.974,14.786l-14.519,14.506c-3.262,3.258-3.265,8.544-0.006,11.805
+        c1.631,1.632,3.768,2.448,5.906,2.448c2.135,0,4.271-0.814,5.9-2.442l17.119-17.103c6.916,4.245,14.406,8.586,22.425,12.888
+        l-11.449,11.207c-3.295,3.225-3.352,8.511-0.126,11.805c1.635,1.671,3.799,2.509,5.966,2.509c2.106,0,4.214-0.792,5.838-2.382
+        l15.464-15.137c36.435,17.656,81.523,33.011,131.12,35.575c3.522,0.186,6.961,1.022,10.206,2.479
+        c3.261,1.473,6.207,3.506,8.744,6.036c2.955,2.954,5.18,6.406,6.642,10.13c-19.722,5.524-40.968,9.33-63.302,11.316
+        c-37.592,3.405-80.686,2.832-122.366,2.28c-24.904-0.331-48.428-0.643-70.743-0.159c-4.61,0.099-8.266,3.917-8.166,8.527
+        c0.099,4.61,3.955,8.305,8.527,8.164c22.029-0.475,45.409-0.166,70.16,0.162c15.784,0.209,31.764,0.422,47.608,0.422
+        c26.417,0,52.441-0.59,76.472-2.766c22.167-1.97,43.347-5.685,63.164-11.021C494.555,315.831,494.491,316.181,494.403,316.531z"/>
+    </symbol>
+    <symbol id="cat-icon-general" viewBox="-0.80 -0.80 25.60 25.60">
+      <path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" d="M15.5777 3.38197L17.5777 4.43152C19.7294 5.56066 20.8052 6.12523 21.4026 7.13974C22 8.15425 22 9.41667 22 11.9415V12.0585C22 14.5833 22 15.8458 21.4026 16.8603C20.8052 17.8748 19.7294 18.4393 17.5777 19.5685L15.5777 20.618C13.8221 21.5393 12.9443 22 12 22C11.0557 22 10.1779 21.5393 8.42229 20.618L6.42229 19.5685C4.27063 18.4393 3.19479 17.8748 2.5974 16.8603C2 15.8458 2 14.5833 2 12.0585V11.9415C2 9.41667 2 8.15425 2.5974 7.13974C3.19479 6.12523 4.27063 5.56066 6.42229 4.43152L8.42229 3.38197C10.1779 2.46066 11.0557 2 12 2C12.9443 2 13.8221 2.46066 15.5777 3.38197Z"/>
+      <path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" d="M21 7.5L17 9.5M12 12L3 7.5M12 12V21.5M12 12C12 12 14.7426 10.6287 16.5 9.75C16.6953 9.65237 17 9.5 17 9.5M17 9.5V13M17 9.5L7.5 4.5"/>
+    </symbol>
+  </svg>
+
   <!-- PRODUCTS TAB -->
+
   <div id="tab-products" class="main-content tab-panel" style="display:none">
     <div id="productsTabContent"></div>
   </div>
@@ -15163,6 +15347,13 @@ html[data-theme="light"] .fs-modal-title{color:#fff}
 .vc-float-close svg{width:16px;height:16px}
 html[data-theme="light"] .vc-float-close{background:rgba(240,244,248,0.95);border-color:rgba(0,0,0,0.14);color:#1a2a3a}
 
+.type-card.type-locked{opacity:.5;pointer-events:none;position:relative}
+.type-card.type-locked .type-icon-wrap{filter:grayscale(.3)}
+.lock-badge{position:absolute;top:10px;right:10px;width:20px;height:20px;border-radius:50%;background:rgba(148,163,184,0.18);display:flex;align-items:center;justify-content:center}
+.lock-notice{display:none;align-items:flex-start;gap:8px;background:rgba(244,169,34,0.1);border:1px solid rgba(244,169,34,0.3);color:#F4A922;font-size:11.5px;font-weight:600;line-height:1.4;padding:10px 12px;border-radius:10px;margin:10px 0 4px;font-family:"DM Sans",sans-serif}
+.lock-notice.show{display:flex}
+.discount-lock-group.locked .pill-opt,.discount-lock-group.locked .fs-input{opacity:.5;pointer-events:none}
+#max-count.invalid,#disc-amount.invalid{border-color:#dc2626 !important}
 </style>
 </head>
 <body>
@@ -15335,9 +15526,9 @@ html[data-theme="light"] .vc-float-close{background:rgba(240,244,248,0.95);borde
               <svg viewBox="0 0 110 100" preserveAspectRatio="none" style="position:absolute;inset:0;width:100%;height:100%">
                 <defs><linearGradient id="tvault" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#1a2a3a"/><stop offset="50%" stop-color="#243b4d"/><stop offset="100%" stop-color="#1e3345"/></linearGradient></defs>
                 <rect width="110" height="100" fill="url(#tvault)"/>
-                <path d="M110 70 C75 90,45 50,0 80 L0 0 L110 0Z" fill="rgba(148,163,184,0.55)" opacity="1"/>
-                <path d="M110 45 C75 65,45 25,0 55 L0 0 L110 0Z" fill="rgba(186,206,224,0.40)" opacity="1"/>
-                <path d="M110 20 C75 40,45 0,0 30 L0 0 L110 0Z" fill="rgba(220,232,244,0.30)" opacity="1"/>
+                <path d="M110 70 C75 90,45 50,0 80 L0 0 L110 0Z" fill="#94a3b8" opacity="0.30"/>
+                <path d="M110 45 C75 65,45 25,0 55 L0 0 L110 0Z" fill="#bacee0" opacity="0.35"/>
+                <path d="M110 20 C75 40,45 0,0 30 L0 0 L110 0Z" fill="#dce8f4" opacity="0.32"/>
               </svg>
               <div class="theme-selected-badge"><svg viewBox="0 0 24 24" fill="none"><defs><linearGradient id="pgCheck" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#86efac"/><stop offset="100%" stop-color="#15803d"/></linearGradient></defs><circle cx="12" cy="12" r="11" fill="url(#pgCheck)"/><ellipse cx="9" cy="7.5" rx="5" ry="2.8" fill="#fff" opacity="0.3"/><path d="M7 12.5l3.5 3.5L17 8.5" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
             </div>
@@ -15354,6 +15545,7 @@ html[data-theme="light"] .vc-float-close{background:rgba(240,244,248,0.95);borde
     <div class="step-panel" id="step-2">
       <div class="step-heading">Voucher Type</div>
       <div class="step-subheading">Quick-tap a code or select from the cards below.</div>
+      <div class="lock-notice" id="type-lock-notice">🔒 Voucher type can't be changed after creation.</div>
 
       <div class="type-grid">
         <div class="type-card" id="card-regular" onclick="selectType('regular',this,'card')"><div class="type-icon-wrap regular"><svg width="24" height="24" viewBox="0 0 24 24"><defs><linearGradient id="ticketGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#38bdf8"/><stop offset="100%" stop-color="#0284c7"/></linearGradient></defs><path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2z" fill="url(#ticketGrad)" stroke="#0ea5e9" stroke-width="2" stroke-linejoin="round" opacity="0.9"/><path d="M13 5v14" stroke="#fff" stroke-width="2" stroke-linecap="round" opacity="0.6"/><path d="M7 9h3" stroke="#fff" stroke-width="2" stroke-linecap="round" opacity="0.7"/><path d="M7 12h3" stroke="#fff" stroke-width="2" stroke-linecap="round" opacity="0.7"/></svg></div><div class="type-text"><div class="type-name">Regular</div><div class="type-desc">Applies to all products in inventory. Stackable &amp; general use.</div></div></div>
@@ -15366,19 +15558,22 @@ html[data-theme="light"] .vc-float-close{background:rgba(240,244,248,0.95);borde
     <div class="step-panel" id="step-3">
       <div class="step-heading">Discount &amp; Limits</div>
       <div class="step-subheading">Set how much discount and usage rules.</div>
-      <div class="fs-field">
-        <label class="fs-label">Discount Type</label>
-        <div class="pill-row">
-          <div class="pill-opt" id="pill-flat" onclick="selectDiscType('flat',this)"><span class="pill-icon">৳</span><span class="pill-label">Flat Amount</span></div>
-          <div class="pill-opt" id="pill-pct" onclick="selectDiscType('percent',this)"><span class="pill-icon">%</span><span class="pill-label">Percentage</span></div>
+      <div class="discount-lock-group" id="discount-lock-group">
+        <div class="fs-field">
+          <label class="fs-label">Discount Type</label>
+          <div class="pill-row">
+            <div class="pill-opt" id="pill-flat" onclick="selectDiscType('flat',this)"><span class="pill-icon">৳</span><span class="pill-label">Flat Amount</span></div>
+            <div class="pill-opt" id="pill-pct" onclick="selectDiscType('percent',this)"><span class="pill-icon">%</span><span class="pill-label">Percentage</span></div>
+          </div>
         </div>
-      </div>
-      <div class="fs-field">
-        <label class="fs-label" id="amount-label">Discount Amount</label>
-        <div class="input-prefix-wrap">
-          <span class="input-prefix" id="amount-prefix">৳</span>
-          <input type="number" class="fs-input" id="disc-amount" placeholder="e.g. 200" min="1" oninput="render()">
+        <div class="fs-field">
+          <label class="fs-label" id="amount-label">Discount Amount</label>
+          <div class="input-prefix-wrap">
+            <span class="input-prefix" id="amount-prefix">৳</span>
+            <input type="number" class="fs-input" id="disc-amount" placeholder="e.g. 200" min="1" oninput="render()">
+          </div>
         </div>
+        <div class="lock-notice" id="discount-lock-notice">🔒 This voucher has already been redeemed, so its discount can't be changed.</div>
       </div>
       <div class="field-divider"></div>
       <div class="fs-field">
@@ -15399,7 +15594,8 @@ html[data-theme="light"] .vc-float-close{background:rgba(240,244,248,0.95);borde
         <div class="cond-section" id="cond-maxcount">
           <div class="fs-field">
             <label class="fs-label">Number of Uses</label>
-            <input type="number" class="fs-input" id="max-count" placeholder="e.g. 10, 25, 100..." min="2" oninput="render()">
+            <input type="number" class="fs-input" id="max-count" placeholder="e.g. 10, 25, 100..." min="2" oninput="render();checkUsageFloor()">
+            <div class="lock-notice" id="usage-floor-notice">🔒 Can't go below the number already redeemed.</div>
           </div>
         </div>
       </div>
@@ -15621,14 +15817,17 @@ const S = {
   usage: 'single',
   maxUses: 'limited',
   perCustomer: 'no',
-  code: null
+  code: null,
+  mode: 'create',
+  editRedemptions: 0,
+  lockedFields: { type: false, discount: false }
 };
 
 const themes = {
   blue:  { name: 'Blue',  leftBg: 'linear-gradient(135deg,#0c4a6e 0%,#0a2e47 100%)', wave1: '#0e6ba8', wave2: '#38bdf8', wave3: '#7dd3fc', pill: 'rgba(255,255,255,0.88)', pillText: '#1a2a3a' },
   gold:  { name: 'Gold',  leftBg: 'linear-gradient(135deg,#2a1f0a 0%,#1a1305 100%)', wave1: '#92700a', wave2: '#c9922a', wave3: '#e8c46a', pill: 'rgba(232,201,122,0.9)',   pillText: '#1a2a3a' },
   green: { name: 'Green', leftBg: 'linear-gradient(135deg,#14532d 0%,#0d3320 100%)', wave1: '#166534', wave2: '#22c55e', wave3: '#86efac', pill: 'rgba(74,222,128,0.9)',    pillText: '#0d2118' },
-  vault: { name: 'Vault', leftBg: 'linear-gradient(135deg,#1a2a3a 0%,#243b4d 50%,#1e3345 100%)', wave1: 'rgba(148,163,184,0.55)', wave2: 'rgba(186,206,224,0.40)', wave3: 'rgba(220,232,244,0.30)', pill: 'rgba(255,255,255,0.88)', pillText: '#1a2a3a' }
+  vault: { name: 'Vault', leftBg: 'linear-gradient(135deg,#1a2a3a 0%,#243b4d 50%,#1e3345 100%)', wave1: '#94a3b8', wave2: '#bacee0', wave3: '#dce8f4', pill: 'rgba(255,255,255,0.88)', pillText: '#1a2a3a' }
 };
 
 const typeMap = { regular: 'SUP-REG', event: 'SUP-EVT', product: 'SUP-PRD', newcustomer: 'SUP-NEW' };
@@ -15765,6 +15964,7 @@ function selectTheme(theme, el) {
 }
 
 function selectType(type, el, source) {
+  if (S.lockedFields.type) { showToast("Voucher type can't be changed after creation.", null, true); return; }
   if (S.type !== type) {
     S.code = null;
     document.getElementById('code-display').textContent = 'Tap to Generate →';
@@ -15798,6 +15998,7 @@ function selectType(type, el, source) {
 }
 
 function selectDiscType(type, el) {
+  if (S.lockedFields.discount) { showToast("Discount is locked — this voucher has already been redeemed.", null, true); return; }
   S.discType = type;
   document.getElementById('pill-flat').classList.remove('selected');
   document.getElementById('pill-pct').classList.remove('selected');
@@ -15811,6 +16012,10 @@ function selectDiscType(type, el) {
 }
 
 function selectUsage(type, el) {
+  if (S.mode === 'edit' && type === 'single' && S.editRedemptions > 1) {
+    showToast("Can't switch to Single Use — already redeemed " + S.editRedemptions + " times.", null, true);
+    return;
+  }
   S.usage = type;
   document.getElementById('pill-single').classList.remove('selected');
   document.getElementById('pill-multi').classList.remove('selected');
@@ -15898,6 +16103,143 @@ function createVoucher() {
   showToast('Voucher created successfully!', S.code, false);
 
   // Close form after short delay
+  setTimeout(function() {
+    window.parent.postMessage({ type: 'close-voucher' }, '*');
+  }, 1800);
+}
+
+function checkUsageFloor() {
+  if (S.mode !== 'edit') return;
+  const mc = document.getElementById('max-count');
+  const val = parseInt(mc.value);
+  if (S.editRedemptions && val < S.editRedemptions) {
+    mc.classList.add('invalid');
+  } else {
+    mc.classList.remove('invalid');
+  }
+}
+
+function loadVoucherForEdit(data) {
+  S.mode = 'edit';
+  S.code = data.voucher_code;
+  S.editRedemptions = data.redemptions || 0;
+
+  // --- Prefill (locks are still open at this point) ---
+  const themeCard = document.querySelector('.theme-card.' + data.theme + '-theme');
+  if (themeCard) selectTheme(data.theme, themeCard);
+
+  const typeCard = document.getElementById('card-' + data.type);
+  if (typeCard) selectType(data.type, typeCard, 'card');
+
+  document.getElementById('v-title').value    = data.title || '';
+  document.getElementById('v-subtitle').value = data.subtitle || '';
+  document.getElementById('v-desc').value     = data.description || '';
+  document.getElementById('v-expiry').value   = data.expiry_date || '';
+
+  selectDiscType(data.discount_type, document.getElementById(data.discount_type === 'flat' ? 'pill-flat' : 'pill-pct'));
+  document.getElementById('disc-amount').value = data.discount_amount || '';
+
+  selectUsage(data.usage_limit, document.getElementById(data.usage_limit === 'single' ? 'pill-single' : 'pill-multi'));
+  if (data.usage_limit === 'multiple') {
+    const isUnlimited = data.max_uses === null || data.max_uses === undefined;
+    selectMaxUses(isUnlimited ? 'unlimited' : 'limited', document.getElementById(isUnlimited ? 'pill-unlimited' : 'pill-limited'));
+    if (!isUnlimited) {
+      const mc = document.getElementById('max-count');
+      mc.value = data.max_uses;
+      mc.min = S.editRedemptions || 2;
+    }
+  }
+  selectPerCustomer(data.per_customer_limit ? 'yes' : 'no', document.getElementById(data.per_customer_limit ? 'pill-oncepc' : 'pill-nolimit'));
+
+  if (data.type === 'product' && Array.isArray(data.products) && data.products.length) {
+    const selects = document.querySelectorAll('#product-rows .fs-select');
+    data.products.forEach((p, i) => {
+      if (i > 0) addProductRow();
+    });
+    document.querySelectorAll('#product-rows .fs-select').forEach((sel, i) => {
+      if (data.products[i]) sel.value = data.products[i];
+    });
+  }
+
+  // Show the existing (fixed) code instead of generating a new one
+  document.getElementById('code-display').textContent = S.code;
+  document.getElementById('code-display').classList.add('ready');
+  document.getElementById('code-box').classList.add('has-code');
+  document.getElementById('gen-btn').style.display = 'none';
+  B128.draw(S.code, 'bar-canvas', 101);
+
+  // --- Now apply locks (after prefill so the calls above weren't blocked) ---
+  S.lockedFields.type = true;
+  S.lockedFields.discount = S.editRedemptions > 0;
+
+  document.querySelectorAll('.type-card').forEach(c => {
+    c.classList.add('type-locked');
+    if (!c.querySelector('.lock-badge')) {
+      c.insertAdjacentHTML('beforeend', '<div class="lock-badge">🔒</div>');
+    }
+  });
+  document.getElementById('type-lock-notice').classList.add('show');
+
+  if (S.lockedFields.discount) {
+    document.getElementById('discount-lock-group').classList.add('locked');
+    document.getElementById('discount-lock-notice').classList.add('show');
+    document.getElementById('disc-amount').disabled = true;
+  }
+
+  // Footer: swap "Create Voucher" for "Save Changes"
+  const btnCreate = document.getElementById('btn-create');
+  btnCreate.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg> Save Changes';
+  btnCreate.disabled = false;
+  btnCreate.onclick = saveVoucherChanges;
+
+  // Step labels
+  const heading5 = document.querySelector('#step-5 .step-heading');
+  if (heading5) heading5.textContent = 'Review & Save';
+  const sub5 = document.querySelector('#step-5 .step-subheading');
+  if (sub5) sub5.textContent = 'Review your changes, then save.';
+
+  render();
+  updateStep();
+}
+
+function saveVoucherChanges() {
+  if (S.mode !== 'edit') return;
+
+  const products = [...document.querySelectorAll('#product-rows .fs-select')]
+    .map(s => s.value).filter(Boolean);
+
+  const maxUsesVal = S.usage === 'multiple' && S.maxUses === 'limited'
+    ? parseInt(document.getElementById('max-count').value) || null
+    : (S.maxUses === 'unlimited' ? null : 1);
+
+  if (maxUsesVal !== null && S.editRedemptions && maxUsesVal < S.editRedemptions) {
+    showToast('Usage limit can\'t be lower than ' + S.editRedemptions + ' (already redeemed).', null, true);
+    return;
+  }
+
+  const payload = {
+    voucher_code: S.code,
+    theme: S.theme,
+    type: S.type,
+    discount_type: S.discType,
+    discount_amount: parseFloat(document.getElementById('disc-amount').value) || 0,
+    usage_limit: S.usage,
+    max_uses: maxUsesVal,
+    per_customer_limit: S.perCustomer === 'yes',
+    title: document.getElementById('v-title').value.trim(),
+    subtitle: document.getElementById('v-subtitle').value.trim(),
+    description: document.getElementById('v-desc').value.trim() || null,
+    expiry_date: document.getElementById('v-expiry').value,
+    products: S.type === 'product' ? products : null,
+    updated_at: new Date().toISOString(),
+    status: 'active'
+  };
+
+  console.log('[SuppVerse BD] Voucher Update Payload:', payload);
+
+  window.parent.postMessage({ type: 'voucher-updated', voucher: payload }, '*');
+  showToast('Voucher updated successfully!', S.code, false);
+
   setTimeout(function() {
     window.parent.postMessage({ type: 'close-voucher' }, '*');
   }, 1800);
@@ -16184,6 +16526,7 @@ function downloadVoucherPNG() {
 // Sync theme from parent app
 window.addEventListener('message',function(e){
   if(e.data&&e.data.type==='sv-theme'){document.documentElement.setAttribute('data-theme',e.data.dark?'dark':'light');}
+  if(e.data&&e.data.type==='LOAD_EDIT'){loadVoucherForEdit(e.data.voucher);}
 });
 
 // Scroll-hide removed — preview stays permanently visible
@@ -16453,7 +16796,7 @@ window.addEventListener('message',function(e){
         <label class="fs-label">Supplier / Notes</label>
         <input type="text" class="fs-input" id="rsSupplier" placeholder="Supplier name or notes">
       </div>
-      <div class="fs-field">
+      <div class="fs-field" id="rsExpiryField">
         <label class="fs-label">Expiry Date</label>
         <div style="position:relative;display:flex;align-items:center;gap:10px;">
           <input type="date" class="fs-input" id="rsDate" style="flex:1;" oninput="updateRsExpiryPreview()">
@@ -16485,6 +16828,28 @@ window.addEventListener('message',function(e){
 
       <!-- ── PRODUCT IDENTITY ── -->
       <div class="np-section-label">Product Identity</div>
+
+      <div class="fs-field">
+        <label class="fs-label">Category *</label>
+        <div class="np-cat-row" id="npCatRow">
+          <div class="np-cat-opt" data-cat="supplement" onclick="setNpCategory('supplement',this)">
+            <svg class="cat-icon"><use href="#cat-icon-supplement"/></svg><span>Supplement</span>
+          </div>
+          <div class="np-cat-opt" data-cat="electronics" onclick="setNpCategory('electronics',this)">
+            <svg class="cat-icon"><use href="#cat-icon-electronics"/></svg><span>Electronics</span>
+          </div>
+          <div class="np-cat-opt" data-cat="cosmetic" onclick="setNpCategory('cosmetic',this)">
+            <svg class="cat-icon"><use href="#cat-icon-cosmetic"/></svg><span>Cosmetic</span>
+          </div>
+          <div class="np-cat-opt" data-cat="clothing" onclick="setNpCategory('clothing',this)">
+            <svg class="cat-icon"><use href="#cat-icon-clothing"/></svg><span>Clothing</span>
+          </div>
+          <div class="np-cat-opt" data-cat="general" onclick="setNpCategory('general',this)">
+            <svg class="cat-icon"><use href="#cat-icon-general"/></svg><span>General</span>
+          </div>
+        </div>
+        <div class="fs-hint" id="npCatHint">Choose a category first — it decides which fields you'll fill in below</div>
+      </div>
 
       <div class="fs-field">
         <label class="fs-label">SKU *</label>
@@ -16606,6 +16971,8 @@ window.addEventListener('message',function(e){
       </div>
 
       <!-- ── SPECIFICATIONS ── -->
+      <!-- ── SPECIFICATIONS — Supplement & Cosmetic only ── -->
+      <div id="npSpecsSection" style="display:none">
       <div class="np-section-label">Specifications</div>
 
       <div class="fs-field">
@@ -16661,17 +17028,33 @@ window.addEventListener('message',function(e){
         <input type="number" class="fs-input" id="npWeight"
                placeholder="e.g. 200" step="0.1">
       </div>
+      </div>
 
-      <!-- Expiry + Initial Stock — paired for context -->
+      <!-- ── VARIANT — Electronics & Clothing only ── -->
+      <div id="npVariantSection" style="display:none">
+      <div class="np-section-label">Variant</div>
       <div style="display:flex;gap:10px">
         <div class="fs-field" style="flex:1">
+          <label class="fs-label">Color</label>
+          <input type="text" class="fs-input" id="npColor" placeholder="e.g. Black">
+        </div>
+        <div class="fs-field" style="flex:1">
+          <label class="fs-label">Size</label>
+          <input type="text" class="fs-input" id="npSize" placeholder="e.g. L, 42, One Size">
+        </div>
+      </div>
+      </div>
+
+      <!-- Expiry (conditional) + Initial Stock — paired for context -->
+      <div style="display:flex;gap:10px">
+        <div class="fs-field" id="npExpiryField" style="flex:1;display:none">
           <label class="fs-label">Expiry Date *</label>
           <input type="date" class="fs-input" id="npExpiry"
                  onchange="updateExpiryPreview()">
           <div class="fs-hint" id="npExpiryHint">Required</div>
           <div id="npExpiryPreview" style="font-family:'Plus Jakarta Sans',sans-serif;font-size:11px;font-weight:700;color:#7C6FF7;margin-top:4px;display:none"></div>
         </div>
-        <div class="fs-field" style="flex:1">
+        <div class="fs-field" id="npStockField" style="flex:1">
           <label class="fs-label">Initial Stock</label>
           <input type="number" class="fs-input" id="npStock"
                  placeholder="0" min="0" value="0">
@@ -19355,6 +19738,7 @@ function saveNewOrderDraft() {
    ====== RESTOCK MODAL ======
    ============================================================ */
 let _npBrandColor = '#009ddc';
+let npCategory = '';
 
 function openRestockModal() {
   closeActionSheet();
@@ -19363,6 +19747,12 @@ function openRestockModal() {
   document.getElementById('rsQtyDisplay').textContent = '1';
   document.getElementById('rsSupplier').value = '';
   document.getElementById('rsDate').value = new Date().toISOString().split('T')[0];
+  npCategory = '';
+  document.querySelectorAll('.np-cat-opt').forEach(o => o.classList.remove('selected'));
+  document.getElementById('npSpecsSection').style.display = 'none';
+  document.getElementById('npExpiryField').style.display = 'none';
+  document.getElementById('npVariantSection').style.display = 'none';
+  document.getElementById('npStockField').style.flex = '1 1 100%';
   const pickerBtn = document.getElementById('rsProdPickerBtn');
   const selectedRow = document.getElementById('rsProdSelected');
   const amtRow = document.getElementById('rsProdAmountRow');
@@ -19393,6 +19783,26 @@ function switchRestockTab(mode) {
     confirmBtn.classList.add('skeu-restock-btn');
   }
   document.getElementById('restockModalTitle').textContent = isNew ? 'Add New Product' : 'Restock Entry';
+}
+
+function setNpCategory(cat, el) {
+  npCategory = cat;
+  document.querySelectorAll('.np-cat-opt').forEach(o => o.classList.remove('selected'));
+  if (el) el.classList.add('selected');
+  document.getElementById('npCatHint').classList.remove('visible');
+
+  const needsExpiry  = cat === 'supplement' || cat === 'cosmetic';
+  const needsVariant = cat === 'electronics' || cat === 'clothing';
+
+  document.getElementById('npSpecsSection').style.display   = needsExpiry  ? 'block' : 'none';
+  document.getElementById('npExpiryField').style.display    = needsExpiry  ? 'block' : 'none';
+  document.getElementById('npVariantSection').style.display = needsVariant ? 'block' : 'none';
+  document.getElementById('npStockField').style.flex        = needsExpiry  ? '1' : '1 1 100%';
+
+  if (!needsExpiry) {
+    document.getElementById('npExpiry').value = '';
+    document.getElementById('npExpiryHint').classList.remove('visible');
+  }
 }
 
 function selectBrandColor(color, el) {
@@ -19518,19 +19928,29 @@ function clearRestockProduct() {
   document.getElementById('rsProdAmountRow').style.display = 'none';
   document.getElementById('rsProdLineTotal').textContent = '৳0';
   document.getElementById('rsCpmRow').style.display = 'none';
+  document.getElementById('rsExpiryField').style.display = 'block';
 }
 
 function selectRestockProduct(name) {
   _restockPickerActive = false;
   const products = {
-    'Omega-3 Ultra':       { sku:'NW-OMG3-UTA-180', price:5950, cost:3094 },
-    'Magnesium Glycinate': { sku:'DB-MAG-GLY-120',  price:3250, cost:1690 },
-    'Betaine HCL & Pepsin':{ sku:'DB-HCI-PEP-120',  price:3000, cost:1560 },
-    'Vitamin D3 + K2':     { sku:'DB-VD3-K2-90',    price:6150, cost:3198 },
-    'Zinc Complex':        { sku:'DB-ZNC-CMP-60',    price:2400, cost:1248 }
+    'Omega-3 Ultra':       { sku:'NW-OMG3-UTA-180', price:5950, cost:3094, category:'supplement' },
+    'Magnesium Glycinate': { sku:'DB-MAG-GLY-120',  price:3250, cost:1690, category:'supplement' },
+    'Betaine HCL & Pepsin':{ sku:'DB-HCI-PEP-120',  price:3000, cost:1560, category:'supplement' },
+    'Vitamin D3 + K2':     { sku:'DB-VD3-K2-90',    price:6150, cost:3198, category:'supplement' },
+    'Zinc Complex':        { sku:'DB-ZNC-CMP-60',    price:2400, cost:1248, category:'supplement' },
+    'Digital Kitchen Scale': { sku:'GN-DKS-BLK-01', price:1800, cost:900,  category:'electronics' },
+    'Compression T-Shirt':   { sku:'AP-CTS-BLK-L',  price:1200, cost:550,  category:'clothing' }
   };
   const p = products[name];
   if (!p) return;
+
+  const needsExpiry = p.category === 'supplement' || p.category === 'cosmetic';
+  document.getElementById('rsExpiryField').style.display = needsExpiry ? 'block' : 'none';
+  if (!needsExpiry) {
+    document.getElementById('rsDate').value = '';
+    document.getElementById('rsExpiryTag').style.display = 'none';
+  }
 
   const margin = p.price > 0 ? ((p.price - p.cost) / p.price * 100).toFixed(1) : 0;
   const mCls = margin < 20 ? 'red' : margin < 30 ? 'amber' : 'green';
@@ -19831,43 +20251,49 @@ async function saveNewProduct() {
   const productName = document.getElementById('npProductName').value.trim();
   const usd         = parseFloat(document.getElementById('npUsdCost').value) || 0;
   const sell        = parseFloat(document.getElementById('npSellPrice').value) || 0;
-  const expiry      = document.getElementById('npExpiry').value;
+  const needsExpiry = npCategory === 'supplement' || npCategory === 'cosmetic';
+  const expiry      = needsExpiry ? document.getElementById('npExpiry').value : '';
 
   let hasError = false;
   const fields = [
+    { val: !!npCategory, hint: 'npCatHint',    input: null },
     { val: sku,         hint: 'npSkuHint',     input: 'npSku' },
     { val: brandName,   hint: 'npBrandHint',   input: 'npBrandName' },
     { val: productName, hint: 'npProductHint', input: 'npProductName' },
     { val: usd > 0,     hint: 'npUsdHint',     input: 'npUsdCost' },
     { val: sell > 0,    hint: 'npSellHint',     input: 'npSellPrice' },
-    { val: expiry,      hint: 'npExpiryHint',   input: 'npExpiry' },
   ];
+  if (needsExpiry) fields.push({ val: expiry, hint: 'npExpiryHint', input: 'npExpiry' });
   fields.forEach(f => {
     const ok = typeof f.val === 'boolean' ? f.val : !!f.val;
     document.getElementById(f.hint).classList.toggle('visible', !ok);
-    const inp = document.getElementById(f.input);
-    if (!ok) { inp.classList.add('shake'); setTimeout(() => inp.classList.remove('shake'), 400); }
+    const inp = f.input ? document.getElementById(f.input) : null;
+    if (!ok && inp) { inp.classList.add('shake'); setTimeout(() => inp.classList.remove('shake'), 400); }
     if (!ok) hasError = true;
   });
   if (hasError) return;
 
   const bdtCost    = Math.round(usd * EXCHANGE_RATE);
-  const expiryDate = new Date(expiry + '-01');
-  const expiryStr  = expiryDate.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+  const expiryDate = needsExpiry ? new Date(expiry + '-01') : null;
+  const expiryStr  = needsExpiry ? expiryDate.toLocaleDateString('en-US', { month: 'short', year: 'numeric' }) : null;
   const stock      = parseInt(document.getElementById('npStock').value) || 0;
-  const form       = document.getElementById('npForm').value;
-  const caps       = document.getElementById('npCapsuleCount').value;
-  const potency    = document.getElementById('npPotencyType').value;
-  const weight     = document.getElementById('npWeight').value;
+  const form       = needsExpiry ? document.getElementById('npForm').value : '';
+  const caps       = needsExpiry ? document.getElementById('npCapsuleCount').value : '';
+  const potency    = needsExpiry ? document.getElementById('npPotencyType').value : '';
+  const weight     = needsExpiry ? document.getElementById('npWeight').value : '';
+  const isVariant  = npCategory === 'electronics' || npCategory === 'clothing';
+  const npColor2   = isVariant ? document.getElementById('npColor').value.trim() : '';
+  const npSize2    = isVariant ? document.getElementById('npSize').value.trim() : '';
   const brandCode  = document.getElementById('npBrandCode').value.trim().toUpperCase() || brandName.substring(0,2).toUpperCase();
   const prodCode   = document.getElementById('npProductCode').value.trim().toUpperCase();
   const supplier   = document.getElementById('npSupplier').value.trim();
   const color      = _npBrandColor;
   const avatarColor = (color === '#2f9b68' || color === '#4CAF7D') ? 'g' : (color === '#d95353' || color === '#e91e8c') ? 'r' : 'p';
+  const variantStr = (npColor2 && npSize2) ? (npColor2 + ', ' + npSize2) : (npColor2 || npSize2 || null);
 
   const newProduct = {
     name: productName, sku, price: sell, cost: bdtCost, stock, expiry: expiryStr,
-    color: avatarColor, supplier,
+    color: avatarColor, supplier, category: npCategory, variant: variantStr,
     meta: { brandName, brandCode, brandColor: color, productCode: prodCode, form,
             capsuleCount: caps ? parseInt(caps) : null, potencyType: potency,
             weight: weight ? parseFloat(weight) : null, usdCost: usd }
@@ -20944,7 +21370,7 @@ function changeQty(inputId, delta) {
    ============================================================ */
 const PRODUCTS_DATA = [
   {
-    name:"Omega-3 Ultra", sku:"NW-OMG3-UTA-180", price:5950, cost:4200, stock:4, color:"g", supplier:"Nature's Way",
+    name:"Omega-3 Ultra", sku:"NW-OMG3-UTA-180", price:5950, cost:4200, stock:4, color:"g", supplier:"Nature's Way", category:"supplement",
     batches:[
       { id:"BTH-001", expiryDate:"2025-09-15", qty:2, costPerUnit:4200 },
       { id:"BTH-002", expiryDate:"2026-04-20", qty:1, costPerUnit:4050 },
@@ -20952,20 +21378,20 @@ const PRODUCTS_DATA = [
     ]
   },
   {
-    name:"Magnesium Glycinate", sku:"DB-MAG-GLY-120", price:3250, cost:1690, stock:6, color:"p", supplier:"Designs for Health",
+    name:"Magnesium Glycinate", sku:"DB-MAG-GLY-120", price:3250, cost:1690, stock:6, color:"p", supplier:"Designs for Health", category:"supplement",
     batches:[
       { id:"BTH-004", expiryDate:"2026-02-10", qty:3, costPerUnit:1690 },
       { id:"BTH-005", expiryDate:"2028-05-22", qty:3, costPerUnit:1600 },
     ]
   },
   {
-    name:"Betaine HCL & Pepsin", sku:"DB-HCI-PEP-120", price:3000, cost:1950, stock:0, color:"r", supplier:"Designs for Health",
+    name:"Betaine HCL & Pepsin", sku:"DB-HCI-PEP-120", price:3000, cost:1950, stock:0, color:"r", supplier:"Designs for Health", category:"supplement",
     batches:[
       { id:"BTH-006", expiryDate:"2027-09-01", qty:0, costPerUnit:1950 },
     ]
   },
   {
-    name:"Vitamin D3 + K2", sku:"DB-VD3-K2-90", price:6150, cost:3800, stock:8, color:"p", supplier:"Designs for Health",
+    name:"Vitamin D3 + K2", sku:"DB-VD3-K2-90", price:6150, cost:3800, stock:8, color:"p", supplier:"Designs for Health", category:"supplement",
     batches:[
       { id:"BTH-007", expiryDate:"2026-08-15", qty:2, costPerUnit:3800 },
       { id:"BTH-008", expiryDate:"2027-11-30", qty:3, costPerUnit:3750 },
@@ -20973,16 +21399,35 @@ const PRODUCTS_DATA = [
     ]
   },
   {
-    name:"Zinc Complex", sku:"DB-ZNC-CMP-60", price:2400, cost:1200, stock:2, color:"g", supplier:"Nature's Best",
+    name:"Zinc Complex", sku:"DB-ZNC-CMP-60", price:2400, cost:1200, stock:2, color:"g", supplier:"Nature's Best", category:"supplement",
     batches:[
       { id:"BTH-010", expiryDate:"2026-03-05", qty:1, costPerUnit:1200 },
       { id:"BTH-011", expiryDate:"2028-03-20", qty:1, costPerUnit:1150 },
     ]
   },
+  {
+    name:"Digital Kitchen Scale", sku:"GN-DKS-BLK-01", price:1800, cost:900, stock:11, color:"p", supplier:"Generic Import", category:"electronics",
+    variant:"Black", batches:null
+  },
+  {
+    name:"Compression T-Shirt", sku:"AP-CTS-BLK-L", price:1200, cost:550, stock:14, color:"g", supplier:"Local Apparel Co.", category:"clothing",
+    variant:"Black, L", batches:null
+  },
 ];
 
 let productFilter = 'all';
 let productSearch = '';
+let productCategory = 'all';
+const CATEGORY_META = {
+  supplement:  { label: 'Supplement',  icon: 'supplement' },
+  electronics: { label: 'Electronics', icon: 'electronics' },
+  cosmetic:    { label: 'Cosmetic',    icon: 'cosmetic' },
+  clothing:    { label: 'Clothing',    icon: 'clothing' },
+  general:     { label: 'General',     icon: 'general' }
+};
+function catIconSVG(key) {
+  return `<svg class="cat-icon"><use href="#cat-icon-${key}"/></svg>`;
+}
 
 function capsuleSVG(color) {
   const col = color === 'g' ? '#2a9d5c' : color === 'r' ? '#e05252' : '#7C6FF7';
@@ -21103,7 +21548,8 @@ function renderProductsTab(searchDisplayVal) {
     const matchSearch = !productSearch ||
       p.name.toLowerCase().includes(productSearch) ||
       p.sku.toLowerCase().includes(productSearch);
-    return matchFilter && matchSearch;
+    const matchCategory = productCategory === 'all' || p.category === productCategory;
+    return matchFilter && matchSearch && matchCategory;
   });
 
   const totalSKUs  = PRODUCTS_DATA.length;
@@ -21125,6 +21571,8 @@ function renderProductsTab(searchDisplayVal) {
     const isExpanded  = !!_batchExpanded[pid];
 
     const chevronSVG = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>`;
+    const cat = CATEGORY_META[p.category] || CATEGORY_META.general;
+    const expires = p.category === 'supplement' || p.category === 'cosmetic';
 
     return `
     <div class="prod-card">
@@ -21133,6 +21581,7 @@ function renderProductsTab(searchDisplayVal) {
         <div class="prod-card-info">
           <div class="prod-card-name">${escapeHtml(p.name)}</div>
           <div class="prod-card-sku">${p.sku}</div>
+          <div class="prod-category-tag">${catIconSVG(cat.icon)} ${cat.label}</div>
         </div>
         <div class="stock-badge ${sc}">${p.stock}</div>
       </div>
@@ -21151,6 +21600,7 @@ function renderProductsTab(searchDisplayVal) {
         </div>
       </div>
 
+      ${expires ? `
       <!-- EXPIRY BAR — original design, tappable when batches exist -->
       <div class="expiry-bar${isExpanded ? ' expanded' : ''}"
            id="expiry-bar-${pid}"
@@ -21163,8 +21613,13 @@ function renderProductsTab(searchDisplayVal) {
           ${hasBatches ? `<span class="expiry-bar-chevron">${chevronSVG}</span>` : ''}
         </div>
       </div>
-
       ${hasBatches ? buildBatchDropdown(pid, p.batches) : ''}
+      ` : (p.variant ? `
+      <div class="expiry-bar" style="cursor:default">
+        <div class="expiry-label">Variant</div>
+        <div class="expiry-right"><span class="expiry-val">${escapeHtml(p.variant)}</span></div>
+      </div>
+      ` : '')}
     </div>`;
   }).join('');
 
@@ -21174,6 +21629,16 @@ function renderProductsTab(searchDisplayVal) {
         <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;font-weight:700">No products found</div>
       </div>` : '';
 
+  const catCounts = {};
+  PRODUCTS_DATA.forEach(p => { catCounts[p.category] = (catCounts[p.category] || 0) + 1; });
+  const catMenuItems = Object.keys(CATEGORY_META).map(key => {
+    const meta = CATEGORY_META[key];
+    const count = catCounts[key] || 0;
+    return `<div class="pcm-item ${productCategory===key?'active':''}" onclick="setProductCategory('${key}')">
+      <span style="display:flex;align-items:center;gap:7px">${catIconSVG(meta.icon)} ${meta.label}</span><span class="pcm-count">${count}</span>
+    </div>`;
+  }).join('');
+
   document.getElementById('productsTabContent').innerHTML = `
     <div class="products-summary-bar">
       <div class="psb-card"><div class="psb-val">${totalSKUs}</div><div class="psb-lbl">Total SKUs</div></div>
@@ -21181,8 +21646,22 @@ function renderProductsTab(searchDisplayVal) {
       <div class="psb-card"><div class="psb-val">${totalUnits}</div><div class="psb-lbl">Units in Stock</div></div>
     </div>
     <div class="products-search">
-      <div class="products-search-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div>
-      <input class="products-search-input" type="text" placeholder="Search product or SKU..." id="productSearchInput" oninput="onProductSearch(this.value)" value="${escapeHtml(inputVal)}">
+      <div class="products-search-input-wrap">
+        <div class="products-search-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div>
+        <input class="products-search-input" type="text" placeholder="Search product or SKU..." id="productSearchInput" oninput="onProductSearch(this.value)" value="${escapeHtml(inputVal)}">
+      </div>
+      <div class="products-category-wrap">
+        <div class="products-category-btn ${productCategory!=='all'?'active':''}" onclick="toggleCategoryMenu(event)" id="productCategoryBtn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="6" x2="20" y2="6"/><line x1="7" y1="12" x2="17" y2="12"/><line x1="10" y1="18" x2="14" y2="18"/></svg>
+          ${productCategory!=='all' ? '<span class="products-category-dot"></span>' : ''}
+        </div>
+        <div class="products-category-menu" id="productCategoryMenu">
+          <div class="pcm-item ${productCategory==='all'?'active':''}" onclick="setProductCategory('all')">
+            <span style="display:flex;align-items:center;gap:7px"><svg class="cat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="6" x2="20" y2="6"/><line x1="7" y1="12" x2="17" y2="12"/><line x1="10" y1="18" x2="14" y2="18"/></svg> All Categories</span><span class="pcm-count">${totalSKUs}</span>
+          </div>
+          ${catMenuItems}
+        </div>
+      </div>
     </div>
     <div class="products-filter-row">
       <div class="filter-chip ${productFilter==='all'?'active':''}" onclick="setProductFilter('all')">All (${totalSKUs})</div>
@@ -21193,6 +21672,23 @@ function renderProductsTab(searchDisplayVal) {
     ${cards}${empty}
   `;
 }
+
+function toggleCategoryMenu(e) {
+  e.stopPropagation();
+  const menu = document.getElementById('productCategoryMenu');
+  if (menu) menu.classList.toggle('open');
+}
+function setProductCategory(cat) {
+  productCategory = cat;
+  renderProductsTab();
+}
+document.addEventListener('click', function(e) {
+  const menu = document.getElementById('productCategoryMenu');
+  const btn  = document.getElementById('productCategoryBtn');
+  if (menu && menu.classList.contains('open') && !menu.contains(e.target) && e.target !== btn && !btn?.contains(e.target)) {
+    menu.classList.remove('open');
+  }
+});
 
 function onProductSearch(val) {
   productSearch = val.toLowerCase().trim();
@@ -21604,6 +22100,11 @@ window.addEventListener('message', function(e) {
     renderDrawerVouchers();
   }
   if (e.data && e.data.type === 'voucher-created') {
+    renderDrawerVouchers();
+  }
+  if (e.data && e.data.type === 'voucher-updated') {
+    // TODO: once Supabase is wired, this is where the update gets written back
+    // to the row and the management list re-renders from real data.
     renderDrawerVouchers();
   }
   if (e.data && e.data.type === 'open-voucher-create') {
@@ -23006,7 +23507,7 @@ html[data-theme="dark"] .ch-count {
   height: 100%;
   border: none;
   display: block;
-  background: #162130;
+  background: var(--surface);
 }
 
 /* =============================================
@@ -24450,11 +24951,49 @@ _hq('.modal-overlay').forEach(overlay => {
 });
 
 // =============================================
-// STUB HANDLERS
+// EDIT VOUCHER
+// TODO: Replace MOCK_VOUCHERS lookup with a Supabase fetch by voucher_code
 // =============================================
+const MOCK_VOUCHERS = {
+  'SUP-EVT-EID24': {
+    voucher_code: 'SUP-EVT-EID24', theme: 'blue', type: 'event',
+    discount_type: 'percent', discount_amount: 20,
+    usage_limit: 'multiple', max_uses: 100, per_customer_limit: false,
+    title: 'EID SPECIAL', subtitle: 'Everything On Sale',
+    description: 'Enjoy 20% off your entire order during Eid.',
+    expiry_date: '2026-06-22', products: null, redemptions: 47
+  },
+  'SUP-NEW-WEL15': {
+    voucher_code: 'SUP-NEW-WEL15', theme: 'blue', type: 'newcustomer',
+    discount_type: 'percent', discount_amount: 15,
+    usage_limit: 'multiple', max_uses: null, per_customer_limit: true,
+    title: 'WELCOME15', subtitle: 'New Customer Offer',
+    description: 'Get 15% off your first order with us.',
+    expiry_date: '2026-12-31', products: null, redemptions: 12
+  }
+};
+
 function openEditModal(code) {
-  hubShowToast('Edit modal coming in Build #3 →', 'success');
-  // TODO: Open VoucherEditModal.html with code param
+  closeActionSheet();
+  const data = MOCK_VOUCHERS[code];
+  if (!data) { hubShowToast('Voucher not found', 'error'); return; }
+
+  const overlay = document.getElementById('voucherOverlay');
+  const frame   = document.getElementById('voucherFrame');
+  const src     = document.getElementById('vc-src');
+  if (!overlay || !frame || !src) return;
+
+  const dark = document.documentElement.getAttribute('data-theme') === 'dark';
+  const vcHtml = src.value
+    .replace(/\<\\\/textarea\>/g, '</textarea>')
+    .replace('data-theme="dark"','data-theme="'+(dark?'dark':'light')+'"');
+  frame.srcdoc = vcHtml; // always reload for fresh state
+  overlay.style.display = 'block';
+
+  const sendEdit = () => {
+    try { frame.contentWindow.postMessage({ type: 'LOAD_EDIT', voucher: data }, '*'); } catch(e) {}
+  };
+  frame.onload = () => setTimeout(sendEdit, 80);
 }
 function cloneVoucher(code) {
   hubShowToast('Clone ready — opens creation form pre-filled', 'success');
@@ -24748,7 +25287,7 @@ html[data-theme="light"] .timeframe-bar .slide-indicator{
 }
 
 /* SCROLL BODY */
-.scroll-body{flex:1;overflow-y:auto;padding:12px 14px 80px;-webkit-overflow-scrolling:touch}
+.scroll-body{flex:1;overflow-y:auto;padding:12px 14px 110px;-webkit-overflow-scrolling:touch}
 .scroll-body::-webkit-scrollbar{width:3px}
 .scroll-body::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px}
 
@@ -25008,11 +25547,11 @@ html[data-theme="light"] .aov-bar-fill.without { background: rgba(0,31,60,.12); 
 .log-meta{display:flex;align-items:center;gap:5px;margin-top:2px;flex-wrap:wrap}
 .log-date{font-size:10px;font-weight:500;color:var(--text-muted)}
 .log-ch-tag{display:inline-flex;align-items:center;padding:1px 6px;border-radius:4px;font-size:9px;font-weight:700;letter-spacing:.02em}
-.log-ch-tag.fb{background:rgba(24,119,242,.12);color:var(--fb)}.log-ch-tag.ig{background:rgba(225,48,108,.1);color:var(--ig)}.log-ch-tag.web{background:rgba(47,155,104,.1);color:var(--web)}.log-ch-tag.wp{background:rgba(37,211,102,.1);color:var(--wp)}
+.log-ch-tag.fb{background:rgba(24,119,242,.12);color:var(--fb)}.log-ch-tag.ig{background:rgba(225,48,108,.1);color:var(--ig)}.log-ch-tag.web{background:rgba(124,111,247,.1);color:var(--web)}.log-ch-tag.wp{background:rgba(37,211,102,.1);color:var(--wp)}
 .log-amount{font-family:"Plus Jakarta Sans",sans-serif;font-size:13px;font-weight:800;color:var(--danger);flex-shrink:0}
 
 /* LOAD MORE */
-.load-more-btn{width:100%;height:38px;border-radius:10px;border:1.5px dashed var(--border);background:transparent;color:var(--text-muted);font-size:12px;font-weight:600;font-family:"DM Sans",sans-serif;cursor:pointer;margin-top:8px;transition:border-color .2s ease,color .2s ease}
+.load-more-btn{width:100%;height:38px;border-radius:10px;border:1.5px dashed var(--border);background:transparent;color:var(--text-muted);font-size:12px;font-weight:600;font-family:"DM Sans",sans-serif;cursor:pointer;margin-top:8px;margin-bottom:76px;transition:border-color .2s ease,color .2s ease}
 .load-more-btn:hover{border-color:var(--primary);color:var(--primary)}
 
 /* FAB */
@@ -25053,7 +25592,7 @@ html[data-theme="light"] .channel-filter-bar .slide-indicator{
 .ch-filter-chip.active.all {background:rgba(124,111,247,.12);border-color:rgba(124,111,247,.35);color:var(--primary)}
 .ch-filter-chip.active.fb  {background:rgba(24,119,242,.12);border-color:rgba(24,119,242,.35);color:var(--fb)}
 .ch-filter-chip.active.ig  {background:rgba(225,48,108,.12);border-color:rgba(225,48,108,.35);color:var(--ig)}
-.ch-filter-chip.active.web {background:rgba(47,155,104,.12);border-color:rgba(47,155,104,.35);color:var(--web)}
+.ch-filter-chip.active.web {background:rgba(124,111,247,.12);border-color:rgba(124,111,247,.35);color:var(--web)}
 .ch-filter-chip.active.wp  {background:rgba(37,211,102,.12);border-color:rgba(37,211,102,.35);color:var(--wp)}
 
 /* CHART TOOLTIP */
@@ -25218,7 +25757,7 @@ html[data-theme="light"] .channel-filter-bar .slide-indicator{
         By Channel
       </div>
     </div>
-    <div class="channel-card" id="channelCard" style="display:none"></div>
+    <div class="channel-card" id="channelCard"></div>
 
     <div class="section-header">
       <div class="section-title">
@@ -25226,7 +25765,7 @@ html[data-theme="light"] .channel-filter-bar .slide-indicator{
         Top Products Redeemed
       </div>
     </div>
-    <div class="products-card" id="productsCard" style="display:none"></div>
+    <div class="products-card" id="productsCard"></div>
 
     <div class="section-header">
       <div class="section-title">
@@ -25461,7 +26000,7 @@ function initSlideIndicators() {
     const chActive = document.querySelector('.ch-filter-chip.active');
     if (chActive) {
       const ch = chActive.getAttribute('data-ch') || 'all';
-      const chColors = {all:'#7c6ff7', fb:'#1877F2', ig:'#E1306C', web:'#2f9b68', wp:'#25D366'};
+      const chColors = {all:'#7c6ff7', fb:'#1877F2', ig:'#E1306C', web:'#7c6ff7', wp:'#25D366'};
       moveSlideIndicator('channelSlide', chActive, chColors[ch] || chColors.all, 0.12, 0.35);
     }
     // Also init voucher sub indicator after chips are rendered
@@ -25786,7 +26325,7 @@ function filterLogByChannel(ch, btn) {
   currentLogFilter = ch;
   document.querySelectorAll('.ch-filter-chip').forEach(b => b.classList.remove('active'));
   if (btn) btn.classList.add('active');
-  const chColors = {all:'#7c6ff7', fb:'#1877F2', ig:'#E1306C', web:'#2f9b68', wp:'#25D366'};
+  const chColors = {all:'#7c6ff7', fb:'#1877F2', ig:'#E1306C', web:'#7c6ff7', wp:'#25D366'};
   moveSlideIndicator('channelSlide', btn, chColors[ch] || chColors.all, 0.12, 0.35);
   const d = VOUCHERS[currentCode];
   renderLog(d.log, ch);
