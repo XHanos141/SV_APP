@@ -4414,6 +4414,25 @@ html[data-theme="dark"] .prod-picker-close svg { color: rgba(255,255,255,0.6); }
 
 .prod-picker-list { overflow-y: auto; flex: 1; padding: 8px 0 20px; }
 
+.prod-picker-cat-row {
+  display: flex; gap: 8px; padding: 10px 18px; overflow-x: auto;
+  -webkit-overflow-scrolling: touch; border-bottom: 1px solid #eef0f7; flex-shrink: 0;
+}
+.prod-picker-cat-row::-webkit-scrollbar { display: none; }
+html[data-theme="dark"] .prod-picker-cat-row { border-bottom-color: rgba(255,255,255,0.08); }
+.picker-cat-pill {
+  display: flex; align-items: center; gap: 6px; padding: 5px 12px 5px 5px;
+  border-radius: 20px; background: #f4f5f9; flex-shrink: 0; cursor: pointer;
+  transition: background 0.15s ease;
+}
+html[data-theme="dark"] .picker-cat-pill { background: rgba(255,255,255,0.07); }
+.picker-cat-pill.active { background: #7C6FF7; }
+.picker-cat-pill span { font-size: 12px; font-weight: 700; color: #556070; white-space: nowrap; }
+html[data-theme="dark"] .picker-cat-pill span { color: rgba(255,255,255,0.7); }
+.picker-cat-pill.active span { color: #fff; }
+.pill-dot { width: 20px; height: 20px; border-radius: 7px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.pill-dot svg { width: 12px; height: 12px; color: #fff; }
+
 /* Product item in picker */
 .prod-picker-item {
   display: flex; align-items: center; gap: 12px;
@@ -4435,6 +4454,8 @@ html[data-theme="dark"] .prod-picker-item { border-bottom-color: rgba(255,255,25
 html[data-theme="dark"] .prod-sl { background: #7b75bf; }
 
 .prod-info { flex: 1; min-width: 0; }
+.prod-picker-item .cat-icon-badge { width: 30px; height: 30px; border-radius: 9px; flex-shrink: 0; }
+.prod-picker-item .cat-icon-badge .cat-icon { width: 16px; height: 16px; }
 .prod-info-name { font-size: 13px; font-weight: 700; color: #001f3c; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 html[data-theme="dark"] .prod-info-name { color: #ffffff; }
 .prod-info-sku { font-family: monospace; font-size: 10px; font-weight: 700; color: #0891b2; letter-spacing: 0.1em; margin-top: 1px; }
@@ -4950,7 +4971,8 @@ html[data-theme="dark"] .pcm-item.active { color: #9d94ff; }
   padding: 2px 7px 2px 6px; border-radius: 5px; margin-top: 3px;
 }
 .cat-icon { width: 17px; height: 17px; flex-shrink: 0; fill: currentColor; }
-.pcm-item .cat-icon { width: 22px; height: 22px; }
+.pcm-item .cat-icon-badge { width: 26px; height: 26px; border-radius: 8px; }
+.pcm-item .cat-icon-badge .cat-icon { width: 14px; height: 14px; }
 
 .products-filter-row {
   display: flex; gap: 7px; margin-bottom: 14px; overflow-x: auto;
@@ -4988,6 +5010,12 @@ html[data-theme="dark"] .prod-card:hover { box-shadow: 0 8px 28px rgba(124,111,2
   width: 40px; height: 40px; border-radius: 12px;
   display: flex; align-items: center; justify-content: center; flex-shrink: 0;
 }
+.prod-avatar-badge {
+  width: 40px; height: 40px; border-radius: 12px;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  transform: translateY(-1px);
+}
+.prod-avatar-badge .cat-icon { width: 20px; height: 20px; color: #fff; }
 .prod-avatar.p { background: rgba(124,111,247,0.12); }
 .prod-avatar.g { background: rgba(42,157,92,0.12); }
 .prod-avatar.r { background: rgba(224,82,82,0.12); }
@@ -5060,7 +5088,7 @@ html[data-theme="dark"] .prod-stats { border-top-color: rgba(255,255,255,0.08); 
 html[data-theme="dark"] .prod-stat:not(:last-child) { border-right-color: rgba(255,255,255,0.08); }
 .prod-stat-label {
   font-size: 8px; font-weight: 700; color: #8c92a1;
-  letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 3px;
+  letter-spacing: 0.2px; text-transform: uppercase; margin-bottom: 3px;
   transition: color 0.35s ease;
 }
 html[data-theme="dark"] .prod-stat-label { color: rgba(255,255,255,0.35); }
@@ -5072,6 +5100,8 @@ html[data-theme="dark"] .prod-stat-val { color: #ffffff; }
 .prod-stat-val.green  { color: #2f9b68; }
 .prod-stat-val.purple { color: #7C6FF7; }
 .prod-stat-val.cyan   { color: #0891b2; }
+.prod-stat-val.blue   { color: #0EA5E9; }
+.prod-stat-val.grey   { color: #8c92a1; }
 .prod-stat-val.red    { color: #d95353; }
 .prod-stat-val.amber  { color: #d48c0a; }
 /* dark overrides — must beat html[data-theme="dark"] .prod-stat-val specificity */
@@ -5399,8 +5429,8 @@ html[data-theme="dark"] .np-calc-banner {
   background: linear-gradient(135deg, rgba(8,145,178,0.1), rgba(124,111,247,0.08));
   border-color: rgba(8,145,178,0.22);
 }
-.np-calc-item { flex: 1; padding: 10px 8px; text-align: center; }
-.np-calc-divider { width: 1px; background: rgba(8,145,178,0.15); }
+.np-calc-item { flex: 1; padding: 10px 3px; text-align: center; min-width: 0; }
+.np-calc-divider { width: 1px; background: rgba(8,145,178,0.15); flex-shrink: 0; }
 html[data-theme="dark"] .np-calc-divider { background: rgba(255,255,255,0.08); }
 .np-calc-label {
   font-size: 8px; font-weight: 700; color: #8c92a1;
@@ -5409,12 +5439,18 @@ html[data-theme="dark"] .np-calc-divider { background: rgba(255,255,255,0.08); }
 }
 html[data-theme="dark"] .np-calc-label { color: rgba(255,255,255,0.35); }
 .np-calc-val {
-  font-family: "Plus Jakarta Sans", sans-serif; font-size: 14px; font-weight: 800;
-  color: #001f3c; display: block; transition: color 0.3s ease;
+  font-family: "Plus Jakarta Sans", sans-serif; font-size: 12.5px; font-weight: 800;
+  color: #001f3c; display: block; transition: color 0.3s ease; white-space: nowrap;
 }
 html[data-theme="dark"] .np-calc-val { color: #ffffff; }
 .np-calc-val.cyan { color: #0891b2; }
 html[data-theme="dark"] .np-calc-val.cyan { color: #22d3ee; }
+.np-calc-val.blue { color: #0EA5E9; }
+html[data-theme="dark"] .np-calc-val.blue { color: #38bdf8; }
+.np-calc-val.purple { color: #7C6FF7; }
+html[data-theme="dark"] .np-calc-val.purple { color: #a095f5; }
+.np-calc-val.grey { color: #8c92a1; }
+html[data-theme="dark"] .np-calc-val.grey { color: rgba(255,255,255,0.5); }
 .np-margin-val.green { color: #2f9b68; }
 .np-margin-val.amber { color: #d48c0a; }
 html[data-theme="dark"] .np-margin-val.amber { color: #F4A922; }
@@ -5477,6 +5513,12 @@ html[data-theme="dark"] .np-auto-field {
 html[data-theme="dark"] .np-cat-opt { background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.1); }
 .np-cat-opt .cat-icon { width: 22px; height: 22px; color: #556070; }
 html[data-theme="dark"] .np-cat-opt .cat-icon { color: rgba(255,255,255,0.7); }
+.cat-icon-badge {
+  width: 34px; height: 34px; border-radius: 10px; display: flex; align-items: center; justify-content: center;
+  transition: background 0.2s ease;
+}
+.cat-icon-badge .cat-icon { width: 18px; height: 18px; color: #fff !important; }
+.np-cat-opt.selected .cat-icon-badge { background: transparent !important; }
 .np-cat-opt span {
   font-family: "Plus Jakarta Sans", sans-serif; font-size: 10.5px; font-weight: 700; color: #556070; white-space: nowrap;
 }
@@ -5545,6 +5587,8 @@ html[data-theme="dark"] #rtAutoId {
 html[data-theme="dark"] #rsCpmRow .prod-stats { border-color: rgba(255,255,255,0.1) !important; }
 html[data-theme="dark"] #rsCpmRow [style*="border-top"] { border-top-color: rgba(255,255,255,0.1) !important; }
 html[data-theme="dark"] .prod-stat-val.cyan { color: #22d3ee !important; }
+html[data-theme="dark"] .prod-stat-val.blue { color: #38bdf8 !important; }
+html[data-theme="dark"] .prod-stat-val.grey { color: rgba(255,255,255,0.5) !important; }
 
 /* Product selected row dark */
 html[data-theme="dark"] .prod-selected-row > .product-row {
@@ -14702,6 +14746,20 @@ html[data-theme="light"] .channel-filter-bar .slide-indicator{
               <span id="stSaveLabel">Save Rate</span>
             </button>
 
+            <div class="st-field" style="margin-top:16px;padding-top:16px;border-top:1px solid rgba(140,146,161,0.15)">
+              <label class="st-label">Weight Cost (Tk per KG)</label>
+              <div class="mc-input-wrap">
+                <span class="mc-prefix">&#2547;</span>
+                <input type="number" class="st-input" id="stWeightRateInput" value="2100" step="0.1" oninput="onWeightRateInput()">
+              </div>
+              <div class="st-hint">Used when a product's Costing Method is set to Weight Based. Tap Save to apply.</div>
+            </div>
+
+            <button class="st-save-btn" id="stWeightSaveBtn" onclick="confirmSaveWeightRate()">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+              <span id="stWeightSaveLabel">Save Weight Rate</span>
+            </button>
+
           </div>
         </div>
       </div>
@@ -16690,6 +16748,7 @@ window.addEventListener('message',function(e){
         <svg fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
       </button>
     </div>
+    <div class="prod-picker-cat-row" id="prodPickerCatRow" style="display:none"></div>
     <div class="prod-picker-list" id="prodPickerList"></div>
   </div>
 </div>
@@ -16731,6 +16790,7 @@ window.addEventListener('message',function(e){
           <div class="prod-selected-row" id="rsProdSelected" style="display:none;">
             <div class="product-row" style="width:100%;margin-bottom:0;">
               <div style="display:flex;align-items:center;gap:8px;">
+                <div id="rsProdCatBadge"></div>
                 <div class="prod-selected-info">
                   <div class="prod-selected-name" id="rsProdNameDisp"></div>
                   <div class="prod-sku-row">
@@ -16762,32 +16822,38 @@ window.addEventListener('message',function(e){
         <input type="hidden" id="rsProduct" value="">
         <input type="hidden" id="rsProductSku" value="">
         <input type="hidden" id="rsProductPrice" value="">
+        <input type="hidden" id="rsProductCost" value="">
+        <input type="hidden" id="rsProductCategory" value="">
         <input type="hidden" id="rsQty" value="1">
       </div>
       <div class="fs-field" id="rsCpmRow" style="display:none;">
         <div class="prod-stats" style="border:1.5px solid #dde1ea;border-radius:10px;padding:10px 14px;margin-top:2px;display:flex;flex-direction:column;gap:10px;">
           <div style="display:flex;gap:0;width:100%;">
             <div class="prod-stat" style="flex:1;">
-              <div class="prod-stat-label">COST</div>
-              <div class="prod-stat-val" id="rsCostVal">৳0</div>
+              <div class="prod-stat-label">USD Cost</div>
+              <div class="prod-stat-val blue" id="rsCostUsdVal">$0</div>
             </div>
             <div class="prod-stat" style="flex:1;">
-              <div class="prod-stat-label">PRICE</div>
-              <div class="prod-stat-val purple" id="rsPriceVal">৳0</div>
+              <div class="prod-stat-label">BDT Cost</div>
+              <div class="prod-stat-val purple" id="rsCostVal">৳0</div>
             </div>
             <div class="prod-stat" style="flex:1;">
-              <div class="prod-stat-label">MARGIN</div>
-              <div class="prod-stat-val" id="rsMarginVal">0%</div>
+              <div class="prod-stat-label">Weight Cost</div>
+              <div class="prod-stat-val grey" id="rsWeightCostVal">৳0</div>
             </div>
           </div>
           <div style="border-top:1.5px solid #dde1ea;padding-top:10px;display:flex;gap:0;width:100%;">
             <div class="prod-stat" style="flex:1;">
-              <div class="prod-stat-label">PRICE (USD)</div>
-              <div class="prod-stat-val cyan" id="rsPriceUsdVal">$0</div>
+              <div class="prod-stat-label">Selling Price</div>
+              <div class="prod-stat-val" id="rsPriceVal">৳0</div>
             </div>
             <div class="prod-stat" style="flex:1;">
-              <div class="prod-stat-label">PROFIT / UNIT</div>
+              <div class="prod-stat-label">PROFIT</div>
               <div class="prod-stat-val green" id="rsProfitVal">৳0</div>
+            </div>
+            <div class="prod-stat" style="flex:1;">
+              <div class="prod-stat-label">MARGIN</div>
+              <div class="prod-stat-val" id="rsMarginVal">0%</div>
             </div>
           </div>
         </div>
@@ -16811,8 +16877,18 @@ window.addEventListener('message',function(e){
       <!-- LIVE CALC BANNER -->
       <div class="np-calc-banner" id="npCalcBanner">
         <div class="np-calc-item">
+          <span class="np-calc-label">USD Price</span>
+          <span class="np-calc-val blue" id="npUsdDisplay">$0</span>
+        </div>
+        <div class="np-calc-divider"></div>
+        <div class="np-calc-item">
           <span class="np-calc-label">BDT Cost</span>
-          <span class="np-calc-val cyan" id="npBdtCost">৳0</span>
+          <span class="np-calc-val purple" id="npBdtCost">৳0</span>
+        </div>
+        <div class="np-calc-divider"></div>
+        <div class="np-calc-item">
+          <span class="np-calc-label">Weight Cost</span>
+          <span class="np-calc-val grey" id="npWeightCostDisplay">৳0</span>
         </div>
         <div class="np-calc-divider"></div>
         <div class="np-calc-item">
@@ -16833,19 +16909,19 @@ window.addEventListener('message',function(e){
         <label class="fs-label">Category *</label>
         <div class="np-cat-row" id="npCatRow">
           <div class="np-cat-opt" data-cat="supplement" onclick="setNpCategory('supplement',this)">
-            <svg class="cat-icon"><use href="#cat-icon-supplement"/></svg><span>Supplement</span>
+            <div class="cat-icon-badge" style="background:linear-gradient(135deg,#7C6FF7,#6952E0)"><svg class="cat-icon"><use href="#cat-icon-supplement"/></svg></div><span>Supplement</span>
           </div>
           <div class="np-cat-opt" data-cat="electronics" onclick="setNpCategory('electronics',this)">
-            <svg class="cat-icon"><use href="#cat-icon-electronics"/></svg><span>Electronics</span>
+            <div class="cat-icon-badge" style="background:linear-gradient(135deg,#0EA5E9,#0284C7)"><svg class="cat-icon"><use href="#cat-icon-electronics"/></svg></div><span>Electronics</span>
           </div>
           <div class="np-cat-opt" data-cat="cosmetic" onclick="setNpCategory('cosmetic',this)">
-            <svg class="cat-icon"><use href="#cat-icon-cosmetic"/></svg><span>Cosmetic</span>
+            <div class="cat-icon-badge" style="background:linear-gradient(135deg,#EC4899,#DB2777)"><svg class="cat-icon"><use href="#cat-icon-cosmetic"/></svg></div><span>Cosmetic</span>
           </div>
           <div class="np-cat-opt" data-cat="clothing" onclick="setNpCategory('clothing',this)">
-            <svg class="cat-icon"><use href="#cat-icon-clothing"/></svg><span>Clothing</span>
+            <div class="cat-icon-badge" style="background:linear-gradient(135deg,#14B8A6,#0D9488)"><svg class="cat-icon"><use href="#cat-icon-clothing"/></svg></div><span>Clothing</span>
           </div>
           <div class="np-cat-opt" data-cat="general" onclick="setNpCategory('general',this)">
-            <svg class="cat-icon"><use href="#cat-icon-general"/></svg><span>General</span>
+            <div class="cat-icon-badge" style="background:linear-gradient(135deg,#64748B,#475569)"><svg class="cat-icon"><use href="#cat-icon-general"/></svg></div><span>General</span>
           </div>
         </div>
         <div class="fs-hint" id="npCatHint">Choose a category first — it decides which fields you'll fill in below</div>
@@ -17023,11 +17099,6 @@ window.addEventListener('message',function(e){
         </div>
       </div>
 
-      <div class="fs-field">
-        <label class="fs-label">Weight (GM) <span style="color:#c5c9d4;font-weight:500">— optional</span></label>
-        <input type="number" class="fs-input" id="npWeight"
-               placeholder="e.g. 200" step="0.1">
-      </div>
       </div>
 
       <!-- ── VARIANT — Electronics & Clothing only ── -->
@@ -17054,34 +17125,55 @@ window.addEventListener('message',function(e){
           <div class="fs-hint" id="npExpiryHint">Required</div>
           <div id="npExpiryPreview" style="font-family:'Plus Jakarta Sans',sans-serif;font-size:11px;font-weight:700;color:#7C6FF7;margin-top:4px;display:none"></div>
         </div>
-        <div class="fs-field" id="npStockField" style="flex:1">
+        <div class="fs-field" id="npStockField" style="flex:0 0 auto;max-width:170px">
           <label class="fs-label">Initial Stock</label>
-          <input type="number" class="fs-input" id="npStock"
-                 placeholder="0" min="0" value="0">
+          <div class="qty-stepper">
+            <button type="button" class="qty-btn" onclick="changeNpStock(-1)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            </button>
+            <span class="qty-value" id="npStockDisplay">0</span>
+            <button type="button" class="qty-btn" onclick="changeNpStock(1)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            </button>
+          </div>
+          <input type="hidden" id="npStock" value="0">
         </div>
       </div>
 
       <!-- ── PRICING ── -->
       <div class="np-section-label">Pricing</div>
 
-      <div class="fs-field">
-        <label class="fs-label">Buying Price (USD) *</label>
+      <div class="fs-field" id="npUsdField">
+        <label class="fs-label">Buying Price (USD) <span style="color:#c5c9d4;font-weight:500">— optional</span></label>
         <div style="position:relative">
           <span class="mc-prefix" style="left:12px">$</span>
           <input type="number" class="fs-input has-prefix" id="npUsdCost"
                  placeholder="0.00" step="0.01" oninput="calcNewProductMargin()">
         </div>
-        <div class="fs-hint" id="npUsdHint">USD cost is required</div>
+      </div>
+
+      <div class="fs-field" id="npWeightField">
+        <label class="fs-label">Weight (GM) <span style="color:#c5c9d4;font-weight:500">— optional</span></label>
+        <input type="number" class="fs-input" id="npWeight"
+               placeholder="e.g. 200" step="0.1" oninput="calcNewProductMargin()">
+      </div>
+
+      <div class="fs-field">
+        <div class="np-cat-row" id="npCostingRow" style="overflow-x:visible">
+          <div class="np-cat-opt" data-method="manual" style="flex:1;min-width:0" onclick="setNpCostingMethod('manual',this)">
+            <span>Type total cost manually instead</span>
+          </div>
+        </div>
       </div>
 
       <div class="fs-field">
         <label class="fs-label">Buying Price (BDT)
-          <span style="font-size:9px;color:#0891b2;font-weight:700;margin-left:5px">auto — USD × rate</span>
+          <span style="font-size:9px;color:#0891b2;font-weight:700;margin-left:5px" id="npBdtCostAutoTag">auto — (USD × rate) + (weight × rate)</span>
         </label>
         <div style="position:relative">
           <span class="mc-prefix" style="left:12px">৳</span>
           <input type="number" class="fs-input has-prefix np-auto-field" id="npBdtCostInput"
-                 placeholder="auto-calculated" readonly tabindex="-1">
+                 placeholder="auto-calculated" readonly tabindex="-1" oninput="onManualBdtCostInput()">
         </div>
       </div>
 
@@ -17365,6 +17457,38 @@ window.addEventListener('message',function(e){
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
         Confirm Change
       </button>
+    </div>
+  </div>
+</div>
+
+<!-- ====== WEIGHT RATE WARNING MODAL ====== -->
+<div class="modal-overlay" id="weightRateWarningModal">
+  <div class="modal-panel" style="max-width:380px">
+    <div class="rate-warning-body">
+      <div class="rate-warning-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"></path>
+          <line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line>
+        </svg>
+      </div>
+      <div class="rate-warning-title">Update Weight Cost?</div>
+      <div class="rate-warning-text" id="weightRateAffectedText">This will change the rate used by <strong>0 products</strong> currently set to Weight Based costing.</div>
+      <div class="rate-warning-rate-preview">
+        <span class="rate-old" id="weightRateOldDisplay">৳2100</span>
+        <span class="rate-arrow">→</span>
+        <span class="rate-new" id="weightRateNewDisplay">৳2100</span>
+        <span style="font-size:10px;color:#8c92a1;margin-left:4px">Tk/KG</span>
+      </div>
+    </div>
+    <div class="save-modal-footer" style="flex-direction:column">
+      <button class="modal-btn modal-btn-warning" style="width:100%" onclick="applyWeightRateChange(true)">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+        Update All Linked Products
+      </button>
+      <button class="modal-btn modal-btn-confirm" style="width:100%" onclick="applyWeightRateChange(false)">
+        Save Rate Only — Keep Existing Costs
+      </button>
+      <button class="modal-btn modal-btn-cancel" style="width:100%" onclick="cancelWeightRateChange()">Cancel</button>
     </div>
   </div>
 </div>
@@ -17850,6 +17974,11 @@ let multiItemCount = 0;
 let savedCalculations = [];
 let currentViewingCalcId = null;
 
+/* WEIGHT COSTING */
+let WEIGHT_RATE = 2100;
+let weightRateDirty = false;
+let npCostingMethod = "formula";
+
 function onRateInput() {
   rateDirty = true;
   const btn = document.getElementById("stSaveBtn");
@@ -17899,6 +18028,75 @@ function applyRateChange() {
 }
 
 function saveRate() { confirmSaveRate(); }
+
+function onWeightRateInput() {
+  weightRateDirty = true;
+  const btn = document.getElementById("stWeightSaveBtn");
+  const lbl = document.getElementById("stWeightSaveLabel");
+  btn.classList.remove("saved");
+  lbl.textContent = "Save Weight Rate";
+}
+
+function countWeightCostedProducts() {
+  return PRODUCTS_DATA.filter(p => p.meta && p.meta.costingMethod !== "manual" && p.meta.weight > 0).length;
+}
+
+function confirmSaveWeightRate() {
+  const input = document.getElementById("stWeightRateInput");
+  const val = parseFloat(input.value);
+  if (isNaN(val) || val <= 0) return;
+  document.getElementById("weightRateOldDisplay").textContent = "৳" + WEIGHT_RATE;
+  document.getElementById("weightRateNewDisplay").textContent = "৳" + val;
+  const count = countWeightCostedProducts();
+  document.getElementById("weightRateAffectedText").innerHTML =
+    "This will change the rate used by <strong>" + count + " product" + (count === 1 ? "" : "s") + "</strong> that include a weight-based cost.";
+  document.getElementById("weightRateWarningModal").classList.add("active");
+}
+
+function cancelWeightRateChange() {
+  document.getElementById("weightRateWarningModal").classList.remove("active");
+  document.getElementById("stWeightRateInput").value = WEIGHT_RATE;
+  weightRateDirty = false;
+  document.getElementById("stWeightSaveLabel").textContent = "Save Weight Rate";
+}
+
+function applyWeightRateChange(updateExisting) {
+  const input = document.getElementById("stWeightRateInput");
+  const val = parseFloat(input.value);
+  if (!isNaN(val) && val > 0) {
+    WEIGHT_RATE = val;
+    localStorage.setItem("svbd-weight-rate", WEIGHT_RATE);
+
+    PRODUCTS_DATA.forEach(p => {
+      if (p.meta && p.meta.costingMethod !== "manual" && p.meta.weight > 0) {
+        if (updateExisting) {
+          // Recompute the FULL combined cost — USD component + weight component —
+          // never just the weight slice, so an imported product's USD cost isn't silently dropped.
+          const usdPart = (p.meta.usdCost || 0) * EXCHANGE_RATE;
+          const weightPart = (p.meta.weight / 1000) * WEIGHT_RATE;
+          p.cost = Math.round(usdPart + weightPart);
+          p.meta.costOutdated = false;
+        } else {
+          p.meta.costOutdated = true;
+        }
+      }
+    });
+
+    if (npCostingMethod !== "manual") calcNewProductMargin();
+
+    const btn = document.getElementById("stWeightSaveBtn");
+    const lbl = document.getElementById("stWeightSaveLabel");
+    btn.classList.add("saved");
+    lbl.textContent = "Saved!";
+    weightRateDirty = false;
+    setTimeout(() => {
+      if (!weightRateDirty) { lbl.textContent = "Save Weight Rate"; btn.classList.remove("saved"); }
+    }, 2000);
+
+    showToast(updateExisting ? "✓ Weight rate updated — linked product costs refreshed" : "✓ Weight rate saved — existing product costs kept as-is");
+  }
+  document.getElementById("weightRateWarningModal").classList.remove("active");
+}
 
 function formatBDT(n) {
   return "৳" + Math.round(n).toLocaleString("en-IN");
@@ -19127,10 +19325,19 @@ if (!isNaN(savedRate) && savedRate > 0) {
   document.getElementById("stRateInput").value = savedRate;
   document.getElementById("mcRateDisplay").innerHTML = EXCHANGE_RATE + '<span>BDT/USD</span>';
 }
+// Load saved weight cost rate
+const savedWeightRate = parseFloat(localStorage.getItem("svbd-weight-rate"));
+if (!isNaN(savedWeightRate) && savedWeightRate > 0) {
+  WEIGHT_RATE = savedWeightRate;
+  document.getElementById("stWeightRateInput").value = savedWeightRate;
+}
 
 /* Modal overlay close handlers */
 document.getElementById("rateWarningModal").addEventListener("click", function(e) {
   if (e.target === this) cancelRateChange();
+});
+document.getElementById("weightRateWarningModal").addEventListener("click", function(e) {
+  if (e.target === this) cancelWeightRateChange();
 });
 document.getElementById("pdfSizeModal").addEventListener("click", function(e) {
   if (e.target === this) closePdfSizePicker();
@@ -19399,8 +19606,23 @@ function openEditDraft(cardId, e) {
   updateNewOrderSummary();
 }
 
+let _restockPickerCategory = 'all';
+
 function openProductPicker(rowId) {
   _pickerTargetRow = rowId;
+  const catRow = document.getElementById('prodPickerCatRow');
+
+  if (rowId === '__restock__') {
+    // Restock pulls from the real, live inventory — not the sample order catalog.
+    _restockPickerCategory = 'all';
+    catRow.style.display = 'flex';
+    buildPickerCatRow('all');
+    renderRestockPickerList('all');
+    document.getElementById('prodPickerOverlay').classList.add('active');
+    return;
+  }
+
+  catRow.style.display = 'none';
   const list = document.getElementById('prodPickerList');
   const products = Object.entries(PRODUCT_CATALOG);
   list.innerHTML = products.map(([name, data], i) => {
@@ -19419,6 +19641,51 @@ function openProductPicker(rowId) {
       </div>`;
   }).join('');
   document.getElementById('prodPickerOverlay').classList.add('active');
+}
+
+function buildPickerCatRow(activeCat) {
+  const allPill = `<div class="picker-cat-pill ${activeCat === 'all' ? 'active' : ''}" onclick="filterRestockPicker('all')">
+    <span class="pill-dot" style="background:#8c92a1"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8"/></svg></span>
+    <span>All</span>
+  </div>`;
+  const catPills = Object.keys(CATEGORY_META).map(key => {
+    const meta = CATEGORY_META[key];
+    return `<div class="picker-cat-pill ${activeCat === key ? 'active' : ''}" onclick="filterRestockPicker('${key}')">
+      <span class="pill-dot" style="background:linear-gradient(135deg,${meta.color},${meta.color2})"><svg class="cat-icon" style="width:12px;height:12px;color:#fff"><use href="#cat-icon-${meta.icon}"/></svg></span>
+      <span>${meta.label}</span>
+    </div>`;
+  }).join('');
+  document.getElementById('prodPickerCatRow').innerHTML = allPill + catPills;
+}
+
+function filterRestockPicker(cat) {
+  _restockPickerCategory = cat;
+  buildPickerCatRow(cat);
+  renderRestockPickerList(cat);
+}
+
+function renderRestockPickerList(cat) {
+  const list = document.getElementById('prodPickerList');
+  const filtered = cat === 'all' ? PRODUCTS_DATA : PRODUCTS_DATA.filter(p => p.category === cat);
+  if (filtered.length === 0) {
+    list.innerHTML = `<div style="padding:40px 20px;text-align:center;color:#8c92a1;font-size:13px;font-weight:600">No products in this category</div>`;
+    return;
+  }
+  list.innerHTML = filtered.map(p => {
+    const stock = getStockInfo(p.stock);
+    return `
+      <div class="prod-picker-item" onclick="selectProduct('__restock__', '${p.name.replace(/'/g, "\\'")}')">
+        ${catIconBadgeSVG(p.category)}
+        <div class="prod-info">
+          <div class="prod-info-name">${escapeHtml(p.name)}</div>
+          <div class="prod-info-sku">${p.sku}</div>
+        </div>
+        <div class="prod-right">
+          <span class="stock-badge ${stock.cls}">${stock.label}</span>
+          <span class="prod-price">৳${p.price.toLocaleString('en-IN')}</span>
+        </div>
+      </div>`;
+  }).join('');
 }
 
 function closeProductPicker() {
@@ -19743,6 +20010,9 @@ let npCategory = '';
 function openRestockModal() {
   closeActionSheet();
   document.getElementById('rsProduct').value = '';
+  document.getElementById('rsProductCost').value = '';
+  document.getElementById('rsProductCategory').value = '';
+  document.getElementById('rsProdCatBadge').innerHTML = '';
   document.getElementById('rsQty').value = '1';
   document.getElementById('rsQtyDisplay').textContent = '1';
   document.getElementById('rsSupplier').value = '';
@@ -19752,7 +20022,12 @@ function openRestockModal() {
   document.getElementById('npSpecsSection').style.display = 'none';
   document.getElementById('npExpiryField').style.display = 'none';
   document.getElementById('npVariantSection').style.display = 'none';
-  document.getElementById('npStockField').style.flex = '1 1 100%';
+  document.getElementById('npWeight').value = '';
+  document.getElementById('npUsdCost').value = '';
+  document.getElementById('npSellPrice').value = '';
+  document.getElementById('npStock').value = '0';
+  document.getElementById('npStockDisplay').textContent = '0';
+  setNpCostingMethod('formula', null);
   const pickerBtn = document.getElementById('rsProdPickerBtn');
   const selectedRow = document.getElementById('rsProdSelected');
   const amtRow = document.getElementById('rsProdAmountRow');
@@ -19797,7 +20072,6 @@ function setNpCategory(cat, el) {
   document.getElementById('npSpecsSection').style.display   = needsExpiry  ? 'block' : 'none';
   document.getElementById('npExpiryField').style.display    = needsExpiry  ? 'block' : 'none';
   document.getElementById('npVariantSection').style.display = needsVariant ? 'block' : 'none';
-  document.getElementById('npStockField').style.flex        = needsExpiry  ? '1' : '1 1 100%';
 
   if (!needsExpiry) {
     document.getElementById('npExpiry').value = '';
@@ -19872,13 +20146,62 @@ function updatePotencyPreview() {
   }
 }
 
-function calcNewProductMargin() {
-  const usd  = parseFloat(document.getElementById('npUsdCost').value)    || 0;
-  const sell = parseFloat(document.getElementById('npSellPrice').value)   || 0;
-  const bdtCost = usd * EXCHANGE_RATE;
+function setNpCostingMethod(method, el) {
+  // Tapping the pill that's already active turns it off, falling back to the combined auto formula
+  if (npCostingMethod === method) { method = 'formula'; el = null; }
+  npCostingMethod = method;
+  document.querySelectorAll('#npCostingRow .np-cat-opt').forEach(o => o.classList.remove('selected'));
+  if (el) el.classList.add('selected');
 
-  document.getElementById('npBdtCostInput').value = bdtCost > 0 ? Math.round(bdtCost) : '';
+  const usdField    = document.getElementById('npUsdField');
+  const weightField = document.getElementById('npWeightField');
+  const bdtInput     = document.getElementById('npBdtCostInput');
+  const autoTag      = document.getElementById('npBdtCostAutoTag');
+
+  const isManual = method === 'manual';
+  usdField.style.display    = isManual ? 'none' : 'block';
+  weightField.style.display = isManual ? 'none' : 'block';
+
+  if (isManual) {
+    bdtInput.readOnly = false;
+    bdtInput.removeAttribute('tabindex');
+    bdtInput.placeholder = '0';
+    autoTag.textContent = 'enter manually';
+  } else {
+    bdtInput.readOnly = true;
+    bdtInput.setAttribute('tabindex', '-1');
+    bdtInput.placeholder = 'auto-calculated';
+    autoTag.textContent = 'auto — (USD × rate) + (weight × rate)';
+  }
+
+  calcNewProductMargin();
+}
+
+function onManualBdtCostInput() {
+  if (npCostingMethod === 'manual') calcNewProductMargin();
+}
+
+function calcNewProductMargin() {
+  const usd    = parseFloat(document.getElementById('npUsdCost').value)    || 0;
+  const weight = parseFloat(document.getElementById('npWeight').value)     || 0;
+  const sell   = parseFloat(document.getElementById('npSellPrice').value)  || 0;
+
+  document.getElementById('npUsdDisplay').textContent = usd > 0 ? '$' + usd.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '$0';
+
+  let bdtCost = 0;
+  if (npCostingMethod === 'manual') {
+    bdtCost = parseFloat(document.getElementById('npBdtCostInput').value) || 0;
+  } else {
+    // Both components add together — a product can have an imported USD cost,
+    // a locally weighed cost, or both at once.
+    bdtCost = (usd * EXCHANGE_RATE) + ((weight / 1000) * WEIGHT_RATE);
+    document.getElementById('npBdtCostInput').value = bdtCost > 0 ? Math.round(bdtCost) : '';
+  }
+
   document.getElementById('npBdtCost').textContent = bdtCost > 0 ? '৳' + Math.round(bdtCost).toLocaleString('en-IN') : '৳0';
+
+  const weightCostTk = npCostingMethod === 'manual' ? 0 : (weight / 1000) * WEIGHT_RATE;
+  document.getElementById('npWeightCostDisplay').textContent = weightCostTk > 0 ? '৳' + Math.round(weightCostTk).toLocaleString('en-IN') : '৳0';
 
   const profit = sell - bdtCost;
   const margin = sell > 0 ? (profit / sell) * 100 : 0;
@@ -19923,6 +20246,9 @@ function clearRestockProduct() {
   document.getElementById('rsProduct').value = '';
   document.getElementById('rsProductSku').value = '';
   document.getElementById('rsProductPrice').value = '';
+  document.getElementById('rsProductCost').value = '';
+  document.getElementById('rsProductCategory').value = '';
+  document.getElementById('rsProdCatBadge').innerHTML = '';
   document.getElementById('rsProdPickerBtn').style.display = 'flex';
   document.getElementById('rsProdSelected').style.display = 'none';
   document.getElementById('rsProdAmountRow').style.display = 'none';
@@ -19933,18 +20259,10 @@ function clearRestockProduct() {
 
 function selectRestockProduct(name) {
   _restockPickerActive = false;
-  const products = {
-    'Omega-3 Ultra':       { sku:'NW-OMG3-UTA-180', price:5950, cost:3094, category:'supplement' },
-    'Magnesium Glycinate': { sku:'DB-MAG-GLY-120',  price:3250, cost:1690, category:'supplement' },
-    'Betaine HCL & Pepsin':{ sku:'DB-HCI-PEP-120',  price:3000, cost:1560, category:'supplement' },
-    'Vitamin D3 + K2':     { sku:'DB-VD3-K2-90',    price:6150, cost:3198, category:'supplement' },
-    'Zinc Complex':        { sku:'DB-ZNC-CMP-60',    price:2400, cost:1248, category:'supplement' },
-    'Digital Kitchen Scale': { sku:'GN-DKS-BLK-01', price:1800, cost:900,  category:'electronics' },
-    'Compression T-Shirt':   { sku:'AP-CTS-BLK-L',  price:1200, cost:550,  category:'clothing' }
-  };
-  const p = products[name];
+  const p = PRODUCTS_DATA.find(x => x.name === name);
   if (!p) return;
 
+  const cat = CATEGORY_META[p.category] || CATEGORY_META.general;
   const needsExpiry = p.category === 'supplement' || p.category === 'cosmetic';
   document.getElementById('rsExpiryField').style.display = needsExpiry ? 'block' : 'none';
   if (!needsExpiry) {
@@ -19958,6 +20276,9 @@ function selectRestockProduct(name) {
   document.getElementById('rsProduct').value = name;
   document.getElementById('rsProductSku').value = p.sku;
   document.getElementById('rsProductPrice').value = p.price;
+  document.getElementById('rsProductCost').value = p.cost;
+  document.getElementById('rsProductCategory').value = p.category;
+  document.getElementById('rsProdCatBadge').innerHTML = catIconBadgeSVG(p.category);
   document.getElementById('rsProdNameDisp').textContent = name;
   document.getElementById('rsProdSkuDisp').textContent = p.sku;
   document.getElementById('rsProdPickerBtn').style.display = 'none';
@@ -19973,10 +20294,14 @@ function selectRestockProduct(name) {
   marginEl.textContent = margin + '%';
   marginEl.className = 'prod-stat-val ' + mCls;
 
-  // USD price + profit row
-  const priceUsd = (p.price / EXCHANGE_RATE).toFixed(2);
+  // USD cost — use the recorded value if this product was added with the costing system,
+  // otherwise approximate from its BDT cost so older items still show something sensible.
+  const hasRecordedCost = p.meta && (p.meta.usdCost || p.meta.weight);
+  const costUsd = p.meta && p.meta.usdCost ? p.meta.usdCost : (hasRecordedCost ? 0 : p.cost / EXCHANGE_RATE);
+  const weightCost = p.meta && p.meta.weight ? (p.meta.weight / 1000) * WEIGHT_RATE : 0;
   const profit = p.price - p.cost;
-  document.getElementById('rsPriceUsdVal').textContent = '$' + priceUsd;
+  document.getElementById('rsCostUsdVal').textContent = '$' + costUsd.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  document.getElementById('rsWeightCostVal').textContent = '৳' + Math.round(weightCost).toLocaleString('en-IN');
   document.getElementById('rsProfitVal').textContent = '৳' + profit.toLocaleString('en-IN');
 
   closeProdPickerOverlay();
@@ -20201,48 +20526,58 @@ async function confirmRestock() {
 async function restockExistingProduct() {
   const productName = document.getElementById('rsProduct').value.trim();
   const sku         = document.getElementById('rsProductSku').value.trim();
+  const cost        = parseFloat(document.getElementById('rsProductCost').value) || 0;
+  const category    = document.getElementById('rsProductCategory').value.trim();
   const qty         = parseInt(document.getElementById('rsQty').value) || 1;
   const supplier    = document.getElementById('rsSupplier').value.trim();
   const expiryDate  = document.getElementById('rsDate').value;
+  const needsExpiry = category === 'supplement' || category === 'cosmetic';
 
   if (!productName || !sku) { showToast('Please select a product'); return; }
 
-  try {
-    showToast('Saving…');
+  showToast('Saving…');
 
-    // 1. Find product in Supabase
-    const found = await sbFetch(`products?sku=eq.${encodeURIComponent(sku)}&select=id,stock_qty`);
+  // Local inventory is the source of truth — update it first so the app always
+  // works even though Supabase isn't configured yet.
+  const localProd = PRODUCTS_DATA.find(p => p.sku === sku);
+  if (!localProd) { showToast('Product not found'); return; }
 
-    if (found && found.length > 0) {
-      const product = found[0];
-      const newQty  = (product.stock_qty || 0) + qty;
+  const newQty = (localProd.stock || 0) + qty;
+  localProd.stock = newQty;
 
-      // 2. Update stock qty
-      await sbFetch(`products?id=eq.${product.id}`, 'PATCH', { stock_qty: newQty, updated_at: new Date().toISOString() });
-
-      // 3. Log restock entry
-      await sbFetch('restock_entries', 'POST', {
-        product_id: product.id, qty, supplier: supplier || null,
-        expiry_date: expiryDate || null, created_at: new Date().toISOString()
-      });
-
-      // 4. Update local PRODUCT_CATALOG
-      if (PRODUCT_CATALOG[productName]) PRODUCT_CATALOG[productName].stock = newQty;
-
-      // 5. Update local PRODUCTS_DATA card
-      const localProd = PRODUCTS_DATA.find(p => p.sku === sku);
-      if (localProd) localProd.stock = newQty;
-
-      closeRestockModal();
-      switchTab('products');
-      showToast(`✓ ${productName} stock updated · ${newQty} units`);
-    } else {
-      showToast('Product not found in database');
-    }
-  } catch (err) {
-    console.error(err);
-    showToast('Error: ' + (err.message || 'Check Supabase config'));
+  if (needsExpiry && expiryDate) {
+    if (!Array.isArray(localProd.batches)) localProd.batches = [];
+    localProd.batches.push({
+      id: 'BTH-' + Date.now().toString().slice(-6),
+      expiryDate: expiryDate,
+      qty: qty,
+      costPerUnit: cost
+    });
   }
+
+  if (PRODUCT_CATALOG[productName]) PRODUCT_CATALOG[productName].stock = newQty;
+
+  // Best-effort Supabase sync — won't block or fail the local update since
+  // Supabase isn't wired up yet.
+  (async () => {
+    try {
+      const found = await sbFetch(`products?sku=eq.${encodeURIComponent(sku)}&select=id,stock_qty`);
+      if (found && found.length > 0) {
+        const product = found[0];
+        await sbFetch(`products?id=eq.${product.id}`, 'PATCH', { stock_qty: newQty, updated_at: new Date().toISOString() });
+        await sbFetch('restock_entries', 'POST', {
+          product_id: product.id, qty, supplier: supplier || null,
+          expiry_date: expiryDate || null, created_at: new Date().toISOString()
+        });
+      }
+    } catch (err) {
+      console.warn('Supabase sync skipped (not configured):', err.message);
+    }
+  })();
+
+  closeRestockModal();
+  switchTab('products');
+  showToast(`✓ ${productName} restocked · ${newQty} units total`);
 }
 
 async function saveNewProduct() {
@@ -20250,6 +20585,8 @@ async function saveNewProduct() {
   const brandName   = document.getElementById('npBrandName').value.trim();
   const productName = document.getElementById('npProductName').value.trim();
   const usd         = parseFloat(document.getElementById('npUsdCost').value) || 0;
+  const weightVal   = parseFloat(document.getElementById('npWeight').value) || 0;
+  const manualCost  = parseFloat(document.getElementById('npBdtCostInput').value) || 0;
   const sell        = parseFloat(document.getElementById('npSellPrice').value) || 0;
   const needsExpiry = npCategory === 'supplement' || npCategory === 'cosmetic';
   const expiry      = needsExpiry ? document.getElementById('npExpiry').value : '';
@@ -20260,7 +20597,6 @@ async function saveNewProduct() {
     { val: sku,         hint: 'npSkuHint',     input: 'npSku' },
     { val: brandName,   hint: 'npBrandHint',   input: 'npBrandName' },
     { val: productName, hint: 'npProductHint', input: 'npProductName' },
-    { val: usd > 0,     hint: 'npUsdHint',     input: 'npUsdCost' },
     { val: sell > 0,    hint: 'npSellHint',     input: 'npSellPrice' },
   ];
   if (needsExpiry) fields.push({ val: expiry, hint: 'npExpiryHint', input: 'npExpiry' });
@@ -20273,14 +20609,15 @@ async function saveNewProduct() {
   });
   if (hasError) return;
 
-  const bdtCost    = Math.round(usd * EXCHANGE_RATE);
-  const expiryDate = needsExpiry ? new Date(expiry + '-01') : null;
-  const expiryStr  = needsExpiry ? expiryDate.toLocaleDateString('en-US', { month: 'short', year: 'numeric' }) : null;
+  let bdtCost;
+  if (npCostingMethod === 'manual') bdtCost = Math.round(manualCost);
+  else bdtCost = Math.round((usd * EXCHANGE_RATE) + ((weightVal / 1000) * WEIGHT_RATE));
+
   const stock      = parseInt(document.getElementById('npStock').value) || 0;
   const form       = needsExpiry ? document.getElementById('npForm').value : '';
   const caps       = needsExpiry ? document.getElementById('npCapsuleCount').value : '';
   const potency    = needsExpiry ? document.getElementById('npPotencyType').value : '';
-  const weight     = needsExpiry ? document.getElementById('npWeight').value : '';
+  const weight     = document.getElementById('npWeight').value;
   const isVariant  = npCategory === 'electronics' || npCategory === 'clothing';
   const npColor2   = isVariant ? document.getElementById('npColor').value.trim() : '';
   const npSize2    = isVariant ? document.getElementById('npSize').value.trim() : '';
@@ -20292,58 +20629,71 @@ async function saveNewProduct() {
   const variantStr = (npColor2 && npSize2) ? (npColor2 + ', ' + npSize2) : (npColor2 || npSize2 || null);
 
   const newProduct = {
-    name: productName, sku, price: sell, cost: bdtCost, stock, expiry: expiryStr,
+    name: productName, sku, price: sell, cost: bdtCost, stock,
     color: avatarColor, supplier, category: npCategory, variant: variantStr,
+    batches: needsExpiry ? [{ id: 'BTH-' + Date.now().toString().slice(-6), expiryDate: expiry + '-01', qty: stock, costPerUnit: bdtCost }] : null,
     meta: { brandName, brandCode, brandColor: color, productCode: prodCode, form,
             capsuleCount: caps ? parseInt(caps) : null, potencyType: potency,
-            weight: weight ? parseFloat(weight) : null, usdCost: usd }
+            weight: weight ? parseFloat(weight) : null, usdCost: usd,
+            costingMethod: npCostingMethod, costOutdated: false }
   };
 
-  try {
-    showToast('Saving…');
+  showToast('Saving…');
 
-    // Check if SKU already exists
-    const existing = await sbFetch(`products?sku=eq.${encodeURIComponent(sku)}&select=id,stock_qty`);
+  // Local inventory is the source of truth — the app works fully even though
+  // Supabase isn't configured yet. Check for an existing SKU locally first.
+  const existingLocal = PRODUCTS_DATA.find(p => p.sku === sku);
 
-    if (existing && existing.length > 0) {
-      // SKU exists → just update stock qty (treat as restock)
-      const prod   = existing[0];
-      const newQty = (prod.stock_qty || 0) + stock;
-      await sbFetch(`products?id=eq.${prod.id}`, 'PATCH', { stock_qty: newQty, updated_at: new Date().toISOString() });
-      // Log restock entry
-      await sbFetch('restock_entries', 'POST', { product_id: prod.id, qty: stock, supplier: supplier || null, expiry_date: expiryDate.toISOString().split('T')[0] || null, created_at: new Date().toISOString() });
-      const localProd = PRODUCTS_DATA.find(p => p.sku === sku);
-      if (localProd) localProd.stock = newQty;
-      if (PRODUCT_CATALOG[productName]) PRODUCT_CATALOG[productName].stock = newQty;
-      closeRestockModal(); switchTab('products');
-      showToast(`✓ ${productName} already exists — stock updated to ${newQty} units`);
-    } else {
-      // New product → INSERT
-      const row = {
-        name: productName, sku, price_bdt: sell, cost_bdt: bdtCost, stock_qty: stock,
-        brand_name: brandName, brand_code: brandCode, brand_color: color,
-        product_code: prodCode, form_type: form,
-        capsule_count: caps ? parseInt(caps) : null,
-        potency_type: potency || null,
-        weight_g: weight ? parseFloat(weight) : null,
-        usd_cost: usd, supplier: supplier || null,
-        expiry_date: expiryDate.toISOString().split('T')[0],
-        created_at: new Date().toISOString(), updated_at: new Date().toISOString()
-      };
-      const inserted = await sbFetch('products', 'POST', row);
-      // Log initial restock entry
-      if (inserted && inserted[0]) {
-        await sbFetch('restock_entries', 'POST', { product_id: inserted[0].id, qty: stock, supplier: supplier || null, expiry_date: row.expiry_date, created_at: new Date().toISOString() });
-      }
-      // Update local state
-      PRODUCTS_DATA.unshift(newProduct);
-      PRODUCT_CATALOG[productName] = { sku, price: sell, stock };
-      closeRestockModal(); switchTab('products');
-      showToast('✓ ' + productName + ' added to inventory!');
+  if (existingLocal) {
+    // SKU already exists → treat as a restock instead of a duplicate product
+    const newQty = (existingLocal.stock || 0) + stock;
+    existingLocal.stock = newQty;
+    if (needsExpiry && expiry) {
+      if (!Array.isArray(existingLocal.batches)) existingLocal.batches = [];
+      existingLocal.batches.push({ id: 'BTH-' + Date.now().toString().slice(-6), expiryDate: expiry + '-01', qty: stock, costPerUnit: bdtCost });
     }
-  } catch (err) {
-    console.error(err);
-    showToast('Error: ' + (err.message || 'Check Supabase config'));
+    if (PRODUCT_CATALOG[productName]) PRODUCT_CATALOG[productName].stock = newQty;
+
+    (async () => {
+      try {
+        const found = await sbFetch(`products?sku=eq.${encodeURIComponent(sku)}&select=id,stock_qty`);
+        if (found && found.length > 0) {
+          await sbFetch(`products?id=eq.${found[0].id}`, 'PATCH', { stock_qty: newQty, updated_at: new Date().toISOString() });
+        }
+      } catch (err) { console.warn('Supabase sync skipped (not configured):', err.message); }
+    })();
+
+    closeRestockModal(); switchTab('products');
+    showToast(`✓ ${productName} already exists — stock updated to ${newQty} units`);
+  } else {
+    // Update local state immediately
+    PRODUCTS_DATA.unshift(newProduct);
+    PRODUCT_CATALOG[productName] = { sku, price: sell, stock };
+
+    // Best-effort Supabase sync — won't block or fail the local save
+    (async () => {
+      try {
+        const row = {
+          name: productName, sku, price_bdt: sell, cost_bdt: bdtCost, stock_qty: stock,
+          brand_name: brandName, brand_code: brandCode, brand_color: color,
+          product_code: prodCode, form_type: form,
+          capsule_count: caps ? parseInt(caps) : null,
+          potency_type: potency || null,
+          weight_g: weight ? parseFloat(weight) : null,
+          costing_method: npCostingMethod,
+          usd_cost: usd, supplier: supplier || null,
+          expiry_date: needsExpiry ? (expiry + '-01') : null,
+          created_at: new Date().toISOString(), updated_at: new Date().toISOString()
+        };
+        const inserted = await sbFetch('products', 'POST', row);
+        if (inserted && inserted[0]) {
+          await sbFetch('restock_entries', 'POST', { product_id: inserted[0].id, qty: stock, supplier: supplier || null, expiry_date: row.expiry_date, created_at: new Date().toISOString() });
+        }
+      } catch (err) { console.warn('Supabase sync skipped (not configured):', err.message); }
+    })();
+
+    closeRestockModal(); switchTab('products');
+    showToast('✓ ' + productName + ' added to inventory!');
   }
 }
 
@@ -21364,6 +21714,15 @@ function changeQty(inputId, delta) {
   }
 }
 
+function changeNpStock(delta) {
+  const input = document.getElementById('npStock');
+  const disp  = document.getElementById('npStockDisplay');
+  let val = parseInt(input.value) || 0;
+  val = Math.max(0, val + delta);
+  input.value = val;
+  disp.textContent = val;
+}
+
 
 /* ============================================================
    ====== PRODUCTS TAB ======
@@ -21419,14 +21778,18 @@ let productFilter = 'all';
 let productSearch = '';
 let productCategory = 'all';
 const CATEGORY_META = {
-  supplement:  { label: 'Supplement',  icon: 'supplement' },
-  electronics: { label: 'Electronics', icon: 'electronics' },
-  cosmetic:    { label: 'Cosmetic',    icon: 'cosmetic' },
-  clothing:    { label: 'Clothing',    icon: 'clothing' },
-  general:     { label: 'General',     icon: 'general' }
+  supplement:  { label: 'Supplement',  icon: 'supplement',  color: '#7C6FF7', color2: '#6952E0' },
+  electronics: { label: 'Electronics', icon: 'electronics', color: '#0EA5E9', color2: '#0284C7' },
+  cosmetic:    { label: 'Cosmetic',    icon: 'cosmetic',    color: '#EC4899', color2: '#DB2777' },
+  clothing:    { label: 'Clothing',    icon: 'clothing',    color: '#14B8A6', color2: '#0D9488' },
+  general:     { label: 'General',     icon: 'general',     color: '#64748B', color2: '#475569' }
 };
 function catIconSVG(key) {
   return `<svg class="cat-icon"><use href="#cat-icon-${key}"/></svg>`;
+}
+function catIconBadgeSVG(key) {
+  const meta = CATEGORY_META[key] || CATEGORY_META.general;
+  return `<div class="cat-icon-badge" style="background:linear-gradient(135deg,${meta.color},${meta.color2})"><svg class="cat-icon"><use href="#cat-icon-${key}"/></svg></div>`;
 }
 
 function capsuleSVG(color) {
@@ -21577,11 +21940,11 @@ function renderProductsTab(searchDisplayVal) {
     return `
     <div class="prod-card">
       <div class="prod-card-top">
-        <div class="prod-avatar ${p.color}">${capsuleSVG(p.color)}</div>
+        <div class="prod-avatar-badge" style="background:linear-gradient(135deg,${cat.color},${cat.color2});box-shadow:0 4px 12px ${cat.color}4d"><svg class="cat-icon"><use href="#cat-icon-${cat.icon}"/></svg></div>
         <div class="prod-card-info">
           <div class="prod-card-name">${escapeHtml(p.name)}</div>
           <div class="prod-card-sku">${p.sku}</div>
-          <div class="prod-category-tag">${catIconSVG(cat.icon)} ${cat.label}</div>
+          <div class="prod-category-tag" style="color:${cat.color};background:${cat.color}1a">${catIconSVG(cat.icon)} ${cat.label}</div>
         </div>
         <div class="stock-badge ${sc}">${p.stock}</div>
       </div>
@@ -21634,8 +21997,8 @@ function renderProductsTab(searchDisplayVal) {
   const catMenuItems = Object.keys(CATEGORY_META).map(key => {
     const meta = CATEGORY_META[key];
     const count = catCounts[key] || 0;
-    return `<div class="pcm-item ${productCategory===key?'active':''}" onclick="setProductCategory('${key}')">
-      <span style="display:flex;align-items:center;gap:7px">${catIconSVG(meta.icon)} ${meta.label}</span><span class="pcm-count">${count}</span>
+    return `<div class="pcm-item ${productCategory===key?'active':''}" onclick="setProductCategory('${key}')" style="${productCategory===key?'color:'+meta.color:''}">
+      <span style="display:flex;align-items:center;gap:9px">${catIconBadgeSVG(key)} ${meta.label}</span><span class="pcm-count">${count}</span>
     </div>`;
   }).join('');
 
@@ -21653,7 +22016,7 @@ function renderProductsTab(searchDisplayVal) {
       <div class="products-category-wrap">
         <div class="products-category-btn ${productCategory!=='all'?'active':''}" onclick="toggleCategoryMenu(event)" id="productCategoryBtn">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="6" x2="20" y2="6"/><line x1="7" y1="12" x2="17" y2="12"/><line x1="10" y1="18" x2="14" y2="18"/></svg>
-          ${productCategory!=='all' ? '<span class="products-category-dot"></span>' : ''}
+          ${productCategory!=='all' ? `<span class="products-category-dot" style="background:${(CATEGORY_META[productCategory]||CATEGORY_META.general).color}"></span>` : ''}
         </div>
         <div class="products-category-menu" id="productCategoryMenu">
           <div class="pcm-item ${productCategory==='all'?'active':''}" onclick="setProductCategory('all')">
