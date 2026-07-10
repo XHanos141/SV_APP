@@ -5229,6 +5229,10 @@ html[data-theme="dark"] .tx-pay-chip.bkash { background:rgba(226,0,116,0.15); bo
 html[data-theme="dark"] .tx-pay-chip.nagad { background:rgba(239,111,28,0.15); border-color:rgba(239,111,28,0.4); }
 html[data-theme="dark"] .tx-pay-chip.cash  { background:rgba(47,155,104,0.15); border-color:rgba(47,155,104,0.4); }
 html[data-theme="dark"] .tx-pay-chip.bank  { background:rgba(8,145,178,0.15);  border-color:rgba(8,145,178,0.4); }
+.tx-cat-chip { display:inline-flex; align-items:center; gap:3px; font-family:"Plus Jakarta Sans",sans-serif; font-size:9px; font-weight:700; padding:2px 8px 2px 6px; border-radius:999px; flex-shrink:0; border:1px solid transparent; white-space:nowrap; }
+.tx-cat-chip svg { width:10px; height:10px; flex-shrink:0; fill:currentColor; }
+.tx-cat-dot { width:6px; height:6px; border-radius:50%; flex-shrink:0; }
+.tx-item-cat-dot { display:inline-block; width:6px; height:6px; border-radius:50%; margin-right:5px; flex-shrink:0; }
 .tx-row3-right { margin-left:auto; display:flex; align-items:center; gap:6px; flex-shrink:0; }
 .tx-status-badge {
   font-family:"Plus Jakarta Sans",sans-serif; font-size:10px; font-weight:700;
@@ -22104,9 +22108,9 @@ const TRANSACTIONS_DATA = [
     discount:500, shipping:0,
     paymentRef:'8N5TG7KQ2R', paidAt:'Apr 25, 2026, 3:42 PM',
     items:[
-      {name:'Omega-3 Ultra',        sku:'NW-OMG3-UTA-180', qty:2, each:11900, total:23800},
-      {name:'Magnesium Glycinate',  sku:'DB-MAG-GLY-120',  qty:1, each:3250,  total:3250 },
-      {name:'Betaine HCL & Pepsin', sku:'DB-HCI-PEP-120',  qty:3, each:3000,  total:9000 },
+      {name:'Omega-3 Ultra',        sku:'NW-OMG3-UTA-180', qty:2, each:11900, total:23800, category:'supplement'},
+      {name:'Magnesium Glycinate',  sku:'DB-MAG-GLY-120',  qty:1, each:3250,  total:3250,  category:'supplement'},
+      {name:'Betaine HCL & Pepsin', sku:'DB-HCI-PEP-120',  qty:3, each:3000,  total:9000,  category:'supplement'},
     ]
   },
   {
@@ -22115,7 +22119,21 @@ const TRANSACTIONS_DATA = [
     channel:'whatsapp', payment:'cash', status:'pending',
     discount:200, shipping:80,
     items:[
-      {name:'Vitamin D3 + K2', sku:'DB-VD3-K2-90', qty:1, each:6150, total:6150},
+      {name:'Vitamin D3 + K2', sku:'DB-VD3-K2-90', qty:1, each:6150, total:6150, category:'supplement'},
+    ]
+  },
+  {
+    id:'SV-1013', date:'Apr 26, 2026', dateRaw:'2026-04-26',
+    customer:'Nafisa', phone:'01922-889900', address:'Road 11, Banani, Dhaka',
+    channel:'instagram', payment:'bkash', status:'paid',
+    discount:150, shipping:0,
+    paymentRef:'8QX4RT9L2M', paidAt:'Apr 26, 2026, 1:05 PM',
+    items:[
+      {name:'Multivitamin Complex',      sku:'DB-MTV-CMP-60',  qty:1, each:1850,  total:1850,  category:'supplement'},
+      {name:'Bluetooth Earbuds Pro',     sku:'EL-BTE-PRO-01',  qty:1, each:3200,  total:3200,  category:'electronics'},
+      {name:'Hydrating Face Serum',      sku:'CO-HFS-30ML-01', qty:2, each:950,   total:1900,  category:'cosmetic'},
+      {name:'Premium Cotton T-Shirt',    sku:'AP-CTS-WHT-M',   qty:1, each:1100,  total:1100,  category:'clothing'},
+      {name:'Reusable Water Bottle',     sku:'GN-RWB-750-01',  qty:2, each:450,   total:900,   category:'general'},
     ]
   },
   {
@@ -22124,7 +22142,7 @@ const TRANSACTIONS_DATA = [
     channel:'website', payment:'nagad', status:'return',
     discount:0, shipping:0,
     items:[
-      {name:'Omega-3 Ultra', sku:'NW-OMG3-UTA-180', qty:3, each:5950, total:17850},
+      {name:'Omega-3 Ultra', sku:'NW-OMG3-UTA-180', qty:3, each:5950, total:17850, category:'supplement'},
     ]
   },
   {
@@ -22134,8 +22152,8 @@ const TRANSACTIONS_DATA = [
     discount:300, shipping:0,
     paymentRef:'WQPTXN-441', paidAt:'Apr 8, 2026, 11:20 AM',
     items:[
-      {name:'Zinc Complex',        sku:'DB-ZNC-CMP-60',   qty:2, each:2400, total:4800},
-      {name:'Magnesium Glycinate', sku:'DB-MAG-GLY-120',  qty:1, each:3250, total:3250},
+      {name:'Zinc Complex',        sku:'DB-ZNC-CMP-60',   qty:2, each:2400, total:4800, category:'supplement'},
+      {name:'Magnesium Glycinate', sku:'DB-MAG-GLY-120',  qty:1, each:3250, total:3250, category:'supplement'},
     ]
   },
   {
@@ -22145,7 +22163,7 @@ const TRANSACTIONS_DATA = [
     discount:0, shipping:0,
     paymentRef:'TXF-0045678', paidAt:'Mar 30, 2026, 2:15 PM',
     items:[
-      {name:'Betaine HCL & Pepsin', sku:'DB-HCI-PEP-120', qty:4, each:3000, total:12000},
+      {name:'Betaine HCL & Pepsin', sku:'DB-HCI-PEP-120', qty:4, each:3000, total:12000, category:'supplement'},
     ]
   },
 ];
@@ -22170,6 +22188,31 @@ function channelLabel(ch) {
 }
 function payLabel(p) {
   return { bkash:'bKash', nagad:'Nagad', cash:'Cash', bank:'Bank' }[p] || p;
+}
+function txItemCategories(tx) {
+  const seen = [];
+  (tx.items||[]).forEach(it => {
+    const c = it.category || 'general';
+    if (!seen.includes(c)) seen.push(c);
+  });
+  return seen;
+}
+function categoryChipHTML(tx) {
+  const cats = txItemCategories(tx);
+  if (!cats.length) return '';
+  if (cats.length === 1) {
+    const meta = (typeof CATEGORY_META !== 'undefined' && CATEGORY_META[cats[0]]) || { label:'General', icon:'general', color:'#64748B' };
+    return `<span class="tx-cat-chip" style="color:${meta.color};background:${meta.color}1a;border-color:${meta.color}40;">${catIconSVG(meta.icon)}${meta.label}</span>`;
+  }
+  const dots = cats.slice(0, 4).map(c => {
+    const meta = (typeof CATEGORY_META !== 'undefined' && CATEGORY_META[c]) || { color:'#64748B' };
+    return `<span class="tx-cat-dot" style="background:${meta.color};"></span>`;
+  }).join('');
+  return `<span class="tx-cat-chip" style="color:#556070;background:rgba(85,96,112,0.08);border-color:rgba(85,96,112,0.2);" title="${cats.map(c=>(CATEGORY_META[c]||{}).label||c).join(', ')}">${dots} Mixed</span>`;
+}
+function txItemCatDot(category) {
+  const meta = (typeof CATEGORY_META !== 'undefined' && CATEGORY_META[category]) || { color:'#64748B' };
+  return `<span class="tx-item-cat-dot" style="background:${meta.color};"></span>`;
 }
 function payTheme(p) {
   return {
@@ -22291,7 +22334,7 @@ function buildTxCard(tx) {
 
   const itemRows = tx.items.map(item => `
     <div class="tx-exp-item">
-      <div class="tx-exp-item-left"><div class="tx-exp-item-name">${escapeHtml(item.name)}</div><span class="tx-exp-item-sku">${item.sku}</span></div>
+      <div class="tx-exp-item-left"><div class="tx-exp-item-name">${txItemCatDot(item.category)}${escapeHtml(item.name)}</div><span class="tx-exp-item-sku">${item.sku}</span></div>
       <span class="tx-exp-item-qty">${item.qty}u</span>
       <div class="tx-exp-item-amt">\u09f3${item.total.toLocaleString('en-IN')}</div>
     </div>`).join('');
@@ -22312,6 +22355,7 @@ function buildTxCard(tx) {
           <span class="tx-order-id">${tx.id}</span>
           ${payChip}
           ${channelLabel(tx.channel)}
+          ${categoryChipHTML(tx)}
         </div>
         <div class="tx-cname">${escapeHtml(tx.customer)}</div>
         ${phoneRow}
