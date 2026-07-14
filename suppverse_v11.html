@@ -9,6 +9,10 @@
 <link href="https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400;1,700&family=DM+Sans:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Roboto+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+/* SKU FONT ENFORCEMENT — every SKU/ID element must render in Courier Prime, no exceptions. */
+[class*="sku" i], [class*="-code-text"], [class*="code-value"] {
+  font-family: "Courier Prime", "Courier New", monospace !important;
+}
 html, body { min-height: 100%; height: 100%; }
 
 body {
@@ -431,17 +435,20 @@ html[data-theme="dark"] .draft-card:active { background: rgba(255,255,255,0.07);
   font-size: 11px; font-weight: 800;
   color: #7C6FF7;
   background: rgba(124,111,247,0.12);
-  border: 1px solid rgba(124,111,247,0.25);
+  border: 1px solid rgba(124,111,247,0.38);
   padding: 2px 7px;
   border-radius: 6px;
   letter-spacing: 0.3px;
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
   align-self: flex-start;
   transition: background 0.35s ease, border-color 0.35s ease;
 }
 html[data-theme="dark"] .draft-id {
   background: rgba(124,111,247,0.18);
-  border-color: rgba(124,111,247,0.35);
+  border-color: rgba(124,111,247,0.5);
 }
 .draft-status { font-size: 10px; font-weight: 700; color: #d48c0a; background: rgba(244,169,34,0.1); padding: 3px 10px; border-radius: 999px; }
 html[data-theme="dark"] .draft-status { color: #F4A922; background: rgba(244,169,34,0.12); }
@@ -4458,7 +4465,7 @@ html[data-theme="dark"] .prod-sl { background: #7b75bf; }
 .prod-picker-item .cat-icon-badge .cat-icon { width: 16px; height: 16px; }
 .prod-info-name { font-size: 13px; font-weight: 700; color: #001f3c; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 html[data-theme="dark"] .prod-info-name { color: #ffffff; }
-.prod-info-sku { font-family: monospace; font-size: 10px; font-weight: 700; color: #0891b2; letter-spacing: 0.1em; margin-top: 1px; }
+.prod-info-sku { font-family: "Courier Prime", "Courier New", monospace; font-size: 10px; font-weight: 700; color: #0891b2; letter-spacing: 0.1em; margin-top: 1px; }
 
 .prod-right { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; flex-shrink: 0; }
 .prod-price { font-size: 13px; font-weight: 700; color: #001f3c; }
@@ -5011,11 +5018,10 @@ html[data-theme="dark"] .prod-card:hover { box-shadow: 0 8px 28px rgba(124,111,2
   display: flex; align-items: center; justify-content: center; flex-shrink: 0;
 }
 .prod-avatar-badge {
-  width: 40px; height: 40px; border-radius: 12px;
+  width: 48px; height: 48px; border-radius: 14px;
   display: flex; align-items: center; justify-content: center; flex-shrink: 0;
-  transform: translateY(-1px);
 }
-.prod-avatar-badge .cat-icon { width: 20px; height: 20px; color: #fff; }
+.prod-avatar-badge .cat-icon { width: 22px; height: 22px; color: #fff; }
 .prod-avatar.p { background: rgba(124,111,247,0.12); }
 .prod-avatar.g { background: rgba(42,157,92,0.12); }
 .prod-avatar.r { background: rgba(224,82,82,0.12); }
@@ -5156,9 +5162,24 @@ html[data-theme="dark"] .tx-card-expand {
 /* Row 1: order ID + channel + date */
 .tx-row1 { display:flex; align-items:center; gap:7px; margin-bottom:7px; }
 .tx-order-id {
-  font-family:"Plus Jakarta Sans",sans-serif; font-size:10px; font-weight:700; color:#7C6FF7;
-  background:rgba(124,111,247,0.08); border:1px solid rgba(124,111,247,0.22);
-  border-radius:5px; padding:2px 7px; letter-spacing:0.12px; flex-shrink:0;
+  font-family: "Plus Jakarta Sans", sans-serif;
+  font-size: 11px; font-weight: 800;
+  color: #7C6FF7;
+  background: rgba(124,111,247,0.12);
+  border: 1px solid rgba(124,111,247,0.38);
+  padding: 2px 7px;
+  border-radius: 6px;
+  letter-spacing: 0.3px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  flex-shrink: 0;
+  transition: background 0.35s ease, border-color 0.35s ease;
+}
+html[data-theme="dark"] .tx-order-id {
+  background: rgba(124,111,247,0.18);
+  border-color: rgba(124,111,247,0.5);
 }
 .tx-channel-tag {
   font-family:"Plus Jakarta Sans",sans-serif; font-size:9px; font-weight:700;
@@ -5232,6 +5253,10 @@ html[data-theme="dark"] .tx-pay-chip.bank  { background:rgba(8,145,178,0.15);  b
 .tx-cat-chip { display:inline-flex; align-items:center; gap:3px; font-family:"Plus Jakarta Sans",sans-serif; font-size:9px; font-weight:700; padding:2px 8px 2px 6px; border-radius:999px; flex-shrink:0; border:1px solid transparent; white-space:nowrap; }
 .tx-cat-chip svg { width:10px; height:10px; flex-shrink:0; fill:currentColor; }
 .tx-cat-dot { width:6px; height:6px; border-radius:50%; flex-shrink:0; }
+.tx-cat-chip-group { display:inline-flex; align-items:center; gap:4px; flex-shrink:0; }
+.tx-cat-badge { display:inline-flex; align-items:center; justify-content:center; width:18px; height:18px; border-radius:6px; flex-shrink:0; }
+.tx-cat-badge .cat-icon { width:10px; height:10px; color:#fff; }
+.tx-cat-mini-badge { width:8px; height:8px; border-radius:3px; flex-shrink:0; }
 .tx-item-cat-dot { display:inline-block; width:6px; height:6px; border-radius:50%; margin-right:5px; flex-shrink:0; }
 .tx-row3-right { margin-left:auto; display:flex; align-items:center; gap:6px; flex-shrink:0; }
 .tx-status-badge {
@@ -5394,7 +5419,8 @@ html[data-theme="dark"] .tx-addr-text { color:rgba(255,255,255,0.4); }
 .tx-last-row .tx-chevron { flex-shrink: 0; }
 
 /* Sales search + filter */
-.sales-search { position:relative; margin-bottom:10px; }
+.sales-search { display:flex; align-items:center; gap:8px; margin-bottom:10px; }
+.sales-search-input-wrap { position:relative; flex:1; min-width:0; }
 .sales-search-input {
   width:100%; height:38px; background:#f8f9fb; border:1px solid #ececec;
   border-radius:10px; padding:0 12px 0 38px; color:#001f3c;
@@ -6129,6 +6155,7 @@ html[data-theme="dark"] .batch-units { background: rgba(255,255,255,0.08); color
 #voucherHubPanel.open { display:flex; flex-direction:column; animation:hubSlideUp 0.28s cubic-bezier(0.4,0,0.2,1) forwards; }
 @keyframes hubSlideUp { from { opacity:0; transform:translateY(18px); } to { opacity:1; transform:translateY(0); } }
 #voucherHubPanel .app-shell { position:relative; flex:1; display:flex; flex-direction:column; overflow:hidden; background:var(--surface); transition:background .3s ease; }
+
 </style>
 <base target="_blank">
 </head>
@@ -16913,7 +16940,7 @@ window.addEventListener('message',function(e){
         <label class="fs-label">Category *</label>
         <div class="np-cat-row" id="npCatRow">
           <div class="np-cat-opt" data-cat="supplement" onclick="setNpCategory('supplement',this)">
-            <div class="cat-icon-badge" style="background:linear-gradient(135deg,#7C6FF7,#6952E0)"><svg class="cat-icon"><use href="#cat-icon-supplement"/></svg></div><span>Supplement</span>
+            <div class="cat-icon-badge" style="background:linear-gradient(135deg,#009b72,#00704f)"><svg class="cat-icon"><use href="#cat-icon-supplement"/></svg></div><span>Supplement</span>
           </div>
           <div class="np-cat-opt" data-cat="electronics" onclick="setNpCategory('electronics',this)">
             <div class="cat-icon-badge" style="background:linear-gradient(135deg,#0EA5E9,#0284C7)"><svg class="cat-icon"><use href="#cat-icon-electronics"/></svg></div><span>Electronics</span>
@@ -16922,7 +16949,7 @@ window.addEventListener('message',function(e){
             <div class="cat-icon-badge" style="background:linear-gradient(135deg,#EC4899,#DB2777)"><svg class="cat-icon"><use href="#cat-icon-cosmetic"/></svg></div><span>Cosmetic</span>
           </div>
           <div class="np-cat-opt" data-cat="clothing" onclick="setNpCategory('clothing',this)">
-            <div class="cat-icon-badge" style="background:linear-gradient(135deg,#14B8A6,#0D9488)"><svg class="cat-icon"><use href="#cat-icon-clothing"/></svg></div><span>Clothing</span>
+            <div class="cat-icon-badge" style="background:linear-gradient(135deg,#6761a8,#4a4480)"><svg class="cat-icon"><use href="#cat-icon-clothing"/></svg></div><span>Clothing</span>
           </div>
           <div class="np-cat-opt" data-cat="general" onclick="setNpCategory('general',this)">
             <div class="cat-icon-badge" style="background:linear-gradient(135deg,#64748B,#475569)"><svg class="cat-icon"><use href="#cat-icon-general"/></svg></div><span>General</span>
@@ -21782,10 +21809,10 @@ let productFilter = 'all';
 let productSearch = '';
 let productCategory = 'all';
 const CATEGORY_META = {
-  supplement:  { label: 'Supplement',  icon: 'supplement',  color: '#7C6FF7', color2: '#6952E0' },
+  supplement:  { label: 'Supplement',  icon: 'supplement',  color: '#009b72', color2: '#00704f' },
   electronics: { label: 'Electronics', icon: 'electronics', color: '#0EA5E9', color2: '#0284C7' },
   cosmetic:    { label: 'Cosmetic',    icon: 'cosmetic',    color: '#EC4899', color2: '#DB2777' },
-  clothing:    { label: 'Clothing',    icon: 'clothing',    color: '#14B8A6', color2: '#0D9488' },
+  clothing:    { label: 'Clothing',    icon: 'clothing',    color: '#6761a8', color2: '#4a4480' },
   general:     { label: 'General',     icon: 'general',     color: '#64748B', color2: '#475569' }
 };
 function catIconSVG(key) {
@@ -22170,6 +22197,7 @@ const TRANSACTIONS_DATA = [
 
 let salesSearch = '';
 let salesFilter = 'all';
+let salesSort = 'all';
 let expandedTx = {};
 let draftView = 'orders'; // 'orders' or 'returns'
 let draftReturns = []; // array to store draft returns
@@ -22189,6 +22217,14 @@ function channelLabel(ch) {
 function payLabel(p) {
   return { bkash:'bKash', nagad:'Nagad', cash:'Cash', bank:'Bank' }[p] || p;
 }
+function retItemCategories(ret) {
+  const seen = [];
+  (ret.products||[]).forEach(p => {
+    const c = p.category || 'general';
+    if (!seen.includes(c)) seen.push(c);
+  });
+  return seen;
+}
 function txItemCategories(tx) {
   const seen = [];
   (tx.items||[]).forEach(it => {
@@ -22200,15 +22236,14 @@ function txItemCategories(tx) {
 function categoryChipHTML(tx) {
   const cats = txItemCategories(tx);
   if (!cats.length) return '';
-  if (cats.length === 1) {
-    const meta = (typeof CATEGORY_META !== 'undefined' && CATEGORY_META[cats[0]]) || { label:'General', icon:'general', color:'#64748B' };
-    return `<span class="tx-cat-chip" style="color:${meta.color};background:${meta.color}1a;border-color:${meta.color}40;">${catIconSVG(meta.icon)}${meta.label}</span>`;
-  }
-  const dots = cats.slice(0, 4).map(c => {
-    const meta = (typeof CATEGORY_META !== 'undefined' && CATEGORY_META[c]) || { color:'#64748B' };
-    return `<span class="tx-cat-dot" style="background:${meta.color};"></span>`;
+  const firstMeta = (typeof CATEGORY_META !== 'undefined' && CATEGORY_META[cats[0]]) || { label:'General', icon:'general', color:'#64748B', color2:'#64748B' };
+  const firstBadge = `<span class="tx-cat-badge" style="background:linear-gradient(135deg,${firstMeta.color},${firstMeta.color2 || firstMeta.color});" title="${escapeHtml(firstMeta.label || cats[0])}">${catIconSVG(firstMeta.icon)}</span>`;
+  if (cats.length === 1) return firstBadge;
+  const extraBadges = cats.slice(1, 4).map(c => {
+    const meta = (typeof CATEGORY_META !== 'undefined' && CATEGORY_META[c]) || { color:'#64748B', label:c };
+    return `<span class="tx-cat-mini-badge" style="background:${meta.color};" title="${escapeHtml(meta.label || c)}"></span>`;
   }).join('');
-  return `<span class="tx-cat-chip" style="color:#556070;background:rgba(85,96,112,0.08);border-color:rgba(85,96,112,0.2);" title="${cats.map(c=>(CATEGORY_META[c]||{}).label||c).join(', ')}">${dots} Mixed</span>`;
+  return `<span class="tx-cat-chip-group">${firstBadge}${extraBadges}</span>`;
 }
 function txItemCatDot(category) {
   const meta = (typeof CATEGORY_META !== 'undefined' && CATEGORY_META[category]) || { color:'#64748B' };
@@ -22353,9 +22388,9 @@ function buildTxCard(tx) {
       <div class="tx-col-left">
         <div style="display:flex;align-items:center;gap:6px;margin-bottom:5px;">
           <span class="tx-order-id">${tx.id}</span>
-          ${payChip}
-          ${channelLabel(tx.channel)}
           ${categoryChipHTML(tx)}
+          ${channelLabel(tx.channel)}
+          ${payChip}
         </div>
         <div class="tx-cname">${escapeHtml(tx.customer)}</div>
         ${phoneRow}
@@ -22410,8 +22445,16 @@ function renderSalesTab() {
       <div class="psb-card"><div class="psb-val ${returnCount>0?'red':'green'}">${returnCount}</div><div class="psb-lbl">Returns</div></div>
     </div>
     <div class="sales-search">
-      <div class="sales-search-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div>
-      <input class="sales-search-input" type="text" placeholder="Search order, customer, SKU..." id="salesSearchInput" oninput="onSalesSearch(this.value)" value="${escapeHtml(salesSearch)}">
+      <div class="sales-search-input-wrap">
+        <div class="sales-search-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div>
+        <input class="sales-search-input" type="text" placeholder="Search order, customer, SKU..." id="salesSearchInput" oninput="onSalesSearch(this.value)" value="${escapeHtml(salesSearch)}">
+      </div>
+      <div class="products-category-wrap">
+        <div class="products-category-btn ${salesSort!=='all'?'active':''}" onclick="toggleSalesSortMenu(event)" id="salesSortBtn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="6" x2="20" y2="6"/><line x1="7" y1="12" x2="17" y2="12"/><line x1="10" y1="18" x2="14" y2="18"/></svg>
+        </div>
+        <div class="products-category-menu" id="salesSortMenu"></div>
+      </div>
     </div>
     <div class="products-filter-row" id="salesFilterRow">
       <div class="filter-chip ${salesFilter==='all'?'active':''}" onclick="setSalesFilter('all')">All (${totalOrders + returnCount})</div>
@@ -22446,13 +22489,63 @@ function renderSalesCards() {
       ret.products.some(p => p.name.toLowerCase().includes(q) || p.sku.toLowerCase().includes(q));
   }) : [];
 
-  const combined = [...filteredOrders.map(tx => buildTxCard(tx)), ...filteredReturns.map(ret => buildReturnTxCard(ret))].join('');
+  const sortFn = salesSort === 'all'
+    ? (a,b) => (b.dateRaw||'').localeCompare(a.dateRaw||'')
+    : (a,b) => {
+        const aMatch = (a._cats||[]).includes(salesSort) ? 1 : 0;
+        const bMatch = (b._cats||[]).includes(salesSort) ? 1 : 0;
+        if (aMatch !== bMatch) return bMatch - aMatch;
+        return (b.dateRaw||'').localeCompare(a.dateRaw||'');
+      };
+
+  const sortedOrders = filteredOrders.map(tx => ({ ...tx, _cats: txItemCategories(tx) })).sort(sortFn);
+  const sortedReturns = filteredReturns.map(ret => ({ ...ret, _cats: retItemCategories(ret) })).sort(sortFn);
+
+  const sortMenu = document.getElementById('salesSortMenu');
+  if (sortMenu) {
+    const wasOpen = sortMenu.classList.contains('open');
+    sortMenu.innerHTML = `
+      <div class="pcm-item ${salesSort==='all'?'active':''}" onclick="setSalesSort('all')">
+        <span style="display:flex;align-items:center;gap:7px"><svg class="cat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="6" x2="20" y2="6"/><line x1="7" y1="12" x2="17" y2="12"/><line x1="10" y1="18" x2="14" y2="18"/></svg> All Categories</span><span class="pcm-count">${(filteredOrders.length+filteredReturns.length)}</span>
+      </div>
+      ${Object.keys(CATEGORY_META).map(key => {
+        const meta = CATEGORY_META[key];
+        const count = filteredOrders.filter(tx => txItemCategories(tx).includes(key)).length
+                    + filteredReturns.filter(ret => retItemCategories(ret).includes(key)).length;
+        return `<div class="pcm-item ${salesSort===key?'active':''}" onclick="setSalesSort('${key}')">
+          <span style="display:flex;align-items:center;gap:9px">${catIconBadgeSVG(key)} ${meta.label}</span><span class="pcm-count">${count}</span>
+        </div>`;
+      }).join('')}
+    `;
+    if (wasOpen) sortMenu.classList.add('open');
+  }
+
+  const combined = [...sortedOrders.map(tx => buildTxCard(tx)), ...sortedReturns.map(ret => buildReturnTxCard(ret))].join('');
 
   container.innerHTML = combined || `<div style="text-align:center;padding:40px 20px;color:#8c92a1">
     <div style="font-size:32px;margin-bottom:8px">🧾</div>
     <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;font-weight:700">No transactions found</div>
   </div>`;
 }
+
+function toggleSalesSortMenu(e) {
+  e.stopPropagation();
+  const menu = document.getElementById('salesSortMenu');
+  if (menu) menu.classList.toggle('open');
+}
+function setSalesSort(s) {
+  salesSort = s;
+  const menu = document.getElementById('salesSortMenu');
+  if (menu) menu.classList.remove('open');
+  renderSalesCards();
+}
+document.addEventListener('click', function(e) {
+  const menu = document.getElementById('salesSortMenu');
+  const btn  = document.getElementById('salesSortBtn');
+  if (menu && menu.classList.contains('open') && !menu.contains(e.target) && e.target !== btn && !btn?.contains(e.target)) {
+    menu.classList.remove('open');
+  }
+});
 
 let _searchDebounce = null;
 function onSalesSearch(val) {
