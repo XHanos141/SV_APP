@@ -4448,8 +4448,18 @@ html[data-theme="dark"] .prod-picker-cat-row { border-bottom-color: rgba(255,255
   transition: background 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
 }
 .picker-cat-pill.active { transform: scale(1.04); }
-.pill-dot { width: 34px; height: 34px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-.pill-dot svg { width: 18px; height: 18px; color: #fff; }
+.pill-dot { width: 34px; height: 34px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; position: relative; }
+.pill-dot svg { width: 18px; height: 18px; color: #fff; transition: opacity 0.15s ease; }
+.picker-cat-pill.active .pill-dot svg { opacity: 0; }
+.picker-cat-pill.active .pill-dot::after {
+  content: "";
+  position: absolute; inset: 0; margin: auto;
+  width: 15px; height: 15px;
+  background: #fff;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'/%3E%3C/svg%3E") center / contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'/%3E%3C/svg%3E") center / contain no-repeat;
+  filter: drop-shadow(0 1px 2px rgba(0,0,0,0.4));
+}
 
 /* Product item in picker */
 .prod-picker-item {
@@ -5549,21 +5559,62 @@ html[data-theme="dark"] .np-auto-field {
 /* Category picker */
 .np-cat-row {
   display: flex; gap: 8px; overflow-x: auto; padding-bottom: 2px; -webkit-overflow-scrolling: touch;
+  align-items: flex-start;
 }
 .np-cat-row::-webkit-scrollbar { display: none; }
+
+.np-cat-select-wrap { position: relative; }
+.np-cat-select-btn {
+  display: flex; align-items: center; gap: 10px;
+  height: 46px; padding: 0 12px; border-radius: 10px;
+  background: #f8f9fb; border: 1px solid #ececec; cursor: pointer;
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+html[data-theme="dark"] .np-cat-select-btn { background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.1); }
+.np-cat-select-btn:hover { border-color: #7C6FF7; }
+.np-cat-select-icon {
+  width: 36px; height: 36px; border-radius: 10px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  background: #eef0f4; color: #556070; transition: background 0.2s ease;
+}
+html[data-theme="dark"] .np-cat-select-icon { background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.7); }
+.np-cat-select-icon svg { width: 20px; height: 20px; }
+.np-cat-select-icon.filled svg { width: 19px; height: 19px; color: #fff; }
+.np-cat-select-label {
+  flex: 1; font-family: "Plus Jakarta Sans", sans-serif; font-size: 14px; font-weight: 700; color: #001f3c;
+}
+html[data-theme="dark"] .np-cat-select-label { color: #eef4ff; }
+.np-cat-select-label.placeholder { color: #a3abb8; font-weight: 600; }
+.np-cat-chevron { width: 16px; height: 16px; color: #8c92a1; flex-shrink: 0; transition: transform 0.2s ease; }
+.np-cat-select-btn.open .np-cat-chevron { transform: rotate(180deg); }
+.np-cat-select-menu {
+  position: fixed; z-index: 9999; min-width: 220px;
+  background: #fff; border: 1px solid #ececec; border-radius: 12px;
+  box-shadow: 0 8px 28px rgba(0,0,0,0.14); padding: 6px;
+  opacity: 0; visibility: hidden; pointer-events: none;
+  transform: translateY(-6px) scale(0.97); transform-origin: top;
+  transition: opacity 0.2s cubic-bezier(0.4,0,0.2,1), transform 0.2s cubic-bezier(0.4,0,0.2,1), visibility 0.2s;
+}
+.np-cat-select-menu.open { opacity: 1; visibility: visible; pointer-events: auto; transform: translateY(0) scale(1); }
+html[data-theme="dark"] .np-cat-select-menu { background: #1b2738; border-color: rgba(255,255,255,0.1); box-shadow: 0 8px 28px rgba(0,0,0,0.4); }
+.pcm-check { width: 16px; height: 16px; color: #7C6FF7; flex-shrink: 0; opacity: 0; transition: opacity 0.15s ease; }
+.pcm-item.active .pcm-check { opacity: 1; }
+html[data-theme="dark"] .pcm-item.active .pcm-check { color: #9d94ff; }
+
 .np-cat-opt {
-  flex-shrink: 0; display: flex; flex-direction: column; align-items: center; gap: 6px;
-  padding: 10px 14px; border-radius: 12px; border: 1.5px solid #ececec; background: #f8f9fb;
+  flex-shrink: 0; display: flex; flex-direction: column; align-items: center; gap: 3px;
+  padding: 10px 14px 2px; border-radius: 12px; border: 1.5px solid #ececec; background: #f8f9fb;
   cursor: pointer; min-width: 74px; transition: all 0.2s ease;
+  position: relative;
 }
 html[data-theme="dark"] .np-cat-opt { background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.1); }
 .np-cat-opt .cat-icon { width: 22px; height: 22px; color: #556070; }
 html[data-theme="dark"] .np-cat-opt .cat-icon { color: rgba(255,255,255,0.7); }
 .cat-icon-badge {
-  width: 34px; height: 34px; border-radius: 10px; display: flex; align-items: center; justify-content: center;
+  width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center;
   transition: background 0.2s ease;
 }
-.cat-icon-badge .cat-icon { width: 18px; height: 18px; color: #fff !important; }
+.cat-icon-badge .cat-icon { width: 21px; height: 21px; color: #fff !important; }
 .np-cat-opt.selected .cat-icon-badge { background: transparent !important; }
 .np-cat-opt span {
   font-family: "Plus Jakarta Sans", sans-serif; font-size: 10.5px; font-weight: 700; color: #556070; white-space: nowrap;
@@ -5572,15 +5623,38 @@ html[data-theme="dark"] .np-cat-opt span { color: rgba(255,255,255,0.7); }
 .np-cat-opt.selected { background: #7C6FF7; border-color: #7C6FF7; }
 .np-cat-opt.selected .cat-icon, .np-cat-opt.selected span { color: #fff; }
 html[data-theme="dark"] .np-cat-opt.selected { background: #7C6FF7; border-color: #7C6FF7; }
+.np-cat-opt.selected::after {
+  content: "";
+  position: absolute; top: 6px; left: 6px;
+  width: 16px; height: 16px; border-radius: 50%;
+  background: #fff;
+}
+.np-cat-opt.selected::before {
+  content: "";
+  position: absolute; top: 9.5px; left: 9.5px;
+  width: 9px; height: 9px; z-index: 1;
+  background: #7C6FF7;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'/%3E%3C/svg%3E") center / contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'/%3E%3C/svg%3E") center / contain no-repeat;
+}
 .np-color-swatch {
-  width: 26px; height: 26px; border-radius: 8px; cursor: pointer; flex-shrink: 0;
+  width: 34px; height: 34px; border-radius: 10px; cursor: pointer; flex-shrink: 0;
   border: 2.5px solid transparent; transition: transform 0.15s ease, border-color 0.15s ease;
   position: relative;
+  display: flex; align-items: center; justify-content: center;
 }
 .np-color-swatch:hover { transform: scale(1.12); }
 .np-color-swatch:active { transform: scale(0.92); }
 .np-color-swatch.selected { border-color: #ffffff; box-shadow: 0 0 0 2px #7C6FF7; }
 html[data-theme="dark"] .np-color-swatch.selected { border-color: #1b2738; box-shadow: 0 0 0 2px #a095f5; }
+.np-color-swatch.selected::after {
+  content: "";
+  width: 14px; height: 14px;
+  background: #fff;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'/%3E%3C/svg%3E") center / contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'/%3E%3C/svg%3E") center / contain no-repeat;
+  filter: drop-shadow(0 1px 2px rgba(0,0,0,0.4));
+}
 .np-color-custom {
   display: flex; align-items: center; justify-content: center;
   background: #f0f2f8;
@@ -6988,6 +7062,7 @@ html[data-theme="dark"] .hamburger:hover { background: rgba(255,255,255,0.15); }
   transition: opacity 0.2s ease, transform 0.2s ease, background 0.35s ease, border-color 0.35s ease;
   z-index: 10;
   min-width: 170px;
+  max-width: 176px;
   backdrop-filter: blur(12px);
 }
 
@@ -7035,6 +7110,51 @@ html[data-theme="dark"] .hamburger:hover { background: rgba(255,255,255,0.15); }
   transition: color 0.35s ease;
 }
 
+.popup-sku-wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.popup-row-sku {
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.popup-row-sku .popup-label {
+  color: #000000;
+}
+
+#themeCheck:checked ~ .app-shell .popup-row-sku .popup-label {
+  color: #ffffff;
+}
+
+.popup-sku-badge {
+  flex-shrink: 0;
+}
+
+.tx-cat-mini-badge {
+  width: 8px;
+  height: 8px;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+
+.popup-sku-text {
+  font-family: 'Courier Prime', 'Courier New', monospace;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+  color: #0891b2;
+  transition: color 0.35s ease;
+}
+
+#themeCheck:checked ~ .app-shell .popup-sku-text {
+  color: #22d3ee;
+  text-shadow: 0 0 6px rgba(34,211,238,0.35);
+}
+
 .popup-value.margin-val {
   display: flex;
   align-items: center;
@@ -7080,6 +7200,10 @@ html[data-theme="dark"] .hamburger:hover { background: rgba(255,255,255,0.15); }
   border-radius: 16px;
   padding: 14px 16px 16px;
   transition: background 0.35s ease, border-color 0.35s ease;
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+  will-change: transform;
+  contain: content;
 }
 
 .top5-header {
@@ -7134,9 +7258,16 @@ html[data-theme="dark"] .hamburger:hover { background: rgba(255,255,255,0.15); }
 .top5-cat-menu {
   position: absolute; top: 38px; left: 0; z-index: 40; min-width: 180px;
   background: #fff; border: 1px solid #ececec; border-radius: 12px;
-  box-shadow: 0 8px 28px rgba(0,0,0,0.14); padding: 6px; display: none;
+  box-shadow: 0 8px 28px rgba(0,0,0,0.14); padding: 10px;
+  opacity: 0; visibility: hidden; pointer-events: none;
+  transform: translateY(-6px) scale(0.96);
+  transform-origin: top left;
+  transition: opacity 0.22s cubic-bezier(0.4,0,0.2,1), transform 0.22s cubic-bezier(0.4,0,0.2,1), visibility 0.22s;
 }
-.top5-cat-menu.open { display: block; }
+.top5-cat-menu.open {
+  opacity: 1; visibility: visible; pointer-events: auto;
+  transform: translateY(0) scale(1);
+}
 #themeCheck:checked ~ .app-shell .top5-cat-menu { background: #1b2738; border-color: rgba(255,255,255,0.1); box-shadow: 0 8px 28px rgba(0,0,0,0.4); }
 .t5cm-item {
   display: flex; align-items: center; justify-content: space-between; gap: 10px;
@@ -7150,10 +7281,10 @@ html[data-theme="dark"] .hamburger:hover { background: rgba(255,255,255,0.15); }
 .t5cm-item.active { color: #7C6FF7; font-weight: 800; }
 #themeCheck:checked ~ .app-shell .t5cm-item.active { color: #9d94ff; }
 .t5cm-count { font-size: 10.5px; font-weight: 700; color: #8c92a1; }
-.t5cm-badge { width: 22px; height: 22px; border-radius: 7px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-.t5cm-badge svg { width: 13px; height: 13px; color: #fff; }
-.t5cm-badge.t5cm-badge-supplement svg { width: 14px; height: 14px; }
-.t5cm-badge.t5cm-badge-clothing svg { width: 15px; height: 15px; }
+.t5cm-badge { width: 27px; height: 27px; border-radius: 9px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.t5cm-badge svg { width: 16px; height: 16px; color: #fff; }
+.t5cm-badge.t5cm-badge-supplement svg { width: 17px; height: 17px; }
+.t5cm-badge.t5cm-badge-clothing svg { width: 18px; height: 18px; }
 
 /* Glass toggle */
 .top5-toggle-wrap {
@@ -7285,7 +7416,7 @@ html[data-theme="dark"] .hamburger:hover { background: rgba(255,255,255,0.15); }
   flex-direction: column;
   gap: 12px;
   margin-top: 14px;
-  min-height: 88px;
+  min-height: 298px;
 }
 
 .top5-product-row {
@@ -7438,12 +7569,18 @@ html[data-theme="dark"] .hamburger:hover { background: rgba(255,255,255,0.15); }
   width: 0%;
 }
 
+.top5-product-sku-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding-left: 15px;
+}
+
 .top5-product-sku {
   font-family: "Courier Prime", "Courier New", monospace;
   font-size: 12px;
   font-weight: 700;
   color: var(--sku-color);
-  padding-left: 15px;
   transition: color 0.35s ease;
   letter-spacing: 0.13em;
   text-transform: uppercase;
@@ -7509,6 +7646,7 @@ html[data-theme="dark"] .hamburger:hover { background: rgba(255,255,255,0.15); }
   position: relative;
   background: var(--surface);
   border-radius: 24px 24px 0 0;
+  height: 92vh;
   max-height: 92vh;
   transform: translateY(100%);
   transition: transform 0.4s cubic-bezier(0.32, 0.72, 0, 1);
@@ -7698,6 +7836,60 @@ html[data-theme="dark"] .hamburger:hover { background: rgba(255,255,255,0.15); }
   letter-spacing: 0.1em;
   margin-bottom: 10px;
 }
+
+.detail-section-title-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+.detail-section-title-row .detail-section-title { margin-bottom: 0; }
+
+.cat-breakdown-list { display: flex; flex-direction: column; gap: 9px; }
+.cat-breakdown-row {
+  display: flex; align-items: center; gap: 8px; cursor: pointer;
+  padding: 4px; margin: -4px; border-radius: 8px; transition: background 0.15s ease;
+}
+.cat-breakdown-row:hover { background: rgba(124,111,247,0.06); }
+.cat-breakdown-row.active { background: rgba(124,111,247,0.1); }
+.cat-breakdown-icon { width: 24px; height: 24px; border-radius: 7px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+.cat-breakdown-icon .cat-icon { width: 14px; height: 14px; color: #fff; }
+.cat-breakdown-label { font-family: "Plus Jakarta Sans", sans-serif; font-size: 12px; font-weight: 700; color: var(--text); width: 74px; flex-shrink: 0; transition: color 0.35s ease; }
+.cat-breakdown-bar { flex: 1; height: 6px; border-radius: 3px; background: var(--line); overflow: hidden; transition: background 0.35s ease; }
+.cat-breakdown-fill { height: 100%; border-radius: 3px; transition: width 0.4s ease; }
+.cat-breakdown-pct { font-family: "Plus Jakarta Sans", sans-serif; font-size: 11px; font-weight: 700; color: var(--muted); width: 30px; text-align: right; flex-shrink: 0; }
+.cat-breakdown-rev { font-family: "Courier Prime", "Courier New", monospace; font-size: 11px; font-weight: 700; color: var(--text); width: 52px; text-align: right; flex-shrink: 0; transition: color 0.35s ease; }
+
+.cd-cat-select-wrap { position: relative; }
+.cd-cat-select-btn {
+  display: flex; align-items: center; gap: 6px; cursor: pointer;
+  padding: 5px 9px; border-radius: 8px; background: var(--surface-2); border: 1px solid var(--line);
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+.cd-cat-select-btn svg { width: 12px; height: 12px; color: var(--muted); transition: transform 0.2s ease; }
+.cd-cat-select-btn.open svg { transform: rotate(180deg); }
+#cdCatSelectLabel { font-family: "Plus Jakarta Sans", sans-serif; font-size: 11px; font-weight: 700; color: var(--text); transition: color 0.35s ease; }
+.cd-cat-select-menu {
+  position: fixed; z-index: 9999; min-width: 190px;
+  background: #fff; border: 1px solid #ececec; border-radius: 12px;
+  box-shadow: 0 8px 28px rgba(0,0,0,0.14); padding: 6px;
+  opacity: 0; visibility: hidden; pointer-events: none;
+  transform: translateY(-6px) scale(0.97); transform-origin: top right;
+  transition: opacity 0.2s cubic-bezier(0.4,0,0.2,1), transform 0.2s cubic-bezier(0.4,0,0.2,1), visibility 0.2s;
+}
+.cd-cat-select-menu.open { opacity: 1; visibility: visible; pointer-events: auto; transform: translateY(0) scale(1); }
+#themeCheck:checked ~ .app-shell .cd-cat-select-menu { background: #1b2738; border-color: rgba(255,255,255,0.1); box-shadow: 0 8px 28px rgba(0,0,0,0.4); }
+.cd-empty-cat { font-family: "Plus Jakarta Sans", sans-serif; font-size: 12px; color: var(--muted); text-align: center; padding: 20px 0; }
+
+.pcm-item {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  padding: 9px 10px; border-radius: 8px; cursor: pointer;
+  font-family: "Plus Jakarta Sans", sans-serif; font-size: 12.5px; font-weight: 600; color: #2f3a4a;
+  transition: background 0.15s ease;
+}
+.pcm-item:hover { background: #f4f5f9; }
+#themeCheck:checked ~ .app-shell .pcm-item { color: rgba(255,255,255,0.85); }
+#themeCheck:checked ~ .app-shell .pcm-item:hover { background: rgba(255,255,255,0.07); }
+.pcm-item.active { color: #7C6FF7; font-weight: 800; }
+#themeCheck:checked ~ .app-shell .pcm-item.active { color: #9d94ff; }
+.pcm-check { width: 16px; height: 16px; color: #7C6FF7; flex-shrink: 0; opacity: 0; transition: opacity 0.15s ease; }
+.pcm-item.active .pcm-check { opacity: 1; }
+#themeCheck:checked ~ .app-shell .pcm-item.active .pcm-check { color: #9d94ff; }
 
 /* ===== SKU TABLE ===== */
 .sku-table {
@@ -8332,11 +8524,11 @@ html[data-theme="dark"] .hamburger:hover { background: rgba(255,255,255,0.15); }
 .no-data-icon { font-size: 34px; }
 .no-data-title {
   font-family: "Plus Jakarta Sans", sans-serif; font-size: 14px;
-  font-weight: 700; color: var(--text); transition: color .35s;
+  font-weight: 700; color: var(--text); transition: color .35s; text-align: center;
 }
 .no-data-sub {
   font-family: "Plus Jakarta Sans", sans-serif; font-size: 12px;
-  color: var(--muted); transition: color .35s;
+  color: var(--muted); transition: color .35s; text-align: center; max-width: 240px;
 }
 .no-data-returns {
   display: flex; align-items: center; justify-content: center;
@@ -8685,9 +8877,12 @@ body { width: 100% !important; max-width: 100% !important; }
             <span class="popup-label">Units</span>
             <span class="popup-value" id="popupUnits">--</span>
           </div>
-          <div class="popup-row">
+          <div class="popup-row popup-row-sku">
             <span class="popup-label">Top SKU</span>
-            <span class="popup-value" id="popupSku">--</span>
+            <span class="popup-value popup-sku-wrap">
+              <span class="popup-sku-text" id="popupSku">--</span>
+              <span class="popup-sku-badge tx-cat-mini-badge" id="popupSkuBadge"></span>
+            </span>
           </div>
         </div>
       </div>
@@ -9094,52 +9289,52 @@ function marginFromY(y) {
 
 const DATA = {
   today: [
-    { label: '9am', margin: 22.5, revenue: 18500, units: 5, topSku: 'Omega-3' },
-    { label: '10am', margin: 24.1, revenue: 22100, units: 7, topSku: 'Magnesium' },
-    { label: '11am', margin: 27.8, revenue: 28400, units: 9, topSku: 'Magnesium' },
-    { label: '12pm', margin: 31.2, revenue: 35200, units: 11, topSku: 'Magnesium' },
-    { label: '1pm', margin: 33.5, revenue: 38900, units: 12, topSku: 'Betaine' },
-    { label: '2pm', margin: 29.4, revenue: 31000, units: 10, topSku: 'Omega-3' },
-    { label: '3pm', margin: 26.1, revenue: 26800, units: 8, topSku: 'Omega-3' },
-    { label: '4pm', margin: 28.7, revenue: 29500, units: 9, topSku: 'Magnesium' },
-    { label: '5pm', margin: 35.2, revenue: 42100, units: 13, topSku: 'Magnesium' },
-    { label: '6pm', margin: 38.9, revenue: 46800, units: 15, topSku: 'Betaine' },
-    { label: '7pm', margin: 36.4, revenue: 44500, units: 14, topSku: 'Magnesium' },
-    { label: '8pm', margin: 32.1, revenue: 37800, units: 12, topSku: 'Omega-3' },
-    { label: '9pm', margin: 30.5, revenue: 34100, units: 11, topSku: 'Betaine' }
+    { label: '9am', margin: 22.5, revenue: 18500, units: 5, topSku: 'NW-OMG3-UTA-180', topCat: 'supplement' },
+    { label: '10am', margin: 24.1, revenue: 22100, units: 7, topSku: 'DB-MAG-GLY-120', topCat: 'supplement' },
+    { label: '11am', margin: 27.8, revenue: 28400, units: 9, topSku: 'DB-MAG-GLY-120', topCat: 'supplement' },
+    { label: '12pm', margin: 31.2, revenue: 35200, units: 11, topSku: 'DB-MAG-GLY-120', topCat: 'supplement' },
+    { label: '1pm', margin: 33.5, revenue: 38900, units: 12, topSku: 'DB-HCI-PEP-120', topCat: 'supplement' },
+    { label: '2pm', margin: 29.4, revenue: 31000, units: 10, topSku: 'NW-OMG3-UTA-180', topCat: 'supplement' },
+    { label: '3pm', margin: 26.1, revenue: 26800, units: 8, topSku: 'NW-OMG3-UTA-180', topCat: 'supplement' },
+    { label: '4pm', margin: 28.7, revenue: 29500, units: 9, topSku: 'DB-MAG-GLY-120', topCat: 'supplement' },
+    { label: '5pm', margin: 35.2, revenue: 42100, units: 13, topSku: 'DB-MAG-GLY-120', topCat: 'supplement' },
+    { label: '6pm', margin: 38.9, revenue: 46800, units: 15, topSku: 'DB-HCI-PEP-120', topCat: 'supplement' },
+    { label: '7pm', margin: 36.4, revenue: 44500, units: 14, topSku: 'DB-MAG-GLY-120', topCat: 'supplement' },
+    { label: '8pm', margin: 32.1, revenue: 37800, units: 12, topSku: 'NW-OMG3-UTA-180', topCat: 'supplement' },
+    { label: '9pm', margin: 30.5, revenue: 34100, units: 11, topSku: 'DB-HCI-PEP-120', topCat: 'supplement' }
   ],
   week: [
-    { label: 'Mon', margin: 18.2, revenue: 28400, units: 9, topSku: 'Omega-3', sublabel: '17 Apr' },
-    { label: 'Tue', margin: 22.5, revenue: 32100, units: 10, topSku: 'Magnesium', sublabel: '18 Apr' },
-    { label: 'Wed', margin: 28.3, revenue: 38500, units: 12, topSku: 'Magnesium', sublabel: '19 Apr' },
-    { label: 'Thu', margin: 35.7, revenue: 45200, units: 14, topSku: 'Betaine', sublabel: '20 Apr' },
-    { label: 'Fri', margin: 41.6, revenue: 52800, units: 16, topSku: 'Magnesium', sublabel: '21 Apr' },
-    { label: 'Sat', margin: 39.2, revenue: 42250, units: 13, topSku: 'Magnesium', sublabel: '22 Apr' }
+    { label: 'Mon', margin: 18.2, revenue: 28400, units: 9, topSku: 'NW-OMG3-UTA-180', topCat: 'supplement', sublabel: '17 Apr' },
+    { label: 'Tue', margin: 22.5, revenue: 32100, units: 10, topSku: 'DB-MAG-GLY-120', topCat: 'supplement', sublabel: '18 Apr' },
+    { label: 'Wed', margin: 28.3, revenue: 38500, units: 12, topSku: 'DB-MAG-GLY-120', topCat: 'supplement', sublabel: '19 Apr' },
+    { label: 'Thu', margin: 35.7, revenue: 45200, units: 14, topSku: 'DB-HCI-PEP-120', topCat: 'supplement', sublabel: '20 Apr' },
+    { label: 'Fri', margin: 41.6, revenue: 52800, units: 16, topSku: 'DB-MAG-GLY-120', topCat: 'supplement', sublabel: '21 Apr' },
+    { label: 'Sat', margin: 39.2, revenue: 42250, units: 13, topSku: 'DB-MAG-GLY-120', topCat: 'supplement', sublabel: '22 Apr' }
   ],
   month: [
-    { label: 'W1', margin: 15.3, revenue: 68200, units: 22, topSku: 'Omega-3', sublabel: '10-16 Apr' },
-    { label: 'W2', margin: 24.7, revenue: 84500, units: 28, topSku: 'Magnesium', sublabel: '17-23 Apr' },
-    { label: 'W3', margin: 33.1, revenue: 112000, units: 35, topSku: 'Betaine', sublabel: '24-30 Apr' },
-    { label: 'W4', margin: 38.5, revenue: 128500, units: 40, topSku: 'Magnesium', sublabel: '1-7 May' },
-    { label: 'W5', margin: 42.3, revenue: 95400, units: 30, topSku: 'Magnesium', sublabel: '8-10 May' }
+    { label: 'W1', margin: 15.3, revenue: 68200, units: 22, topSku: 'NW-OMG3-UTA-180', topCat: 'supplement', sublabel: '10-16 Apr' },
+    { label: 'W2', margin: 24.7, revenue: 84500, units: 28, topSku: 'DB-MAG-GLY-120', topCat: 'supplement', sublabel: '17-23 Apr' },
+    { label: 'W3', margin: 33.1, revenue: 112000, units: 35, topSku: 'DB-HCI-PEP-120', topCat: 'supplement', sublabel: '24-30 Apr' },
+    { label: 'W4', margin: 38.5, revenue: 128500, units: 40, topSku: 'DB-MAG-GLY-120', topCat: 'supplement', sublabel: '1-7 May' },
+    { label: 'W5', margin: 42.3, revenue: 95400, units: 30, topSku: 'DB-MAG-GLY-120', topCat: 'supplement', sublabel: '8-10 May' }
   ],
   '3months': [
-    { label: 'Feb', sublabel: '2026', margin: 14.8, revenue: 245000, units: 78, topSku: 'Omega-3' },
-    { label: 'Mar', sublabel: '2026', margin: 26.2, revenue: 312000, units: 98, topSku: 'Magnesium' },
-    { label: 'Apr', sublabel: '2026', margin: 39.2, revenue: 422500, units: 133, topSku: 'Magnesium' }
+    { label: 'Feb', sublabel: '2026', margin: 14.8, revenue: 245000, units: 78, topSku: 'NW-OMG3-UTA-180', topCat: 'supplement' },
+    { label: 'Mar', sublabel: '2026', margin: 26.2, revenue: 312000, units: 98, topSku: 'DB-MAG-GLY-120', topCat: 'supplement' },
+    { label: 'Apr', sublabel: '2026', margin: 39.2, revenue: 422500, units: 133, topSku: 'DB-MAG-GLY-120', topCat: 'supplement' }
   ],
   all: [
-    { label: 'Jun', sublabel: "'25", margin: 12.5, revenue: 180000, units: 60, topSku: 'Omega-3' },
-    { label: 'Jul', sublabel: "'25", margin: 15.2, revenue: 210000, units: 68, topSku: 'Omega-3' },
-    { label: 'Aug', sublabel: "'25", margin: 18.7, revenue: 245000, units: 76, topSku: 'Magnesium' },
-    { label: 'Sep', sublabel: "'25", margin: 22.4, revenue: 278000, units: 85, topSku: 'Magnesium' },
-    { label: 'Oct', sublabel: "'25", margin: 27.1, revenue: 320000, units: 98, topSku: 'Betaine' },
-    { label: 'Nov', sublabel: "'25", margin: 31.5, revenue: 365000, units: 112, topSku: 'Magnesium' },
-    { label: 'Dec', sublabel: "'25", margin: 35.8, revenue: 410000, units: 128, topSku: 'Magnesium' },
-    { label: 'Jan', sublabel: "'26", margin: 38.2, revenue: 445000, units: 138, topSku: 'Betaine' },
-    { label: 'Feb', sublabel: "'26", margin: 14.8, revenue: 245000, units: 78, topSku: 'Omega-3' },
-    { label: 'Mar', sublabel: "'26", margin: 26.2, revenue: 312000, units: 98, topSku: 'Magnesium' },
-    { label: 'Apr', sublabel: "'26", margin: 39.2, revenue: 422500, units: 133, topSku: 'Magnesium' }
+    { label: 'Jun', sublabel: "'25", margin: 12.5, revenue: 180000, units: 60, topSku: 'NW-OMG3-UTA-180', topCat: 'supplement' },
+    { label: 'Jul', sublabel: "'25", margin: 15.2, revenue: 210000, units: 68, topSku: 'NW-OMG3-UTA-180', topCat: 'supplement' },
+    { label: 'Aug', sublabel: "'25", margin: 18.7, revenue: 245000, units: 76, topSku: 'DB-MAG-GLY-120', topCat: 'supplement' },
+    { label: 'Sep', sublabel: "'25", margin: 22.4, revenue: 278000, units: 85, topSku: 'DB-MAG-GLY-120', topCat: 'supplement' },
+    { label: 'Oct', sublabel: "'25", margin: 27.1, revenue: 320000, units: 98, topSku: 'DB-HCI-PEP-120', topCat: 'supplement' },
+    { label: 'Nov', sublabel: "'25", margin: 31.5, revenue: 365000, units: 112, topSku: 'DB-MAG-GLY-120', topCat: 'supplement' },
+    { label: 'Dec', sublabel: "'25", margin: 35.8, revenue: 410000, units: 128, topSku: 'DB-MAG-GLY-120', topCat: 'supplement' },
+    { label: 'Jan', sublabel: "'26", margin: 38.2, revenue: 445000, units: 138, topSku: 'DB-HCI-PEP-120', topCat: 'supplement' },
+    { label: 'Feb', sublabel: "'26", margin: 14.8, revenue: 245000, units: 78, topSku: 'NW-OMG3-UTA-180', topCat: 'supplement' },
+    { label: 'Mar', sublabel: "'26", margin: 26.2, revenue: 312000, units: 98, topSku: 'DB-MAG-GLY-120', topCat: 'supplement' },
+    { label: 'Apr', sublabel: "'26", margin: 39.2, revenue: 422500, units: 133, topSku: 'DB-MAG-GLY-120', topCat: 'supplement' }
   ]
 };
 
@@ -9505,6 +9700,10 @@ function showPopup(index) {
   document.getElementById('popupRevenue').textContent = '৳' + d.revenue.toLocaleString();
   document.getElementById('popupUnits').textContent = d.units + ' units';
   document.getElementById('popupSku').textContent = d.topSku;
+  const skuBadge = document.getElementById('popupSkuBadge');
+  const catColor = TOP5_CATEGORY_COLORS[d.topCat] || TOP5_CATEGORY_COLORS.general;
+  skuBadge.style.background = catColor;
+  skuBadge.title = TOP5_CATEGORY_LABELS[d.topCat] || '';
 
   popup.classList.add('active');
 }
@@ -9914,10 +10113,17 @@ function setTop5Category(cat) {
   top5Category = cat;
   const btn = document.getElementById('top5CatBtn');
   const dot = document.getElementById('top5CatDot');
-  if (btn) btn.classList.toggle('active', cat !== 'all');
-  if (dot) {
-    if (cat !== 'all') { dot.style.display = 'block'; dot.style.background = TOP5_CATEGORY_COLORS[cat]; }
-    else dot.style.display = 'none';
+  if (btn) {
+    btn.classList.toggle('active', cat !== 'all');
+    if (cat !== 'all') {
+      btn.style.background = `linear-gradient(135deg,${TOP5_CATEGORY_COLORS[cat]},${TOP5_CATEGORY_COLORS2[cat]})`;
+      btn.style.borderColor = TOP5_CATEGORY_COLORS[cat];
+      btn.innerHTML = `<svg class="cat-icon" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#cat-icon-${cat}"/></svg><span class="top5-cat-dot" id="top5CatDot" style="display:none"></span>`;
+    } else {
+      btn.style.background = '';
+      btn.style.borderColor = '';
+      btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="6" x2="20" y2="6"/><line x1="7" y1="12" x2="17" y2="12"/><line x1="10" y1="18" x2="14" y2="18"/></svg><span class="top5-cat-dot" id="top5CatDot" style="display:none"></span>`;
+    }
   }
   const menu = document.getElementById('top5CatMenu');
   if (menu) menu.classList.remove('open');
@@ -9972,7 +10178,10 @@ function top5Render() {
           </div>
           <span class="top5-product-price">${data.display}</span>
         </div>
-        <div class="top5-product-sku">${p.sku}</div>
+        <div class="top5-product-sku-row">
+          <span class="top5-product-sku">${p.sku}</span>
+          <span class="tx-cat-mini-badge" style="background:${TOP5_CATEGORY_COLORS[p.category] || TOP5_CATEGORY_COLORS.general}" title="${TOP5_CATEGORY_LABELS[p.category] || ''}"></span>
+        </div>
       </div>
     `;
   }).join('');
@@ -10011,76 +10220,101 @@ const CARD_DETAIL_DATA = {
   today: {
     revenue: 58400, label: 'Today',
     skus: [
-      { code: 'SUP-OM3-UTA-180', name: 'Omega-3 Ultra', revenue: 12400, margin: 42 },
-      { code: 'SUP-MAG-GLY-120', name: 'Magnesium Glycinate', revenue: 9800, margin: 38 },
-      { code: 'SUP-HCI-PEP-120', name: 'Betaine HCL & Pepsin', revenue: 7200, margin: 28 },
-      { code: 'SUP-VD3-K2-90', name: 'Vitamin D3 + K2', revenue: 5400, margin: 35 },
-      { code: 'SUP-ZNC-CMP-60', name: 'Zinc Complex', revenue: 3800, margin: 18 }
+      { code: 'SUP-OM3-UTA-180', name: 'Omega-3 Ultra', revenue: 12400, margin: 42, category: 'supplement' },
+      { code: 'SUP-MAG-GLY-120', name: 'Magnesium Glycinate', revenue: 9800, margin: 38, category: 'supplement' },
+      { code: 'SUP-HCI-PEP-120', name: 'Betaine HCL & Pepsin', revenue: 7200, margin: 28, category: 'supplement' },
+      { code: 'SUP-VD3-K2-90', name: 'Vitamin D3 + K2', revenue: 5400, margin: 35, category: 'supplement' },
+      { code: 'SUP-ZNC-CMP-60', name: 'Zinc Complex', revenue: 3800, margin: 18, category: 'supplement' }
     ],
     payments: [
       { name: 'bKash', pct: 65, color: '#e2136e' },
       { name: 'Nagad', pct: 25, color: '#f7931e' },
       { name: 'Cash', pct: 10, color: '#009b72' }
+    ],
+    categories: [
+      { key: 'supplement', revenue: 58400 }
     ]
   },
   week: {
     revenue: 142800, label: 'This Week',
     skus: [
-      { code: 'SUP-MAG-GLY-120', name: 'Magnesium Glycinate', revenue: 28400, margin: 38 },
-      { code: 'SUP-OM3-UTA-180', name: 'Omega-3 Ultra', revenue: 25600, margin: 42 },
-      { code: 'SUP-HCI-PEP-120', name: 'Betaine HCL & Pepsin', revenue: 19200, margin: 28 },
-      { code: 'SUP-VD3-K2-90', name: 'Vitamin D3 + K2', revenue: 16800, margin: 35 },
-      { code: 'SUP-ZNC-CMP-60', name: 'Zinc Complex', revenue: 12400, margin: 18 }
+      { code: 'SUP-MAG-GLY-120', name: 'Magnesium Glycinate', revenue: 28400, margin: 38, category: 'supplement' },
+      { code: 'SUP-OM3-UTA-180', name: 'Omega-3 Ultra', revenue: 25600, margin: 42, category: 'supplement' },
+      { code: 'SUP-HCI-PEP-120', name: 'Betaine HCL & Pepsin', revenue: 19200, margin: 28, category: 'supplement' },
+      { code: 'SUP-VD3-K2-90', name: 'Vitamin D3 + K2', revenue: 16800, margin: 35, category: 'supplement' },
+      { code: 'SUP-ZNC-CMP-60', name: 'Zinc Complex', revenue: 12400, margin: 18, category: 'supplement' }
     ],
     payments: [
       { name: 'bKash', pct: 60, color: '#e2136e' },
       { name: 'Nagad', pct: 30, color: '#f7931e' },
       { name: 'Cash', pct: 10, color: '#009b72' }
+    ],
+    categories: [
+      { key: 'supplement', revenue: 122800 },
+      { key: 'general', revenue: 12600 },
+      { key: 'clothing', revenue: 7400 }
     ]
   },
   month: {
     revenue: 584000, label: 'This Month',
     skus: [
-      { code: 'SUP-OM3-UTA-180', name: 'Omega-3 Ultra', revenue: 124000, margin: 42 },
-      { code: 'SUP-MAG-GLY-120', name: 'Magnesium Glycinate', revenue: 108000, margin: 38 },
-      { code: 'SUP-HCI-PEP-120', name: 'Betaine HCL & Pepsin', revenue: 84000, margin: 28 },
-      { code: 'SUP-VD3-K2-90', name: 'Vitamin D3 + K2', revenue: 72000, margin: 35 },
-      { code: 'SUP-ZNC-CMP-60', name: 'Zinc Complex', revenue: 48000, margin: 18 }
+      { code: 'SUP-OM3-UTA-180', name: 'Omega-3 Ultra', revenue: 124000, margin: 42, category: 'supplement' },
+      { code: 'SUP-MAG-GLY-120', name: 'Magnesium Glycinate', revenue: 108000, margin: 38, category: 'supplement' },
+      { code: 'GN-DKS-BLK-01', name: 'Digital Kitchen Scale', revenue: 84000, margin: 31, category: 'general' },
+      { code: 'SUP-VD3-K2-90', name: 'Vitamin D3 + K2', revenue: 72000, margin: 35, category: 'supplement' },
+      { code: 'AP-CTS-BLK-L', name: 'Compression T-Shirt', revenue: 48000, margin: 24, category: 'clothing' }
     ],
     payments: [
       { name: 'bKash', pct: 58, color: '#e2136e' },
       { name: 'Nagad', pct: 32, color: '#f7931e' },
       { name: 'Cash', pct: 10, color: '#009b72' }
+    ],
+    categories: [
+      { key: 'supplement', revenue: 372000 },
+      { key: 'general', revenue: 84000 },
+      { key: 'clothing', revenue: 48000 },
+      { key: 'cosmetic', revenue: 52000 },
+      { key: 'electronics', revenue: 28000 }
     ]
   },
   quarter: {
     revenue: 1680000, label: 'Last 3 Months',
     skus: [
-      { code: 'SUP-MAG-GLY-120', name: 'Magnesium Glycinate', revenue: 384000, margin: 38 },
-      { code: 'SUP-OM3-UTA-180', name: 'Omega-3 Ultra', revenue: 356000, margin: 42 },
-      { code: 'SUP-HCI-PEP-120', name: 'Betaine HCL & Pepsin', revenue: 284000, margin: 28 },
-      { code: 'SUP-VD3-K2-90', name: 'Vitamin D3 + K2', revenue: 256000, margin: 35 },
-      { code: 'SUP-ZNC-CMP-60', name: 'Zinc Complex', revenue: 192000, margin: 18 }
+      { code: 'SUP-MAG-GLY-120', name: 'Magnesium Glycinate', revenue: 384000, margin: 38, category: 'supplement' },
+      { code: 'SUP-OM3-UTA-180', name: 'Omega-3 Ultra', revenue: 356000, margin: 42, category: 'supplement' },
+      { code: 'SUP-HCI-PEP-120', name: 'Betaine HCL & Pepsin', revenue: 284000, margin: 28, category: 'supplement' },
+      { code: 'SUP-VD3-K2-90', name: 'Vitamin D3 + K2', revenue: 256000, margin: 35, category: 'supplement' },
+      { code: 'SUP-ZNC-CMP-60', name: 'Zinc Complex', revenue: 192000, margin: 18, category: 'supplement' }
     ],
     payments: [
       { name: 'bKash', pct: 55, color: '#e2136e' },
       { name: 'Nagad', pct: 35, color: '#f7931e' },
       { name: 'Cash', pct: 10, color: '#009b72' }
+    ],
+    categories: [
+      { key: 'supplement', revenue: 1472000 },
+      { key: 'general', revenue: 128000 },
+      { key: 'clothing', revenue: 80000 }
     ]
   },
   all: {
     revenue: 4200000, label: 'All Time',
     skus: [
-      { code: 'SUP-OM3-UTA-180', name: 'Omega-3 Ultra', revenue: 980000, margin: 42 },
-      { code: 'SUP-MAG-GLY-120', name: 'Magnesium Glycinate', revenue: 920000, margin: 38 },
-      { code: 'SUP-HCI-PEP-120', name: 'Betaine HCL & Pepsin', revenue: 740000, margin: 28 },
-      { code: 'SUP-VD3-K2-90', name: 'Vitamin D3 + K2', revenue: 680000, margin: 35 },
-      { code: 'SUP-ZNC-CMP-60', name: 'Zinc Complex', revenue: 480000, margin: 18 }
+      { code: 'SUP-OM3-UTA-180', name: 'Omega-3 Ultra', revenue: 980000, margin: 42, category: 'supplement' },
+      { code: 'SUP-MAG-GLY-120', name: 'Magnesium Glycinate', revenue: 920000, margin: 38, category: 'supplement' },
+      { code: 'SUP-HCI-PEP-120', name: 'Betaine HCL & Pepsin', revenue: 740000, margin: 28, category: 'supplement' },
+      { code: 'SUP-VD3-K2-90', name: 'Vitamin D3 + K2', revenue: 680000, margin: 35, category: 'supplement' },
+      { code: 'SUP-ZNC-CMP-60', name: 'Zinc Complex', revenue: 480000, margin: 18, category: 'supplement' }
     ],
     payments: [
       { name: 'bKash', pct: 52, color: '#e2136e' },
       { name: 'Nagad', pct: 38, color: '#f7931e' },
       { name: 'Cash', pct: 10, color: '#009b72' }
+    ],
+    categories: [
+      { key: 'supplement', revenue: 3800000 },
+      { key: 'general', revenue: 240000 },
+      { key: 'clothing', revenue: 160000 }
     ]
   }
 };
@@ -10095,12 +10329,55 @@ let cardDetailCurrentFrom = 'month';
 let cardDetailCurrentTo = 'today';
 const cardDetailOverlay = document.getElementById('cardDetailOverlay');
 
+let cardDetailCategory = 'all';
+
 function renderCardDetailBody(data) {
   const body = document.getElementById('cardDetailBody');
+  const filteredSkus = cardDetailCategory === 'all'
+    ? data.skus
+    : data.skus.filter(s => s.category === cardDetailCategory);
+
+  const totalRevenue = data.categories.reduce((sum, c) => sum + c.revenue, 0);
+  const catBreakdownHtml = data.categories
+    .slice().sort((a, b) => b.revenue - a.revenue)
+    .map(c => {
+      const pct = Math.round((c.revenue / totalRevenue) * 100);
+      return `
+      <div class="cat-breakdown-row ${cardDetailCategory === c.key ? 'active' : ''}" onclick="setCardDetailCategory('${cardDetailCategory === c.key ? 'all' : c.key}')">
+        <span class="cat-breakdown-icon" style="background:linear-gradient(135deg,${TOP5_CATEGORY_COLORS[c.key]},${TOP5_CATEGORY_COLORS2[c.key]})"><svg class="cat-icon"><use href="#cat-icon-${c.key}"/></svg></span>
+        <span class="cat-breakdown-label">${TOP5_CATEGORY_LABELS[c.key]}</span>
+        <div class="cat-breakdown-bar"><div class="cat-breakdown-fill" style="width:${pct}%;background:${TOP5_CATEGORY_COLORS[c.key]}"></div></div>
+        <span class="cat-breakdown-pct">${pct}%</span>
+        <span class="cat-breakdown-rev">৳${(c.revenue/1000).toFixed(1)}K</span>
+      </div>`;
+    }).join('');
+
   body.innerHTML = `
-    <div class="detail-section-title">Top 5 SKUs by Revenue</div>
+    <div class="detail-section-title" style="margin-bottom:10px">Revenue by Category</div>
+    <div class="cat-breakdown-list">${catBreakdownHtml}</div>
+
+    <div class="detail-section-title-row" style="margin-top:16px">
+      <span class="detail-section-title">Top 5 SKUs by Revenue</span>
+      <div class="cd-cat-select-wrap">
+        <div class="cd-cat-select-btn" id="cdCatSelectBtn" onclick="toggleCardDetailCategoryMenu(event)">
+          <span id="cdCatSelectLabel">${cardDetailCategory === 'all' ? 'All Categories' : TOP5_CATEGORY_LABELS[cardDetailCategory]}</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <div class="cd-cat-select-menu" id="cdCatSelectMenu">
+          <div class="pcm-item ${cardDetailCategory==='all'?'active':''}" onclick="setCardDetailCategory('all')">
+            <span>All Categories</span>
+            <svg class="pcm-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+          ${Object.keys(TOP5_CATEGORY_LABELS).map(key => `
+          <div class="pcm-item ${cardDetailCategory===key?'active':''}" onclick="setCardDetailCategory('${key}')">
+            <span style="display:flex;align-items:center;gap:9px"><div class="cat-icon-badge" style="width:24px;height:24px;border-radius:7px;background:linear-gradient(135deg,${TOP5_CATEGORY_COLORS[key]},${TOP5_CATEGORY_COLORS2[key]})"><svg class="cat-icon" style="width:14px;height:14px"><use href="#cat-icon-${key}"/></svg></div> ${TOP5_CATEGORY_LABELS[key]}</span>
+            <svg class="pcm-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>`).join('')}
+        </div>
+      </div>
+    </div>
     <div class="sku-table">
-      ${data.skus.map((sku, i) => `
+      ${filteredSkus.length ? filteredSkus.map((sku, i) => `
         <div class="sku-row">
           <div class="sku-rank rank-${i + 1}">${i + 1}</div>
           <div class="sku-info">
@@ -10112,7 +10389,7 @@ function renderCardDetailBody(data) {
             <span class="sku-margin-pill ${getMarginClass(sku.margin)}">${sku.margin}%</span>
           </div>
         </div>
-      `).join('')}
+      `).join('') : `<div class="cd-empty-cat">No SKUs sold in this category for this period</div>`}
     </div>
 
     <div class="detail-section-title" style="margin-top:16px">Payment Methods</div>
@@ -10126,8 +10403,49 @@ function renderCardDetailBody(data) {
   `;
 }
 
+function toggleCardDetailCategoryMenu(e) {
+  if (e) e.stopPropagation();
+  const btn = document.getElementById('cdCatSelectBtn');
+  const menu = document.getElementById('cdCatSelectMenu');
+  const opening = !menu.classList.contains('open');
+  if (opening) {
+    const r = btn.getBoundingClientRect();
+    menu.style.right = (window.innerWidth - r.right) + 'px';
+    menu.style.left = 'auto';
+    menu.style.top = (r.bottom + 6) + 'px';
+  }
+  menu.classList.toggle('open', opening);
+  btn.classList.toggle('open', opening);
+  if (opening) {
+    const reposition = () => {
+      const r2 = btn.getBoundingClientRect();
+      menu.style.right = (window.innerWidth - r2.right) + 'px';
+      menu.style.top = (r2.bottom + 6) + 'px';
+    };
+    const closeOnOutside = (ev) => {
+      if (!menu.contains(ev.target) && !btn.contains(ev.target)) {
+        menu.classList.remove('open');
+        btn.classList.remove('open');
+        document.removeEventListener('click', closeOnOutside);
+        document.getElementById('cardDetailBody')?.removeEventListener('scroll', reposition);
+        window.removeEventListener('resize', reposition);
+      }
+    };
+    setTimeout(() => document.addEventListener('click', closeOnOutside), 0);
+    document.getElementById('cardDetailBody')?.addEventListener('scroll', reposition);
+    window.addEventListener('resize', reposition);
+  }
+}
+
+function setCardDetailCategory(key) {
+  cardDetailCategory = key;
+  const fromData = CARD_DETAIL_DATA[cardDetailCurrentFrom];
+  renderCardDetailBody(fromData);
+}
+
 function showCardDetail(card = 'revenue') {
   if (card !== 'revenue') return; // Only revenue for now
+  cardDetailCategory = 'all';
 
   const fromData = CARD_DETAIL_DATA[cardDetailCurrentFrom];
   const toData = CARD_DETAIL_DATA[cardDetailCurrentTo];
@@ -11871,7 +12189,7 @@ html[data-theme="dark"] .stat-item-val.offer-value {
   transform: translateY(-50%);
   width: 30px;
   height: 30px;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none'%3E%3Cpath d='M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2z' fill='%2338bdf8' stroke='%2338bdf8' stroke-width='1.5' stroke-linejoin='round'/%3E%3Cpath d='M13 5v14' stroke='%2338bdf8' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none'%3E%3Cpath d='M7.0498 7.0498H7.0598M10.5118 3H7.8C6.11984 3 5.27976 3 4.63803 3.32698C4.07354 3.6146 3.6146 4.07354 3.32698 4.63803C3 5.27976 3 6.11984 3 7.8V10.5118C3 11.2455 3 11.6124 3.08289 11.9577C3.15638 12.2638 3.27759 12.5564 3.44208 12.8249C3.6276 13.1276 3.88703 13.387 4.40589 13.9059L9.10589 18.6059C10.2939 19.7939 10.888 20.388 11.5729 20.6105C12.1755 20.8063 12.8245 20.8063 13.4271 20.6105C14.112 20.388 14.7061 19.7939 15.8941 18.6059L18.6059 15.8941C19.7939 14.7061 20.388 14.112 20.6105 13.4271C20.8063 12.8245 20.8063 12.1755 20.6105 11.5729C20.388 10.888 19.7939 10.2939 18.6059 9.10589L13.9059 4.40589C13.387 3.88703 13.1276 3.6276 12.8249 3.44208C12.5564 3.27759 12.2638 3.15638 11.9577 3.08289C11.6124 3 11.2455 3 10.5118 3ZM7.5498 7.0498C7.5498 7.32595 7.32595 7.5498 7.0498 7.5498C6.77366 7.5498 6.5498 7.32595 6.5498 7.0498C6.5498 6.77366 6.77366 6.5498 7.0498 6.5498C7.32595 6.5498 7.5498 6.77366 7.5498 7.0498Z' fill='%2338bdf8' stroke='%2338bdf8' stroke-width='1.5' stroke-linejoin='round'/%3E%3Cpath d='M13 5v14' stroke='%2338bdf8' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");
   background-size: contain;
   background-repeat: no-repeat;
   opacity: 0.85;
@@ -12102,7 +12420,7 @@ html[data-theme="dark"] .stat-item.type-regular {
   transform: translateY(-50%);
   width: 30px;
   height: 30px;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none'%3E%3Cpath d='M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2z' fill='%2338bdf8' stroke='%2338bdf8' stroke-width='1.5' stroke-linejoin='round'/%3E%3Cpath d='M13 5v14' stroke='%2338bdf8' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none'%3E%3Cpath d='M7.0498 7.0498H7.0598M10.5118 3H7.8C6.11984 3 5.27976 3 4.63803 3.32698C4.07354 3.6146 3.6146 4.07354 3.32698 4.63803C3 5.27976 3 6.11984 3 7.8V10.5118C3 11.2455 3 11.6124 3.08289 11.9577C3.15638 12.2638 3.27759 12.5564 3.44208 12.8249C3.6276 13.1276 3.88703 13.387 4.40589 13.9059L9.10589 18.6059C10.2939 19.7939 10.888 20.388 11.5729 20.6105C12.1755 20.8063 12.8245 20.8063 13.4271 20.6105C14.112 20.388 14.7061 19.7939 15.8941 18.6059L18.6059 15.8941C19.7939 14.7061 20.388 14.112 20.6105 13.4271C20.8063 12.8245 20.8063 12.1755 20.6105 11.5729C20.388 10.888 19.7939 10.2939 18.6059 9.10589L13.9059 4.40589C13.387 3.88703 13.1276 3.6276 12.8249 3.44208C12.5564 3.27759 12.2638 3.15638 11.9577 3.08289C11.6124 3 11.2455 3 10.5118 3ZM7.5498 7.0498C7.5498 7.32595 7.32595 7.5498 7.0498 7.5498C6.77366 7.5498 6.5498 7.32595 6.5498 7.0498C6.5498 6.77366 6.77366 6.5498 7.0498 6.5498C7.32595 6.5498 7.5498 6.77366 7.5498 7.0498Z' fill='%2338bdf8' stroke='%2338bdf8' stroke-width='1.5' stroke-linejoin='round'/%3E%3Cpath d='M13 5v14' stroke='%2338bdf8' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");
   background-size: contain;
   background-repeat: no-repeat;
   opacity: 0.85;
@@ -13302,7 +13620,7 @@ html[data-theme="light"] .mini-voucher .tear-notch { background: #fff; }
 
       <div class="empty-state" id="empty-0" style="display:none">
         <div class="empty-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2z"/><path d="M13 5v14"/></svg>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7.0498 7.0498H7.0598M10.5118 3H7.8C6.11984 3 5.27976 3 4.63803 3.32698C4.07354 3.6146 3.6146 4.07354 3.32698 4.63803C3 5.27976 3 6.11984 3 7.8V10.5118C3 11.2455 3 11.6124 3.08289 11.9577C3.15638 12.2638 3.27759 12.5564 3.44208 12.8249C3.6276 13.1276 3.88703 13.387 4.40589 13.9059L9.10589 18.6059C10.2939 19.7939 10.888 20.388 11.5729 20.6105C12.1755 20.8063 12.8245 20.8063 13.4271 20.6105C14.112 20.388 14.7061 19.7939 15.8941 18.6059L18.6059 15.8941C19.7939 14.7061 20.388 14.112 20.6105 13.4271C20.8063 12.8245 20.8063 12.1755 20.6105 11.5729C20.388 10.888 19.7939 10.2939 18.6059 9.10589L13.9059 4.40589C13.387 3.88703 13.1276 3.6276 12.8249 3.44208C12.5564 3.27759 12.2638 3.15638 11.9577 3.08289C11.6124 3 11.2455 3 10.5118 3ZM7.5498 7.0498C7.5498 7.32595 7.32595 7.5498 7.0498 7.5498C6.77366 7.5498 6.5498 7.32595 6.5498 7.0498C6.5498 6.77366 6.77366 6.5498 7.0498 6.5498C7.32595 6.5498 7.5498 6.77366 7.5498 7.0498Z"/></svg>
         </div>
         <div class="empty-title">No Active Vouchers</div>
         <div class="empty-sub">Create a new voucher to start running a campaign.</div>
@@ -13318,7 +13636,7 @@ html[data-theme="light"] .mini-voucher .tear-notch { background: #fff; }
         <!-- MINI VOUCHER PREVIEW -->
                         <div class="card-top">
           <div class="card-icon-wrap regular">
-            <svg viewBox="0 0 24 24" fill="none"><path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2z" fill="rgba(56,189,248,0.2)" stroke="#38bdf8" stroke-width="2" stroke-linejoin="round"/><path d="M13 5v14" stroke="#38bdf8" stroke-width="2" stroke-linecap="round"/></svg>
+            <svg viewBox="0 0 24 24" fill="none"><path d="M7.0498 7.0498H7.0598M10.5118 3H7.8C6.11984 3 5.27976 3 4.63803 3.32698C4.07354 3.6146 3.6146 4.07354 3.32698 4.63803C3 5.27976 3 6.11984 3 7.8V10.5118C3 11.2455 3 11.6124 3.08289 11.9577C3.15638 12.2638 3.27759 12.5564 3.44208 12.8249C3.6276 13.1276 3.88703 13.387 4.40589 13.9059L9.10589 18.6059C10.2939 19.7939 10.888 20.388 11.5729 20.6105C12.1755 20.8063 12.8245 20.8063 13.4271 20.6105C14.112 20.388 14.7061 19.7939 15.8941 18.6059L18.6059 15.8941C19.7939 14.7061 20.388 14.112 20.6105 13.4271C20.8063 12.8245 20.8063 12.1755 20.6105 11.5729C20.388 10.888 19.7939 10.2939 18.6059 9.10589L13.9059 4.40589C13.387 3.88703 13.1276 3.6276 12.8249 3.44208C12.5564 3.27759 12.2638 3.15638 11.9577 3.08289C11.6124 3 11.2455 3 10.5118 3ZM7.5498 7.0498C7.5498 7.32595 7.32595 7.5498 7.0498 7.5498C6.77366 7.5498 6.5498 7.32595 6.5498 7.0498C6.5498 6.77366 6.77366 6.5498 7.0498 6.5498C7.32595 6.5498 7.5498 6.77366 7.5498 7.0498Z" fill="rgba(56,189,248,0.2)" stroke="#38bdf8" stroke-width="2" stroke-linejoin="round"/></svg>
             </div>
           <div class="card-info">
             <div class="card-code">
@@ -13683,7 +14001,7 @@ html[data-theme="light"] .mini-voucher .tear-notch { background: #fff; }
         <!-- MINI VOUCHER PREVIEW -->
                         <div class="card-top">
           <div class="card-icon-wrap regular" style="opacity:0.6">
-            <svg viewBox="0 0 24 24" fill="none"><path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2z" fill="rgba(56,189,248,0.2)" stroke="#38bdf8" stroke-width="2"/></svg>
+            <svg viewBox="0 0 24 24" fill="none"><path d="M7.0498 7.0498H7.0598M10.5118 3H7.8C6.11984 3 5.27976 3 4.63803 3.32698C4.07354 3.6146 3.6146 4.07354 3.32698 4.63803C3 5.27976 3 6.11984 3 7.8V10.5118C3 11.2455 3 11.6124 3.08289 11.9577C3.15638 12.2638 3.27759 12.5564 3.44208 12.8249C3.6276 13.1276 3.88703 13.387 4.40589 13.9059L9.10589 18.6059C10.2939 19.7939 10.888 20.388 11.5729 20.6105C12.1755 20.8063 12.8245 20.8063 13.4271 20.6105C14.112 20.388 14.7061 19.7939 15.8941 18.6059L18.6059 15.8941C19.7939 14.7061 20.388 14.112 20.6105 13.4271C20.8063 12.8245 20.8063 12.1755 20.6105 11.5729C20.388 10.888 19.7939 10.2939 18.6059 9.10589L13.9059 4.40589C13.387 3.88703 13.1276 3.6276 12.8249 3.44208C12.5564 3.27759 12.2638 3.15638 11.9577 3.08289C11.6124 3 11.2455 3 10.5118 3ZM7.5498 7.0498C7.5498 7.32595 7.32595 7.5498 7.0498 7.5498C6.77366 7.5498 6.5498 7.32595 6.5498 7.0498C6.5498 6.77366 6.77366 6.5498 7.0498 6.5498C7.32595 6.5498 7.5498 6.77366 7.5498 7.0498Z" fill="rgba(56,189,248,0.2)" stroke="#38bdf8" stroke-width="2"/></svg>
             </div>
           <div class="card-info">
             <div class="card-code" style="opacity:0.7">SUP-REG-DEC22</div>
@@ -14386,7 +14704,7 @@ html[data-theme="light"] .channel-filter-bar .slide-indicator{
       Event
     </button>
     <button class="type-tab regular" onclick="selectType('regular',this)">
-      <svg viewBox="0 0 24 24" fill="none"><path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2z" fill="#38bdf8" stroke="#0ea5e9" stroke-width="1.5" stroke-linejoin="round" opacity=".9"/><path d="M13 5v14" stroke="#fff" stroke-width="1.5" stroke-linecap="round" opacity=".6"/></svg>
+      <svg viewBox="0 0 24 24" fill="none"><path d="M7.0498 7.0498H7.0598M10.5118 3H7.8C6.11984 3 5.27976 3 4.63803 3.32698C4.07354 3.6146 3.6146 4.07354 3.32698 4.63803C3 5.27976 3 6.11984 3 7.8V10.5118C3 11.2455 3 11.6124 3.08289 11.9577C3.15638 12.2638 3.27759 12.5564 3.44208 12.8249C3.6276 13.1276 3.88703 13.387 4.40589 13.9059L9.10589 18.6059C10.2939 19.7939 10.888 20.388 11.5729 20.6105C12.1755 20.8063 12.8245 20.8063 13.4271 20.6105C14.112 20.388 14.7061 19.7939 15.8941 18.6059L18.6059 15.8941C19.7939 14.7061 20.388 14.112 20.6105 13.4271C20.8063 12.8245 20.8063 12.1755 20.6105 11.5729C20.388 10.888 19.7939 10.2939 18.6059 9.10589L13.9059 4.40589C13.387 3.88703 13.1276 3.6276 12.8249 3.44208C12.5564 3.27759 12.2638 3.15638 11.9577 3.08289C11.6124 3 11.2455 3 10.5118 3ZM7.5498 7.0498C7.5498 7.32595 7.32595 7.5498 7.0498 7.5498C6.77366 7.5498 6.5498 7.32595 6.5498 7.0498C6.5498 6.77366 6.77366 6.5498 7.0498 6.5498C7.32595 6.5498 7.5498 6.77366 7.5498 7.0498Z" fill="#38bdf8" stroke="#0ea5e9" stroke-width="1.5" stroke-linejoin="round" opacity=".9"/></svg>
       Regular
     </button>
     <button class="type-tab product" onclick="selectType('product',this)">
@@ -14818,7 +15136,7 @@ html[data-theme="light"] .channel-filter-bar .slide-indicator{
       <div class="section-header voucher-icon" id="voucherHeader" onclick="toggleSection('voucher')">
         <div class="section-icon voucher-icon">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2z"/>
+            <path d="M7.0498 7.0498H7.0598M10.5118 3H7.8C6.11984 3 5.27976 3 4.63803 3.32698C4.07354 3.6146 3.6146 4.07354 3.32698 4.63803C3 5.27976 3 6.11984 3 7.8V10.5118C3 11.2455 3 11.6124 3.08289 11.9577C3.15638 12.2638 3.27759 12.5564 3.44208 12.8249C3.6276 13.1276 3.88703 13.387 4.40589 13.9059L9.10589 18.6059C10.2939 19.7939 10.888 20.388 11.5729 20.6105C12.1755 20.8063 12.8245 20.8063 13.4271 20.6105C14.112 20.388 14.7061 19.7939 15.8941 18.6059L18.6059 15.8941C19.7939 14.7061 20.388 14.112 20.6105 13.4271C20.8063 12.8245 20.8063 12.1755 20.6105 11.5729C20.388 10.888 19.7939 10.2939 18.6059 9.10589L13.9059 4.40589C13.387 3.88703 13.1276 3.6276 12.8249 3.44208C12.5564 3.27759 12.2638 3.15638 11.9577 3.08289C11.6124 3 11.2455 3 10.5118 3ZM7.5498 7.0498C7.5498 7.32595 7.32595 7.5498 7.0498 7.5498C6.77366 7.5498 6.5498 7.32595 6.5498 7.0498C6.5498 6.77366 6.77366 6.5498 7.0498 6.5498C7.32595 6.5498 7.5498 6.77366 7.5498 7.0498Z"/>
             <line x1="9" y1="12" x2="9.01" y2="12" stroke-width="3" stroke-linecap="round"/>
             <line x1="15" y1="12" x2="15.01" y2="12" stroke-width="3" stroke-linecap="round"/>
             <line x1="12" y1="12" x2="12.01" y2="12" stroke-width="3" stroke-linecap="round"/>
@@ -14832,7 +15150,7 @@ html[data-theme="light"] .channel-filter-bar .slide-indicator{
           <div class="voucher-empty" id="voucherEmpty">
             <div class="voucher-empty-icon">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2z"/>
+                <path d="M7.0498 7.0498H7.0598M10.5118 3H7.8C6.11984 3 5.27976 3 4.63803 3.32698C4.07354 3.6146 3.6146 4.07354 3.32698 4.63803C3 5.27976 3 6.11984 3 7.8V10.5118C3 11.2455 3 11.6124 3.08289 11.9577C3.15638 12.2638 3.27759 12.5564 3.44208 12.8249C3.6276 13.1276 3.88703 13.387 4.40589 13.9059L9.10589 18.6059C10.2939 19.7939 10.888 20.388 11.5729 20.6105C12.1755 20.8063 12.8245 20.8063 13.4271 20.6105C14.112 20.388 14.7061 19.7939 15.8941 18.6059L18.6059 15.8941C19.7939 14.7061 20.388 14.112 20.6105 13.4271C20.8063 12.8245 20.8063 12.1755 20.6105 11.5729C20.388 10.888 19.7939 10.2939 18.6059 9.10589L13.9059 4.40589C13.387 3.88703 13.1276 3.6276 12.8249 3.44208C12.5564 3.27759 12.2638 3.15638 11.9577 3.08289C11.6124 3 11.2455 3 10.5118 3ZM7.5498 7.0498C7.5498 7.32595 7.32595 7.5498 7.0498 7.5498C6.77366 7.5498 6.5498 7.32595 6.5498 7.0498C6.5498 6.77366 6.77366 6.5498 7.0498 6.5498C7.32595 6.5498 7.5498 6.77366 7.5498 7.0498Z"/>
                 <line x1="9" y1="12" x2="9.01" y2="12" stroke-width="3" stroke-linecap="round"/>
                 <line x1="15" y1="12" x2="15.01" y2="12" stroke-width="3" stroke-linecap="round"/>
                 <line x1="12" y1="12" x2="12.01" y2="12" stroke-width="3" stroke-linecap="round"/>
@@ -15887,7 +16205,7 @@ html[data-theme="light"] .vc-float-close{background:rgba(240,244,248,0.95);borde
       <div class="lock-notice" id="type-lock-notice">🔒 Voucher type can't be changed after creation.</div>
 
       <div class="type-grid">
-        <div class="type-card" id="card-regular" onclick="selectType('regular',this,'card')"><div class="type-icon-wrap regular"><svg width="24" height="24" viewBox="0 0 24 24"><defs><linearGradient id="ticketGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#38bdf8"/><stop offset="100%" stop-color="#0284c7"/></linearGradient></defs><path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2z" fill="url(#ticketGrad)" stroke="#0ea5e9" stroke-width="2" stroke-linejoin="round" opacity="0.9"/><path d="M13 5v14" stroke="#fff" stroke-width="2" stroke-linecap="round" opacity="0.6"/><path d="M7 9h3" stroke="#fff" stroke-width="2" stroke-linecap="round" opacity="0.7"/><path d="M7 12h3" stroke="#fff" stroke-width="2" stroke-linecap="round" opacity="0.7"/></svg></div><div class="type-text"><div class="type-name">Regular</div><div class="type-desc">Applies to all products in inventory. Stackable &amp; general use.</div></div></div>
+        <div class="type-card" id="card-regular" onclick="selectType('regular',this,'card')"><div class="type-icon-wrap regular"><svg width="24" height="24" viewBox="0 0 24 24"><defs><linearGradient id="ticketGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#38bdf8"/><stop offset="100%" stop-color="#0284c7"/></linearGradient></defs><path d="M7.0498 7.0498H7.0598M10.5118 3H7.8C6.11984 3 5.27976 3 4.63803 3.32698C4.07354 3.6146 3.6146 4.07354 3.32698 4.63803C3 5.27976 3 6.11984 3 7.8V10.5118C3 11.2455 3 11.6124 3.08289 11.9577C3.15638 12.2638 3.27759 12.5564 3.44208 12.8249C3.6276 13.1276 3.88703 13.387 4.40589 13.9059L9.10589 18.6059C10.2939 19.7939 10.888 20.388 11.5729 20.6105C12.1755 20.8063 12.8245 20.8063 13.4271 20.6105C14.112 20.388 14.7061 19.7939 15.8941 18.6059L18.6059 15.8941C19.7939 14.7061 20.388 14.112 20.6105 13.4271C20.8063 12.8245 20.8063 12.1755 20.6105 11.5729C20.388 10.888 19.7939 10.2939 18.6059 9.10589L13.9059 4.40589C13.387 3.88703 13.1276 3.6276 12.8249 3.44208C12.5564 3.27759 12.2638 3.15638 11.9577 3.08289C11.6124 3 11.2455 3 10.5118 3ZM7.5498 7.0498C7.5498 7.32595 7.32595 7.5498 7.0498 7.5498C6.77366 7.5498 6.5498 7.32595 6.5498 7.0498C6.5498 6.77366 6.77366 6.5498 7.0498 6.5498C7.32595 6.5498 7.5498 6.77366 7.5498 7.0498Z" fill="url(#ticketGrad)" stroke="#0ea5e9" stroke-width="2" stroke-linejoin="round" opacity="0.9"/></svg></div><div class="type-text"><div class="type-name">Regular</div><div class="type-desc">Applies to all products in inventory. Stackable &amp; general use.</div></div></div>
         <div class="type-card" id="card-event" onclick="selectType('event',this,'card')"><div class="type-icon-wrap event"><svg width="24" height="24" viewBox="0 0 24 24"><defs><linearGradient id="star3d" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#f4c55a"/><stop offset="100%" stop-color="#a16207"/></linearGradient></defs><path d="M12 1.5l3 7 7.5 1.5-5.5 5 1.5 7.5-6.5-4-6.5 4 1.5-7.5-5.5-5L9 8.5z" fill="url(#star3d)" stroke="#d4a017" stroke-width="2.5" stroke-linejoin="round"/><circle cx="12" cy="11" r="2.5" fill="#fff" stroke="#d4a017" stroke-width="1.5"/></svg></div><div class="type-text"><div class="type-name">Event</div><div class="type-desc">Seasonal — Eid, Ramadan, flash sales &amp; limited time.</div></div></div>
         <div class="type-card" id="card-product" onclick="selectType('product',this,'card')"><div class="type-icon-wrap product"><svg width="24" height="24" viewBox="0 0 24 24"><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" fill="#22c55e" stroke="#16a34a" stroke-width="2.5" stroke-linejoin="round" opacity="0.9"/><path d="M3.3 7L12 12l8.7-5" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" opacity="0.8"/><path d="M12 22V12" stroke="#fff" stroke-width="2" stroke-linecap="round" opacity="0.6"/></svg></div><div class="type-text"><div class="type-name">Specific Product</div><div class="type-desc">Only valid for selected product(s). Strict validation on apply.</div></div></div>
         <div class="type-card" id="card-newcustomer" onclick="selectType('newcustomer',this,'card')"><div class="type-icon-wrap newcustomer"><svg width="24" height="24" viewBox="0 0 24 24"><defs><linearGradient id="newCustGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#c084fc"/><stop offset="100%" stop-color="#7c3aed"/></linearGradient></defs><circle cx="10" cy="8" r="4" fill="url(#newCustGrad)" stroke="#9333ea" stroke-width="1.5"/><path d="M2 20c0-3.31 3.58-6 8-6" stroke="url(#newCustGrad)" stroke-width="2" stroke-linecap="round"/><circle cx="19" cy="16" r="3" fill="none" stroke="#c084fc" stroke-width="2"/><path d="M19 14.5v3M17.5 16h3" stroke="#c084fc" stroke-width="1.8" stroke-linecap="round"/></svg></div><div class="type-text"><div class="type-name">New Customer</div><div class="type-desc">First-time buyer offer. Single use, non-stackable. Auto-expires after first order.</div></div></div>
@@ -16026,12 +16344,12 @@ html[data-theme="light"] .vc-float-close{background:rgba(240,244,248,0.95);borde
   <div class="fs-modal-footer">
     <button class="modal-btn modal-btn-cancel" id="btn-back" onclick="goBack()" style="display:none"><svg width="14" height="14" viewBox="0 0 24 24"><line x1="19" y1="12" x2="5" y2="12" stroke="#94a3b8" stroke-width="3.5" stroke-linecap="round"/><polyline points="12 19 5 12 12 5" fill="none" stroke="#94a3b8" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/></svg> Back</button>
     <button class="modal-btn modal-btn-next" id="btn-next" onclick="goNext()">Continue <svg width="14" height="14" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12" stroke="#94a3b8" stroke-width="3.5" stroke-linecap="round"/><polyline points="12 5 19 12 12 19" fill="none" stroke="#94a3b8" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
-    <button class="modal-btn modal-btn-create" id="btn-create" style="display:none" onclick="createVoucher()" disabled><svg width="16" height="16" viewBox="0 0 24 24"><path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2z" fill="rgba(34,197,94,0.2)" stroke="#22c55e" stroke-width="2.5" stroke-linejoin="round"/><path d="M13 5v14" stroke="#22c55e" stroke-width="2.5" stroke-linecap="round"/><path d="M2 9h20" stroke="#22c55e" stroke-width="2.5" stroke-linecap="round" opacity="0.7"/><path d="M2 15h20" stroke="#22c55e" stroke-width="2.5" stroke-linecap="round" opacity="0.7"/></svg> Create Voucher</button>
+    <button class="modal-btn modal-btn-create" id="btn-create" style="display:none" onclick="createVoucher()" disabled><svg width="16" height="16" viewBox="0 0 24 24"><path d="M7.0498 7.0498H7.0598M10.5118 3H7.8C6.11984 3 5.27976 3 4.63803 3.32698C4.07354 3.6146 3.6146 4.07354 3.32698 4.63803C3 5.27976 3 6.11984 3 7.8V10.5118C3 11.2455 3 11.6124 3.08289 11.9577C3.15638 12.2638 3.27759 12.5564 3.44208 12.8249C3.6276 13.1276 3.88703 13.387 4.40589 13.9059L9.10589 18.6059C10.2939 19.7939 10.888 20.388 11.5729 20.6105C12.1755 20.8063 12.8245 20.8063 13.4271 20.6105C14.112 20.388 14.7061 19.7939 15.8941 18.6059L18.6059 15.8941C19.7939 14.7061 20.388 14.112 20.6105 13.4271C20.8063 12.8245 20.8063 12.1755 20.6105 11.5729C20.388 10.888 19.7939 10.2939 18.6059 9.10589L13.9059 4.40589C13.387 3.88703 13.1276 3.6276 12.8249 3.44208C12.5564 3.27759 12.2638 3.15638 11.9577 3.08289C11.6124 3 11.2455 3 10.5118 3ZM7.5498 7.0498C7.5498 7.32595 7.32595 7.5498 7.0498 7.5498C6.77366 7.5498 6.5498 7.32595 6.5498 7.0498C6.5498 6.77366 6.77366 6.5498 7.0498 6.5498C7.32595 6.5498 7.5498 6.77366 7.5498 7.0498Z" fill="rgba(34,197,94,0.2)" stroke="#22c55e" stroke-width="2.5" stroke-linejoin="round"/></svg> Create Voucher</button>
   </div>
 </div>
 
 <div class="toast" id="toast">
-  <span class="toast-icon" id="toast-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2z"/><path d="M13 5v14"/><path d="M2 9h20"/><path d="M2 15h20"/></svg></span>
+  <span class="toast-icon" id="toast-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7.0498 7.0498H7.0598M10.5118 3H7.8C6.11984 3 5.27976 3 4.63803 3.32698C4.07354 3.6146 3.6146 4.07354 3.32698 4.63803C3 5.27976 3 6.11984 3 7.8V10.5118C3 11.2455 3 11.6124 3.08289 11.9577C3.15638 12.2638 3.27759 12.5564 3.44208 12.8249C3.6276 13.1276 3.88703 13.387 4.40589 13.9059L9.10589 18.6059C10.2939 19.7939 10.888 20.388 11.5729 20.6105C12.1755 20.8063 12.8245 20.8063 13.4271 20.6105C14.112 20.388 14.7061 19.7939 15.8941 18.6059L18.6059 15.8941C19.7939 14.7061 20.388 14.112 20.6105 13.4271C20.8063 12.8245 20.8063 12.1755 20.6105 11.5729C20.388 10.888 19.7939 10.2939 18.6059 9.10589L13.9059 4.40589C13.387 3.88703 13.1276 3.6276 12.8249 3.44208C12.5564 3.27759 12.2638 3.15638 11.9577 3.08289C11.6124 3 11.2455 3 10.5118 3ZM7.5498 7.0498C7.5498 7.32595 7.32595 7.5498 7.0498 7.5498C6.77366 7.5498 6.5498 7.32595 6.5498 7.0498C6.5498 6.77366 6.77366 6.5498 7.0498 6.5498C7.32595 6.5498 7.5498 6.77366 7.5498 7.0498Z"/></svg></span>
   <div>
     <div id="toast-msg">Voucher created successfully!</div>
     <div class="toast-code" id="toast-code">SUP-REG-????</div>
@@ -16193,7 +16511,7 @@ function showToast(msg, code, isError) {
   const toastIcon = document.getElementById('toast-icon');
   toastIcon.innerHTML = isError
     ? '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4"/><path d="M12 17h.01"/><path d="M10.29 3.86l-8.48 14.7A1 1 0 0 0 2.66 20h18.68a1 1 0 0 0 .85-1.44l-8.48-14.7a1 1 0 0 0-1.72 0z"/></svg>'
-    : '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2z"/><path d="M13 5v14"/><path d="M2 9h20"/><path d="M2 15h20"/></svg>';
+    : '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7.0498 7.0498H7.0598M10.5118 3H7.8C6.11984 3 5.27976 3 4.63803 3.32698C4.07354 3.6146 3.6146 4.07354 3.32698 4.63803C3 5.27976 3 6.11984 3 7.8V10.5118C3 11.2455 3 11.6124 3.08289 11.9577C3.15638 12.2638 3.27759 12.5564 3.44208 12.8249C3.6276 13.1276 3.88703 13.387 4.40589 13.9059L9.10589 18.6059C10.2939 19.7939 10.888 20.388 11.5729 20.6105C12.1755 20.8063 12.8245 20.8063 13.4271 20.6105C14.112 20.388 14.7061 19.7939 15.8941 18.6059L18.6059 15.8941C19.7939 14.7061 20.388 14.112 20.6105 13.4271C20.8063 12.8245 20.8063 12.1755 20.6105 11.5729C20.388 10.888 19.7939 10.2939 18.6059 9.10589L13.9059 4.40589C13.387 3.88703 13.1276 3.6276 12.8249 3.44208C12.5564 3.27759 12.2638 3.15638 11.9577 3.08289C11.6124 3 11.2455 3 10.5118 3ZM7.5498 7.0498C7.5498 7.32595 7.32595 7.5498 7.0498 7.5498C6.77366 7.5498 6.5498 7.32595 6.5498 7.0498C6.5498 6.77366 6.77366 6.5498 7.0498 6.5498C7.32595 6.5498 7.5498 6.77366 7.5498 7.0498Z"/></svg>';
   document.getElementById('toast-msg').textContent  = msg;
   const codeEl = document.getElementById('toast-code');
   codeEl.textContent    = code || '';
@@ -16983,7 +17301,7 @@ window.addEventListener('message',function(e){
       <div class="order-summary-bar">
         <div class="summary-bar-row">
           <span class="summary-bar-label">
-            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#cat-icon-general"/></svg>
             Subtotal
           </span>
           <span class="summary-bar-value" id="noSummarySubtotal">৳0</span>
@@ -17188,21 +17506,35 @@ window.addEventListener('message',function(e){
 
       <div class="fs-field">
         <label class="fs-label">Category *</label>
-        <div class="np-cat-row" id="npCatRow">
-          <div class="np-cat-opt" data-cat="supplement" onclick="setNpCategory('supplement',this)">
-            <div class="cat-icon-badge" style="background:linear-gradient(135deg,#009b72,#00704f)"><svg class="cat-icon"><use href="#cat-icon-supplement"/></svg></div><span>Supplement</span>
+        <div class="np-cat-select-wrap">
+          <div class="np-cat-select-btn" id="npCatSelectBtn" onclick="toggleNpCategoryMenu(event)">
+            <span class="np-cat-select-icon" id="npCatSelectIcon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="6" x2="20" y2="6"/><line x1="7" y1="12" x2="17" y2="12"/><line x1="10" y1="18" x2="14" y2="18"/></svg>
+            </span>
+            <span class="np-cat-select-label placeholder" id="npCatSelectLabel">Choose category</span>
+            <svg class="np-cat-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
           </div>
-          <div class="np-cat-opt" data-cat="electronics" onclick="setNpCategory('electronics',this)">
-            <div class="cat-icon-badge" style="background:linear-gradient(135deg,#0EA5E9,#0284C7)"><svg class="cat-icon"><use href="#cat-icon-electronics"/></svg></div><span>Electronics</span>
-          </div>
-          <div class="np-cat-opt" data-cat="cosmetic" onclick="setNpCategory('cosmetic',this)">
-            <div class="cat-icon-badge" style="background:linear-gradient(135deg,#EC4899,#DB2777)"><svg class="cat-icon"><use href="#cat-icon-cosmetic"/></svg></div><span>Cosmetic</span>
-          </div>
-          <div class="np-cat-opt" data-cat="clothing" onclick="setNpCategory('clothing',this)">
-            <div class="cat-icon-badge" style="background:linear-gradient(135deg,#6761a8,#4a4480)"><svg class="cat-icon"><use href="#cat-icon-clothing"/></svg></div><span>Clothing</span>
-          </div>
-          <div class="np-cat-opt" data-cat="general" onclick="setNpCategory('general',this)">
-            <div class="cat-icon-badge" style="background:linear-gradient(135deg,#64748B,#475569)"><svg class="cat-icon"><use href="#cat-icon-general"/></svg></div><span>General</span>
+          <div class="np-cat-select-menu" id="npCatSelectMenu">
+            <div class="pcm-item" data-cat="supplement" onclick="setNpCategory('supplement',this)">
+              <span style="display:flex;align-items:center;gap:9px"><div class="cat-icon-badge" style="width:32px;height:32px;border-radius:9px;background:linear-gradient(135deg,#009b72,#00704f)"><svg class="cat-icon" style="width:19px;height:19px"><use href="#cat-icon-supplement"/></svg></div> Supplement</span>
+              <svg class="pcm-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            </div>
+            <div class="pcm-item" data-cat="electronics" onclick="setNpCategory('electronics',this)">
+              <span style="display:flex;align-items:center;gap:9px"><div class="cat-icon-badge" style="width:32px;height:32px;border-radius:9px;background:linear-gradient(135deg,#0EA5E9,#0284C7)"><svg class="cat-icon" style="width:19px;height:19px"><use href="#cat-icon-electronics"/></svg></div> Electronics</span>
+              <svg class="pcm-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            </div>
+            <div class="pcm-item" data-cat="cosmetic" onclick="setNpCategory('cosmetic',this)">
+              <span style="display:flex;align-items:center;gap:9px"><div class="cat-icon-badge" style="width:32px;height:32px;border-radius:9px;background:linear-gradient(135deg,#EC4899,#DB2777)"><svg class="cat-icon" style="width:19px;height:19px"><use href="#cat-icon-cosmetic"/></svg></div> Cosmetic</span>
+              <svg class="pcm-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            </div>
+            <div class="pcm-item" data-cat="clothing" onclick="setNpCategory('clothing',this)">
+              <span style="display:flex;align-items:center;gap:9px"><div class="cat-icon-badge" style="width:32px;height:32px;border-radius:9px;background:linear-gradient(135deg,#6761a8,#4a4480)"><svg class="cat-icon" style="width:19px;height:19px"><use href="#cat-icon-clothing"/></svg></div> Clothing</span>
+              <svg class="pcm-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            </div>
+            <div class="pcm-item" data-cat="general" onclick="setNpCategory('general',this)">
+              <span style="display:flex;align-items:center;gap:9px"><div class="cat-icon-badge" style="width:32px;height:32px;border-radius:9px;background:linear-gradient(135deg,#64748B,#475569)"><svg class="cat-icon" style="width:19px;height:19px"><use href="#cat-icon-general"/></svg></div> General</span>
+              <svg class="pcm-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            </div>
           </div>
         </div>
         <div class="fs-hint" id="npCatHint">Choose a category first — it decides which fields you'll fill in below</div>
@@ -17240,7 +17572,7 @@ window.addEventListener('message',function(e){
           <div class="np-color-swatch" data-color="#e91e8c" style="background:#e91e8c" onclick="selectBrandColor('#e91e8c',this)"></div>
           <div class="np-color-swatch" data-color="#001f3c" style="background:#001f3c" onclick="selectBrandColor('#001f3c',this)"></div>
           <div class="np-color-swatch np-color-custom" id="npColorCustom" title="Custom color" onclick="openCustomColorPicker()">
-            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16" style="pointer-events:none">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20" style="pointer-events:none">
               <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z" stroke="url(#pencilGrad)" stroke-width="2"/>
               <defs>
                 <linearGradient id="pencilGrad" x1="2" y1="22" x2="21" y2="3" gradientUnits="userSpaceOnUse">
@@ -17251,6 +17583,7 @@ window.addEventListener('message',function(e){
               </defs>
             </svg>
           </div>
+        </div>
 
 <!-- ====== CUSTOM COLOR PICKER ====== -->
 <div class="color-picker-overlay" id="colorPickerOverlay" onclick="if(event.target===this)closeCustomColorPicker()">
@@ -17298,7 +17631,6 @@ window.addEventListener('message',function(e){
     </div>
   </div>
 </div>
-        </div>
         <!-- Hex code input row -->
         <div class="np-hex-row">
           <span class="np-hex-prefix">#</span>
@@ -17600,7 +17932,7 @@ window.addEventListener('message',function(e){
       <div class="order-summary-bar return-theme">
         <div class="summary-bar-row">
           <span class="summary-bar-label">
-            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#cat-icon-general"/></svg>
             Subtotal
           </span>
           <span class="summary-bar-value" id="rtSummarySubtotal">৳0</span>
@@ -19663,7 +19995,7 @@ function invalidateProductCatalogCache() {
 function getStockInfo(stock) {
   if (stock === 0)   return { label: 'Out of Stock',   cls: 'stock-out',  disabled: true  };
   if (stock <= 10)   return { label: `Low · ${stock}`, cls: 'stock-low',  disabled: false };
-  return               { label: `Sufficient · ${stock}`, cls: 'stock-good', disabled: false };
+  return               { label: `In Stock · ${stock}`, cls: 'stock-good', disabled: false };
 }
 
 function getNextOrderId() {
@@ -20377,10 +20709,68 @@ function switchRestockTab(mode) {
   document.getElementById('restockModalTitle').textContent = isNew ? 'Add New Product' : 'Restock Entry';
 }
 
+function toggleNpCategoryMenu(e) {
+  if (e) e.stopPropagation();
+  const btn = document.getElementById('npCatSelectBtn');
+  const menu = document.getElementById('npCatSelectMenu');
+  const opening = !menu.classList.contains('open');
+  if (opening) {
+    const r = btn.getBoundingClientRect();
+    menu.style.left = r.left + 'px';
+    menu.style.top = (r.bottom + 6) + 'px';
+    menu.style.width = r.width + 'px';
+  }
+  menu.classList.toggle('open', opening);
+  btn.classList.toggle('open', opening);
+  if (opening) {
+    const reposition = () => {
+      const r2 = btn.getBoundingClientRect();
+      menu.style.left = r2.left + 'px';
+      menu.style.top = (r2.bottom + 6) + 'px';
+      menu.style.width = r2.width + 'px';
+    };
+    const closeOnOutside = (ev) => {
+      if (!menu.contains(ev.target) && !btn.contains(ev.target)) {
+        menu.classList.remove('open');
+        btn.classList.remove('open');
+        document.removeEventListener('click', closeOnOutside);
+        document.querySelector('.fs-modal-body')?.removeEventListener('scroll', reposition);
+        window.removeEventListener('resize', reposition);
+      }
+    };
+    setTimeout(() => document.addEventListener('click', closeOnOutside), 0);
+    document.querySelector('.fs-modal-body')?.addEventListener('scroll', reposition);
+    window.addEventListener('resize', reposition);
+  }
+}
+
+const NP_CAT_META = {
+  supplement: { label: 'Supplement', gradient: 'linear-gradient(135deg,#009b72,#00704f)' },
+  electronics: { label: 'Electronics', gradient: 'linear-gradient(135deg,#0EA5E9,#0284C7)' },
+  cosmetic: { label: 'Cosmetic', gradient: 'linear-gradient(135deg,#EC4899,#DB2777)' },
+  clothing: { label: 'Clothing', gradient: 'linear-gradient(135deg,#6761a8,#4a4480)' },
+  general: { label: 'General', gradient: 'linear-gradient(135deg,#64748B,#475569)' }
+};
+
 function setNpCategory(cat, el) {
   npCategory = cat;
-  document.querySelectorAll('.np-cat-opt').forEach(o => o.classList.remove('selected'));
-  if (el) el.classList.add('selected');
+  document.querySelectorAll('#npCatSelectMenu .pcm-item').forEach(o => o.classList.remove('active'));
+  if (el) el.classList.add('active');
+
+  const meta = NP_CAT_META[cat];
+  const iconEl = document.getElementById('npCatSelectIcon');
+  const labelEl = document.getElementById('npCatSelectLabel');
+  if (meta && iconEl && labelEl) {
+    iconEl.classList.add('filled');
+    iconEl.style.background = meta.gradient;
+    iconEl.innerHTML = `<svg class="cat-icon"><use href="#cat-icon-${cat}"/></svg>`;
+    labelEl.textContent = meta.label;
+    labelEl.classList.remove('placeholder');
+  }
+  const menu = document.getElementById('npCatSelectMenu');
+  const btn = document.getElementById('npCatSelectBtn');
+  menu.classList.remove('open');
+  btn.classList.remove('open');
   document.getElementById('npCatHint').classList.remove('visible');
 
   const needsExpiry  = cat === 'supplement' || cat === 'cosmetic';
@@ -23615,7 +24005,7 @@ html[data-theme="dark"] .stat-item-val.offer-value {
   transform: translateY(-50%);
   width: 18px;
   height: 18px;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none'%3E%3Cpath d='M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2z' fill='%2338bdf8' stroke='%2338bdf8' stroke-width='1.5' stroke-linejoin='round'/%3E%3Cpath d='M13 5v14' stroke='%2338bdf8' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none'%3E%3Cpath d='M7.0498 7.0498H7.0598M10.5118 3H7.8C6.11984 3 5.27976 3 4.63803 3.32698C4.07354 3.6146 3.6146 4.07354 3.32698 4.63803C3 5.27976 3 6.11984 3 7.8V10.5118C3 11.2455 3 11.6124 3.08289 11.9577C3.15638 12.2638 3.27759 12.5564 3.44208 12.8249C3.6276 13.1276 3.88703 13.387 4.40589 13.9059L9.10589 18.6059C10.2939 19.7939 10.888 20.388 11.5729 20.6105C12.1755 20.8063 12.8245 20.8063 13.4271 20.6105C14.112 20.388 14.7061 19.7939 15.8941 18.6059L18.6059 15.8941C19.7939 14.7061 20.388 14.112 20.6105 13.4271C20.8063 12.8245 20.8063 12.1755 20.6105 11.5729C20.388 10.888 19.7939 10.2939 18.6059 9.10589L13.9059 4.40589C13.387 3.88703 13.1276 3.6276 12.8249 3.44208C12.5564 3.27759 12.2638 3.15638 11.9577 3.08289C11.6124 3 11.2455 3 10.5118 3ZM7.5498 7.0498C7.5498 7.32595 7.32595 7.5498 7.0498 7.5498C6.77366 7.5498 6.5498 7.32595 6.5498 7.0498C6.5498 6.77366 6.77366 6.5498 7.0498 6.5498C7.32595 6.5498 7.5498 6.77366 7.5498 7.0498Z' fill='%2338bdf8' stroke='%2338bdf8' stroke-width='1.5' stroke-linejoin='round'/%3E%3Cpath d='M13 5v14' stroke='%2338bdf8' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");
   background-size: contain;
   background-repeat: no-repeat;
   opacity: 0.85;
@@ -23846,7 +24236,7 @@ html[data-theme="dark"] .stat-item.type-regular {
   transform: translateY(-50%);
   width: 18px;
   height: 18px;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none'%3E%3Cpath d='M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2z' fill='%2338bdf8' stroke='%2338bdf8' stroke-width='1.5' stroke-linejoin='round'/%3E%3Cpath d='M13 5v14' stroke='%2338bdf8' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none'%3E%3Cpath d='M7.0498 7.0498H7.0598M10.5118 3H7.8C6.11984 3 5.27976 3 4.63803 3.32698C4.07354 3.6146 3.6146 4.07354 3.32698 4.63803C3 5.27976 3 6.11984 3 7.8V10.5118C3 11.2455 3 11.6124 3.08289 11.9577C3.15638 12.2638 3.27759 12.5564 3.44208 12.8249C3.6276 13.1276 3.88703 13.387 4.40589 13.9059L9.10589 18.6059C10.2939 19.7939 10.888 20.388 11.5729 20.6105C12.1755 20.8063 12.8245 20.8063 13.4271 20.6105C14.112 20.388 14.7061 19.7939 15.8941 18.6059L18.6059 15.8941C19.7939 14.7061 20.388 14.112 20.6105 13.4271C20.8063 12.8245 20.8063 12.1755 20.6105 11.5729C20.388 10.888 19.7939 10.2939 18.6059 9.10589L13.9059 4.40589C13.387 3.88703 13.1276 3.6276 12.8249 3.44208C12.5564 3.27759 12.2638 3.15638 11.9577 3.08289C11.6124 3 11.2455 3 10.5118 3ZM7.5498 7.0498C7.5498 7.32595 7.32595 7.5498 7.0498 7.5498C6.77366 7.5498 6.5498 7.32595 6.5498 7.0498C6.5498 6.77366 6.77366 6.5498 7.0498 6.5498C7.32595 6.5498 7.5498 6.77366 7.5498 7.0498Z' fill='%2338bdf8' stroke='%2338bdf8' stroke-width='1.5' stroke-linejoin='round'/%3E%3Cpath d='M13 5v14' stroke='%2338bdf8' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");
   background-size: contain;
   background-repeat: no-repeat;
   opacity: 0.85;
@@ -25048,7 +25438,7 @@ html[data-theme="light"] .mini-voucher .tear-notch { background: var(--surface-2
 
       <div class="empty-state" id="empty-0" style="display:none">
         <div class="empty-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2z"/><path d="M13 5v14"/></svg>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7.0498 7.0498H7.0598M10.5118 3H7.8C6.11984 3 5.27976 3 4.63803 3.32698C4.07354 3.6146 3.6146 4.07354 3.32698 4.63803C3 5.27976 3 6.11984 3 7.8V10.5118C3 11.2455 3 11.6124 3.08289 11.9577C3.15638 12.2638 3.27759 12.5564 3.44208 12.8249C3.6276 13.1276 3.88703 13.387 4.40589 13.9059L9.10589 18.6059C10.2939 19.7939 10.888 20.388 11.5729 20.6105C12.1755 20.8063 12.8245 20.8063 13.4271 20.6105C14.112 20.388 14.7061 19.7939 15.8941 18.6059L18.6059 15.8941C19.7939 14.7061 20.388 14.112 20.6105 13.4271C20.8063 12.8245 20.8063 12.1755 20.6105 11.5729C20.388 10.888 19.7939 10.2939 18.6059 9.10589L13.9059 4.40589C13.387 3.88703 13.1276 3.6276 12.8249 3.44208C12.5564 3.27759 12.2638 3.15638 11.9577 3.08289C11.6124 3 11.2455 3 10.5118 3ZM7.5498 7.0498C7.5498 7.32595 7.32595 7.5498 7.0498 7.5498C6.77366 7.5498 6.5498 7.32595 6.5498 7.0498C6.5498 6.77366 6.77366 6.5498 7.0498 6.5498C7.32595 6.5498 7.5498 6.77366 7.5498 7.0498Z"/></svg>
         </div>
         <div class="empty-title">No Active Vouchers</div>
         <div class="empty-sub">Create a new voucher to start running a campaign.</div>
@@ -25064,7 +25454,7 @@ html[data-theme="light"] .mini-voucher .tear-notch { background: var(--surface-2
         <!-- MINI VOUCHER PREVIEW -->
                         <div class="card-top">
           <div class="card-icon-wrap regular">
-            <svg viewBox="0 0 24 24" width="20" height="20" fill="none"><defs><linearGradient id="ticketGrad-1" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#38bdf8"/><stop offset="100%" stop-color="#0284c7"/></linearGradient></defs><path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2z" fill="url(#ticketGrad-1)" stroke="#0ea5e9" stroke-width="2" stroke-linejoin="round" opacity="0.9"/><path d="M13 5v14" stroke="#fff" stroke-width="2" stroke-linecap="round" opacity="0.6"/><path d="M7 9h3" stroke="#fff" stroke-width="2" stroke-linecap="round" opacity="0.7"/><path d="M7 12h3" stroke="#fff" stroke-width="2" stroke-linecap="round" opacity="0.7"/></svg>
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none"><defs><linearGradient id="ticketGrad-1" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#38bdf8"/><stop offset="100%" stop-color="#0284c7"/></linearGradient></defs><path d="M7.0498 7.0498H7.0598M10.5118 3H7.8C6.11984 3 5.27976 3 4.63803 3.32698C4.07354 3.6146 3.6146 4.07354 3.32698 4.63803C3 5.27976 3 6.11984 3 7.8V10.5118C3 11.2455 3 11.6124 3.08289 11.9577C3.15638 12.2638 3.27759 12.5564 3.44208 12.8249C3.6276 13.1276 3.88703 13.387 4.40589 13.9059L9.10589 18.6059C10.2939 19.7939 10.888 20.388 11.5729 20.6105C12.1755 20.8063 12.8245 20.8063 13.4271 20.6105C14.112 20.388 14.7061 19.7939 15.8941 18.6059L18.6059 15.8941C19.7939 14.7061 20.388 14.112 20.6105 13.4271C20.8063 12.8245 20.8063 12.1755 20.6105 11.5729C20.388 10.888 19.7939 10.2939 18.6059 9.10589L13.9059 4.40589C13.387 3.88703 13.1276 3.6276 12.8249 3.44208C12.5564 3.27759 12.2638 3.15638 11.9577 3.08289C11.6124 3 11.2455 3 10.5118 3ZM7.5498 7.0498C7.5498 7.32595 7.32595 7.5498 7.0498 7.5498C6.77366 7.5498 6.5498 7.32595 6.5498 7.0498C6.5498 6.77366 6.77366 6.5498 7.0498 6.5498C7.32595 6.5498 7.5498 6.77366 7.5498 7.0498Z" fill="url(#ticketGrad-1)" stroke="#0ea5e9" stroke-width="2" stroke-linejoin="round" opacity="0.9"/></svg>
             </div>
           <div class="card-info">
             <div class="card-code">
@@ -25431,7 +25821,7 @@ html[data-theme="light"] .mini-voucher .tear-notch { background: var(--surface-2
         <!-- MINI VOUCHER PREVIEW -->
                         <div class="card-top">
           <div class="card-icon-wrap regular" style="opacity:0.6">
-            <svg viewBox="0 0 24 24" width="20" height="20" fill="none"><defs><linearGradient id="ticketGrad-2" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#38bdf8"/><stop offset="100%" stop-color="#0284c7"/></linearGradient></defs><path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2z" fill="url(#ticketGrad-2)" stroke="#0ea5e9" stroke-width="2" stroke-linejoin="round" opacity="0.9"/><path d="M13 5v14" stroke="#fff" stroke-width="2" stroke-linecap="round" opacity="0.6"/><path d="M7 9h3" stroke="#fff" stroke-width="2" stroke-linecap="round" opacity="0.7"/><path d="M7 12h3" stroke="#fff" stroke-width="2" stroke-linecap="round" opacity="0.7"/></svg>
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none"><defs><linearGradient id="ticketGrad-2" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#38bdf8"/><stop offset="100%" stop-color="#0284c7"/></linearGradient></defs><path d="M7.0498 7.0498H7.0598M10.5118 3H7.8C6.11984 3 5.27976 3 4.63803 3.32698C4.07354 3.6146 3.6146 4.07354 3.32698 4.63803C3 5.27976 3 6.11984 3 7.8V10.5118C3 11.2455 3 11.6124 3.08289 11.9577C3.15638 12.2638 3.27759 12.5564 3.44208 12.8249C3.6276 13.1276 3.88703 13.387 4.40589 13.9059L9.10589 18.6059C10.2939 19.7939 10.888 20.388 11.5729 20.6105C12.1755 20.8063 12.8245 20.8063 13.4271 20.6105C14.112 20.388 14.7061 19.7939 15.8941 18.6059L18.6059 15.8941C19.7939 14.7061 20.388 14.112 20.6105 13.4271C20.8063 12.8245 20.8063 12.1755 20.6105 11.5729C20.388 10.888 19.7939 10.2939 18.6059 9.10589L13.9059 4.40589C13.387 3.88703 13.1276 3.6276 12.8249 3.44208C12.5564 3.27759 12.2638 3.15638 11.9577 3.08289C11.6124 3 11.2455 3 10.5118 3ZM7.5498 7.0498C7.5498 7.32595 7.32595 7.5498 7.0498 7.5498C6.77366 7.5498 6.5498 7.32595 6.5498 7.0498C6.5498 6.77366 6.77366 6.5498 7.0498 6.5498C7.32595 6.5498 7.5498 6.77366 7.5498 7.0498Z" fill="url(#ticketGrad-2)" stroke="#0ea5e9" stroke-width="2" stroke-linejoin="round" opacity="0.9"/></svg>
             </div>
           <div class="card-info">
             <div class="card-code" style="opacity:0.7">SUP-REG-DEC22</div>
@@ -26468,7 +26858,7 @@ html[data-theme="light"] .channel-filter-bar .slide-indicator{
       Event
     </button>
     <button class="type-tab regular" onclick="selectType('regular',this)">
-      <svg viewBox="0 0 24 24" fill="none"><path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2z" fill="#38bdf8" stroke="#0ea5e9" stroke-width="1.5" stroke-linejoin="round" opacity=".9"/><path d="M13 5v14" stroke="#fff" stroke-width="1.5" stroke-linecap="round" opacity=".6"/></svg>
+      <svg viewBox="0 0 24 24" fill="none"><path d="M7.0498 7.0498H7.0598M10.5118 3H7.8C6.11984 3 5.27976 3 4.63803 3.32698C4.07354 3.6146 3.6146 4.07354 3.32698 4.63803C3 5.27976 3 6.11984 3 7.8V10.5118C3 11.2455 3 11.6124 3.08289 11.9577C3.15638 12.2638 3.27759 12.5564 3.44208 12.8249C3.6276 13.1276 3.88703 13.387 4.40589 13.9059L9.10589 18.6059C10.2939 19.7939 10.888 20.388 11.5729 20.6105C12.1755 20.8063 12.8245 20.8063 13.4271 20.6105C14.112 20.388 14.7061 19.7939 15.8941 18.6059L18.6059 15.8941C19.7939 14.7061 20.388 14.112 20.6105 13.4271C20.8063 12.8245 20.8063 12.1755 20.6105 11.5729C20.388 10.888 19.7939 10.2939 18.6059 9.10589L13.9059 4.40589C13.387 3.88703 13.1276 3.6276 12.8249 3.44208C12.5564 3.27759 12.2638 3.15638 11.9577 3.08289C11.6124 3 11.2455 3 10.5118 3ZM7.5498 7.0498C7.5498 7.32595 7.32595 7.5498 7.0498 7.5498C6.77366 7.5498 6.5498 7.32595 6.5498 7.0498C6.5498 6.77366 6.77366 6.5498 7.0498 6.5498C7.32595 6.5498 7.5498 6.77366 7.5498 7.0498Z" fill="#38bdf8" stroke="#0ea5e9" stroke-width="1.5" stroke-linejoin="round" opacity=".9"/></svg>
       Regular
     </button>
     <button class="type-tab product" onclick="selectType('product',this)">
