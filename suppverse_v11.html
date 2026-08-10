@@ -5009,6 +5009,36 @@ html[data-theme="dark"] .products-category-btn svg { color: rgba(255,255,255,0.7
 html[data-theme="dark"] .products-category-btn:hover { background: rgba(255,255,255,0.12); }
 .products-category-btn.active { background: #7C6FF7; border-color: #7C6FF7; }
 .products-category-btn.active svg { color: #fff; }
+
+.products-sort-wrap { position: relative; flex-shrink: 0; }
+.products-sort-btn {
+  position: relative; width: 38px; height: 38px; border-radius: 10px;
+  background: #f8f9fb; border: 1px solid #ececec;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; transition: background 0.2s ease, border-color 0.2s ease;
+}
+.products-sort-btn svg { color: #556070; }
+html[data-theme="dark"] .products-sort-btn { background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.1); }
+html[data-theme="dark"] .products-sort-btn svg { color: rgba(255,255,255,0.7); }
+.products-sort-btn:hover { background: #eef0f4; }
+html[data-theme="dark"] .products-sort-btn:hover { background: rgba(255,255,255,0.12); }
+.products-sort-btn.active { background: #7C6FF7; border-color: #7C6FF7; }
+.products-sort-btn.active svg { color: #fff; }
+.products-sort-menu {
+  position: absolute; top: 46px; left: 0; z-index: 40; min-width: 180px;
+  background: #fff; border: 1px solid #ececec; border-radius: 12px;
+  box-shadow: 0 8px 28px rgba(0,0,0,0.14); padding: 6px; display: none;
+}
+html[data-theme="dark"] .products-sort-menu { background: #1e2330; border-color: rgba(255,255,255,0.1); }
+.products-sort-menu.open { display: block; }
+.psm-label {
+  font-family: 'Plus Jakarta Sans', sans-serif; font-size: 10px; font-weight: 700;
+  color: #8c92a1; text-transform: uppercase; letter-spacing: 0.6px;
+  padding: 4px 10px 6px;
+}
+.psm-divider { height: 1px; background: #f0f0f0; margin: 4px 0; }
+html[data-theme="dark"] .psm-divider { background: rgba(255,255,255,0.08); }
+
 .products-category-menu {
   position: absolute; top: 46px; right: 0; z-index: 40; min-width: 190px;
   background: #fff; border: 1px solid #ececec; border-radius: 12px;
@@ -19313,6 +19343,7 @@ const PRODUCTS_DATA = [
 let productFilter = 'all';
 let productSearch = '';
 let productCategory = 'all';
+let productSort = 'name-asc';
 const CATEGORY_META = {
   supplement:  { label: 'Supplement',  icon: 'supplement',  color: '#009b72', color2: '#00704f' },
   electronics: { label: 'Electronics', icon: 'electronics', color: '#0EA5E9', color2: '#0284C7' },
@@ -19449,6 +19480,18 @@ function renderProductsTab(searchDisplayVal) {
     return matchFilter && matchSearch && matchCategory;
   });
 
+  filtered = filtered.sort((a, b) => {
+    switch(productSort) {
+      case 'name-asc':   return a.name.localeCompare(b.name);
+      case 'name-desc':  return b.name.localeCompare(a.name);
+      case 'price-asc':  return a.price - b.price;
+      case 'price-desc': return b.price - a.price;
+      case 'stock-asc':  return a.stock - b.stock;
+      case 'stock-desc': return b.stock - a.stock;
+      default: return 0;
+    }
+  });
+
   const totalSKUs  = PRODUCTS_DATA.length;
   const outCount   = PRODUCTS_DATA.filter(p => p.stock === 0).length;
   const lowCount   = PRODUCTS_DATA.filter(p => p.stock > 0 && p.stock <= 10).length;
@@ -19546,6 +19589,22 @@ function renderProductsTab(searchDisplayVal) {
       <div class="psb-card"><div class="psb-val">${totalUnits}</div><div class="psb-lbl">Units in Stock</div></div>
     </div>
     <div class="products-search">
+      <div class="products-sort-wrap">
+        <div class="products-sort-btn ${productSort!=='name-asc'?'active':''}" onclick="toggleSortMenu(event)" id="productSortBtn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" width="17" height="17"><path d="M7 16V4"/><path d="M4 7l3-3 3 3"/><path d="M17 8v12"/><path d="M14 17l3 3 3-3"/></svg>
+        </div>
+        <div class="products-sort-menu" id="productSortMenu">
+          <div class="psm-label">Sort by</div>
+          <div class="pcm-item ${productSort==='name-asc'?'active':''}" onclick="setProductSort('name-asc')"><span>Name A→Z</span>${productSort==='name-asc'?'<svg class="pcm-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-checkmark"/></svg>':''}</div>
+          <div class="pcm-item ${productSort==='name-desc'?'active':''}" onclick="setProductSort('name-desc')"><span>Name Z→A</span>${productSort==='name-desc'?'<svg class="pcm-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-checkmark"/></svg>':''}</div>
+          <div class="psm-divider"></div>
+          <div class="pcm-item ${productSort==='price-asc'?'active':''}" onclick="setProductSort('price-asc')"><span>Price Low→High</span>${productSort==='price-asc'?'<svg class="pcm-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-checkmark"/></svg>':''}</div>
+          <div class="pcm-item ${productSort==='price-desc'?'active':''}" onclick="setProductSort('price-desc')"><span>Price High→Low</span>${productSort==='price-desc'?'<svg class="pcm-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-checkmark"/></svg>':''}</div>
+          <div class="psm-divider"></div>
+          <div class="pcm-item ${productSort==='stock-asc'?'active':''}" onclick="setProductSort('stock-asc')"><span>Stock Low→High</span>${productSort==='stock-asc'?'<svg class="pcm-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-checkmark"/></svg>':''}</div>
+          <div class="pcm-item ${productSort==='stock-desc'?'active':''}" onclick="setProductSort('stock-desc')"><span>Stock High→Low</span>${productSort==='stock-desc'?'<svg class="pcm-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-checkmark"/></svg>':''}</div>
+        </div>
+      </div>
       <div class="products-search-input-wrap">
         <div class="products-search-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div>
         <input class="products-search-input" type="text" placeholder="Search product or SKU..." id="productSearchInput" oninput="onProductSearch(this.value)" value="${escapeHtml(inputVal)}">
@@ -19584,11 +19643,27 @@ function setProductCategory(cat) {
   productCategory = cat;
   renderProductsTab();
 }
+function toggleSortMenu(e) {
+  e.stopPropagation();
+  const menu = document.getElementById('productSortMenu');
+  if (menu) menu.classList.toggle('open');
+}
+function setProductSort(sort) {
+  productSort = sort;
+  renderProductsTab();
+  const menu = document.getElementById('productSortMenu');
+  if (menu) menu.classList.remove('open');
+}
 document.addEventListener('click', function(e) {
-  const menu = document.getElementById('productCategoryMenu');
-  const btn  = document.getElementById('productCategoryBtn');
-  if (menu && menu.classList.contains('open') && !menu.contains(e.target) && e.target !== btn && !btn?.contains(e.target)) {
-    menu.classList.remove('open');
+  const catMenu = document.getElementById('productCategoryMenu');
+  const catBtn  = document.getElementById('productCategoryBtn');
+  if (catMenu && catMenu.classList.contains('open') && !catMenu.contains(e.target) && e.target !== catBtn && !catBtn?.contains(e.target)) {
+    catMenu.classList.remove('open');
+  }
+  const sortMenu = document.getElementById('productSortMenu');
+  const sortBtn  = document.getElementById('productSortBtn');
+  if (sortMenu && sortMenu.classList.contains('open') && !sortMenu.contains(e.target) && e.target !== sortBtn && !sortBtn?.contains(e.target)) {
+    sortMenu.classList.remove('open');
   }
 });
 
