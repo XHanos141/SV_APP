@@ -5714,6 +5714,60 @@ html[data-theme="dark"] .np-section-label {
   color: rgba(255,255,255,0.35); border-bottom-color: rgba(255,255,255,0.07);
 }
 
+/* New Product form — 3-card grouping */
+.np-form-card {
+  background: #fff; border: 1px solid #ececec; border-radius: 18px;
+  padding: 16px 14px; margin-bottom: 14px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.02);
+  transition: background 0.3s ease, border-color 0.3s ease;
+}
+html[data-theme="dark"] .np-form-card {
+  background: #141B2A; border-color: rgba(255,255,255,0.06);
+}
+.np-form-card-title {
+  font-family: 'Plus Jakarta Sans', sans-serif; font-size: 12.5px; font-weight: 800;
+  margin-bottom: 14px; color: #0B1220; display: flex; align-items: center; gap: 7px;
+  letter-spacing: 0.01em;
+}
+html[data-theme="dark"] .np-form-card-title { color: #F0F4FA; }
+.np-form-card-icon {
+  width: 26px; height: 26px; border-radius: 8px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  background: linear-gradient(135deg,#7C6FF7,#6a5ce0);
+  box-shadow: 0 3px 8px rgba(124,111,247,0.35);
+}
+.np-form-card-icon.payment { background: linear-gradient(135deg,#0A9B72,#088a5e); box-shadow: 0 3px 8px rgba(10,155,114,0.35); }
+.np-form-card-icon.summary { background: linear-gradient(135deg,#0EA5E9,#0284C7); box-shadow: 0 3px 8px rgba(14,165,233,0.35); }
+.np-form-card-icon svg { width: 14px; height: 14px; color: #fff; }
+.np-form-card .np-section-label:first-of-type { margin-top: 0; }
+
+/* Summary card rows */
+.np-summary-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 9px 0; border-bottom: 1px solid #ececec;
+}
+html[data-theme="dark"] .np-summary-row { border-bottom-color: rgba(255,255,255,0.07); }
+.np-summary-row:last-child { border-bottom: none; padding-bottom: 0; }
+.np-summary-row:first-child { padding-top: 0; }
+.np-summary-label { font-size: 12px; font-weight: 600; color: #5E6B7D; }
+html[data-theme="dark"] .np-summary-label { color: #A0AAB8; }
+.np-summary-val {
+  font-family: 'Plus Jakarta Sans', sans-serif; font-size: 13px; font-weight: 800;
+  color: #0B1220; text-align: right; max-width: 60%;
+}
+html[data-theme="dark"] .np-summary-val { color: #F0F4FA; }
+.np-summary-val.empty { color: #9AA3B2; font-weight: 600; }
+.np-summary-divider { height: 1px; background: #ececec; margin: 10px 0; }
+html[data-theme="dark"] .np-summary-divider { background: rgba(255,255,255,0.07); }
+.np-summary-total-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding-top: 12px; margin-top: 2px; border-top: 1.5px solid #ececec;
+}
+html[data-theme="dark"] .np-summary-total-row { border-top-color: rgba(255,255,255,0.09); }
+.np-summary-total-label { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 13px; font-weight: 800; color: #0B1220; }
+html[data-theme="dark"] .np-summary-total-label { color: #F0F4FA; }
+.np-summary-total-val { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 18px; font-weight: 800; color: #2f9b68; }
+
 /* SKU input - Courier Prime */
 .np-sku-input {
   font-family: "Courier Prime", "Courier New", monospace !important;
@@ -5788,6 +5842,17 @@ html[data-theme="dark"] .np-cat-select-label { color: #eef4ff; }
 }
 .np-cat-select-menu.open { opacity: 1; visibility: visible; pointer-events: auto; transform: translateY(0) scale(1); }
 html[data-theme="dark"] .np-cat-select-menu { background: #1b2738; border-color: rgba(255,255,255,0.1); box-shadow: 0 8px 28px rgba(0,0,0,0.4); }
+
+/* Sub-category menu: tighter rows, cap at 5 visible then scroll, serial numbers */
+#npSubcatSelectMenu #npSubcatList { max-height: 220px; overflow-y: auto; }
+#npSubcatSelectMenu .pcm-item { padding: 6px 8px; min-height: 34px; gap: 8px; }
+.pcm-item-num {
+  font-family: "Plus Jakarta Sans", sans-serif; font-size: 10.5px; font-weight: 800;
+  color: #9aa3b2; width: 16px; flex-shrink: 0; text-align: right;
+}
+html[data-theme="dark"] .pcm-item-num { color: rgba(255,255,255,0.35); }
+.pcm-item.active .pcm-item-num { color: #7C6FF7; }
+html[data-theme="dark"] .pcm-item.active .pcm-item-num { color: #9d94ff; }
 .pcm-check { width: 16px; height: 16px; color: #7C6FF7; flex-shrink: 0; opacity: 0; transition: opacity 0.15s ease; }
 .pcm-item.active .pcm-check { opacity: 1; }
 html[data-theme="dark"] .pcm-item.active .pcm-check { color: #9d94ff; }
@@ -14480,6 +14545,10 @@ window.addEventListener('message',function(e){
         </div>
       </div>
 
+      <!-- ══════ CARD 1: PRODUCT DETAILS ══════ -->
+      <div class="np-form-card">
+      <div class="np-form-card-title"><span class="np-form-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 7h-9M14 17H5M17 3v8M7 13v8"/></svg></span>Product Details</div>
+
       <!-- ── PRODUCT IDENTITY ── -->
       <div class="np-section-label">Product Identity</div>
 
@@ -14542,16 +14611,17 @@ window.addEventListener('message',function(e){
         <label class="fs-label">SKU *</label>
         <input type="text" class="fs-input np-sku-input" id="npSku"
                placeholder="e.g. NW-OMG3-UTA-180"
-               oninput="this.value=this.value.toUpperCase()">
+               oninput="this.value=this.value.toUpperCase();updateNpSummary()">
         <div class="fs-hint" id="npSkuHint">SKU is required</div>
       </div>
 
       <div class="fs-field">
         <label class="fs-label">Brand Name *</label>
-        <input type="text" class="fs-input" id="npBrandName" placeholder="e.g. NOW FOOD">
+        <input type="text" class="fs-input" id="npBrandName" placeholder="e.g. NOW FOOD" oninput="updateNpSummary()">
         <div class="fs-hint" id="npBrandHint">Brand name is required</div>
       </div>
 
+      <div id="npBrandColorSection">
       <div class="fs-field">
         <label class="fs-label">Brand Code</label>
         <input type="text" class="fs-input np-code-input" id="npBrandCode"
@@ -14643,14 +14713,15 @@ window.addEventListener('message',function(e){
           <span class="np-brand-preview" id="npBrandPreview" style="background:#009ddc">NW</span>
         </div>
       </div>
+      </div><!-- end npBrandColorSection -->
 
       <div class="fs-field">
         <label class="fs-label">Product Name *</label>
-        <input type="text" class="fs-input" id="npProductName" placeholder="e.g. Omega-3 Ultra">
+        <input type="text" class="fs-input" id="npProductName" placeholder="e.g. Omega-3 Ultra" oninput="updateNpSummary()">
         <div class="fs-hint" id="npProductHint">Product name is required</div>
       </div>
 
-      <div class="fs-field">
+      <div class="fs-field" id="npProductCodeField">
         <label class="fs-label">Product Code</label>
         <input type="text" class="fs-input np-code-input" id="npProductCode"
                placeholder="e.g. OMG3"
@@ -14664,7 +14735,7 @@ window.addEventListener('message',function(e){
 
       <div class="fs-field">
         <label class="fs-label">Form Type</label>
-        <select class="fs-input fs-select" id="npForm">
+        <select class="fs-input fs-select" id="npForm" onchange="updateNpSummary()">
           <option value="">Select form</option>
           <option value="Capsule">Capsule</option>
           <option value="Soft Gel">Soft Gel</option>
@@ -14678,7 +14749,7 @@ window.addEventListener('message',function(e){
       <div class="fs-field">
         <label class="fs-label">Capsule / Tablet Count</label>
         <input type="number" class="fs-input" id="npCapsuleCount"
-               placeholder="e.g. 120" min="1">
+               placeholder="e.g. 120" min="1" oninput="updateNpSummary()">
       </div>
 
       <!-- Potency Amount + Type (side by side) + live preview -->
@@ -14710,6 +14781,16 @@ window.addEventListener('message',function(e){
         </div>
       </div>
 
+      <div class="fs-field" id="npFlavorField" style="display:none">
+        <label class="fs-label">Flavor</label>
+        <input type="text" class="fs-input" id="npFlavor" placeholder="e.g. Unflavored" oninput="updateNpSummary()">
+      </div>
+
+      <div class="fs-field" id="npOriginField" style="display:none">
+        <label class="fs-label">Country of Origin</label>
+        <input type="text" class="fs-input" id="npOrigin" placeholder="e.g. USA" oninput="updateNpSummary()">
+      </div>
+
       </div>
 
       <!-- ── VARIANT — Electronics & Clothing only ── -->
@@ -14732,7 +14813,7 @@ window.addEventListener('message',function(e){
         <div class="fs-field" id="npExpiryField" style="flex:1;display:none">
           <label class="fs-label">Expiry Date *</label>
           <input type="date" class="fs-input" id="npExpiry"
-                 onchange="updateExpiryPreview()">
+                 onchange="updateExpiryPreview();updateNpSummary()">
           <div class="fs-hint" id="npExpiryHint">Required</div>
           <div id="npExpiryPreview" style="font-family:'Plus Jakarta Sans',sans-serif;font-size:11px;font-weight:700;color:#7C6FF7;margin-top:4px;display:none"></div>
         </div>
@@ -14750,6 +14831,11 @@ window.addEventListener('message',function(e){
           <input type="hidden" id="npStock" value="0">
         </div>
       </div>
+      </div><!-- end CARD 1: PRODUCT DETAILS -->
+
+      <!-- ══════ CARD 2: PAYMENT DETAILS ══════ -->
+      <div class="np-form-card">
+      <div class="np-form-card-title"><span class="np-form-card-icon payment"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></span>Payment Details</div>
 
       <!-- ── PRICING ── -->
       <div class="np-section-label">Pricing</div>
@@ -14806,6 +14892,65 @@ window.addEventListener('message',function(e){
         <input type="text" class="fs-input" id="npSupplier"
                placeholder="e.g. iHerb, Supplier name">
       </div>
+      </div><!-- end CARD 2: PAYMENT DETAILS -->
+
+      <!-- ══════ CARD 3: PRODUCT SUMMARY ══════ -->
+      <div class="np-form-card">
+      <div class="np-form-card-title"><span class="np-form-card-icon summary"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></span>Product Summary</div>
+
+      <div class="np-summary-row">
+        <span class="np-summary-label">Category</span>
+        <span class="np-summary-val empty" id="sumCategory">—</span>
+      </div>
+      <div class="np-summary-row">
+        <span class="np-summary-label">Sub-category</span>
+        <span class="np-summary-val empty" id="sumSubcat">—</span>
+      </div>
+      <div class="np-summary-row">
+        <span class="np-summary-label">Brand</span>
+        <span class="np-summary-val empty" id="sumBrand">—</span>
+      </div>
+      <div class="np-summary-row">
+        <span class="np-summary-label">Product Name</span>
+        <span class="np-summary-val empty" id="sumName">—</span>
+      </div>
+      <div class="np-summary-row">
+        <span class="np-summary-label">SKU</span>
+        <span class="np-summary-val empty" id="sumSku" style="font-family:'Courier Prime','Courier New',monospace">—</span>
+      </div>
+      <div class="np-summary-row" id="sumFormRow">
+        <span class="np-summary-label">Form / Count</span>
+        <span class="np-summary-val empty" id="sumForm">—</span>
+      </div>
+      <div class="np-summary-row" id="sumPotencyRow">
+        <span class="np-summary-label">Potency / Flavor</span>
+        <span class="np-summary-val empty" id="sumPotency">—</span>
+      </div>
+      <div class="np-summary-row" id="sumOriginRow">
+        <span class="np-summary-label">Origin / Expiry</span>
+        <span class="np-summary-val empty" id="sumOrigin">—</span>
+      </div>
+
+      <div class="np-summary-divider"></div>
+
+      <div class="np-summary-row">
+        <span class="np-summary-label">Buying Cost</span>
+        <span class="np-summary-val empty" id="sumBuyCost">—</span>
+      </div>
+      <div class="np-summary-row">
+        <span class="np-summary-label">Weight Cost</span>
+        <span class="np-summary-val empty" id="sumWeightCost">—</span>
+      </div>
+      <div class="np-summary-row">
+        <span class="np-summary-label">Margin</span>
+        <span class="np-summary-val empty" id="sumMarginRow">—</span>
+      </div>
+
+      <div class="np-summary-total-row">
+        <span class="np-summary-total-label">Selling Price</span>
+        <span class="np-summary-total-val" id="sumSellPrice">৳0</span>
+      </div>
+      </div><!-- end CARD 3: PRODUCT SUMMARY -->
 
     </div><!-- end restockNewBody -->
 
@@ -17659,9 +17804,9 @@ function renderSubcatMenu() {
   const list = document.getElementById('npSubcatList');
   if (!list) return;
   const cats = SUBCATEGORIES[npCategory] || [];
-  list.innerHTML = cats.map(s => `
+  list.innerHTML = cats.map((s, i) => `
     <div class="pcm-item ${npSubcategory === s ? 'active' : ''}" onclick="setNpSubcategory('${s.replace(/'/g, "\\'")}')">
-      <span>${s}</span>
+      <span style="display:flex;align-items:center;gap:8px"><span class="pcm-item-num">${i + 1}.</span>${s}</span>
       <svg class="pcm-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-checkmark"/></svg>
     </div>
   `).join('') || '<div style="padding:10px 8px;font-size:12px;color:#8c92a1">No sub-categories yet — add one below</div>';
@@ -17703,6 +17848,7 @@ function setNpSubcategory(sub) {
   labelEl.classList.remove('placeholder');
   document.getElementById('npSubcatSelectMenu').classList.remove('open');
   document.getElementById('npSubcatSelectBtn').classList.remove('open');
+  updateNpSummary();
 }
 function addNewSubcategory(e) {
   if (e) e.stopPropagation();
@@ -17742,6 +17888,13 @@ function openRestockModal() {
   document.getElementById('npSubcatField').style.display = 'none';
   resetNpSubcategory();
   document.querySelectorAll('.np-cat-opt').forEach(o => o.classList.remove('selected'));
+  document.querySelectorAll('#npCatSelectMenu .pcm-item').forEach(o => o.classList.remove('active'));
+  const npCatIconReset = document.getElementById('npCatSelectIcon');
+  const npCatLabelReset = document.getElementById('npCatSelectLabel');
+  if (npCatIconReset) { npCatIconReset.classList.remove('filled'); npCatIconReset.style.background = ''; npCatIconReset.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-filter-lines"/></svg>'; }
+  if (npCatLabelReset) { npCatLabelReset.textContent = 'Choose category'; npCatLabelReset.classList.add('placeholder'); }
+  document.getElementById('npBrandColorSection').style.display = 'block';
+  document.getElementById('npProductCodeField').style.display = 'block';
   document.getElementById('npSpecsSection').style.display = 'none';
   document.getElementById('npExpiryField').style.display = 'none';
   document.getElementById('npVariantSection').style.display = 'none';
@@ -17750,6 +17903,20 @@ function openRestockModal() {
   document.getElementById('npSellPrice').value = '';
   document.getElementById('npStock').value = '0';
   document.getElementById('npStockDisplay').textContent = '0';
+  document.getElementById('npSku').value = '';
+  document.getElementById('npBrandName').value = '';
+  document.getElementById('npProductName').value = '';
+  document.getElementById('npForm').value = '';
+  document.getElementById('npCapsuleCount').value = '';
+  document.getElementById('npPotencyAmount').value = '';
+  document.getElementById('npPotencyType').value = '';
+  document.getElementById('npFlavor').value = '';
+  document.getElementById('npOrigin').value = '';
+  document.getElementById('npExpiry').value = '';
+  updatePotencyPreview();
+  const sumCatReset = document.getElementById('sumCategory');
+  if (sumCatReset) { sumCatReset.textContent = '—'; sumCatReset.classList.add('empty'); }
+  updateNpSummary();
   setNpCostingMethod('formula', null);
   const pickerBtn = document.getElementById('rsProdPickerBtn');
   const selectedRow = document.getElementById('rsProdSelected');
@@ -17849,13 +18016,28 @@ function setNpCategory(cat, el) {
 
   const needsExpiry  = cat === 'supplement' || cat === 'cosmetic';
   const needsVariant = cat === 'electronics' || cat === 'clothing';
+  const isSupplement = cat === 'supplement';
 
   document.getElementById('npSpecsSection').style.display   = needsExpiry  ? 'block' : 'none';
   document.getElementById('npExpiryField').style.display    = needsExpiry  ? 'block' : 'none';
   document.getElementById('npVariantSection').style.display = needsVariant ? 'block' : 'none';
+  document.getElementById('npBrandColorSection').style.display = isSupplement ? 'none' : 'block';
+  document.getElementById('npProductCodeField').style.display  = isSupplement ? 'none' : 'block';
+  const npFlavorField = document.getElementById('npFlavorField');
+  const npOriginField = document.getElementById('npOriginField');
+  if (npFlavorField) npFlavorField.style.display = isSupplement ? 'block' : 'none';
+  if (npOriginField) npOriginField.style.display = isSupplement ? 'block' : 'none';
 
   document.getElementById('npSubcatField').style.display = 'block';
   resetNpSubcategory();
+
+  const sumCat = document.getElementById('sumCategory');
+  if (sumCat && meta) { sumCat.textContent = meta.label; sumCat.classList.remove('empty'); }
+  const sumFormRow = document.getElementById('sumFormRow');
+  const sumPotencyRow = document.getElementById('sumPotencyRow');
+  if (sumFormRow) sumFormRow.style.display = needsExpiry ? 'flex' : 'none';
+  if (sumPotencyRow) sumPotencyRow.style.display = needsExpiry ? 'flex' : 'none';
+  updateNpSummary();
 
   if (!needsExpiry) {
     document.getElementById('npExpiry').value = '';
@@ -17928,6 +18110,7 @@ function updatePotencyPreview() {
     prev.textContent = '—';
     prev.classList.remove('has-value');
   }
+  updateNpSummary();
 }
 
 function setNpCostingMethod(method, el) {
@@ -17999,6 +18182,65 @@ function calcNewProductMargin() {
   marginEl.textContent = sell > 0 ? margin.toFixed(1) + '%' : '0%';
   marginEl.className = 'np-calc-val np-margin-val ' +
     (margin >= 30 ? 'green' : margin >= 20 ? 'amber' : sell > 0 ? 'red' : '');
+
+  const sumBuyCost = document.getElementById('sumBuyCost');
+  const sumWeightCost = document.getElementById('sumWeightCost');
+  const sumMarginRow = document.getElementById('sumMarginRow');
+  const sumSellPrice = document.getElementById('sumSellPrice');
+  if (sumBuyCost) { sumBuyCost.textContent = bdtCost > 0 ? '৳' + Math.round(bdtCost).toLocaleString('en-IN') : '—'; sumBuyCost.classList.toggle('empty', !(bdtCost > 0)); }
+  if (sumWeightCost) { sumWeightCost.textContent = weightCostTk > 0 ? '৳' + Math.round(weightCostTk).toLocaleString('en-IN') : '—'; sumWeightCost.classList.toggle('empty', !(weightCostTk > 0)); }
+  if (sumMarginRow) { sumMarginRow.textContent = sell > 0 ? margin.toFixed(1) + '%' : '—'; sumMarginRow.classList.toggle('empty', !(sell > 0)); }
+  if (sumSellPrice) sumSellPrice.textContent = '৳' + Math.round(sell).toLocaleString('en-IN');
+}
+
+function updateNpSummary() {
+  const syncField = (inputId, sumId) => {
+    const inp = document.getElementById(inputId);
+    const sum = document.getElementById(sumId);
+    if (!inp || !sum) return;
+    const v = (inp.value || '').trim();
+    sum.textContent = v || '—';
+    sum.classList.toggle('empty', !v);
+  };
+  syncField('npBrandName', 'sumBrand');
+  syncField('npProductName', 'sumName');
+  syncField('npSku', 'sumSku');
+
+  const subcatLabel = document.getElementById('npSubcatSelectLabel');
+  const sumSubcat = document.getElementById('sumSubcat');
+  if (subcatLabel && sumSubcat) {
+    const isPlaceholder = subcatLabel.classList.contains('placeholder');
+    sumSubcat.textContent = isPlaceholder ? '—' : subcatLabel.textContent;
+    sumSubcat.classList.toggle('empty', isPlaceholder);
+  }
+
+  const form = (document.getElementById('npForm')?.value || '').trim();
+  const caps = (document.getElementById('npCapsuleCount')?.value || '').trim();
+  const sumForm = document.getElementById('sumForm');
+  if (sumForm) {
+    const combined = [form, caps].filter(Boolean).join(' · ');
+    sumForm.textContent = combined || '—';
+    sumForm.classList.toggle('empty', !combined);
+  }
+
+  const potency = (document.getElementById('npPotencyPreview')?.textContent || '').trim();
+  const flavor = (document.getElementById('npFlavor')?.value || '').trim();
+  const sumPotency = document.getElementById('sumPotency');
+  if (sumPotency) {
+    const potencyVal = (potency && potency !== '—') ? potency : '';
+    const combined = [potencyVal, flavor].filter(Boolean).join(' · ');
+    sumPotency.textContent = combined || '—';
+    sumPotency.classList.toggle('empty', !combined);
+  }
+
+  const origin = (document.getElementById('npOrigin')?.value || '').trim();
+  const expiry = (document.getElementById('npExpiry')?.value || '').trim();
+  const sumOrigin = document.getElementById('sumOrigin');
+  if (sumOrigin) {
+    const combined = [origin, expiry].filter(Boolean).join(' · ');
+    sumOrigin.textContent = combined || '—';
+    sumOrigin.classList.toggle('empty', !combined);
+  }
 }
 
 function closeRestockModal(e) {
@@ -18402,6 +18644,9 @@ async function saveNewProduct() {
   const form       = needsExpiry ? document.getElementById('npForm').value : '';
   const caps       = needsExpiry ? document.getElementById('npCapsuleCount').value : '';
   const potency    = needsExpiry ? document.getElementById('npPotencyType').value : '';
+  const potencyAmt = needsExpiry ? document.getElementById('npPotencyAmount').value : '';
+  const flavor     = needsExpiry ? document.getElementById('npFlavor').value.trim() : '';
+  const origin     = needsExpiry ? document.getElementById('npOrigin').value.trim() : '';
   const weight     = document.getElementById('npWeight').value;
   const isVariant  = npCategory === 'electronics' || npCategory === 'clothing';
   const npColor2   = isVariant ? document.getElementById('npColor').value.trim() : '';
@@ -18418,7 +18663,8 @@ async function saveNewProduct() {
     color: avatarColor, supplier, category: npCategory, subcategory: npSubcategory || null, variant: variantStr,
     batches: needsExpiry ? [{ id: 'BTH-' + Date.now().toString().slice(-6), expiryDate: expiry + '-01', qty: stock, costPerUnit: bdtCost }] : null,
     meta: { brandName, brandCode, brandColor: color, productCode: prodCode, form,
-            capsuleCount: caps ? parseInt(caps) : null, potencyType: potency,
+            capsuleCount: caps ? parseInt(caps) : null, potencyType: potency, potencyAmount: potencyAmt || null,
+            flavor: flavor || null, countryOfOrigin: origin || null,
             weight: weight ? parseFloat(weight) : null, usdCost: usd,
             costingMethod: npCostingMethod, costOutdated: false }
   };
