@@ -5704,17 +5704,233 @@ html[data-theme="dark"] .np-margin-val.amber { color: #F4A922; }
 
 /* Section labels */
 .np-section-label {
-  font-size: 9px; font-weight: 800; color: #8c92a1;
-  letter-spacing: 0.14em; text-transform: uppercase;
-  margin: 14px 0 10px; padding-bottom: 5px;
-  border-bottom: 1px solid #ececec;
-  transition: color 0.35s ease, border-color 0.35s ease;
+  display: none;
 }
-html[data-theme="dark"] .np-section-label {
-  color: rgba(255,255,255,0.35); border-bottom-color: rgba(255,255,255,0.07);
+
+/* Scoped label restyle for Add New Product form only */
+#restockNewBody .fs-label {
+  font-size: 12px; font-weight: 700; color: #3d4759;
+  letter-spacing: 0.01em; text-transform: none;
+  margin-bottom: 6px; font-family: 'Plus Jakarta Sans', sans-serif;
+}
+html[data-theme="dark"] #restockNewBody .fs-label {
+  color: #C5CBD6;
 }
 
 /* New Product form — 3-card grouping */
+
+/* ===== Scoped styles for standalone-design Add New Product form ===== */
+#restockNewBody{
+  --np2-bg:#F4F7FB; --np2-surface:#ffffff; --np2-border:rgba(10,22,40,0.07);
+  --np2-text:#0B1220; --np2-text2:#5E6B7D; --np2-text3:#9AA3B2;
+  --np2-accent:#7C6FF7; --np2-accent2:#6a5ce0; --np2-green:#0A9B72;
+  --np2-shadow-sm:0 1px 3px rgba(0,0,0,0.04),0 1px 2px rgba(0,0,0,0.02);
+  --np2-shadow-md:0 4px 14px rgba(0,0,0,0.06),0 2px 4px rgba(0,0,0,0.03);
+  --np2-font-body:'DM Sans',sans-serif; --np2-font-display:'Plus Jakarta Sans',sans-serif;
+}
+html[data-theme="dark"] #restockNewBody{
+  --np2-bg:#0B0F18; --np2-surface:#141B2A; --np2-border:rgba(255,255,255,0.06);
+  --np2-text:#F0F4FA; --np2-text2:#A0AAB8; --np2-text3:#6B7585;
+}
+
+#restockNewBody body.dark-mode{
+  --bg:#0B0F18; --surface:#141B2A; --border:rgba(255,255,255,0.06);
+  --text:#F0F4FA; --text2:#A0AAB8; --text3:#6B7585;
+}
+#restockNewBody .admin-wrap{max-width:520px;margin:0 auto}
+#restockNewBody .theme-toggle{
+  position:fixed;top:14px;right:14px;z-index:50;
+  width:38px;height:38px;border-radius:12px;background:var(--np2-surface);
+  border:1px solid var(--np2-border);display:flex;align-items:center;justify-content:center;
+  cursor:pointer;box-shadow:var(--np2-shadow-sm);
+}
+#restockNewBody .theme-toggle svg{width:18px;height:18px;color:var(--np2-text2)}
+#restockNewBody .page-title{
+  font-family:var(--np2-font-display);font-size:19px;font-weight:800;
+  margin-bottom:2px;color:var(--np2-text);
+}
+#restockNewBody .page-sub{
+  font-size:12.5px;color:var(--np2-text2);margin-bottom:18px;
+}
+#restockNewBody .form-card{
+  background:var(--np2-surface);border:1px solid var(--np2-border);border-radius:18px;
+  padding:18px 16px;box-shadow:var(--np2-shadow-sm);margin-bottom:14px;
+  transition:box-shadow 0.25s ease, border-color 0.25s ease;
+}
+#restockNewBody .form-card h3{
+  font-family:var(--np2-font-display);font-size:12.5px;font-weight:800;
+  margin-bottom:14px;color:var(--np2-text);display:flex;align-items:center;gap:7px;
+  letter-spacing:0.01em;
+}
+#restockNewBody .form-card h3 .card-icon{
+  width:26px;height:26px;border-radius:8px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  background:linear-gradient(135deg,var(--np2-accent),#6a5ce0);
+  box-shadow:0 3px 8px rgba(124,111,247,0.35);
+}
+#restockNewBody .form-card h3 .card-icon svg{width:14px;height:14px;color:#fff}
+#restockNewBody .form-card h3.payment-header .card-icon{background:linear-gradient(135deg,#0A9B72,#088a5e);box-shadow:0 3px 8px rgba(10,155,114,0.35)}
+#restockNewBody .form-card h3.summary-header .card-icon{background:linear-gradient(135deg,#0EA5E9,#0284C7);box-shadow:0 3px 8px rgba(14,165,233,0.35)}
+#restockNewBody .field{margin-bottom:14px;min-width:0}
+#restockNewBody .field:last-child{margin-bottom:0}
+#restockNewBody .field label{
+  display:block;font-size:11px;font-weight:700;color:var(--np2-text2);
+  margin-bottom:6px;font-family:var(--np2-font-display);
+}
+#restockNewBody .field input, #restockNewBody .field select{
+  width:100%;border:1.5px solid var(--np2-border);background:var(--np2-bg);color:var(--np2-text);
+  border-radius:10px;padding:11px 12px;font-family:var(--np2-font-body);font-size:13.5px;font-weight:600;
+  transition:border-color .2s ease, background .2s ease;
+}
+#restockNewBody .field input::placeholder{color:var(--np2-text3);font-weight:500}
+#restockNewBody .field input:focus, #restockNewBody .field select:focus{outline:none;border-color:var(--np2-accent);background:var(--np2-surface)}
+#restockNewBody .field-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+#restockNewBody .field-row-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+#restockNewBody .field-hint{font-size:10.5px;color:var(--np2-text3);margin-top:5px;font-weight:500}
+#restockNewBody /* prefix inputs (USD $ / BDT ৳) */
+.weight-input-row{display:flex;gap:8px}
+#restockNewBody .weight-input-row input{flex:1;min-width:0}
+#restockNewBody .weight-input-row select{
+  width:76px;flex-shrink:0;cursor:pointer;text-align:center;font-weight:700;
+  background:var(--np2-bg) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%235E6B7D' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat right 10px center;
+  appearance:none;-webkit-appearance:none;padding-right:26px;
+}
+#restockNewBody .prefix-wrap{position:relative}
+#restockNewBody .prefix-wrap .prefix{
+  position:absolute;left:12px;top:50%;transform:translateY(-50%);
+  font-family:var(--np2-font-display);font-weight:800;font-size:13px;color:var(--np2-text3);
+  pointer-events:none;
+}
+#restockNewBody .prefix-wrap input{padding-left:28px}
+#restockNewBody /* readonly auto-calculated fields */
+.field input[readonly]{
+  background:rgba(124,111,247,0.05);border-color:rgba(124,111,247,0.18);
+  color:var(--np2-accent);font-weight:700;cursor:default;
+}
+html[data-theme="dark"] #restockNewBody .field input[readonly]{background:rgba(124,111,247,0.09);border-color:rgba124,111,247,0.28)}
+#restockNewBody .auto-tag{
+  font-size:9px;color:var(--np2-accent);font-weight:700;margin-left:5px;
+  text-transform:uppercase;letter-spacing:0.03em;
+}
+#restockNewBody /* ===== Category / Sub-category picker — kept exactly as current app ===== */
+.np-cat-select-wrap{ position: relative; }
+#restockNewBody .np-cat-select-btn{
+  display: flex; align-items: center; gap: 10px;
+  height: 48px; padding: 0 12px; border-radius: 12px;
+  background: var(--np2-bg); border: 1.5px solid var(--np2-border); cursor: pointer;
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+#restockNewBody .np-cat-select-btn:hover{ border-color: var(--np2-accent); }
+#restockNewBody .np-cat-select-icon{
+  width: 34px; height: 34px; border-radius: 10px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  background: #eef0f4; color: #556070; transition: background 0.2s ease;
+}
+html[data-theme="dark"] #restockNewBody .np-cat-select-icon{ background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.7); }
+#restockNewBody .np-cat-select-icon svg{ width: 19px; height: 19px; }
+#restockNewBody .np-cat-select-icon.filled svg{ width: 18px; height: 18px; color: #fff; }
+#restockNewBody .np-cat-select-label{
+  flex: 1; min-width: 0; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 13.5px; font-weight: 700; color: var(--np2-text);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+#restockNewBody .np-cat-select-label.placeholder{ color: var(--np2-text3); font-weight: 600; }
+#restockNewBody .np-cat-chevron{ width: 16px; height: 16px; color: var(--np2-text3); flex-shrink: 0; transition: transform 0.2s ease; }
+#restockNewBody .np-cat-select-btn.open .np-cat-chevron{ transform: rotate(180deg); }
+#restockNewBody .np-cat-select-menu{
+  position: fixed; z-index: 9999; min-width: 220px;
+  background: var(--np2-surface); border: 1px solid var(--np2-border); border-radius: 14px;
+  box-shadow: 0 8px 28px rgba(0,0,0,0.14); padding: 6px;
+  opacity: 0; visibility: hidden; pointer-events: none;
+  transform: translateY(-6px) scale(0.97); transform-origin: top;
+  transition: opacity 0.2s cubic-bezier(0.4,0,0.2,1), transform 0.2s cubic-bezier(0.4,0,0.2,1), visibility 0.2s;
+}
+#restockNewBody .np-cat-select-menu.open{ opacity: 1; visibility: visible; pointer-events: auto; transform: translateY(0) scale(1); }
+html[data-theme="dark"] #restockNewBody .np-cat-select-menu{ box-shadow: 0 8px 28px rgba(0,0,0,0.4); }
+#restockNewBody .pcm-item{
+  display:flex;align-items:center;justify-content:space-between;gap:8px;
+  padding:9px 10px;border-radius:9px;cursor:pointer;transition:background .15s ease;
+}
+#restockNewBody .pcm-item:hover{background:var(--np2-bg)}
+#restockNewBody .pcm-check{ width: 16px; height: 16px; color: var(--np2-accent); flex-shrink: 0; opacity: 0; transition: opacity 0.15s ease; }
+#restockNewBody .pcm-item.active .pcm-check{ opacity: 1; }
+#restockNewBody .cat-icon-badge{
+  width: 32px; height: 32px; border-radius: 9px; display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+#restockNewBody .cat-icon-badge svg{width:19px;height:19px;color:#fff}
+#restockNewBody .np-subcat-add-row{
+  display: flex; align-items: center; gap: 6px;
+  padding: 6px 4px 2px; margin-top: 4px;
+  border-top: 1px solid var(--np2-border);
+}
+#restockNewBody .np-subcat-add-input{
+  flex: 1; min-width: 0; height: 34px; padding: 0 10px;
+  border: 1px solid var(--np2-border); border-radius: 8px; background: var(--np2-bg);
+  font-family: 'Plus Jakarta Sans', sans-serif; font-size: 12px; font-weight: 500;
+  color: var(--np2-text); outline: none;
+}
+#restockNewBody .np-subcat-add-input:focus{ border-color: var(--np2-accent); }
+#restockNewBody .np-subcat-add-btn{
+  flex-shrink: 0; height: 34px; padding: 0 12px; border: none; border-radius: 8px;
+  background: var(--np2-accent); color: #fff; font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 12px; font-weight: 700; cursor: pointer; transition: background 0.15s ease;
+}
+#restockNewBody .np-subcat-add-btn:hover{ background: var(--np2-accent2); }
+#restockNewBody /* ===== end preserved picker styles ===== */
+
+/* select dropdown (Form Type) */
+.field select{appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%239AA3B2' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;background-size:16px;padding-right:36px}
+#restockNewBody /* ===== Payment / Live calc banner ===== */
+.pay-calc-banner{
+  display:flex;background:var(--np2-bg);border:1px solid var(--np2-border);border-radius:14px;
+  padding:12px 2px;margin-bottom:16px;gap:0;
+}
+#restockNewBody .pay-calc-item{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;gap:3px;padding:0 2px;position:relative}
+#restockNewBody .pay-calc-item:not(:last-child)::after{content:'';position:absolute;right:0;top:10%;bottom:10%;width:1px;background:var(--np2-border)}
+#restockNewBody .pay-calc-label{font-size:8px;font-weight:700;color:var(--np2-text3);text-transform:uppercase;letter-spacing:0.02em;white-space:nowrap}
+#restockNewBody .pay-calc-val{font-family:var(--np2-font-display);font-size:12px;font-weight:800;color:var(--np2-text);white-space:nowrap}
+#restockNewBody .pay-calc-val.blue{color:#0A9BDC}
+#restockNewBody .pay-calc-val.purple{color:var(--np2-accent)}
+#restockNewBody .pay-calc-val.green{color:var(--np2-green)}
+#restockNewBody .pay-calc-val.margin{color:var(--np2-green)}
+#restockNewBody /* ===== Summary card ===== */
+.summary-row{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:10px 0;border-bottom:1px solid var(--np2-border);
+}
+#restockNewBody .summary-row:last-child{border-bottom:none;padding-bottom:0}
+#restockNewBody .summary-row:first-child{padding-top:0}
+#restockNewBody .summary-label{font-size:12px;font-weight:600;color:var(--np2-text2)}
+#restockNewBody .summary-val{font-family:var(--np2-font-display);font-size:13px;font-weight:800;color:var(--np2-text);text-align:right}
+#restockNewBody .summary-val.empty{color:var(--np2-text3);font-weight:600}
+#restockNewBody .summary-divider{height:1px;background:var(--np2-border);margin:10px 0}
+#restockNewBody .summary-total-row{
+  display:flex;align-items:center;justify-content:space-between;
+  padding-top:12px;margin-top:2px;border-top:1.5px solid var(--np2-border);
+}
+#restockNewBody .summary-total-label{font-family:var(--np2-font-display);font-size:13px;font-weight:800;color:var(--np2-text)}
+#restockNewBody .summary-total-val{font-family:var(--np2-font-display);font-size:18px;font-weight:800;color:var(--np2-green)}
+#restockNewBody /* ===== Save bar ===== */
+.save-bar{
+  position:fixed;bottom:0;left:0;right:0;background:var(--np2-surface);border-top:1px solid var(--np2-border);
+  padding:12px 16px;padding-bottom:calc(12px + env(safe-area-inset-bottom));
+  display:flex;gap:10px;z-index:40;
+  box-shadow:0 -4px 16px rgba(0,0,0,0.06);
+}
+#restockNewBody .save-bar-inner{max-width:520px;margin:0 auto;display:flex;gap:10px;width:100%}
+#restockNewBody .btn-save{
+  flex:1;background:linear-gradient(145deg,var(--np2-green),#088a5e);color:#fff;
+  border:none;border-radius:12px;padding:14px;font-family:var(--np2-font-display);
+  font-weight:800;font-size:13.5px;cursor:pointer;
+  box-shadow:0 4px 14px rgba(10,155,114,.3);
+  transition:transform .15s ease, box-shadow .15s ease;
+}
+#restockNewBody .btn-save:active{transform:scale(0.98)}
+#restockNewBody .btn-draft{
+  padding:14px 18px;background:var(--np2-bg);border:1.5px solid var(--np2-border);
+  border-radius:12px;font-family:var(--np2-font-display);font-weight:700;font-size:13.5px;
+  color:var(--np2-text2);cursor:pointer;
+}
 .np-form-card {
   background: #fff; border: 1px solid #ececec; border-radius: 18px;
   padding: 16px 14px; margin-bottom: 14px;
@@ -5807,7 +6023,9 @@ html[data-theme="dark"] .np-auto-field {
 }
 .np-cat-row::-webkit-scrollbar { display: none; }
 
-.np-cat-select-wrap { position: relative; }
+.np-cat-select-wrap { position: relative; min-width: 0; }
+.np-cat-select-btn { min-width: 0; }
+.np-cat-select-label { min-width: 0; }
 .np-cat-select-btn {
   display: flex; align-items: center; gap: 10px;
   height: 46px; padding: 0 12px; border-radius: 10px;
@@ -14517,225 +14735,85 @@ window.addEventListener('message',function(e){
     <!-- ===== ADD NEW PRODUCT BODY ===== -->
     <div class="fs-modal-body" id="restockNewBody" style="display:none">
 
-      <!-- LIVE CALC BANNER -->
-      <div class="np-calc-banner" id="npCalcBanner">
-        <div class="np-calc-item">
-          <span class="np-calc-label">USD Price</span>
-          <span class="np-calc-val blue" id="npUsdDisplay">$0</span>
-        </div>
-        <div class="np-calc-divider"></div>
-        <div class="np-calc-item">
-          <span class="np-calc-label">BDT Cost</span>
-          <span class="np-calc-val purple" id="npBdtCost">৳0</span>
-        </div>
-        <div class="np-calc-divider"></div>
-        <div class="np-calc-item">
-          <span class="np-calc-label">Weight Cost</span>
-          <span class="np-calc-val grey" id="npWeightCostDisplay">৳0</span>
-        </div>
-        <div class="np-calc-divider"></div>
-        <div class="np-calc-item">
-          <span class="np-calc-label">Profit</span>
-          <span class="np-calc-val" id="npProfit">৳0</span>
-        </div>
-        <div class="np-calc-divider"></div>
-        <div class="np-calc-item">
-          <span class="np-calc-label">Margin</span>
-          <span class="np-calc-val np-margin-val" id="npMargin">0%</span>
-        </div>
-      </div>
 
-      <!-- ══════ CARD 1: PRODUCT DETAILS ══════ -->
-      <div class="np-form-card">
-      <div class="np-form-card-title"><span class="np-form-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 7h-9M14 17H5M17 3v8M7 13v8"/></svg></span>Product Details</div>
+  <!-- ============ CARD 1: PRODUCT DETAILS ============ -->
+  <div class="form-card">
+    <h3><span class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></span>Product Details</h3>
 
-      <!-- ── PRODUCT IDENTITY ── -->
-      <div class="np-section-label">Product Identity</div>
-
-      <div class="fs-row-2col">
-      <div class="fs-field">
-        <label class="fs-label">Category *</label>
-        <div class="np-cat-select-wrap">
-          <div class="np-cat-select-btn" id="npCatSelectBtn" onclick="toggleNpCategoryMenu(event)">
-            <span class="np-cat-select-icon" id="npCatSelectIcon">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-filter-lines"/></svg>
-            </span>
-            <span class="np-cat-select-label placeholder" id="npCatSelectLabel">Choose category</span>
-            <svg class="np-cat-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-chevron-down"/></svg>
+    <div style="display:flex;gap:10px;align-items:flex-start;margin-bottom:14px">
+    <div class="field" style="flex:1;margin-bottom:0">
+      <label>Category *</label>
+      <div class="np-cat-select-wrap">
+        <div class="np-cat-select-btn open" id="npCatSelectBtn" onclick="toggleNpCategoryMenu(event)">
+          <span class="np-cat-select-icon filled" id="npCatSelectIcon" style="background:linear-gradient(135deg,#009b72,#00704f)">
+            <svg viewBox="0 0 24 24" fill="currentColor"><use href="#cat-icon-supplement"/></svg>
+          </span>
+          <span class="np-cat-select-label" id="npCatSelectLabel">Supplement</span>
+          <svg class="np-cat-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <div class="np-cat-select-menu" id="npCatSelectMenu">
+          <div class="pcm-item active" data-cat="supplement" onclick="setNpCategory('supplement', this)">
+            <span style="display:flex;align-items:center;gap:9px"><div class="cat-icon-badge" style="background:linear-gradient(135deg,#009b72,#00704f)"><svg viewBox="0 0 24 24" fill="currentColor"><use href="#cat-icon-supplement"/></svg></div> Supplement</span>
+            <svg class="pcm-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
           </div>
-          <div class="np-cat-select-menu" id="npCatSelectMenu">
-            <div class="pcm-item" data-cat="supplement" onclick="setNpCategory('supplement',this)">
-              <span style="display:flex;align-items:center;gap:9px"><div class="cat-icon-badge" style="width:32px;height:32px;border-radius:9px;background:linear-gradient(135deg,#009b72,#00704f)"><svg class="cat-icon" style="width:19px;height:19px"><use href="#cat-icon-supplement"/></svg></div> Supplement</span>
-              <svg class="pcm-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-checkmark"/></svg>
-            </div>
-            <div class="pcm-item" data-cat="electronics" onclick="setNpCategory('electronics',this)">
-              <span style="display:flex;align-items:center;gap:9px"><div class="cat-icon-badge" style="width:32px;height:32px;border-radius:9px;background:linear-gradient(135deg,#0EA5E9,#0284C7)"><svg class="cat-icon" style="width:19px;height:19px"><use href="#cat-icon-electronics"/></svg></div> Electronics</span>
-              <svg class="pcm-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-checkmark"/></svg>
-            </div>
-            <div class="pcm-item" data-cat="cosmetic" onclick="setNpCategory('cosmetic',this)">
-              <span style="display:flex;align-items:center;gap:9px"><div class="cat-icon-badge" style="width:32px;height:32px;border-radius:9px;background:linear-gradient(135deg,#EC4899,#DB2777)"><svg class="cat-icon" style="width:19px;height:19px"><use href="#cat-icon-cosmetic"/></svg></div> Cosmetic</span>
-              <svg class="pcm-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-checkmark"/></svg>
-            </div>
-            <div class="pcm-item" data-cat="clothing" onclick="setNpCategory('clothing',this)">
-              <span style="display:flex;align-items:center;gap:9px"><div class="cat-icon-badge" style="width:32px;height:32px;border-radius:9px;background:linear-gradient(135deg,#6761a8,#4a4480)"><svg class="cat-icon" style="width:19px;height:19px"><use href="#cat-icon-clothing"/></svg></div> Clothing</span>
-              <svg class="pcm-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-checkmark"/></svg>
-            </div>
-            <div class="pcm-item" data-cat="general" onclick="setNpCategory('general',this)">
-              <span style="display:flex;align-items:center;gap:9px"><div class="cat-icon-badge" style="width:32px;height:32px;border-radius:9px;background:linear-gradient(135deg,#64748B,#475569)"><svg class="cat-icon" style="width:19px;height:19px"><use href="#cat-icon-general"/></svg></div> General</span>
-              <svg class="pcm-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-checkmark"/></svg>
-            </div>
+          <div class="pcm-item" data-cat="electronics" onclick="setNpCategory('electronics', this)">
+            <span style="display:flex;align-items:center;gap:9px"><div class="cat-icon-badge" style="background:linear-gradient(135deg,#0EA5E9,#0284C7)"><svg viewBox="0 0 24 24" fill="currentColor"><use href="#cat-icon-electronics"/></svg></div> Electronics</span>
+            <svg class="pcm-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+          <div class="pcm-item" data-cat="cosmetic" onclick="setNpCategory('cosmetic', this)">
+            <span style="display:flex;align-items:center;gap:9px"><div class="cat-icon-badge" style="background:linear-gradient(135deg,#EC4899,#DB2777)"><svg viewBox="0 0 24 24" fill="currentColor"><use href="#cat-icon-cosmetic"/></svg></div> Cosmetic</span>
+            <svg class="pcm-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+          <div class="pcm-item" data-cat="clothing" onclick="setNpCategory('clothing', this)">
+            <span style="display:flex;align-items:center;gap:9px"><div class="cat-icon-badge" style="background:linear-gradient(135deg,#6761a8,#4a4480)"><svg viewBox="0 0 24 24" fill="currentColor"><use href="#cat-icon-clothing"/></svg></div> Clothing</span>
+            <svg class="pcm-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+          <div class="pcm-item" data-cat="general" onclick="setNpCategory('general', this)">
+            <span style="display:flex;align-items:center;gap:9px"><div class="cat-icon-badge" style="background:linear-gradient(135deg,#64748B,#475569)"><svg viewBox="0 0 24 24" fill="currentColor"><use href="#cat-icon-general"/></svg></div> General</span>
+            <svg class="pcm-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
           </div>
         </div>
-        <div class="fs-hint" id="npCatHint">Choose a category first — it decides which fields you'll fill in below</div>
-      </div>
-
-      <div class="fs-field" id="npSubcatField" style="display:none">
-        <label class="fs-label">Sub-category</label>
-        <div class="np-cat-select-wrap">
-          <div class="np-cat-select-btn" id="npSubcatSelectBtn" onclick="toggleNpSubcatMenu(event)">
-            <span class="np-cat-select-label placeholder" id="npSubcatSelectLabel">Choose sub-category</span>
-            <svg class="np-cat-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-chevron-down"/></svg>
-          </div>
-          <div class="np-cat-select-menu" id="npSubcatSelectMenu">
-            <div id="npSubcatList"></div>
-            <div class="np-subcat-add-row">
-              <input type="text" id="npSubcatNewInput" class="np-subcat-add-input" placeholder="New sub-category name" onclick="event.stopPropagation()" onkeydown="if(event.key==='Enter'){event.preventDefault();addNewSubcategory(event);}">
-              <button type="button" class="np-subcat-add-btn" onclick="addNewSubcategory(event)">Add</button>
-            </div>
-          </div>
-        </div>
-      </div>
-      </div>
-
-      <div class="fs-field">
-        <label class="fs-label">SKU *</label>
-        <input type="text" class="fs-input np-sku-input" id="npSku"
-               placeholder="e.g. NW-OMG3-UTA-180"
-               oninput="this.value=this.value.toUpperCase();updateNpSummary()">
-        <div class="fs-hint" id="npSkuHint">SKU is required</div>
-      </div>
-
-      <div class="fs-field">
-        <label class="fs-label">Brand Name *</label>
-        <input type="text" class="fs-input" id="npBrandName" placeholder="e.g. NOW FOOD" oninput="updateNpSummary()">
-        <div class="fs-hint" id="npBrandHint">Brand name is required</div>
-      </div>
-
-      <div id="npBrandColorSection">
-      <div class="fs-field">
-        <label class="fs-label">Brand Code</label>
-        <input type="text" class="fs-input np-code-input" id="npBrandCode"
-               placeholder="e.g. NW" maxlength="4"
-               oninput="this.value=this.value.toUpperCase();_npLivePreview()">
-      </div>
-
-      <div class="fs-field">
-        <label class="fs-label">Brand Code Color</label>
-        <div class="np-color-row" id="npColorRow">
-          <div class="np-color-swatch selected" data-color="#009ddc" style="background:#009ddc" onclick="selectBrandColor('#009ddc',this)"></div>
-          <div class="np-color-swatch" data-color="#7C6FF7" style="background:#7C6FF7" onclick="selectBrandColor('#7C6FF7',this)"></div>
-          <div class="np-color-swatch" data-color="#2f9b68" style="background:#2f9b68" onclick="selectBrandColor('#2f9b68',this)"></div>
-          <div class="np-color-swatch" data-color="#F4A922" style="background:#F4A922" onclick="selectBrandColor('#F4A922',this)"></div>
-          <div class="np-color-swatch" data-color="#d95353" style="background:#d95353" onclick="selectBrandColor('#d95353',this)"></div>
-          <div class="np-color-swatch" data-color="#e91e8c" style="background:#e91e8c" onclick="selectBrandColor('#e91e8c',this)"></div>
-          <div class="np-color-swatch" data-color="#001f3c" style="background:#001f3c" onclick="selectBrandColor('#001f3c',this)"></div>
-          <div class="np-color-swatch np-color-custom" id="npColorCustom" title="Custom color" onclick="openCustomColorPicker()">
-            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20" style="pointer-events:none">
-              <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z" stroke="url(#pencilGrad)" stroke-width="2"/>
-              <defs>
-                <linearGradient id="pencilGrad" x1="2" y1="22" x2="21" y2="3" gradientUnits="userSpaceOnUse">
-                  <stop offset="0%" stop-color="#d95353"/>
-                  <stop offset="50%" stop-color="#7C6FF7"/>
-                  <stop offset="100%" stop-color="#2f9b68"/>
-                </linearGradient>
-              </defs>
-            </svg>
-          </div>
-        </div>
-
-<!-- ====== CUSTOM COLOR PICKER ====== -->
-<div class="color-picker-overlay" id="colorPickerOverlay" onclick="if(event.target===this)closeCustomColorPicker()">
-  <div class="color-picker-modal">
-    <div class="color-picker-header">
-      <span class="color-picker-title">Brand Color</span>
-      <button class="color-picker-close" onclick="closeCustomColorPicker()">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-close-x"/></svg>
-      </button>
-    </div>
-    <div class="color-picker-body">
-      <!-- Saturation/Brightness canvas -->
-      <div class="cp-sb-wrap" id="cpSbWrap">
-        <canvas id="cpSbCanvas" class="cp-sb-canvas"></canvas>
-        <div class="cp-sb-cursor" id="cpSbCursor"></div>
-      </div>
-      <!-- Hue slider -->
-      <div class="cp-slider-row">
-        <canvas id="cpHueCanvas" class="cp-hue-canvas"></canvas>
-        <div class="cp-hue-thumb" id="cpHueThumb"></div>
-      </div>
-      <!-- Preview + Hex -->
-      <div class="cp-bottom-row">
-        <div class="cp-preview" id="cpPreview"></div>
-        <div class="cp-hex-wrap">
-          <span class="cp-hex-hash">#</span>
-          <input type="text" class="cp-hex-input" id="cpHexInput" maxlength="6" placeholder="7C6FF7" oninput="cpHexChanged(this.value)">
-        </div>
-      </div>
-      <!-- Presets -->
-      <div class="cp-presets">
-        <div class="cp-preset" style="background:#009ddc" onclick="cpSetHex('009ddc')"></div>
-        <div class="cp-preset" style="background:#7C6FF7" onclick="cpSetHex('7C6FF7')"></div>
-        <div class="cp-preset" style="background:#2f9b68" onclick="cpSetHex('2f9b68')"></div>
-        <div class="cp-preset" style="background:#F4A922" onclick="cpSetHex('F4A922')"></div>
-        <div class="cp-preset" style="background:#d95353" onclick="cpSetHex('d95353')"></div>
-        <div class="cp-preset" style="background:#e91e8c" onclick="cpSetHex('e91e8c')"></div>
-        <div class="cp-preset" style="background:#0891b2" onclick="cpSetHex('0891b2')"></div>
-        <div class="cp-preset" style="background:#001f3c" onclick="cpSetHex('001f3c')"></div>
       </div>
     </div>
-    <div class="color-picker-footer">
-      <button class="cp-btn-cancel" onclick="closeCustomColorPicker()">Cancel</button>
-      <button class="cp-btn-apply" onclick="applyCustomColor()">Apply</button>
+
+    <div class="field" id="npSubcatField" style="flex:1;margin-bottom:0;display:none">
+      <label>Sub-category</label>
+      <div class="np-cat-select-wrap">
+        <div class="np-cat-select-btn" id="npSubcatSelectBtn" onclick="toggleNpSubcatMenu(event)">
+          <span class="np-cat-select-label placeholder" id="npSubcatSelectLabel">Choose sub-category</span>
+          <svg class="np-cat-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <div class="np-cat-select-menu" id="npSubcatSelectMenu">
+          <div id="npSubcatList"></div>
+          <div class="np-subcat-add-row">
+            <input type="text" id="npSubcatNewInput" class="np-subcat-add-input" placeholder="New sub-category name">
+            <button type="button" class="np-subcat-add-btn" onclick="addNewSubcategory(event)">Add</button>
+          </div>
+        </div>
+      </div>
     </div>
-  </div>
-</div>
-        <!-- Hex code input row -->
-        <div class="np-hex-row">
-          <span class="np-hex-prefix">#</span>
-          <input type="text" class="np-hex-input" id="npHexInput"
-                 placeholder="009ddc" maxlength="6"
-                 oninput="onHexInput(this.value)">
-          <div class="np-hex-live-dot" id="npHexDot" style="background:#009ddc"></div>
-          <button class="np-hex-apply-btn" onclick="applyHexColor()">Apply</button>
-        </div>
-        <div style="margin-top:8px;display:flex;align-items:center;gap:8px">
-          <span style="font-size:10px;color:#8c92a1;font-weight:600">Preview:</span>
-          <span class="np-brand-preview" id="npBrandPreview" style="background:#009ddc">NW</span>
-        </div>
-      </div>
-      </div><!-- end npBrandColorSection -->
+    </div>
 
-      <div class="fs-field">
-        <label class="fs-label">Product Name *</label>
-        <input type="text" class="fs-input" id="npProductName" placeholder="e.g. Omega-3 Ultra" oninput="updateNpSummary()">
-        <div class="fs-hint" id="npProductHint">Product name is required</div>
-      </div>
+    <div class="field">
+      <label>Brand *</label>
+      <input type="text" id="inpBrand" placeholder="e.g. NOW FOOD">
+    </div>
 
-      <div class="fs-field" id="npProductCodeField">
-        <label class="fs-label">Product Code</label>
-        <input type="text" class="fs-input np-code-input" id="npProductCode"
-               placeholder="e.g. OMG3"
-               oninput="this.value=this.value.toUpperCase()">
-      </div>
+    <div class="field">
+      <label>Product Name *</label>
+      <input type="text" id="inpName" placeholder="e.g. Omega-3 Ultra">
+    </div>
 
-      <!-- ── SPECIFICATIONS ── -->
-      <!-- ── SPECIFICATIONS — Supplement & Cosmetic only ── -->
-      <div id="npSpecsSection" style="display:none">
-      <div class="np-section-label">Specifications</div>
+    <div class="field">
+      <label>SKU *</label>
+      <input type="text" id="inpSku" placeholder="e.g. NW-OMG3-UTA-180" style="font-family:'Courier Prime','Courier New',monospace">
+      <div class="field-hint">Also used for future barcode / label printing</div>
+    </div>
 
-      <div class="fs-field">
-        <label class="fs-label">Form Type</label>
-        <select class="fs-input fs-select" id="npForm" onchange="updateNpSummary()">
+    <div class="field-row">
+      <div class="field">
+        <label>Form Type</label>
+        <select id="inpForm">
           <option value="">Select form</option>
           <option value="Capsule">Capsule</option>
           <option value="Soft Gel">Soft Gel</option>
@@ -14744,213 +14822,189 @@ window.addEventListener('message',function(e){
           <option value="Liquid">Liquid</option>
         </select>
       </div>
-
-      <!-- Capsule Count -->
-      <div class="fs-field">
-        <label class="fs-label">Capsule / Tablet Count</label>
-        <input type="number" class="fs-input" id="npCapsuleCount"
-               placeholder="e.g. 120" min="1" oninput="updateNpSummary()">
+      <div class="field">
+        <label>Capsule / Tablet Count</label>
+        <input type="number" id="inpCount" placeholder="e.g. 120" min="1">
       </div>
+    </div>
 
-      <!-- Potency Amount + Type (side by side) + live preview -->
-      <div class="fs-field">
-        <label class="fs-label">Potency</label>
-        <div class="potency-row">
-          <div class="potency-amount-wrap">
-            <label class="fs-label" style="font-size:8px;margin-bottom:3px">Amount</label>
-            <input type="number" class="fs-input" id="npPotencyAmount"
-                   placeholder="e.g. 1000" min="0" step="any"
-                   oninput="updatePotencyPreview()">
-          </div>
-          <div class="potency-type-wrap">
-            <label class="fs-label" style="font-size:8px;margin-bottom:3px">Unit</label>
-            <select class="fs-input fs-select" id="npPotencyType"
-                    onchange="updatePotencyPreview()">
-              <option value="">Select</option>
-              <option value="MG">MG</option>
-              <option value="IU">IU</option>
-              <option value="MCG">MCG</option>
-              <option value="G">G</option>
-              <option value="ML">ML</option>
-            </select>
-          </div>
-        </div>
-        <div class="potency-preview-wrap">
-          <span class="potency-preview-label">Result</span>
-          <span class="potency-preview-value" id="npPotencyPreview">—</span>
-        </div>
+    <div class="field-row">
+      <div class="field">
+        <label>Potency Unit</label>
+        <select id="inpPotencyUnit">
+          <option value="MG" selected>MG</option>
+          <option value="MCG">MCG</option>
+          <option value="G">G</option>
+          <option value="IU">IU</option>
+          <option value="ML">ML</option>
+        </select>
       </div>
-
-      <div class="fs-field" id="npFlavorField" style="display:none">
-        <label class="fs-label">Flavor</label>
-        <input type="text" class="fs-input" id="npFlavor" placeholder="e.g. Unflavored" oninput="updateNpSummary()">
+      <div class="field">
+        <label>Potency</label>
+        <input type="number" id="inpPotencyQty" placeholder="e.g. 1000" step="0.01" min="0">
       </div>
+    </div>
 
-      <div class="fs-field" id="npOriginField" style="display:none">
-        <label class="fs-label">Country of Origin</label>
-        <input type="text" class="fs-input" id="npOrigin" placeholder="e.g. USA" oninput="updateNpSummary()">
+    <div class="field">
+      <label>Flavor</label>
+      <input type="text" id="inpFlavor" placeholder="e.g. Unflavored">
+    </div>
+
+    <div class="field-row">
+      <div class="field">
+        <label>Country of Origin</label>
+        <input type="text" id="inpOrigin" placeholder="e.g. USA">
       </div>
-
+      <div class="field">
+        <label>Expiry Date *</label>
+        <input type="date" id="inpExpiry">
       </div>
+    </div>
+  </div>
 
-      <!-- ── VARIANT — Electronics & Clothing only ── -->
-      <div id="npVariantSection" style="display:none">
-      <div class="np-section-label">Variant</div>
-      <div style="display:flex;gap:10px">
-        <div class="fs-field" style="flex:1">
-          <label class="fs-label">Color</label>
-          <input type="text" class="fs-input" id="npColor" placeholder="e.g. Black">
-        </div>
-        <div class="fs-field" style="flex:1">
-          <label class="fs-label">Size</label>
-          <input type="text" class="fs-input" id="npSize" placeholder="e.g. L, 42, One Size">
-        </div>
+  <!-- ============ CARD 2: PAYMENT DETAILS ============ -->
+  <div class="form-card">
+    <h3 class="payment-header"><span class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></span>Payment Details</h3>
+
+    <div class="pay-calc-banner">
+      <div class="pay-calc-item">
+        <span class="pay-calc-label">USD Cost</span>
+        <span class="pay-calc-val blue" id="calcUsdCost">$0</span>
       </div>
+      <div class="pay-calc-item">
+        <span class="pay-calc-label">BDT Cost</span>
+        <span class="pay-calc-val purple" id="calcBdtCost">৳0</span>
       </div>
-
-      <!-- Expiry (conditional) + Initial Stock — paired for context -->
-      <div style="display:flex;gap:10px">
-        <div class="fs-field" id="npExpiryField" style="flex:1;display:none">
-          <label class="fs-label">Expiry Date *</label>
-          <input type="date" class="fs-input" id="npExpiry"
-                 onchange="updateExpiryPreview();updateNpSummary()">
-          <div class="fs-hint" id="npExpiryHint">Required</div>
-          <div id="npExpiryPreview" style="font-family:'Plus Jakarta Sans',sans-serif;font-size:11px;font-weight:700;color:#7C6FF7;margin-top:4px;display:none"></div>
-        </div>
-        <div class="fs-field" id="npStockField" style="flex:0 0 auto;max-width:170px">
-          <label class="fs-label">Initial Stock</label>
-          <div class="qty-stepper">
-            <button type="button" class="qty-btn" onclick="changeNpStock(-1)">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-minus-remove"/></svg>
-            </button>
-            <span class="qty-value" id="npStockDisplay">0</span>
-            <button type="button" class="qty-btn" onclick="changeNpStock(1)">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-plus-add"/></svg>
-            </button>
-          </div>
-          <input type="hidden" id="npStock" value="0">
-        </div>
+      <div class="pay-calc-item">
+        <span class="pay-calc-label">Weight Cost</span>
+        <span class="pay-calc-val" id="calcWeightCost">৳0</span>
       </div>
-      </div><!-- end CARD 1: PRODUCT DETAILS -->
-
-      <!-- ══════ CARD 2: PAYMENT DETAILS ══════ -->
-      <div class="np-form-card">
-      <div class="np-form-card-title"><span class="np-form-card-icon payment"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></span>Payment Details</div>
-
-      <!-- ── PRICING ── -->
-      <div class="np-section-label">Pricing</div>
-
-      <div class="fs-field" id="npUsdField">
-        <label class="fs-label">Buying Price (USD) <span style="color:#c5c9d4;font-weight:500">— optional</span></label>
-        <div style="position:relative">
-          <span class="mc-prefix" style="left:12px">$</span>
-          <input type="number" class="fs-input has-prefix" id="npUsdCost"
-                 placeholder="0.00" step="0.01" oninput="calcNewProductMargin()">
-        </div>
+      <div class="pay-calc-item">
+        <span class="pay-calc-label">Profit</span>
+        <span class="pay-calc-val green" id="calcProfit">৳0</span>
       </div>
-
-      <div class="fs-field" id="npWeightField">
-        <label class="fs-label">Weight (GM) <span style="color:#c5c9d4;font-weight:500">— optional</span></label>
-        <input type="number" class="fs-input" id="npWeight"
-               placeholder="e.g. 200" step="0.1" oninput="calcNewProductMargin()">
+      <div class="pay-calc-item">
+        <span class="pay-calc-label">Margin</span>
+        <span class="pay-calc-val margin" id="calcMargin">0%</span>
       </div>
+    </div>
 
-      <div class="fs-field">
-        <div class="np-cat-row" id="npCostingRow" style="overflow-x:visible">
-          <div class="np-cat-opt" data-method="manual" style="flex:1;min-width:0" onclick="setNpCostingMethod('manual',this)">
-            <span>Type total cost manually instead</span>
-          </div>
-        </div>
+    <div class="field">
+      <label>Buying Cost (USD)</label>
+      <div class="prefix-wrap">
+        <span class="prefix">$</span>
+        <input type="number" id="inpUsdCost" placeholder="0.00" step="0.01" oninput="recalc()">
       </div>
+    </div>
 
-      <div class="fs-field">
-        <label class="fs-label">Buying Price (BDT)
-          <span style="font-size:9px;color:#0891b2;font-weight:700;margin-left:5px" id="npBdtCostAutoTag">auto — (USD × rate) + (weight × rate)</span>
-        </label>
-        <div style="position:relative">
-          <span class="mc-prefix" style="left:12px">৳</span>
-          <input type="number" class="fs-input has-prefix np-auto-field" id="npBdtCostInput"
-                 placeholder="auto-calculated" readonly tabindex="-1" oninput="onManualBdtCostInput()">
+    <div class="field">
+      <label>Buying Cost (BDT) <span class="auto-tag">Auto</span></label>
+      <div class="prefix-wrap">
+        <span class="prefix">৳</span>
+        <input type="number" id="inpBdtCost" placeholder="auto-calculated" readonly tabindex="-1">
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Weight <span style="font-size:9px;color:var(--text3);font-weight:600;text-transform:none;letter-spacing:0">— shipping/customs cost auto-calculated at ৳2,000/Kg</span></label>
+      <div class="weight-input-row">
+        <input type="number" id="inpWeightQty" placeholder="0" step="0.01" min="0" oninput="recalc()">
+        <select id="inpWeightUnit" onchange="recalc()">
+          <option value="gm">Gm</option>
+          <option value="kg" selected>Kg</option>
+          <option value="lb">Lb</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Weight Cost (BDT) <span class="auto-tag">Auto</span></label>
+      <div class="prefix-wrap">
+        <span class="prefix">৳</span>
+        <input type="number" id="inpWeightCost" placeholder="auto-calculated" readonly tabindex="-1">
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Selling Price (BDT) *</label>
+      <div class="prefix-wrap">
+        <span class="prefix">৳</span>
+        <input type="number" id="inpSellPrice" placeholder="0" oninput="recalc()">
+      </div>
+    </div>
+
+    <div class="field-row">
+      <div class="field">
+        <label>Profit (BDT) <span class="auto-tag">Auto</span></label>
+        <div class="prefix-wrap">
+          <span class="prefix">৳</span>
+          <input type="text" id="inpProfit" readonly tabindex="-1" placeholder="0">
         </div>
       </div>
+      <div class="field">
+        <label>Margin (%) <span class="auto-tag">Auto</span></label>
+        <input type="text" id="inpMargin" readonly tabindex="-1" placeholder="0%">
+      </div>
+    </div>
+  </div>
 
-      <div class="fs-field">
-        <label class="fs-label">Selling Price (BDT) *</label>
-        <div style="position:relative">
-          <span class="mc-prefix" style="left:12px">৳</span>
-          <input type="number" class="fs-input has-prefix" id="npSellPrice"
-                 placeholder="0" step="1" oninput="calcNewProductMargin()">
-        </div>
-        <div class="fs-hint" id="npSellHint">Selling price is required</div>
-      </div>
+  <!-- ============ CARD 3: PRODUCT SUMMARY ============ -->
+  <div class="form-card">
+    <h3 class="summary-header"><span class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></span>Product Summary</h3>
 
-      <!-- ── OTHER ── -->
-      <div class="np-section-label">Other</div>
+    <div class="summary-row">
+      <span class="summary-label">Category</span>
+      <span class="summary-val" id="sumCategory">Supplement</span>
+    </div>
+    <div class="summary-row">
+      <span class="summary-label">Sub-category</span>
+      <span class="summary-val empty" id="sumSubcat">—</span>
+    </div>
+    <div class="summary-row">
+      <span class="summary-label">Brand</span>
+      <span class="summary-val empty" id="sumBrand">—</span>
+    </div>
+    <div class="summary-row">
+      <span class="summary-label">Product Name</span>
+      <span class="summary-val empty" id="sumName">—</span>
+    </div>
+    <div class="summary-row">
+      <span class="summary-label">SKU</span>
+      <span class="summary-val empty" id="sumSku" style="font-family:'Courier Prime','Courier New',monospace">—</span>
+    </div>
+    <div class="summary-row">
+      <span class="summary-label">Form / Count</span>
+      <span class="summary-val empty" id="sumForm">—</span>
+    </div>
+    <div class="summary-row">
+      <span class="summary-label">Potency / Flavor</span>
+      <span class="summary-val empty" id="sumPotency">—</span>
+    </div>
+    <div class="summary-row">
+      <span class="summary-label">Origin / Expiry</span>
+      <span class="summary-val empty" id="sumOrigin">—</span>
+    </div>
 
-      <div class="fs-field">
-        <label class="fs-label">Supplier</label>
-        <input type="text" class="fs-input" id="npSupplier"
-               placeholder="e.g. iHerb, Supplier name">
-      </div>
-      </div><!-- end CARD 2: PAYMENT DETAILS -->
+    <div class="summary-divider"></div>
 
-      <!-- ══════ CARD 3: PRODUCT SUMMARY ══════ -->
-      <div class="np-form-card">
-      <div class="np-form-card-title"><span class="np-form-card-icon summary"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></span>Product Summary</div>
+    <div class="summary-row">
+      <span class="summary-label">Buying Cost</span>
+      <span class="summary-val empty" id="sumBuyCost">—</span>
+    </div>
+    <div class="summary-row">
+      <span class="summary-label">Weight Cost</span>
+      <span class="summary-val empty" id="sumWeightCost">—</span>
+    </div>
+    <div class="summary-row">
+      <span class="summary-label">Margin</span>
+      <span class="summary-val empty" id="sumMarginRow">—</span>
+    </div>
 
-      <div class="np-summary-row">
-        <span class="np-summary-label">Category</span>
-        <span class="np-summary-val empty" id="sumCategory">—</span>
-      </div>
-      <div class="np-summary-row">
-        <span class="np-summary-label">Sub-category</span>
-        <span class="np-summary-val empty" id="sumSubcat">—</span>
-      </div>
-      <div class="np-summary-row">
-        <span class="np-summary-label">Brand</span>
-        <span class="np-summary-val empty" id="sumBrand">—</span>
-      </div>
-      <div class="np-summary-row">
-        <span class="np-summary-label">Product Name</span>
-        <span class="np-summary-val empty" id="sumName">—</span>
-      </div>
-      <div class="np-summary-row">
-        <span class="np-summary-label">SKU</span>
-        <span class="np-summary-val empty" id="sumSku" style="font-family:'Courier Prime','Courier New',monospace">—</span>
-      </div>
-      <div class="np-summary-row" id="sumFormRow">
-        <span class="np-summary-label">Form / Count</span>
-        <span class="np-summary-val empty" id="sumForm">—</span>
-      </div>
-      <div class="np-summary-row" id="sumPotencyRow">
-        <span class="np-summary-label">Potency / Flavor</span>
-        <span class="np-summary-val empty" id="sumPotency">—</span>
-      </div>
-      <div class="np-summary-row" id="sumOriginRow">
-        <span class="np-summary-label">Origin / Expiry</span>
-        <span class="np-summary-val empty" id="sumOrigin">—</span>
-      </div>
-
-      <div class="np-summary-divider"></div>
-
-      <div class="np-summary-row">
-        <span class="np-summary-label">Buying Cost</span>
-        <span class="np-summary-val empty" id="sumBuyCost">—</span>
-      </div>
-      <div class="np-summary-row">
-        <span class="np-summary-label">Weight Cost</span>
-        <span class="np-summary-val empty" id="sumWeightCost">—</span>
-      </div>
-      <div class="np-summary-row">
-        <span class="np-summary-label">Margin</span>
-        <span class="np-summary-val empty" id="sumMarginRow">—</span>
-      </div>
-
-      <div class="np-summary-total-row">
-        <span class="np-summary-total-label">Selling Price</span>
-        <span class="np-summary-total-val" id="sumSellPrice">৳0</span>
-      </div>
-      </div><!-- end CARD 3: PRODUCT SUMMARY -->
+    <div class="summary-total-row">
+      <span class="summary-total-label">Selling Price</span>
+      <span class="summary-total-val" id="sumSellPrice">৳0</span>
+    </div>
+  </div>
 
     </div><!-- end restockNewBody -->
 
@@ -15364,6 +15418,25 @@ window.addEventListener('message',function(e){
 <div class="invoice-preview-container" id="invoicePreviewContainer"></div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <script>
+
+/* ============================================================
+   ====== SAFE DOM STUB (for fields removed during UI swap) ======
+   Prevents crashes when old np* form logic references fields
+   that no longer exist after the Add New Product redesign.
+   Swap for real elements when each function is rewired.
+   ============================================================ */
+function _npSafeEl() {
+  const noop = function(){ return _npSafeEl(); };
+  return {
+    value: '', textContent: '', innerHTML: '', placeholder: '',
+    style: new Proxy({}, { get: () => '', set: () => true }),
+    classList: { add: noop, remove: noop, toggle: noop, contains: () => false },
+    addEventListener: noop, removeEventListener: noop,
+    setAttribute: noop, removeAttribute: noop, getAttribute: () => null,
+    dataset: {}, disabled: false, readOnly: false, checked: false,
+    trim: () => ''
+  };
+}
 
 /* ============================================================
    ====== EXPIRY STATUS CALCULATOR ======
@@ -17801,7 +17874,7 @@ function saveSubcategories() {
   try { localStorage.setItem('svbd-subcategories', JSON.stringify(SUBCATEGORIES)); } catch (e) {}
 }
 function renderSubcatMenu() {
-  const list = document.getElementById('npSubcatList');
+  const list = document.getElementById('npSubcatList') || _npSafeEl();
   if (!list) return;
   const cats = SUBCATEGORIES[npCategory] || [];
   list.innerHTML = cats.map((s, i) => `
@@ -17814,8 +17887,8 @@ function renderSubcatMenu() {
 function toggleNpSubcatMenu(e) {
   if (e) e.stopPropagation();
   if (!npCategory) return;
-  const btn = document.getElementById('npSubcatSelectBtn');
-  const menu = document.getElementById('npSubcatSelectMenu');
+  const btn = (document.getElementById('npSubcatSelectBtn')||_npSafeEl());
+  const menu = (document.getElementById('npSubcatSelectMenu')||_npSafeEl());
   const opening = !menu.classList.contains('open');
   if (opening) {
     renderSubcatMenu();
@@ -17843,16 +17916,16 @@ function toggleNpSubcatMenu(e) {
 }
 function setNpSubcategory(sub) {
   npSubcategory = sub;
-  const labelEl = document.getElementById('npSubcatSelectLabel');
+  const labelEl = document.getElementById('npSubcatSelectLabel') || _npSafeEl();
   labelEl.textContent = sub;
   labelEl.classList.remove('placeholder');
-  document.getElementById('npSubcatSelectMenu').classList.remove('open');
-  document.getElementById('npSubcatSelectBtn').classList.remove('open');
+  (document.getElementById('npSubcatSelectMenu')||_npSafeEl()).classList.remove('open');
+  (document.getElementById('npSubcatSelectBtn')||_npSafeEl()).classList.remove('open');
   updateNpSummary();
 }
 function addNewSubcategory(e) {
   if (e) e.stopPropagation();
-  const input = document.getElementById('npSubcatNewInput');
+  const input = document.getElementById('npSubcatNewInput') || _npSafeEl();
   const name = input.value.trim();
   if (!name || !npCategory) return;
   if (!SUBCATEGORIES[npCategory]) SUBCATEGORIES[npCategory] = [];
@@ -17866,7 +17939,7 @@ function addNewSubcategory(e) {
 }
 function resetNpSubcategory() {
   npSubcategory = '';
-  const labelEl = document.getElementById('npSubcatSelectLabel');
+  const labelEl = document.getElementById('npSubcatSelectLabel') || _npSafeEl();
   if (labelEl) {
     labelEl.textContent = 'Choose sub-category';
     labelEl.classList.add('placeholder');
@@ -17885,34 +17958,36 @@ function openRestockModal() {
   document.getElementById('rsDate').value = new Date().toISOString().split('T')[0];
   npCategory = '';
   npSubcategory = '';
-  document.getElementById('npSubcatField').style.display = 'none';
+  (document.getElementById('npSubcatField')||_npSafeEl()).style.display = 'none';
   resetNpSubcategory();
   document.querySelectorAll('.np-cat-opt').forEach(o => o.classList.remove('selected'));
   document.querySelectorAll('#npCatSelectMenu .pcm-item').forEach(o => o.classList.remove('active'));
-  const npCatIconReset = document.getElementById('npCatSelectIcon');
-  const npCatLabelReset = document.getElementById('npCatSelectLabel');
+  const npCatIconReset = document.getElementById('npCatSelectIcon') || _npSafeEl();
+  const npCatLabelReset = document.getElementById('npCatSelectLabel') || _npSafeEl();
   if (npCatIconReset) { npCatIconReset.classList.remove('filled'); npCatIconReset.style.background = ''; npCatIconReset.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-filter-lines"/></svg>'; }
   if (npCatLabelReset) { npCatLabelReset.textContent = 'Choose category'; npCatLabelReset.classList.add('placeholder'); }
-  document.getElementById('npBrandColorSection').style.display = 'block';
-  document.getElementById('npProductCodeField').style.display = 'block';
-  document.getElementById('npSpecsSection').style.display = 'none';
-  document.getElementById('npExpiryField').style.display = 'none';
-  document.getElementById('npVariantSection').style.display = 'none';
-  document.getElementById('npWeight').value = '';
-  document.getElementById('npUsdCost').value = '';
-  document.getElementById('npSellPrice').value = '';
-  document.getElementById('npStock').value = '0';
-  document.getElementById('npStockDisplay').textContent = '0';
-  document.getElementById('npSku').value = '';
-  document.getElementById('npBrandName').value = '';
-  document.getElementById('npProductName').value = '';
-  document.getElementById('npForm').value = '';
-  document.getElementById('npCapsuleCount').value = '';
-  document.getElementById('npPotencyAmount').value = '';
-  document.getElementById('npPotencyType').value = '';
-  document.getElementById('npFlavor').value = '';
-  document.getElementById('npOrigin').value = '';
-  document.getElementById('npExpiry').value = '';
+  const _npEl = id => document.getElementById(id);
+  if (_npEl('npBrandColorSection')) _npEl('npBrandColorSection').style.display = 'block';
+  if (_npEl('npProductCodeField')) _npEl('npProductCodeField').style.display = 'block';
+  if (_npEl('npSpecsSection')) _npEl('npSpecsSection').style.display = 'none';
+  if (_npEl('npExpiryField')) _npEl('npExpiryField').style.display = 'none';
+  if (_npEl('npVariantSection')) _npEl('npVariantSection').style.display = 'none';
+  if (_npEl('npWeight')) _npEl('npWeight').value = '';
+  if (_npEl('npWeightUnit')) _npEl('npWeightUnit').value = 'Gm';
+  if (_npEl('npUsdCost')) _npEl('npUsdCost').value = '';
+  if (_npEl('npSellPrice')) _npEl('npSellPrice').value = '';
+  if (_npEl('npStock')) _npEl('npStock').value = '0';
+  if (_npEl('npStockDisplay')) _npEl('npStockDisplay').textContent = '0';
+  if (_npEl('npSku')) _npEl('npSku').value = '';
+  if (_npEl('npBrandName')) _npEl('npBrandName').value = '';
+  if (_npEl('npProductName')) _npEl('npProductName').value = '';
+  if (_npEl('npForm')) _npEl('npForm').value = '';
+  if (_npEl('npCapsuleCount')) _npEl('npCapsuleCount').value = '';
+  if (_npEl('npPotencyAmount')) _npEl('npPotencyAmount').value = '';
+  if (_npEl('npPotencyType')) _npEl('npPotencyType').value = '';
+  if (_npEl('npFlavor')) _npEl('npFlavor').value = '';
+  if (_npEl('npOrigin')) _npEl('npOrigin').value = '';
+  if (_npEl('npExpiry')) _npEl('npExpiry').value = '';
   updatePotencyPreview();
   const sumCatReset = document.getElementById('sumCategory');
   if (sumCatReset) { sumCatReset.textContent = '—'; sumCatReset.classList.add('empty'); }
@@ -17952,8 +18027,8 @@ function switchRestockTab(mode) {
 
 function toggleNpCategoryMenu(e) {
   if (e) e.stopPropagation();
-  const btn = document.getElementById('npCatSelectBtn');
-  const menu = document.getElementById('npCatSelectMenu');
+  const btn = document.getElementById('npCatSelectBtn') || _npSafeEl();
+  const menu = document.getElementById('npCatSelectMenu') || _npSafeEl();
   const opening = !menu.classList.contains('open');
   const positionMenu = () => {
     const r = btn.getBoundingClientRect();
@@ -17999,8 +18074,8 @@ function setNpCategory(cat, el) {
   if (el) el.classList.add('active');
 
   const meta = NP_CAT_META[cat];
-  const iconEl = document.getElementById('npCatSelectIcon');
-  const labelEl = document.getElementById('npCatSelectLabel');
+  const iconEl = document.getElementById('npCatSelectIcon') || _npSafeEl();
+  const labelEl = document.getElementById('npCatSelectLabel') || _npSafeEl();
   if (meta && iconEl && labelEl) {
     iconEl.classList.add('filled');
     iconEl.style.background = meta.gradient;
@@ -18008,27 +18083,27 @@ function setNpCategory(cat, el) {
     labelEl.textContent = meta.label;
     labelEl.classList.remove('placeholder');
   }
-  const menu = document.getElementById('npCatSelectMenu');
-  const btn = document.getElementById('npCatSelectBtn');
+  const menu = document.getElementById('npCatSelectMenu') || _npSafeEl();
+  const btn = document.getElementById('npCatSelectBtn') || _npSafeEl();
   menu.classList.remove('open');
   btn.classList.remove('open');
-  document.getElementById('npCatHint').classList.remove('visible');
+  (document.getElementById('npCatHint')||_npSafeEl()).classList.remove('visible');
 
   const needsExpiry  = cat === 'supplement' || cat === 'cosmetic';
   const needsVariant = cat === 'electronics' || cat === 'clothing';
   const isSupplement = cat === 'supplement';
 
-  document.getElementById('npSpecsSection').style.display   = needsExpiry  ? 'block' : 'none';
-  document.getElementById('npExpiryField').style.display    = needsExpiry  ? 'block' : 'none';
-  document.getElementById('npVariantSection').style.display = needsVariant ? 'block' : 'none';
-  document.getElementById('npBrandColorSection').style.display = isSupplement ? 'none' : 'block';
-  document.getElementById('npProductCodeField').style.display  = isSupplement ? 'none' : 'block';
-  const npFlavorField = document.getElementById('npFlavorField');
-  const npOriginField = document.getElementById('npOriginField');
+  (document.getElementById('npSpecsSection')||_npSafeEl()).style.display   = needsExpiry  ? 'block' : 'none';
+  (document.getElementById('npExpiryField')||_npSafeEl()).style.display    = needsExpiry  ? 'block' : 'none';
+  (document.getElementById('npVariantSection')||_npSafeEl()).style.display = needsVariant ? 'block' : 'none';
+  (document.getElementById('npBrandColorSection')||_npSafeEl()).style.display = isSupplement ? 'none' : 'block';
+  (document.getElementById('npProductCodeField')||_npSafeEl()).style.display  = isSupplement ? 'none' : 'block';
+  const npFlavorField = document.getElementById('npFlavorField') || _npSafeEl();
+  const npOriginField = document.getElementById('npOriginField') || _npSafeEl();
   if (npFlavorField) npFlavorField.style.display = isSupplement ? 'block' : 'none';
   if (npOriginField) npOriginField.style.display = isSupplement ? 'block' : 'none';
 
-  document.getElementById('npSubcatField').style.display = 'block';
+  (document.getElementById('npSubcatField')||_npSafeEl()).style.display = 'block';
   resetNpSubcategory();
 
   const sumCat = document.getElementById('sumCategory');
@@ -18040,8 +18115,8 @@ function setNpCategory(cat, el) {
   updateNpSummary();
 
   if (!needsExpiry) {
-    document.getElementById('npExpiry').value = '';
-    document.getElementById('npExpiryHint').classList.remove('visible');
+    (document.getElementById('npExpiry')||_npSafeEl()).value = '';
+    (document.getElementById('npExpiryHint')||_npSafeEl()).classList.remove('visible');
   }
 }
 
@@ -18049,11 +18124,11 @@ function selectBrandColor(color, el) {
   _npBrandColor = color;
   document.querySelectorAll('.np-color-swatch').forEach(s => s.classList.remove('selected'));
   if (el) el.classList.add('selected');
-  const preview = document.getElementById('npBrandPreview');
-  if (preview) { preview.style.background = color; preview.textContent = document.getElementById('npBrandCode')?.value || 'XX'; }
+  const preview = document.getElementById('npBrandPreview') || _npSafeEl();
+  if (preview) { preview.style.background = color; preview.textContent = (document.getElementById('npBrandCode')||_npSafeEl())?.value || 'XX'; }
   // Sync hex input + dot
-  const hexInput = document.getElementById('npHexInput');
-  const hexDot   = document.getElementById('npHexDot');
+  const hexInput = (document.getElementById('npHexInput')||_npSafeEl());
+  const hexDot   = (document.getElementById('npHexDot')||_npSafeEl());
   if (hexInput && color.startsWith('#')) { hexInput.value = color.replace('#',''); }
   if (hexDot)   hexDot.style.background = color;
 }
@@ -18061,26 +18136,26 @@ function selectBrandColor(color, el) {
 function onHexInput(val) {
   // Live dot preview as user types — only update when valid 3 or 6 char hex
   val = val.replace(/[^0-9a-fA-F]/g, '');
-  document.getElementById('npHexInput').value = val;
-  const dot = document.getElementById('npHexDot');
+  (document.getElementById('npHexInput')||_npSafeEl()).value = val;
+  const dot = (document.getElementById('npHexDot')||_npSafeEl());
   if (val.length === 3 || val.length === 6) {
     dot.style.background = '#' + val;
   }
 }
 
 function applyHexColor() {
-  const val = (document.getElementById('npHexInput').value || '').trim();
+  const val = ((document.getElementById('npHexInput')||_npSafeEl()).value || '').trim();
   if (val.length !== 3 && val.length !== 6) return;
   const hex = '#' + val;
   // Deselect all swatches
   document.querySelectorAll('.np-color-swatch').forEach(s => s.classList.remove('selected'));
   selectBrandColor(hex, null);
-  document.getElementById('npHexDot').style.background = hex;
+  (document.getElementById('npHexDot')||_npSafeEl()).style.background = hex;
 }
 
 function updateExpiryPreview() {
-  const val = document.getElementById('npExpiry')?.value;
-  const prev = document.getElementById('npExpiryPreview');
+  const val = (document.getElementById('npExpiry')||_npSafeEl())?.value;
+  const prev = document.getElementById('npExpiryPreview') || _npSafeEl();
   if (!prev) return;
   if (val) {
     const d = new Date(val + 'T00:00:00');
@@ -18093,9 +18168,9 @@ function updateExpiryPreview() {
 }
 
 function updatePotencyPreview() {
-  const amt  = document.getElementById('npPotencyAmount')?.value?.trim() || '';
-  const type = document.getElementById('npPotencyType')?.value || '';
-  const prev = document.getElementById('npPotencyPreview');
+  const amt  = (document.getElementById('npPotencyAmount')||_npSafeEl())?.value?.trim() || '';
+  const type = (document.getElementById('npPotencyType')||_npSafeEl())?.value || '';
+  const prev = document.getElementById('npPotencyPreview') || _npSafeEl();
   if (!prev) return;
   if (amt && type) {
     prev.textContent = amt + ' ' + type;
@@ -18120,10 +18195,10 @@ function setNpCostingMethod(method, el) {
   document.querySelectorAll('#npCostingRow .np-cat-opt').forEach(o => o.classList.remove('selected'));
   if (el) el.classList.add('selected');
 
-  const usdField    = document.getElementById('npUsdField');
-  const weightField = document.getElementById('npWeightField');
-  const bdtInput     = document.getElementById('npBdtCostInput');
-  const autoTag      = document.getElementById('npBdtCostAutoTag');
+  const usdField = document.getElementById('npUsdField') || _npSafeEl();
+  const weightField = document.getElementById('npWeightField') || _npSafeEl();
+  const bdtInput     = (document.getElementById('npBdtCostInput')||_npSafeEl());
+  const autoTag = document.getElementById('npBdtCostAutoTag') || _npSafeEl();
 
   const isManual = method === 'manual';
   usdField.style.display    = isManual ? 'none' : 'block';
@@ -18149,32 +18224,39 @@ function onManualBdtCostInput() {
 }
 
 function calcNewProductMargin() {
-  const usd    = parseFloat(document.getElementById('npUsdCost').value)    || 0;
-  const weight = parseFloat(document.getElementById('npWeight').value)     || 0;
-  const sell   = parseFloat(document.getElementById('npSellPrice').value)  || 0;
+  const usd        = parseFloat((document.getElementById('npUsdCost')||_npSafeEl()).value)    || 0;
+  const weight      = parseFloat((document.getElementById('npWeight')||_npSafeEl()).value)     || 0;
+  const weightUnit  = document.getElementById('npWeightUnit')?.value || 'Gm';
+  const sell        = parseFloat((document.getElementById('npSellPrice')||_npSafeEl()).value)  || 0;
 
-  document.getElementById('npUsdDisplay').textContent = usd > 0 ? '$' + usd.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '$0';
+  (document.getElementById('npUsdDisplay')||_npSafeEl()).textContent = usd > 0 ? '$' + usd.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '$0';
+
+  // Normalize weight to Kg regardless of the unit the user picked
+  let weightKg = 0;
+  if (weightUnit === 'Kg') weightKg = weight;
+  else if (weightUnit === 'Lb') weightKg = weight * 0.453592;
+  else weightKg = weight / 1000; // Gm
 
   let bdtCost = 0;
   if (npCostingMethod === 'manual') {
-    bdtCost = parseFloat(document.getElementById('npBdtCostInput').value) || 0;
+    bdtCost = parseFloat((document.getElementById('npBdtCostInput')||_npSafeEl()).value) || 0;
   } else {
     // Both components add together — a product can have an imported USD cost,
     // a locally weighed cost, or both at once.
-    bdtCost = (usd * EXCHANGE_RATE) + ((weight / 1000) * WEIGHT_RATE);
-    document.getElementById('npBdtCostInput').value = bdtCost > 0 ? Math.round(bdtCost) : '';
+    bdtCost = (usd * EXCHANGE_RATE) + (weightKg * WEIGHT_RATE);
+    (document.getElementById('npBdtCostInput')||_npSafeEl()).value = bdtCost > 0 ? Math.round(bdtCost) : '';
   }
 
-  document.getElementById('npBdtCost').textContent = bdtCost > 0 ? '৳' + Math.round(bdtCost).toLocaleString('en-IN') : '৳0';
+  (document.getElementById('npBdtCost')||_npSafeEl()).textContent = bdtCost > 0 ? '৳' + Math.round(bdtCost).toLocaleString('en-IN') : '৳0';
 
-  const weightCostTk = npCostingMethod === 'manual' ? 0 : (weight / 1000) * WEIGHT_RATE;
-  document.getElementById('npWeightCostDisplay').textContent = weightCostTk > 0 ? '৳' + Math.round(weightCostTk).toLocaleString('en-IN') : '৳0';
+  const weightCostTk = npCostingMethod === 'manual' ? 0 : weightKg * WEIGHT_RATE;
+  (document.getElementById('npWeightCostDisplay')||_npSafeEl()).textContent = weightCostTk > 0 ? '৳' + Math.round(weightCostTk).toLocaleString('en-IN') : '৳0';
 
   const profit = sell - bdtCost;
   const margin = sell > 0 ? (profit / sell) * 100 : 0;
 
-  const profitEl  = document.getElementById('npProfit');
-  const marginEl  = document.getElementById('npMargin');
+  const profitEl = document.getElementById('npProfit') || _npSafeEl();
+  const marginEl = document.getElementById('npMargin') || _npSafeEl();
 
   profitEl.textContent = sell > 0 ? (profit >= 0 ? '+' : '') + '৳' + Math.round(profit).toLocaleString('en-IN') : '৳0';
   profitEl.style.color = profit >= 0 ? '#2f9b68' : '#d95353';
@@ -18206,7 +18288,7 @@ function updateNpSummary() {
   syncField('npProductName', 'sumName');
   syncField('npSku', 'sumSku');
 
-  const subcatLabel = document.getElementById('npSubcatSelectLabel');
+  const subcatLabel = document.getElementById('npSubcatSelectLabel') || _npSafeEl();
   const sumSubcat = document.getElementById('sumSubcat');
   if (subcatLabel && sumSubcat) {
     const isPlaceholder = subcatLabel.classList.contains('placeholder');
@@ -18214,8 +18296,8 @@ function updateNpSummary() {
     sumSubcat.classList.toggle('empty', isPlaceholder);
   }
 
-  const form = (document.getElementById('npForm')?.value || '').trim();
-  const caps = (document.getElementById('npCapsuleCount')?.value || '').trim();
+  const form = ((document.getElementById('npForm')||_npSafeEl())?.value || '').trim();
+  const caps = ((document.getElementById('npCapsuleCount')||_npSafeEl())?.value || '').trim();
   const sumForm = document.getElementById('sumForm');
   if (sumForm) {
     const combined = [form, caps].filter(Boolean).join(' · ');
@@ -18224,7 +18306,7 @@ function updateNpSummary() {
   }
 
   const potency = (document.getElementById('npPotencyPreview')?.textContent || '').trim();
-  const flavor = (document.getElementById('npFlavor')?.value || '').trim();
+  const flavor = ((document.getElementById('npFlavor')||_npSafeEl())?.value || '').trim();
   const sumPotency = document.getElementById('sumPotency');
   if (sumPotency) {
     const potencyVal = (potency && potency !== '—') ? potency : '';
@@ -18233,8 +18315,8 @@ function updateNpSummary() {
     sumPotency.classList.toggle('empty', !combined);
   }
 
-  const origin = (document.getElementById('npOrigin')?.value || '').trim();
-  const expiry = (document.getElementById('npExpiry')?.value || '').trim();
+  const origin = ((document.getElementById('npOrigin')||_npSafeEl())?.value || '').trim();
+  const expiry = ((document.getElementById('npExpiry')||_npSafeEl())?.value || '').trim();
   const sumOrigin = document.getElementById('sumOrigin');
   if (sumOrigin) {
     const combined = [origin, expiry].filter(Boolean).join(' · ');
@@ -18248,8 +18330,8 @@ function closeRestockModal(e) {
   document.getElementById('restockOverlay').classList.remove('active');
 }
 function _npLivePreview() {
-  const code = (document.getElementById('npBrandCode')?.value || '').toUpperCase() || 'XX';
-  const preview = document.getElementById('npBrandPreview');
+  const code = ((document.getElementById('npBrandCode')||_npSafeEl())?.value || '').toUpperCase() || 'XX';
+  const preview = document.getElementById('npBrandPreview') || _npSafeEl();
   if (preview) { preview.textContent = code; preview.style.background = _npBrandColor; }
 }
 
@@ -18520,8 +18602,8 @@ function closeCustomColorPicker() {
 
 function applyCustomColor() {
   const hex='#'+cpHsvToHex(CP.h,CP.s,CP.v);
-  selectBrandColor(hex, document.getElementById('npColorCustom'));
-  document.getElementById('npColorCustom').style.background=hex;
+  selectBrandColor(hex, (document.getElementById('npColorCustom')||_npSafeEl()));
+  (document.getElementById('npColorCustom')||_npSafeEl()).style.background=hex;
   closeCustomColorPicker();
 }
 
@@ -18608,15 +18690,17 @@ async function restockExistingProduct() {
 }
 
 async function saveNewProduct() {
-  const sku         = document.getElementById('npSku').value.trim();
-  const brandName   = document.getElementById('npBrandName').value.trim();
-  const productName = document.getElementById('npProductName').value.trim();
-  const usd         = parseFloat(document.getElementById('npUsdCost').value) || 0;
-  const weightVal   = parseFloat(document.getElementById('npWeight').value) || 0;
-  const manualCost  = parseFloat(document.getElementById('npBdtCostInput').value) || 0;
-  const sell        = parseFloat(document.getElementById('npSellPrice').value) || 0;
+  const sku         = (document.getElementById('npSku')||_npSafeEl()).value.trim();
+  const brandName   = (document.getElementById('npBrandName')||_npSafeEl()).value.trim();
+  const productName = (document.getElementById('npProductName')||_npSafeEl()).value.trim();
+  const usd         = parseFloat((document.getElementById('npUsdCost')||_npSafeEl()).value) || 0;
+  const weightVal   = parseFloat((document.getElementById('npWeight')||_npSafeEl()).value) || 0;
+  const weightUnitVal = document.getElementById('npWeightUnit')?.value || 'Gm';
+  const weightValKg = weightUnitVal === 'Kg' ? weightVal : (weightUnitVal === 'Lb' ? weightVal * 0.453592 : weightVal / 1000);
+  const manualCost  = parseFloat((document.getElementById('npBdtCostInput')||_npSafeEl()).value) || 0;
+  const sell        = parseFloat((document.getElementById('npSellPrice')||_npSafeEl()).value) || 0;
   const needsExpiry = npCategory === 'supplement' || npCategory === 'cosmetic';
-  const expiry      = needsExpiry ? document.getElementById('npExpiry').value : '';
+  const expiry      = needsExpiry ? (document.getElementById('npExpiry')||_npSafeEl()).value : '';
 
   let hasError = false;
   const fields = [
@@ -18638,22 +18722,22 @@ async function saveNewProduct() {
 
   let bdtCost;
   if (npCostingMethod === 'manual') bdtCost = Math.round(manualCost);
-  else bdtCost = Math.round((usd * EXCHANGE_RATE) + ((weightVal / 1000) * WEIGHT_RATE));
+  else bdtCost = Math.round((usd * EXCHANGE_RATE) + (weightValKg * WEIGHT_RATE));
 
-  const stock      = parseInt(document.getElementById('npStock').value) || 0;
-  const form       = needsExpiry ? document.getElementById('npForm').value : '';
-  const caps       = needsExpiry ? document.getElementById('npCapsuleCount').value : '';
-  const potency    = needsExpiry ? document.getElementById('npPotencyType').value : '';
-  const potencyAmt = needsExpiry ? document.getElementById('npPotencyAmount').value : '';
-  const flavor     = needsExpiry ? document.getElementById('npFlavor').value.trim() : '';
-  const origin     = needsExpiry ? document.getElementById('npOrigin').value.trim() : '';
-  const weight     = document.getElementById('npWeight').value;
+  const stock      = parseInt((document.getElementById('npStock')||_npSafeEl()).value) || 0;
+  const form       = needsExpiry ? (document.getElementById('npForm')||_npSafeEl()).value : '';
+  const caps       = needsExpiry ? (document.getElementById('npCapsuleCount')||_npSafeEl()).value : '';
+  const potency    = needsExpiry ? (document.getElementById('npPotencyType')||_npSafeEl()).value : '';
+  const potencyAmt = needsExpiry ? (document.getElementById('npPotencyAmount')||_npSafeEl()).value : '';
+  const flavor     = needsExpiry ? (document.getElementById('npFlavor')||_npSafeEl()).value.trim() : '';
+  const origin     = needsExpiry ? (document.getElementById('npOrigin')||_npSafeEl()).value.trim() : '';
+  const weight     = (document.getElementById('npWeight')||_npSafeEl()).value;
   const isVariant  = npCategory === 'electronics' || npCategory === 'clothing';
-  const npColor2   = isVariant ? document.getElementById('npColor').value.trim() : '';
-  const npSize2    = isVariant ? document.getElementById('npSize').value.trim() : '';
-  const brandCode  = document.getElementById('npBrandCode').value.trim().toUpperCase() || brandName.substring(0,2).toUpperCase();
-  const prodCode   = document.getElementById('npProductCode').value.trim().toUpperCase();
-  const supplier   = document.getElementById('npSupplier').value.trim();
+  const npColor2   = isVariant ? (document.getElementById('npColor')||_npSafeEl()).value.trim() : '';
+  const npSize2    = isVariant ? (document.getElementById('npSize')||_npSafeEl()).value.trim() : '';
+  const brandCode  = (document.getElementById('npBrandCode')||_npSafeEl()).value.trim().toUpperCase() || brandName.substring(0,2).toUpperCase();
+  const prodCode   = (document.getElementById('npProductCode')||_npSafeEl()).value.trim().toUpperCase();
+  const supplier   = (document.getElementById('npSupplier')||_npSafeEl()).value.trim();
   const color      = _npBrandColor;
   const avatarColor = (color === '#2f9b68' || color === '#4CAF7D') ? 'g' : (color === '#d95353' || color === '#e91e8c') ? 'r' : 'p';
   const variantStr = (npColor2 && npSize2) ? (npColor2 + ', ' + npSize2) : (npColor2 || npSize2 || null);
@@ -19786,8 +19870,8 @@ function changeQty(inputId, delta) {
 }
 
 function changeNpStock(delta) {
-  const input = document.getElementById('npStock');
-  const disp  = document.getElementById('npStockDisplay');
+  const input = (document.getElementById('npStock')||_npSafeEl());
+  const disp = document.getElementById('npStockDisplay') || _npSafeEl();
   let val = parseInt(input.value) || 0;
   val = Math.max(0, val + delta);
   input.value = val;
