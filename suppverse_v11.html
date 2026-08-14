@@ -5147,7 +5147,7 @@ html[data-theme="dark"] .filter-chip.active { background: #7C6FF7; border-color:
 
 /* Product Card */
 .prod-card {
-  background: #ffffff; border: 1px solid #ececec; border-radius: 16px;
+  background: #ffffff; border: 1.5px solid #ececec; border-radius: 16px;
   padding: 14px; margin-bottom: 12px;
   contain: layout style;
   transition: transform 0.25s ease, box-shadow 0.25s ease, background 0.4s ease, border-color 0.35s ease;
@@ -5325,6 +5325,12 @@ html[data-theme="dark"] .tx-card-expand {
   background: #1b2738; border-color: rgba(255,255,255,0.22);
 }
 .tx-card:active, .tx-card-expand:active { transform: scale(0.982); }
+
+/* Order fulfillment type: Local Stock (blue) / Proxy Buy-For-Me (orange) */
+.tx-card-expand.tx-type-local { border-color: #0A9BDC; background: rgba(10,155,220,0.05); }
+.tx-card-expand.tx-type-proxy { border-color: #F26430; background: rgba(242,100,48,0.05); }
+html[data-theme="dark"] .tx-card-expand.tx-type-local { border-color: #2DBEF5; background: rgba(45,190,245,0.07); }
+html[data-theme="dark"] .tx-card-expand.tx-type-proxy { border-color: #ff8a5c; background: rgba(255,138,92,0.07); }
 
 /* Row 1: order ID + channel + date */
 .tx-row1 { display:flex; align-items:center; gap:7px; margin-bottom:7px; }
@@ -6531,12 +6537,6 @@ html[data-theme="dark"] .np-section-label {
 }
 
 /* Product cards + draft cards — slightly more visible borders */
-.prod-card {
-  border: 1.5px solid #d8dce4 !important;
-}
-html[data-theme="dark"] .prod-card {
-  border: 1.5px solid rgba(255,255,255,0.14) !important;
-}
 .draft-card {
   border: 1.5px solid #d8dce4 !important;
 }
@@ -20118,7 +20118,7 @@ function renderProductsTab(searchDisplayVal) {
     const expires = p.category === 'supplement' || p.category === 'cosmetic';
 
     return `
-    <div class="prod-card">
+    <div class="prod-card" style="border-color:${cat.color};background:${cat.color}0D">
       <div class="prod-card-top">
         <div class="prod-avatar-badge" style="background:linear-gradient(135deg,${cat.color},${cat.color2});box-shadow:0 4px 12px ${cat.color}4d"><svg class="cat-icon cat-icon-${cat.icon}"><use href="#cat-icon-${cat.icon}"/></svg></div>
         <div class="prod-card-info">
@@ -20450,7 +20450,7 @@ const TRANSACTIONS_DATA = [
   {
     id:'SV-1011', date:'Apr 25, 2026', dateRaw:'2026-04-25',
     customer:'Hasan', phone:'01711-234567', address:'House 12, Road 5, Block C, Mirpur, Dhaka',
-    channel:'facebook', payment:'bkash', status:'paid',
+    channel:'facebook', payment:'bkash', status:'paid', fulfillType:'proxy',
     discount:500, shipping:0,
     paymentRef:'8N5TG7KQ2R', paidAt:'Apr 25, 2026, 3:42 PM',
     items:[
@@ -20462,7 +20462,7 @@ const TRANSACTIONS_DATA = [
   {
     id:'SV-1012', date:'Apr 25, 2026', dateRaw:'2026-04-25',
     customer:'Karim', phone:'01811-345678', address:'Flat 3B, Agrabad C/A, Chittagong',
-    channel:'whatsapp', payment:'cash', status:'pending',
+    channel:'whatsapp', payment:'cash', status:'pending', fulfillType:'local',
     discount:200, shipping:80,
     items:[
       {name:'Vitamin D3 + K2', sku:'DB-VD3-K2-90', qty:1, each:6150, total:6150, category:'supplement'},
@@ -20471,7 +20471,7 @@ const TRANSACTIONS_DATA = [
   {
     id:'SV-1013', date:'Apr 26, 2026', dateRaw:'2026-04-26',
     customer:'Nafisa', phone:'01922-889900', address:'Road 11, Banani, Dhaka',
-    channel:'instagram', payment:'bkash', status:'paid',
+    channel:'instagram', payment:'bkash', status:'paid', fulfillType:'local',
     discount:150, shipping:0,
     paymentRef:'8QX4RT9L2M', paidAt:'Apr 26, 2026, 1:05 PM',
     items:[
@@ -20485,7 +20485,7 @@ const TRANSACTIONS_DATA = [
   {
     id:'SV-1006', date:'Apr 12, 2026', dateRaw:'2026-04-12',
     customer:'Rony', phone:'01911-456789', address:'Road 3, Sector 7, Uttara, Dhaka',
-    channel:'website', payment:'nagad', status:'return',
+    channel:'website', payment:'nagad', status:'return', fulfillType:'local',
     discount:0, shipping:0,
     items:[
       {name:'Omega-3 Ultra', sku:'NW-OMG3-UTA-180', qty:3, each:5950, total:17850, category:'supplement'},
@@ -20494,7 +20494,7 @@ const TRANSACTIONS_DATA = [
   {
     id:'SV-1004', date:'Apr 8, 2026', dateRaw:'2026-04-08',
     customer:'Sadia', phone:'01611-567890', address:'House 7, Lane 4, Dhanmondi, Dhaka',
-    channel:'facebook', payment:'bkash', status:'paid',
+    channel:'facebook', payment:'bkash', status:'paid', fulfillType:'proxy',
     discount:300, shipping:0,
     paymentRef:'WQPTXN-441', paidAt:'Apr 8, 2026, 11:20 AM',
     items:[
@@ -20505,7 +20505,7 @@ const TRANSACTIONS_DATA = [
   {
     id:'SV-1001', date:'Mar 30, 2026', dateRaw:'2026-03-30',
     customer:'Tanvir', phone:'01511-678901', address:'Plot 22, Block E, Bashundhara R/A, Dhaka',
-    channel:'whatsapp', payment:'bank', status:'paid',
+    channel:'whatsapp', payment:'bank', status:'paid', fulfillType:'local',
     discount:0, shipping:0,
     paymentRef:'TXF-0045678', paidAt:'Mar 30, 2026, 2:15 PM',
     items:[
@@ -20517,6 +20517,7 @@ const TRANSACTIONS_DATA = [
 let salesSearch = '';
 let salesFilter = 'all';
 let salesSort = 'all';
+let salesFulfillFilter = 'all';
 let expandedTx = {};
 let draftView = 'orders'; // 'orders' or 'returns'
 let draftReturns = []; // array to store draft returns
@@ -20706,8 +20707,9 @@ function buildTxCard(tx) {
     <div class="draft-math-total"><span class="draft-math-total-label">Grand Total</span><span class="draft-math-total-amt">\u09f3${grand.toLocaleString('en-IN')}</span></div>`;
 
   const payConfirmRow = tx.paidAt ? payConfirmHTML('Paid', tx.payment, tx.paymentRef, tx.paidAt) : '';
+  const fulfillClass = tx.fulfillType === 'proxy' ? ' tx-type-proxy' : ' tx-type-local';
 
-  return `<div class="tx-card-expand${isExp?' expanded':''}" id="txcard-${uid}" onclick="toggleTxCard('${tx.id}')">
+  return `<div class="tx-card-expand${isExp?' expanded':''}${fulfillClass}" id="txcard-${uid}" onclick="toggleTxCard('${tx.id}')">
     <div class="tx-card-cols">
       <div class="tx-col-left">
         <div style="display:flex;align-items:center;gap:6px;margin-bottom:5px;">
@@ -20775,8 +20777,13 @@ function renderSalesTab() {
         <div class="sales-suggest" id="salesSuggest"></div>
       </div>
       <div class="products-category-wrap">
-        <div class="products-category-btn ${salesSort!=='all'?'active':''}" onclick="toggleSalesSortMenu(event)" id="salesSortBtn">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-filter-lines"/></svg>
+        <div class="products-category-btn ${salesFulfillFilter!=='all'?'active':''}" onclick="toggleSalesSortMenu(event)" id="salesSortBtn"${salesFulfillFilter==='local' ? ` style="background:linear-gradient(135deg,#009ddc,#006daa);border-color:#009ddc"` : (salesFulfillFilter==='proxy' ? ` style="background:linear-gradient(135deg,#f26430,#b83200);border-color:#f26430"` : '')}>
+          ${salesFulfillFilter==='local'
+            ? `<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="#fff" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>`
+            : salesFulfillFilter==='proxy'
+            ? `<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="#fff" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>`
+            : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-filter-lines"/></svg>`
+          }
         </div>
         <div class="products-category-menu" id="salesSortMenu"></div>
       </div>
@@ -20802,10 +20809,12 @@ function renderSalesCards() {
     const matchF = salesFilter === 'all' || tx.status === salesFilter ||
       (salesFilter === 'multi' && tx.items.length > 1) ||
       (salesFilter === 'single' && tx.items.length === 1);
+    const matchFulfill = salesFulfillFilter === 'all' ||
+      (salesFulfillFilter === 'proxy' ? tx.fulfillType === 'proxy' : tx.fulfillType !== 'proxy');
     const matchS = !q || tx.id.toLowerCase().includes(q) ||
       tx.customer.toLowerCase().includes(q) ||
       tx.items.some(i => i.name.toLowerCase().includes(q) || i.sku.toLowerCase().includes(q));
-    return matchF && matchS;
+    return matchF && matchFulfill && matchS;
   });
 
   const filteredReturns = (salesFilter === 'all' || salesFilter === 'return') ? RETURNS_DATA.filter(ret => {
@@ -20830,17 +20839,16 @@ function renderSalesCards() {
   if (sortMenu) {
     const wasOpen = sortMenu.classList.contains('open');
     sortMenu.innerHTML = `
-      <div class="pcm-item ${salesSort==='all'?'active':''}" onclick="setSalesSort('all')">
-        <span style="display:flex;align-items:center;gap:7px"><svg class="cat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-filter-lines"/></svg> All Categories</span><span class="pcm-count">${(filteredOrders.length+filteredReturns.length)}</span>
+      <div class="psm-label">Fulfillment</div>
+      <div class="pcm-item ${salesFulfillFilter==='all'?'active':''}" onclick="setSalesFulfillFilter('all')">
+        <span style="display:flex;align-items:center;gap:9px"><svg class="cat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-filter-lines"/></svg> All Types</span><span class="pcm-count">${filteredOrders.length}</span>
       </div>
-      ${Object.keys(CATEGORY_META).map(key => {
-        const meta = CATEGORY_META[key];
-        const count = filteredOrders.filter(tx => txItemCategories(tx).includes(key)).length
-                    + filteredReturns.filter(ret => retItemCategories(ret).includes(key)).length;
-        return `<div class="pcm-item ${salesSort===key?'active':''}" onclick="setSalesSort('${key}')">
-          <span style="display:flex;align-items:center;gap:9px">${catIconBadgeSVG(key)} ${meta.label}</span><span class="pcm-count">${count}</span>
-        </div>`;
-      }).join('')}
+      <div class="pcm-item ${salesFulfillFilter==='local'?'active':''}" onclick="setSalesFulfillFilter('local')">
+        <span style="display:flex;align-items:center;gap:9px"><span style="width:26px;height:26px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;background:linear-gradient(135deg,#009ddc,#006daa);box-shadow:0 2px 6px rgba(0,157,220,.35)"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="#fff" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></span> Local Stock</span><span class="pcm-count">${filteredOrders.filter(tx=>tx.fulfillType!=='proxy').length}</span>
+      </div>
+      <div class="pcm-item ${salesFulfillFilter==='proxy'?'active':''}" onclick="setSalesFulfillFilter('proxy')">
+        <span style="display:flex;align-items:center;gap:9px"><span style="width:26px;height:26px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;background:linear-gradient(135deg,#f26430,#b83200);box-shadow:0 2px 6px rgba(242,100,48,.35)"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="#fff" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg></span> Global Import</span><span class="pcm-count">${filteredOrders.filter(tx=>tx.fulfillType==='proxy').length}</span>
+      </div>
     `;
     if (wasOpen) sortMenu.classList.add('open');
   }
@@ -20863,6 +20871,10 @@ function setSalesSort(s) {
   const menu = document.getElementById('salesSortMenu');
   if (menu) menu.classList.remove('open');
   renderSalesCards();
+}
+function setSalesFulfillFilter(f) {
+  salesFulfillFilter = f;
+  renderSalesTab();
 }
 document.addEventListener('click', function(e) {
   const menu = document.getElementById('salesSortMenu');
