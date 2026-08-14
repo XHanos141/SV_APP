@@ -4843,6 +4843,8 @@ html[data-theme="dark"] .rate-warning-text { color: rgba(255,255,255,0.5); }
 html[data-theme="dark"] .rate-new { color: #F4A922; }
 .modal-btn-warning { background: #F4A922; color: #001f3c; font-weight: 800; }
 .modal-btn-warning:hover { background: #d48c0a; color: #ffffff; }
+.modal-btn-danger { background: #d95353; color: #ffffff; font-weight: 800; }
+.modal-btn-danger:hover { background: #c33f3f; }
 
 /* ============================================================
    ====== PDF SIZE PICKER ======
@@ -5116,6 +5118,16 @@ html[data-theme="dark"] .pcm-item { color: rgba(255,255,255,0.85); }
 .pcm-item.active { color: #7C6FF7; font-weight: 800; }
 html[data-theme="dark"] .pcm-item.active { color: #9d94ff; }
 .pcm-count { font-size: 11px; font-weight: 700; color: #8c92a1; }
+.subcat-delete-btn {
+  display: flex; align-items: center; justify-content: center;
+  width: 24px; height: 24px; border-radius: 6px; border: none; padding: 0;
+  background: transparent; color: #b8bec9; cursor: pointer; flex-shrink: 0;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+.subcat-delete-btn svg { width: 14px; height: 14px; }
+.subcat-delete-btn:hover { background: rgba(217,83,83,0.12); color: #d95353; }
+html[data-theme="dark"] .subcat-delete-btn { color: rgba(255,255,255,0.35); }
+html[data-theme="dark"] .subcat-delete-btn:hover { background: rgba(217,83,83,0.18); color: #ff6b6b; }
 .prod-category-tag {
   display: inline-flex; align-items: center; gap: 4px; font-size: 9.5px; font-weight: 700; letter-spacing: 0.03em;
   text-transform: uppercase; color: #7C6FF7; background: rgba(124,111,247,0.1);
@@ -5793,6 +5805,17 @@ html[data-theme="dark"] #restockNewBody{
 #restockNewBody .field-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 #restockNewBody .field-row-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
 #restockNewBody .field-hint{font-size:10.5px;color:var(--np2-text3);margin-top:5px;font-weight:500}
+#restockNewBody .expiry-status-pill{
+  display:inline-flex;align-items:center;gap:4px;margin-top:6px;
+  font-family:"Plus Jakarta Sans",sans-serif;font-size:10px;font-weight:800;
+  padding:3px 9px;border-radius:999px;letter-spacing:0.02em;white-space:nowrap;width:fit-content;
+}
+#restockNewBody .expiry-status-pill.red    { background: rgba(217,83,83,0.12);  color: #d95353; }
+#restockNewBody .expiry-status-pill.orange { background: rgba(232,156,15,0.13); color: #b87200; }
+#restockNewBody .expiry-status-pill.green  { background: rgba(47,155,104,0.11); color: #2f9b68; }
+html[data-theme="dark"] #restockNewBody .expiry-status-pill.red    { background: rgba(255,107,107,0.15); color: #ff6b6b; }
+html[data-theme="dark"] #restockNewBody .expiry-status-pill.orange { background: rgba(255,181,70,0.14);  color: #FFB546; }
+html[data-theme="dark"] #restockNewBody .expiry-status-pill.green  { background: rgba(77,204,138,0.12);  color: #4dcc8a; }
 #restockNewBody /* prefix inputs (USD $ / BDT ৳) */
 .weight-input-row{display:flex;gap:8px}
 #restockNewBody .weight-input-row input{flex:1;min-width:0}
@@ -5808,6 +5831,13 @@ html[data-theme="dark"] #restockNewBody{
   pointer-events:none;
 }
 #restockNewBody .prefix-wrap input{padding-left:28px}
+#restockNewBody .weight-suffix-wrap{position:relative;flex:1;min-width:0}
+#restockNewBody .weight-suffix-wrap input{width:100%;padding-right:38px}
+#restockNewBody .weight-suffix-wrap .weight-suffix{
+  position:absolute;right:12px;top:50%;transform:translateY(-50%);
+  font-family:var(--np2-font-display);font-weight:800;font-size:12px;color:var(--np2-text3);
+  pointer-events:none;text-transform:lowercase;
+}
 #restockNewBody /* readonly auto-calculated fields */
 .field input[readonly]{
   background:rgba(124,111,247,0.05);border-color:rgba(124,111,247,0.18);
@@ -5822,22 +5852,25 @@ html[data-theme="dark"] #restockNewBody .field input[readonly]{background:rgba(1
 .np-cat-select-wrap{ position: relative; }
 #restockNewBody .np-cat-select-btn{
   display: flex; align-items: center; gap: 10px;
-  height: 48px; padding: 0 12px; border-radius: 12px;
+  height: 48px; padding: 0 12px 0 0; border-radius: 12px;
   background: var(--np2-bg); border: 1.5px solid var(--np2-border); cursor: pointer;
   transition: border-color 0.2s ease, background 0.2s ease;
+  overflow: hidden;
 }
 #restockNewBody .np-cat-select-btn:hover{ border-color: var(--np2-accent); }
 #restockNewBody .np-cat-select-icon{
-  width: 34px; height: 34px; border-radius: 10px; flex-shrink: 0;
+  width: 48px; height: 48px; border-radius: 10.5px; flex-shrink: 0;
   display: flex; align-items: center; justify-content: center;
   background: #eef0f4; color: #556070; transition: background 0.2s ease;
+  margin: 0;
 }
 html[data-theme="dark"] #restockNewBody .np-cat-select-icon{ background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.7); }
-#restockNewBody .np-cat-select-icon svg{ width: 19px; height: 19px; }
-#restockNewBody .np-cat-select-icon.filled svg{ width: 18px; height: 18px; color: #fff; }
+#restockNewBody .np-cat-select-icon svg{ width: 24px; height: 24px; }
+#restockNewBody .np-cat-select-icon.filled svg{ width: 23px; height: 23px; color: #fff; }
 #restockNewBody .np-cat-select-label{
   flex: 1; min-width: 0; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 13.5px; font-weight: 700; color: var(--np2-text);
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  padding-left: 2px;
 }
 #restockNewBody .np-cat-select-label.placeholder{ color: var(--np2-text3); font-weight: 600; }
 #restockNewBody .np-cat-chevron{ width: 16px; height: 16px; color: var(--np2-text3); flex-shrink: 0; transition: transform 0.2s ease; }
@@ -5899,6 +5932,14 @@ html[data-theme="dark"] #restockNewBody .np-cat-select-menu{ box-shadow: 0 8px 2
 #restockNewBody .pay-calc-val.purple{color:var(--np2-accent)}
 #restockNewBody .pay-calc-val.green{color:var(--np2-green)}
 #restockNewBody .pay-calc-val.margin{color:var(--np2-green)}
+#restockNewBody .pay-calc-val.margin.green{color:#2f9b68}
+#restockNewBody .pay-calc-val.margin.amber{color:#d48c0a}
+html[data-theme="dark"] #restockNewBody .pay-calc-val.margin.amber{color:#F4A922}
+#restockNewBody .pay-calc-val.margin.red{color:#d95353}
+#restockNewBody input#inpMargin.green{color:#2f9b68}
+#restockNewBody input#inpMargin.amber{color:#d48c0a}
+html[data-theme="dark"] #restockNewBody input#inpMargin.amber{color:#F4A922}
+#restockNewBody input#inpMargin.red{color:#d95353}
 #restockNewBody /* ===== Summary card ===== */
 .summary-row{
   display:flex;align-items:center;justify-content:space-between;
@@ -5909,6 +5950,10 @@ html[data-theme="dark"] #restockNewBody .np-cat-select-menu{ box-shadow: 0 8px 2
 #restockNewBody .summary-label{font-size:12px;font-weight:600;color:var(--np2-text2)}
 #restockNewBody .summary-val{font-family:var(--np2-font-display);font-size:13px;font-weight:800;color:var(--np2-text);text-align:right}
 #restockNewBody .summary-val.empty{color:var(--np2-text3);font-weight:600}
+#restockNewBody .summary-val.green{color:#2f9b68}
+#restockNewBody .summary-val.amber{color:#d48c0a}
+html[data-theme="dark"] #restockNewBody .summary-val.amber{color:#F4A922}
+#restockNewBody .summary-val.red{color:#d95353}
 #restockNewBody .summary-divider{height:1px;background:var(--np2-border);margin:10px 0}
 #restockNewBody .summary-total-row{
   display:flex;align-items:center;justify-content:space-between;
@@ -14623,9 +14668,15 @@ window.addEventListener('message',function(e){
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
         <div>
           <div class="fs-modal-title" id="restockModalTitle" style="color:#7C6FF7;">Restock Entry</div>
-          <div style="display:flex;align-items:center;gap:6px;margin-top:3px">
-            <span style="font-size:9px;font-weight:700;color:#8c92a1;letter-spacing:0.1em;text-transform:uppercase">Exchange Rate</span>
-            <span id="restockRateDisplay" style="font-family:'Roboto Mono',monospace;font-size:11px;font-weight:700;color:#0891b2">৳130/USD</span>
+          <div style="display:flex;align-items:center;gap:10px;margin-top:3px;flex-wrap:wrap">
+            <div style="display:flex;align-items:center;gap:6px">
+              <span style="font-size:9px;font-weight:700;color:#8c92a1;letter-spacing:0.1em;text-transform:uppercase">Exchange Rate</span>
+              <span id="restockRateDisplay" style="font-family:'Roboto Mono',monospace;font-size:11px;font-weight:700;color:#0891b2">৳130/USD</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:6px">
+              <span style="font-size:9px;font-weight:700;color:#8c92a1;letter-spacing:0.1em;text-transform:uppercase">Weight Cost</span>
+              <span id="restockWeightRateDisplay" style="font-family:'Roboto Mono',monospace;font-size:11px;font-weight:700;color:#0891b2">৳2100/kg</span>
+            </div>
           </div>
         </div>
         <button class="fs-modal-close" onclick="closeRestockModal()" aria-label="Close">
@@ -14796,18 +14847,23 @@ window.addEventListener('message',function(e){
 
     <div class="field">
       <label>Brand *</label>
-      <input type="text" id="inpBrand" placeholder="e.g. NOW FOOD">
+      <input type="text" id="inpBrand" placeholder="e.g. NOW FOOD" oninput="updateNpSummary()">
     </div>
 
     <div class="field">
       <label>Product Name *</label>
-      <input type="text" id="inpName" placeholder="e.g. Omega-3 Ultra">
+      <input type="text" id="inpName" placeholder="e.g. Omega-3 Ultra" oninput="updateNpSummary()">
     </div>
 
     <div class="field">
       <label>SKU *</label>
-      <input type="text" id="inpSku" placeholder="e.g. NW-OMG3-UTA-180" style="font-family:'Courier Prime','Courier New',monospace">
+      <input type="text" id="inpSku" placeholder="e.g. NW-OMG3-UTA-180" style="font-family:'Courier Prime','Courier New',monospace" oninput="updateNpSummary()">
       <div class="field-hint">Also used for future barcode / label printing</div>
+    </div>
+
+    <div class="field">
+      <label>Stock Quantity *</label>
+      <input type="number" id="inpStock" placeholder="e.g. 50" min="0" step="1">
     </div>
 
     <div class="field-row">
@@ -14824,14 +14880,14 @@ window.addEventListener('message',function(e){
       </div>
       <div class="field">
         <label>Capsule / Tablet Count</label>
-        <input type="number" id="inpCount" placeholder="e.g. 120" min="1">
+        <input type="number" id="inpCount" placeholder="e.g. 120" min="1" oninput="updateNpSummary()">
       </div>
     </div>
 
     <div class="field-row">
       <div class="field">
         <label>Potency Unit</label>
-        <select id="inpPotencyUnit">
+        <select id="inpPotencyUnit" onchange="updatePotencyPreview()">
           <option value="MG" selected>MG</option>
           <option value="MCG">MCG</option>
           <option value="G">G</option>
@@ -14841,23 +14897,24 @@ window.addEventListener('message',function(e){
       </div>
       <div class="field">
         <label>Potency</label>
-        <input type="number" id="inpPotencyQty" placeholder="e.g. 1000" step="0.01" min="0">
+        <input type="number" id="inpPotencyQty" placeholder="e.g. 1000" step="0.01" min="0" oninput="updatePotencyPreview()">
       </div>
     </div>
 
     <div class="field">
       <label>Flavor</label>
-      <input type="text" id="inpFlavor" placeholder="e.g. Unflavored">
+      <input type="text" id="inpFlavor" placeholder="e.g. Unflavored" oninput="updateNpSummary()">
     </div>
 
     <div class="field-row">
       <div class="field">
         <label>Country of Origin</label>
-        <input type="text" id="inpOrigin" placeholder="e.g. USA">
+        <input type="text" id="inpOrigin" placeholder="e.g. USA" oninput="updateNpSummary()">
       </div>
       <div class="field">
         <label>Expiry Date *</label>
-        <input type="date" id="inpExpiry">
+        <input type="date" id="inpExpiry" onchange="updateNpSummary(); updateExpiryStatusPill();">
+        <span class="expiry-status-pill" id="inpExpiryStatusPill" style="display:none"></span>
       </div>
     </div>
   </div>
@@ -14893,7 +14950,7 @@ window.addEventListener('message',function(e){
       <label>Buying Cost (USD)</label>
       <div class="prefix-wrap">
         <span class="prefix">$</span>
-        <input type="number" id="inpUsdCost" placeholder="0.00" step="0.01" oninput="recalc()">
+        <input type="number" id="inpUsdCost" placeholder="0.00" step="0.01" oninput="calcAddProductForm()">
       </div>
     </div>
 
@@ -14908,8 +14965,11 @@ window.addEventListener('message',function(e){
     <div class="field">
       <label>Weight <span style="font-size:9px;color:var(--text3);font-weight:600;text-transform:none;letter-spacing:0">— shipping/customs cost auto-calculated at ৳2,000/Kg</span></label>
       <div class="weight-input-row">
-        <input type="number" id="inpWeightQty" placeholder="0" step="0.01" min="0" oninput="recalc()">
-        <select id="inpWeightUnit" onchange="recalc()">
+        <div class="weight-suffix-wrap">
+          <input type="number" id="inpWeightQty" placeholder="0" step="0.01" min="0" oninput="calcAddProductForm()">
+          <span class="weight-suffix" id="inpWeightSuffix">kg</span>
+        </div>
+        <select id="inpWeightUnit" onchange="calcAddProductForm()">
           <option value="gm">Gm</option>
           <option value="kg" selected>Kg</option>
           <option value="lb">Lb</option>
@@ -14929,7 +14989,7 @@ window.addEventListener('message',function(e){
       <label>Selling Price (BDT) *</label>
       <div class="prefix-wrap">
         <span class="prefix">৳</span>
-        <input type="number" id="inpSellPrice" placeholder="0" oninput="recalc()">
+        <input type="number" id="inpSellPrice" placeholder="0" oninput="calcAddProductForm()">
       </div>
     </div>
 
@@ -15299,6 +15359,30 @@ window.addEventListener('message',function(e){
         Save Rate Only — Keep Existing Costs
       </button>
       <button class="modal-btn modal-btn-cancel" style="width:100%" onclick="cancelWeightRateChange()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- ====== SUB-CATEGORY DELETE CONFIRM MODAL ====== -->
+<div class="modal-overlay" id="subcatDeleteModal">
+  <div class="modal-panel" style="max-width:360px">
+    <div class="rate-warning-body">
+      <div class="rate-warning-icon" style="background:rgba(217,83,83,0.12)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#d95353" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="3 6 5 6 21 6"></polyline>
+          <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+          <line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line>
+        </svg>
+      </div>
+      <div class="rate-warning-title">Delete Sub-category?</div>
+      <div class="rate-warning-text">This will remove <strong id="subcatDeleteName">this sub-category</strong> from the list. Products already using it will keep it, but you won't be able to pick it for new ones.</div>
+    </div>
+    <div class="save-modal-footer">
+      <button class="modal-btn modal-btn-cancel" onclick="cancelDeleteSubcategory()">Cancel</button>
+      <button class="modal-btn modal-btn-danger" onclick="confirmDeleteSubcategory()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+        Delete
+      </button>
     </div>
   </div>
 </div>
@@ -17880,9 +17964,42 @@ function renderSubcatMenu() {
   list.innerHTML = cats.map((s, i) => `
     <div class="pcm-item ${npSubcategory === s ? 'active' : ''}" onclick="setNpSubcategory('${s.replace(/'/g, "\\'")}')">
       <span style="display:flex;align-items:center;gap:8px"><span class="pcm-item-num">${i + 1}.</span>${s}</span>
-      <svg class="pcm-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-checkmark"/></svg>
+      <span style="display:flex;align-items:center;gap:6px">
+        <svg class="pcm-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-checkmark"/></svg>
+        <button type="button" class="subcat-delete-btn" title="Delete sub-category" onclick="event.stopPropagation(); openDeleteSubcategory('${s.replace(/'/g, "\\'")}')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+        </button>
+      </span>
     </div>
   `).join('') || '<div style="padding:10px 8px;font-size:12px;color:#8c92a1">No sub-categories yet — add one below</div>';
+}
+let _subcatPendingDelete = null;
+function openDeleteSubcategory(name) {
+  _subcatPendingDelete = name;
+  const nameEl = document.getElementById('subcatDeleteName');
+  if (nameEl) nameEl.textContent = '"' + name + '"';
+  const modal = document.getElementById('subcatDeleteModal');
+  if (modal) modal.classList.add('active');
+}
+function cancelDeleteSubcategory() {
+  _subcatPendingDelete = null;
+  const modal = document.getElementById('subcatDeleteModal');
+  if (modal) modal.classList.remove('active');
+}
+function confirmDeleteSubcategory() {
+  if (!_subcatPendingDelete || !npCategory) { cancelDeleteSubcategory(); return; }
+  const name = _subcatPendingDelete;
+  if (SUBCATEGORIES[npCategory]) {
+    SUBCATEGORIES[npCategory] = SUBCATEGORIES[npCategory].filter(s => s !== name);
+    saveSubcategories();
+  }
+  if (npSubcategory === name) {
+    resetNpSubcategory();
+    updateNpSummary();
+  }
+  renderSubcatMenu();
+  showToast('✓ "' + name + '" sub-category deleted');
+  cancelDeleteSubcategory();
 }
 function toggleNpSubcatMenu(e) {
   if (e) e.stopPropagation();
@@ -17972,26 +18089,32 @@ function openRestockModal() {
   if (_npEl('npSpecsSection')) _npEl('npSpecsSection').style.display = 'none';
   if (_npEl('npExpiryField')) _npEl('npExpiryField').style.display = 'none';
   if (_npEl('npVariantSection')) _npEl('npVariantSection').style.display = 'none';
-  if (_npEl('npWeight')) _npEl('npWeight').value = '';
-  if (_npEl('npWeightUnit')) _npEl('npWeightUnit').value = 'Gm';
-  if (_npEl('npUsdCost')) _npEl('npUsdCost').value = '';
-  if (_npEl('npSellPrice')) _npEl('npSellPrice').value = '';
-  if (_npEl('npStock')) _npEl('npStock').value = '0';
-  if (_npEl('npStockDisplay')) _npEl('npStockDisplay').textContent = '0';
-  if (_npEl('npSku')) _npEl('npSku').value = '';
-  if (_npEl('npBrandName')) _npEl('npBrandName').value = '';
-  if (_npEl('npProductName')) _npEl('npProductName').value = '';
-  if (_npEl('npForm')) _npEl('npForm').value = '';
-  if (_npEl('npCapsuleCount')) _npEl('npCapsuleCount').value = '';
-  if (_npEl('npPotencyAmount')) _npEl('npPotencyAmount').value = '';
-  if (_npEl('npPotencyType')) _npEl('npPotencyType').value = '';
-  if (_npEl('npFlavor')) _npEl('npFlavor').value = '';
-  if (_npEl('npOrigin')) _npEl('npOrigin').value = '';
-  if (_npEl('npExpiry')) _npEl('npExpiry').value = '';
+  if (_npEl('inpWeightQty')) _npEl('inpWeightQty').value = '';
+  if (_npEl('inpWeightUnit')) _npEl('inpWeightUnit').value = 'kg';
+  if (_npEl('inpWeightSuffix')) _npEl('inpWeightSuffix').textContent = 'kg';
+  if (_npEl('inpUsdCost')) _npEl('inpUsdCost').value = '';
+  if (_npEl('inpSellPrice')) _npEl('inpSellPrice').value = '';
+  if (_npEl('inpStock')) _npEl('inpStock').value = '';
+  if (_npEl('inpSku')) _npEl('inpSku').value = '';
+  if (_npEl('inpBrand')) _npEl('inpBrand').value = '';
+  if (_npEl('inpName')) _npEl('inpName').value = '';
+  if (_npEl('inpForm')) _npEl('inpForm').value = '';
+  if (_npEl('inpCount')) _npEl('inpCount').value = '';
+  if (_npEl('inpPotencyQty')) _npEl('inpPotencyQty').value = '';
+  if (_npEl('inpPotencyUnit')) _npEl('inpPotencyUnit').value = 'MG';
+  if (_npEl('inpFlavor')) _npEl('inpFlavor').value = '';
+  if (_npEl('inpOrigin')) _npEl('inpOrigin').value = '';
+  if (_npEl('inpExpiry')) _npEl('inpExpiry').value = '';
+  if (_npEl('inpExpiryStatusPill')) _npEl('inpExpiryStatusPill').style.display = 'none';
+  if (_npEl('inpBdtCost')) _npEl('inpBdtCost').value = '';
+  if (_npEl('inpWeightCost')) _npEl('inpWeightCost').value = '';
+  if (_npEl('inpProfit')) _npEl('inpProfit').value = '';
+  if (_npEl('inpMargin')) _npEl('inpMargin').value = '';
   updatePotencyPreview();
   const sumCatReset = document.getElementById('sumCategory');
   if (sumCatReset) { sumCatReset.textContent = '—'; sumCatReset.classList.add('empty'); }
   updateNpSummary();
+  calcAddProductForm();
   setNpCostingMethod('formula', null);
   const pickerBtn = document.getElementById('rsProdPickerBtn');
   const selectedRow = document.getElementById('rsProdSelected');
@@ -18002,6 +18125,7 @@ function openRestockModal() {
   if (amtRow) amtRow.style.display = 'none';
   if (cpmRow) cpmRow.style.display = 'none';
   document.getElementById('restockRateDisplay').textContent = '৳' + EXCHANGE_RATE + '/USD';
+  document.getElementById('restockWeightRateDisplay').textContent = '৳' + WEIGHT_RATE + '/kg';
   switchRestockTab('new');
   document.getElementById('restockOverlay').classList.add('active');
 }
@@ -18168,8 +18292,8 @@ function updateExpiryPreview() {
 }
 
 function updatePotencyPreview() {
-  const amt  = (document.getElementById('npPotencyAmount')||_npSafeEl())?.value?.trim() || '';
-  const type = (document.getElementById('npPotencyType')||_npSafeEl())?.value || '';
+  const amt  = (document.getElementById('inpPotencyQty')||_npSafeEl())?.value?.trim() || '';
+  const type = (document.getElementById('inpPotencyUnit')||_npSafeEl())?.value || '';
   const prev = document.getElementById('npPotencyPreview') || _npSafeEl();
   if (!prev) return;
   if (amt && type) {
@@ -18221,6 +18345,96 @@ function setNpCostingMethod(method, el) {
 
 function onManualBdtCostInput() {
   if (npCostingMethod === 'manual') calcNewProductMargin();
+}
+
+function formatExpiryMonthsDays(days) {
+  if (days < 30) return days + 'd';
+  const months = Math.floor(days / 30);
+  const remDays = days % 30;
+  return remDays > 0 ? months + 'm ' + remDays + 'd' : months + 'm';
+}
+
+function updateExpiryStatusPill() {
+  const pill = document.getElementById('inpExpiryStatusPill');
+  if (!pill) return;
+  const dateVal = document.getElementById('inpExpiry')?.value;
+  if (!dateVal) { pill.style.display = 'none'; return; }
+
+  const st = getBatchExpiryStatus(dateVal);
+  const label = st.days >= 365 ? formatTimeLeft(st.days) : formatExpiryMonthsDays(st.days);
+  pill.textContent = st.days < 0 ? 'EXPIRED · ' + formatExpiryMonthsDays(Math.abs(st.days)) + ' ago' : label + ' left';
+  pill.classList.remove('red', 'orange', 'green');
+  pill.classList.add(st.days < 0 ? 'red' : st.tagClass);
+  pill.style.display = 'inline-flex';
+}
+
+function calcAddProductForm() {
+  const usd = parseFloat(document.getElementById('inpUsdCost')?.value) || 0;
+  const weightQty = Math.max(0, parseFloat(document.getElementById('inpWeightQty')?.value) || 0);
+  const weightUnit = (document.getElementById('inpWeightUnit')?.value || 'kg').toLowerCase().trim();
+  const sell = parseFloat(document.getElementById('inpSellPrice')?.value) || 0;
+
+  const suffixEl = document.getElementById('inpWeightSuffix');
+  if (suffixEl) suffixEl.textContent = weightUnit;
+
+  // Convert entered weight to Kg based on selected unit — WEIGHT_RATE is always ৳/Kg.
+  let weightKg = 0;
+  switch (weightUnit) {
+    case 'kg': weightKg = weightQty; break;
+    case 'lb': weightKg = weightQty * 0.45359237; break;
+    case 'gm':
+    case 'g':  weightKg = weightQty / 1000; break;
+    default:   weightKg = weightQty / 1000; // unknown unit -> safest fallback is treat as grams
+  }
+
+  const bdtCost = (usd * EXCHANGE_RATE) + (weightKg * WEIGHT_RATE);
+  const weightCostTk = weightKg * WEIGHT_RATE;
+  const profit = sell - bdtCost;
+  const margin = sell > 0 ? (profit / sell) * 100 : 0;
+
+  const bdtCostInput = document.getElementById('inpBdtCost');
+  if (bdtCostInput) bdtCostInput.value = bdtCost > 0 ? Math.round(bdtCost) : '';
+
+  const weightCostInput = document.getElementById('inpWeightCost');
+  if (weightCostInput) weightCostInput.value = weightCostTk > 0 ? Math.round(weightCostTk) : '';
+
+  const profitInput = document.getElementById('inpProfit');
+  if (profitInput) profitInput.value = sell > 0 ? Math.round(profit) : 0;
+
+  const marginCls = sell > 0 ? (margin >= 30 ? 'green' : margin >= 20 ? 'amber' : 'red') : '';
+
+  const marginInput = document.getElementById('inpMargin');
+  if (marginInput) {
+    marginInput.value = sell > 0 ? margin.toFixed(1) + '%' : '0%';
+    marginInput.classList.remove('green', 'amber', 'red');
+    if (marginCls) marginInput.classList.add(marginCls);
+  }
+
+  const setText = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+  setText('calcUsdCost', '$' + usd.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
+  setText('calcBdtCost', '৳' + Math.round(bdtCost).toLocaleString('en-IN'));
+  setText('calcWeightCost', '৳' + Math.round(weightCostTk).toLocaleString('en-IN'));
+  setText('calcProfit', (profit >= 0 ? '+' : '') + '৳' + Math.round(profit).toLocaleString('en-IN'));
+  setText('calcMargin', (sell > 0 ? margin.toFixed(1) : 0) + '%');
+  const calcMarginEl = document.getElementById('calcMargin');
+  if (calcMarginEl) {
+    calcMarginEl.classList.remove('green', 'amber', 'red');
+    calcMarginEl.classList.add(marginCls || 'green');
+  }
+
+  const sumBuyCost = document.getElementById('sumBuyCost');
+  const sumWeightCost = document.getElementById('sumWeightCost');
+  const sumMarginRow = document.getElementById('sumMarginRow');
+  const sumSellPrice = document.getElementById('sumSellPrice');
+  if (sumBuyCost) { sumBuyCost.textContent = bdtCost > 0 ? '৳' + Math.round(bdtCost).toLocaleString('en-IN') : '—'; sumBuyCost.classList.toggle('empty', !(bdtCost > 0)); }
+  if (sumWeightCost) { sumWeightCost.textContent = weightCostTk > 0 ? '৳' + Math.round(weightCostTk).toLocaleString('en-IN') : '—'; sumWeightCost.classList.toggle('empty', !(weightCostTk > 0)); }
+  if (sumMarginRow) {
+    sumMarginRow.textContent = sell > 0 ? margin.toFixed(1) + '%' : '—';
+    sumMarginRow.classList.toggle('empty', !(sell > 0));
+    sumMarginRow.classList.remove('green', 'amber', 'red');
+    if (marginCls) sumMarginRow.classList.add(marginCls);
+  }
+  if (sumSellPrice) sumSellPrice.textContent = '৳' + Math.round(sell).toLocaleString('en-IN');
 }
 
 function calcNewProductMargin() {
@@ -18284,9 +18498,9 @@ function updateNpSummary() {
     sum.textContent = v || '—';
     sum.classList.toggle('empty', !v);
   };
-  syncField('npBrandName', 'sumBrand');
-  syncField('npProductName', 'sumName');
-  syncField('npSku', 'sumSku');
+  syncField('inpBrand', 'sumBrand');
+  syncField('inpName', 'sumName');
+  syncField('inpSku', 'sumSku');
 
   const subcatLabel = document.getElementById('npSubcatSelectLabel') || _npSafeEl();
   const sumSubcat = document.getElementById('sumSubcat');
@@ -18296,8 +18510,8 @@ function updateNpSummary() {
     sumSubcat.classList.toggle('empty', isPlaceholder);
   }
 
-  const form = ((document.getElementById('npForm')||_npSafeEl())?.value || '').trim();
-  const caps = ((document.getElementById('npCapsuleCount')||_npSafeEl())?.value || '').trim();
+  const form = ((document.getElementById('inpForm')||_npSafeEl())?.value || '').trim();
+  const caps = ((document.getElementById('inpCount')||_npSafeEl())?.value || '').trim();
   const sumForm = document.getElementById('sumForm');
   if (sumForm) {
     const combined = [form, caps].filter(Boolean).join(' · ');
@@ -18306,7 +18520,7 @@ function updateNpSummary() {
   }
 
   const potency = (document.getElementById('npPotencyPreview')?.textContent || '').trim();
-  const flavor = ((document.getElementById('npFlavor')||_npSafeEl())?.value || '').trim();
+  const flavor = ((document.getElementById('inpFlavor')||_npSafeEl())?.value || '').trim();
   const sumPotency = document.getElementById('sumPotency');
   if (sumPotency) {
     const potencyVal = (potency && potency !== '—') ? potency : '';
@@ -18315,8 +18529,8 @@ function updateNpSummary() {
     sumPotency.classList.toggle('empty', !combined);
   }
 
-  const origin = ((document.getElementById('npOrigin')||_npSafeEl())?.value || '').trim();
-  const expiry = ((document.getElementById('npExpiry')||_npSafeEl())?.value || '').trim();
+  const origin = ((document.getElementById('inpOrigin')||_npSafeEl())?.value || '').trim();
+  const expiry = ((document.getElementById('inpExpiry')||_npSafeEl())?.value || '').trim();
   const sumOrigin = document.getElementById('sumOrigin');
   if (sumOrigin) {
     const combined = [origin, expiry].filter(Boolean).join(' · ');
@@ -18690,54 +18904,70 @@ async function restockExistingProduct() {
 }
 
 async function saveNewProduct() {
-  const sku         = (document.getElementById('npSku')||_npSafeEl()).value.trim();
-  const brandName   = (document.getElementById('npBrandName')||_npSafeEl()).value.trim();
-  const productName = (document.getElementById('npProductName')||_npSafeEl()).value.trim();
-  const usd         = parseFloat((document.getElementById('npUsdCost')||_npSafeEl()).value) || 0;
-  const weightVal   = parseFloat((document.getElementById('npWeight')||_npSafeEl()).value) || 0;
-  const weightUnitVal = document.getElementById('npWeightUnit')?.value || 'Gm';
-  const weightValKg = weightUnitVal === 'Kg' ? weightVal : (weightUnitVal === 'Lb' ? weightVal * 0.453592 : weightVal / 1000);
-  const manualCost  = parseFloat((document.getElementById('npBdtCostInput')||_npSafeEl()).value) || 0;
-  const sell        = parseFloat((document.getElementById('npSellPrice')||_npSafeEl()).value) || 0;
+  const sku         = (document.getElementById('inpSku')||_npSafeEl()).value.trim();
+  const brandName   = (document.getElementById('inpBrand')||_npSafeEl()).value.trim();
+  const productName = (document.getElementById('inpName')||_npSafeEl()).value.trim();
+  const usd         = parseFloat((document.getElementById('inpUsdCost')||_npSafeEl()).value) || 0;
+  const weightVal   = parseFloat((document.getElementById('inpWeightQty')||_npSafeEl()).value) || 0;
+  const weightUnitVal = (document.getElementById('inpWeightUnit')?.value || 'kg').toLowerCase().trim();
+  let weightValKg;
+  switch (weightUnitVal) {
+    case 'kg': weightValKg = weightVal; break;
+    case 'lb': weightValKg = weightVal * 0.45359237; break;
+    case 'gm':
+    case 'g':  weightValKg = weightVal / 1000; break;
+    default:   weightValKg = weightVal / 1000;
+  }
+  const manualCost  = parseFloat((document.getElementById('inpBdtCost')||_npSafeEl()).value) || 0;
+  const sell        = parseFloat((document.getElementById('inpSellPrice')||_npSafeEl()).value) || 0;
+  const stock       = parseInt((document.getElementById('inpStock')||_npSafeEl()).value) || 0;
   const needsExpiry = npCategory === 'supplement' || npCategory === 'cosmetic';
-  const expiry      = needsExpiry ? (document.getElementById('npExpiry')||_npSafeEl()).value : '';
+  const expiry      = needsExpiry ? (document.getElementById('inpExpiry')||_npSafeEl()).value : '';
 
   let hasError = false;
   const fields = [
     { val: !!npCategory, hint: 'npCatHint',    input: null },
-    { val: sku,         hint: 'npSkuHint',     input: 'npSku' },
-    { val: brandName,   hint: 'npBrandHint',   input: 'npBrandName' },
-    { val: productName, hint: 'npProductHint', input: 'npProductName' },
-    { val: sell > 0,    hint: 'npSellHint',     input: 'npSellPrice' },
+    { val: sku,         hint: 'npSkuHint',     input: 'inpSku' },
+    { val: brandName,   hint: 'npBrandHint',   input: 'inpBrand' },
+    { val: productName, hint: 'npProductHint', input: 'inpName' },
+    { val: sell > 0,    hint: 'npSellHint',     input: 'inpSellPrice' },
+    { val: stock >= 0 && (document.getElementById('inpStock')||_npSafeEl()).value !== '', hint: 'npStockHint', input: 'inpStock' },
   ];
-  if (needsExpiry) fields.push({ val: expiry, hint: 'npExpiryHint', input: 'npExpiry' });
+  if (needsExpiry) fields.push({ val: expiry, hint: 'npExpiryHint', input: 'inpExpiry' });
   fields.forEach(f => {
     const ok = typeof f.val === 'boolean' ? f.val : !!f.val;
-    document.getElementById(f.hint).classList.toggle('visible', !ok);
+    const hintEl = document.getElementById(f.hint);
+    if (hintEl) hintEl.classList.toggle('visible', !ok);
     const inp = f.input ? document.getElementById(f.input) : null;
     if (!ok && inp) { inp.classList.add('shake'); setTimeout(() => inp.classList.remove('shake'), 400); }
     if (!ok) hasError = true;
   });
-  if (hasError) return;
+  if (hasError) {
+    const missing = fields.filter(f => !(typeof f.val === 'boolean' ? f.val : !!f.val)).map(f => {
+      const labels = { npCatHint: 'Category', npSkuHint: 'SKU', npBrandHint: 'Brand', npProductHint: 'Product Name', npSellHint: 'Selling Price', npStockHint: 'Stock Quantity', npExpiryHint: 'Expiry Date' };
+      return labels[f.hint] || f.hint;
+    });
+    showToast('⚠ Missing: ' + missing.join(', '));
+    return;
+  }
 
   let bdtCost;
   if (npCostingMethod === 'manual') bdtCost = Math.round(manualCost);
   else bdtCost = Math.round((usd * EXCHANGE_RATE) + (weightValKg * WEIGHT_RATE));
 
-  const stock      = parseInt((document.getElementById('npStock')||_npSafeEl()).value) || 0;
-  const form       = needsExpiry ? (document.getElementById('npForm')||_npSafeEl()).value : '';
-  const caps       = needsExpiry ? (document.getElementById('npCapsuleCount')||_npSafeEl()).value : '';
-  const potency    = needsExpiry ? (document.getElementById('npPotencyType')||_npSafeEl()).value : '';
-  const potencyAmt = needsExpiry ? (document.getElementById('npPotencyAmount')||_npSafeEl()).value : '';
-  const flavor     = needsExpiry ? (document.getElementById('npFlavor')||_npSafeEl()).value.trim() : '';
-  const origin     = needsExpiry ? (document.getElementById('npOrigin')||_npSafeEl()).value.trim() : '';
-  const weight     = (document.getElementById('npWeight')||_npSafeEl()).value;
+  const form       = needsExpiry ? (document.getElementById('inpForm')||_npSafeEl()).value : '';
+  const caps       = needsExpiry ? (document.getElementById('inpCount')||_npSafeEl()).value : '';
+  const potency    = needsExpiry ? (document.getElementById('inpPotencyUnit')||_npSafeEl()).value : '';
+  const potencyAmt = needsExpiry ? (document.getElementById('inpPotencyQty')||_npSafeEl()).value : '';
+  const flavor     = needsExpiry ? (document.getElementById('inpFlavor')||_npSafeEl()).value.trim() : '';
+  const origin     = needsExpiry ? (document.getElementById('inpOrigin')||_npSafeEl()).value.trim() : '';
+  const weightGrams = weightValKg * 1000; // normalize to grams — meta.weight is always stored in grams app-wide
   const isVariant  = npCategory === 'electronics' || npCategory === 'clothing';
-  const npColor2   = isVariant ? (document.getElementById('npColor')||_npSafeEl()).value.trim() : '';
-  const npSize2    = isVariant ? (document.getElementById('npSize')||_npSafeEl()).value.trim() : '';
-  const brandCode  = (document.getElementById('npBrandCode')||_npSafeEl()).value.trim().toUpperCase() || brandName.substring(0,2).toUpperCase();
-  const prodCode   = (document.getElementById('npProductCode')||_npSafeEl()).value.trim().toUpperCase();
-  const supplier   = (document.getElementById('npSupplier')||_npSafeEl()).value.trim();
+  const npColor2   = '';
+  const npSize2    = '';
+  const brandCode  = '';
+  const prodCode   = '';
+  const supplier   = '';
   const color      = _npBrandColor;
   const avatarColor = (color === '#2f9b68' || color === '#4CAF7D') ? 'g' : (color === '#d95353' || color === '#e91e8c') ? 'r' : 'p';
   const variantStr = (npColor2 && npSize2) ? (npColor2 + ', ' + npSize2) : (npColor2 || npSize2 || null);
@@ -18745,11 +18975,11 @@ async function saveNewProduct() {
   const newProduct = {
     name: productName, sku, price: sell, cost: bdtCost, stock,
     color: avatarColor, supplier, category: npCategory, subcategory: npSubcategory || null, variant: variantStr,
-    batches: needsExpiry ? [{ id: 'BTH-' + Date.now().toString().slice(-6), expiryDate: expiry + '-01', qty: stock, costPerUnit: bdtCost }] : null,
+    batches: needsExpiry ? [{ id: 'BTH-' + Date.now().toString().slice(-6), expiryDate: expiry, qty: stock, costPerUnit: bdtCost }] : null,
     meta: { brandName, brandCode, brandColor: color, productCode: prodCode, form,
             capsuleCount: caps ? parseInt(caps) : null, potencyType: potency, potencyAmount: potencyAmt || null,
             flavor: flavor || null, countryOfOrigin: origin || null,
-            weight: weight ? parseFloat(weight) : null, usdCost: usd,
+            weight: weightGrams > 0 ? weightGrams : null, usdCost: usd,
             costingMethod: npCostingMethod, costOutdated: false }
   };
 
@@ -18766,7 +18996,7 @@ async function saveNewProduct() {
     invalidateProductCatalogCache();
     if (needsExpiry && expiry) {
       if (!Array.isArray(existingLocal.batches)) existingLocal.batches = [];
-      existingLocal.batches.push({ id: 'BTH-' + Date.now().toString().slice(-6), expiryDate: expiry + '-01', qty: stock, costPerUnit: bdtCost });
+      existingLocal.batches.push({ id: 'BTH-' + Date.now().toString().slice(-6), expiryDate: expiry, qty: stock, costPerUnit: bdtCost });
     }
     // No manual catalog sync needed — getProductCatalog() always reads live from PRODUCTS_DATA.
 
@@ -18796,10 +19026,10 @@ async function saveNewProduct() {
           product_code: prodCode, form_type: form,
           capsule_count: caps ? parseInt(caps) : null,
           potency_type: potency || null,
-          weight_g: weight ? parseFloat(weight) : null,
+          weight_g: weightGrams > 0 ? weightGrams : null,
           costing_method: npCostingMethod,
           usd_cost: usd, supplier: supplier || null,
-          expiry_date: needsExpiry ? (expiry + '-01') : null,
+          expiry_date: needsExpiry ? expiry : null,
           created_at: new Date().toISOString(), updated_at: new Date().toISOString()
         };
         const inserted = await sbFetch('products', 'POST', row);
