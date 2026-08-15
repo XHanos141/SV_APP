@@ -5805,6 +5805,43 @@ html[data-theme="dark"] #restockNewBody{
 #restockNewBody .field-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 #restockNewBody .field-row-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
 #restockNewBody .field-hint{font-size:10.5px;color:var(--np2-text3);margin-top:5px;font-weight:500}
+#restockNewBody .np-date-wrap{ position:relative; }
+#restockNewBody .np-date-native{
+  color:transparent; -webkit-text-fill-color:transparent; position:relative; z-index:1; background:transparent;
+}
+#restockNewBody .np-date-native::-webkit-calendar-picker-indicator{ position:relative; z-index:2; opacity:1; }
+#restockNewBody .np-date-display{
+  position:absolute; left:12px; top:50%; transform:translateY(-50%);
+  font-family:var(--np2-font-body); font-size:13.5px; font-weight:600; color:var(--np2-text);
+  pointer-events:none; z-index:0;
+}
+#restockNewBody .np-date-display.placeholder{ color:var(--np2-text3); font-weight:500; }
+#restockNewBody .np-stepper{
+  display:flex; align-items:stretch; gap:8px;
+}
+#restockNewBody .np-stepper-btn{
+  flex:0 0 44px; display:flex; align-items:center; justify-content:center;
+  border:none; background:linear-gradient(145deg, #8b7ef9, #7c6ff7); color:#ffffff;
+  border-radius:12px; cursor:pointer; transition:transform .15s ease, box-shadow .15s ease, background .2s ease;
+  box-shadow:0 3px 10px rgba(124,111,247,0.35), inset 0 1px 0 rgba(255,255,255,0.25);
+  -webkit-tap-highlight-color:transparent;
+}
+#restockNewBody .np-stepper-btn svg{ width:18px; height:18px; }
+#restockNewBody .np-stepper-btn:active{
+  transform:scale(0.93); background:linear-gradient(145deg, #7c6ff7, #6f61f0);
+  box-shadow:0 1px 4px rgba(124,111,247,0.4), inset 0 1px 2px rgba(0,0,0,0.15);
+}
+#restockNewBody .np-stepper-input{
+  flex:1; min-width:0; text-align:center; font-weight:800; -moz-appearance:textfield;
+}
+#restockNewBody .np-stepper-input::-webkit-outer-spin-button,
+#restockNewBody .np-stepper-input::-webkit-inner-spin-button{ -webkit-appearance:none; margin:0; }
+#restockNewBody .np-profit-hint{
+  font-size:11.5px; font-weight:700; color:var(--np2-text3); margin-top:6px;
+}
+#restockNewBody .np-profit-hint span{ font-weight:800; }
+#restockNewBody .np-profit-hint span.green{ color:#2f9b68; }
+#restockNewBody .np-profit-hint span.red{ color:#d95353; }
 #restockNewBody .expiry-status-pill{
   display:inline-flex;align-items:center;gap:4px;margin-top:6px;
   font-family:"Plus Jakarta Sans",sans-serif;font-size:10px;font-weight:800;
@@ -5827,7 +5864,8 @@ html[data-theme="dark"] #restockNewBody .expiry-status-pill.green  { background:
 #restockNewBody .prefix-wrap{position:relative}
 #restockNewBody .prefix-wrap .prefix{
   position:absolute;left:12px;top:50%;transform:translateY(-50%);
-  font-family:var(--np2-font-display);font-weight:800;font-size:13px;color:var(--np2-text3);
+  font-family:var(--np2-font-display);font-weight:800;font-size:13px;color:var(--np2-text) !important;
+  -webkit-text-fill-color:var(--np2-text) !important;
   pointer-events:none;
 }
 #restockNewBody .prefix-wrap input{padding-left:28px}
@@ -5931,6 +5969,7 @@ html[data-theme="dark"] #restockNewBody .np-cat-select-menu{ box-shadow: 0 8px 2
 #restockNewBody .pay-calc-val.blue{color:#0A9BDC}
 #restockNewBody .pay-calc-val.purple{color:var(--np2-accent)}
 #restockNewBody .pay-calc-val.green{color:var(--np2-green)}
+#restockNewBody .pay-calc-val.red{color:#d95353}
 #restockNewBody .pay-calc-val.margin{color:var(--np2-green)}
 #restockNewBody .pay-calc-val.margin.green{color:#2f9b68}
 #restockNewBody .pay-calc-val.margin.amber{color:#d48c0a}
@@ -5940,24 +5979,47 @@ html[data-theme="dark"] #restockNewBody .pay-calc-val.margin.amber{color:#F4A922
 #restockNewBody input#inpMargin.amber{color:#d48c0a}
 html[data-theme="dark"] #restockNewBody input#inpMargin.amber{color:#F4A922}
 #restockNewBody input#inpMargin.red{color:#d95353}
+#restockNewBody input#inpProfit.green{color:#2f9b68 !important}
+#restockNewBody input#inpProfit.red{color:#d95353 !important}
 #restockNewBody /* ===== Summary card ===== */
-.summary-row{
-  display:flex;align-items:center;justify-content:space-between;
-  padding:10px 0;border-bottom:1px solid var(--np2-border);
+#restockNewBody .summary-grid{
+  display:block;border:1px solid var(--np2-border);border-radius:10px;overflow:hidden;
 }
-#restockNewBody .summary-row:last-child{border-bottom:none;padding-bottom:0}
-#restockNewBody .summary-row:first-child{padding-top:0}
-#restockNewBody .summary-label{font-size:12px;font-weight:600;color:var(--np2-text2)}
-#restockNewBody .summary-val{font-family:var(--np2-font-display);font-size:13px;font-weight:800;color:var(--np2-text);text-align:right}
-#restockNewBody .summary-val.empty{color:var(--np2-text3);font-weight:600}
-#restockNewBody .summary-val.green{color:#2f9b68}
-#restockNewBody .summary-val.amber{color:#d48c0a}
-html[data-theme="dark"] #restockNewBody .summary-val.amber{color:#F4A922}
-#restockNewBody .summary-val.red{color:#d95353}
-#restockNewBody .summary-divider{height:1px;background:var(--np2-border);margin:10px 0}
-#restockNewBody .summary-total-row{
-  display:flex;align-items:center;justify-content:space-between;
-  padding-top:12px;margin-top:2px;border-top:1.5px solid var(--np2-border);
+#restockNewBody .sg-row{
+  display:flex;width:100%;border-bottom:1px solid var(--np2-border);
+}
+#restockNewBody .sg-cell{
+  padding:10px 12px;display:flex;align-items:center;box-sizing:border-box;
+}
+#restockNewBody .sg-label{
+  width:50%;flex:0 0 50%;font-size:12px;font-weight:600;color:var(--np2-text2);border-right:1px solid var(--np2-border);
+}
+#restockNewBody .sg-val{
+  width:50%;flex:0 0 50%;font-family:var(--np2-font-display);font-size:13px;font-weight:800;color:var(--np2-text);
+  justify-content:flex-end;text-align:right;
+}
+#restockNewBody .sg-val.empty{color:var(--np2-text3);font-weight:600}
+#restockNewBody .sg-val.green{color:#2f9b68}
+#restockNewBody .sg-val.amber{color:#d48c0a}
+html[data-theme="dark"] #restockNewBody .sg-val.amber{color:#F4A922}
+#restockNewBody .sg-val.red{color:#d95353}
+#restockNewBody .sg-row:last-child{ border-bottom:none; }
+#restockNewBody .sg-section-head{
+  font-family:"Plus Jakarta Sans",sans-serif;font-size:10.5px;font-weight:800;letter-spacing:0.06em;
+  text-transform:uppercase;color:var(--np2-accent);background:var(--np2-accent-dim,rgba(124,111,247,0.08));
+  padding:8px 12px;border-bottom:1px solid var(--np2-border);
+}
+#restockNewBody .sg-section-boundary{ border-top:3px solid var(--np2-text3); }
+#restockNewBody .sg-total-row{
+  display:flex;width:100%;
+}
+#restockNewBody .sg-total-label{
+  width:50%;flex:0 0 50%;box-sizing:border-box;padding:12px;font-family:"Plus Jakarta Sans",sans-serif;font-size:14px;font-weight:800;color:var(--np2-text);
+  display:flex;align-items:center;border-right:1px solid var(--np2-border);
+}
+#restockNewBody .sg-total-val{
+  width:50%;flex:0 0 50%;box-sizing:border-box;padding:12px;font-family:var(--np2-font-display);font-size:16px;font-weight:800;color:#2f9b68;
+  display:flex;align-items:center;justify-content:flex-end;text-align:right;
 }
 #restockNewBody .summary-total-label{font-family:var(--np2-font-display);font-size:13px;font-weight:800;color:var(--np2-text)}
 #restockNewBody .summary-total-val{font-family:var(--np2-font-display);font-size:18px;font-weight:800;color:var(--np2-green)}
@@ -6076,6 +6138,8 @@ html[data-theme="dark"] .np-auto-field {
 
 .np-cat-select-wrap { position: relative; min-width: 0; }
 .np-cat-select-btn { min-width: 0; }
+#inpSku::placeholder { color: #a3abb8; text-shadow: none; -webkit-text-stroke: 0; font-weight: 500; letter-spacing: normal; text-transform: none; }
+html[data-theme="dark"] #inpSku::placeholder { color: rgba(255,255,255,0.28); }
 .np-cat-select-label { min-width: 0; }
 .np-cat-select-btn {
   display: flex; align-items: center; gap: 10px;
@@ -6098,6 +6162,11 @@ html[data-theme="dark"] .np-cat-select-icon { background: rgba(255,255,255,0.1);
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 html[data-theme="dark"] .np-cat-select-label { color: #eef4ff; }
+#npCatSelectLabel { margin-left: -3px; }
+#npSubcatSelectBtn .np-cat-select-label { margin-left: 3px; }
+#npOriginSelectBtn .np-cat-select-label { margin-left: 8px; }
+#npFormSelectBtn .np-cat-select-label { margin-left: 6px; }
+#npPotencyUnitSelectBtn .np-cat-select-label { margin-left: 6px; }
 .np-cat-select-label.placeholder { color: #a3abb8; font-weight: 600; }
 .np-cat-chevron { width: 16px; height: 16px; color: #8c92a1; flex-shrink: 0; transition: transform 0.2s ease; }
 .np-cat-select-btn.open .np-cat-chevron { transform: rotate(180deg); }
@@ -14857,26 +14926,40 @@ window.addEventListener('message',function(e){
 
     <div class="field">
       <label>SKU *</label>
-      <input type="text" id="inpSku" placeholder="e.g. NW-OMG3-UTA-180" style="font-family:'Courier Prime','Courier New',monospace" oninput="updateNpSummary()">
+      <input type="text" id="inpSku" placeholder="e.g. NW-OMG3-UTA-180" style="font-family:'Courier Prime','Courier New',monospace;font-weight:700;letter-spacing:0.13em;text-transform:uppercase;color:var(--sku-color) !important;-webkit-text-fill-color:var(--sku-color) !important;text-shadow:0 0 10px var(--sku-color),0 0 18px var(--sku-color)" oninput="updateNpSummary()">
       <div class="field-hint">Also used for future barcode / label printing</div>
     </div>
 
     <div class="field">
       <label>Stock Quantity *</label>
-      <input type="number" id="inpStock" placeholder="e.g. 50" min="0" step="1">
+      <div class="np-stepper">
+        <button type="button" class="np-stepper-btn" onclick="npStockStep(-1)" aria-label="Decrease">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        </button>
+        <input type="number" id="inpStock" class="np-stepper-input" value="1" min="1" step="1" oninput="npStockClamp()">
+        <button type="button" class="np-stepper-btn" onclick="npStockStep(1)" aria-label="Increase">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        </button>
+      </div>
     </div>
 
     <div class="field-row">
       <div class="field">
         <label>Form Type</label>
-        <select id="inpForm">
-          <option value="">Select form</option>
-          <option value="Capsule">Capsule</option>
-          <option value="Soft Gel">Soft Gel</option>
-          <option value="Tablet">Tablet</option>
-          <option value="Powder">Powder</option>
-          <option value="Liquid">Liquid</option>
-        </select>
+        <input type="hidden" id="inpForm" value="">
+        <div class="np-cat-select-wrap">
+          <div class="np-cat-select-btn" id="npFormSelectBtn" onclick="toggleNpFormMenu(event)">
+            <span class="np-cat-select-label placeholder" id="npFormSelectLabel">Select form</span>
+            <svg class="np-cat-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+          </div>
+          <div class="np-cat-select-menu" id="npFormSelectMenu">
+            <div class="pcm-item" onclick="setNpForm('Capsule', this)"><span>Capsule</span></div>
+            <div class="pcm-item" onclick="setNpForm('Soft Gel', this)"><span>Soft Gel</span></div>
+            <div class="pcm-item" onclick="setNpForm('Tablet', this)"><span>Tablet</span></div>
+            <div class="pcm-item" onclick="setNpForm('Powder', this)"><span>Powder</span></div>
+            <div class="pcm-item" onclick="setNpForm('Liquid', this)"><span>Liquid</span></div>
+          </div>
+        </div>
       </div>
       <div class="field">
         <label>Capsule / Tablet Count</label>
@@ -14887,13 +14970,20 @@ window.addEventListener('message',function(e){
     <div class="field-row">
       <div class="field">
         <label>Potency Unit</label>
-        <select id="inpPotencyUnit" onchange="updatePotencyPreview()">
-          <option value="MG" selected>MG</option>
-          <option value="MCG">MCG</option>
-          <option value="G">G</option>
-          <option value="IU">IU</option>
-          <option value="ML">ML</option>
-        </select>
+        <input type="hidden" id="inpPotencyUnit" value="MG">
+        <div class="np-cat-select-wrap">
+          <div class="np-cat-select-btn" id="npPotencyUnitSelectBtn" onclick="toggleNpPotencyUnitMenu(event)">
+            <span class="np-cat-select-label" id="npPotencyUnitSelectLabel">MG</span>
+            <svg class="np-cat-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+          </div>
+          <div class="np-cat-select-menu" id="npPotencyUnitSelectMenu">
+            <div class="pcm-item active" onclick="setNpPotencyUnit('MG', this)"><span>MG</span></div>
+            <div class="pcm-item" onclick="setNpPotencyUnit('MCG', this)"><span>MCG</span></div>
+            <div class="pcm-item" onclick="setNpPotencyUnit('G', this)"><span>G</span></div>
+            <div class="pcm-item" onclick="setNpPotencyUnit('IU', this)"><span>IU</span></div>
+            <div class="pcm-item" onclick="setNpPotencyUnit('ML', this)"><span>ML</span></div>
+          </div>
+        </div>
       </div>
       <div class="field">
         <label>Potency</label>
@@ -14909,11 +14999,34 @@ window.addEventListener('message',function(e){
     <div class="field-row">
       <div class="field">
         <label>Country of Origin</label>
-        <input type="text" id="inpOrigin" placeholder="e.g. USA" oninput="updateNpSummary()">
+        <input type="hidden" id="inpOrigin" value="">
+        <div class="np-cat-select-wrap">
+          <div class="np-cat-select-btn" id="npOriginSelectBtn" onclick="toggleNpOriginMenu(event)">
+            <span class="np-cat-select-label placeholder" id="npOriginSelectLabel">Select country</span>
+            <svg class="np-cat-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+          </div>
+          <div class="np-cat-select-menu" id="npOriginSelectMenu">
+            <div class="pcm-item" onclick="setNpOrigin('USA', this)">
+              <span style="display:flex;align-items:center;gap:9px"><span style="font-size:18px;line-height:1">🇺🇸</span> USA</span>
+            </div>
+            <div class="pcm-item" onclick="setNpOrigin('China', this)">
+              <span style="display:flex;align-items:center;gap:9px"><span style="font-size:18px;line-height:1">🇨🇳</span> China</span>
+            </div>
+            <div class="pcm-item" onclick="setNpOrigin('UK', this)">
+              <span style="display:flex;align-items:center;gap:9px"><span style="font-size:18px;line-height:1">🇬🇧</span> UK</span>
+            </div>
+            <div class="pcm-item" onclick="setNpOrigin('India', this)">
+              <span style="display:flex;align-items:center;gap:9px"><span style="font-size:18px;line-height:1">🇮🇳</span> India</span>
+            </div>
+          </div>
+        </div>
       </div>
       <div class="field">
         <label>Expiry Date *</label>
-        <input type="date" id="inpExpiry" onchange="updateNpSummary(); updateExpiryStatusPill();">
+        <div class="np-date-wrap">
+          <input type="date" id="inpExpiry" class="np-date-native" onchange="updateNpSummary(); updateExpiryStatusPill(); updateNpExpiryDisplay();">
+          <span class="np-date-display placeholder" id="inpExpiryDisplay">Select date</span>
+        </div>
         <span class="expiry-status-pill" id="inpExpiryStatusPill" style="display:none"></span>
       </div>
     </div>
@@ -14938,7 +15051,7 @@ window.addEventListener('message',function(e){
       </div>
       <div class="pay-calc-item">
         <span class="pay-calc-label">Profit</span>
-        <span class="pay-calc-val green" id="calcProfit">৳0</span>
+        <span class="pay-calc-val" id="calcProfit">৳0</span>
       </div>
       <div class="pay-calc-item">
         <span class="pay-calc-label">Margin</span>
@@ -14991,6 +15104,9 @@ window.addEventListener('message',function(e){
         <span class="prefix">৳</span>
         <input type="number" id="inpSellPrice" placeholder="0" oninput="calcAddProductForm()">
       </div>
+      <div class="np-profit-hint" id="npSellPriceProfitHint" style="display:none">
+        Profit: <span id="npSellPriceProfitVal">৳0</span>
+      </div>
     </div>
 
     <div class="field-row">
@@ -15012,57 +15128,69 @@ window.addEventListener('message',function(e){
   <div class="form-card">
     <h3 class="summary-header"><span class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></span>Product Summary</h3>
 
-    <div class="summary-row">
-      <span class="summary-label">Category</span>
-      <span class="summary-val" id="sumCategory">Supplement</span>
-    </div>
-    <div class="summary-row">
-      <span class="summary-label">Sub-category</span>
-      <span class="summary-val empty" id="sumSubcat">—</span>
-    </div>
-    <div class="summary-row">
-      <span class="summary-label">Brand</span>
-      <span class="summary-val empty" id="sumBrand">—</span>
-    </div>
-    <div class="summary-row">
-      <span class="summary-label">Product Name</span>
-      <span class="summary-val empty" id="sumName">—</span>
-    </div>
-    <div class="summary-row">
-      <span class="summary-label">SKU</span>
-      <span class="summary-val empty" id="sumSku" style="font-family:'Courier Prime','Courier New',monospace">—</span>
-    </div>
-    <div class="summary-row">
-      <span class="summary-label">Form / Count</span>
-      <span class="summary-val empty" id="sumForm">—</span>
-    </div>
-    <div class="summary-row">
-      <span class="summary-label">Potency / Flavor</span>
-      <span class="summary-val empty" id="sumPotency">—</span>
-    </div>
-    <div class="summary-row">
-      <span class="summary-label">Origin / Expiry</span>
-      <span class="summary-val empty" id="sumOrigin">—</span>
-    </div>
+    <div class="summary-grid">
+      <div class="sg-section-head">Product Details</div>
 
-    <div class="summary-divider"></div>
+      <div class="sg-row">
+        <div class="sg-cell sg-label">Category</div>
+        <div class="sg-cell sg-val" id="sumCategory">Supplement</div>
+      </div>
+      <div class="sg-row">
+        <div class="sg-cell sg-label">Sub-category</div>
+        <div class="sg-cell sg-val empty" id="sumSubcat">—</div>
+      </div>
+      <div class="sg-row">
+        <div class="sg-cell sg-label">Brand</div>
+        <div class="sg-cell sg-val empty" id="sumBrand">—</div>
+      </div>
+      <div class="sg-row">
+        <div class="sg-cell sg-label">Product Name</div>
+        <div class="sg-cell sg-val empty" id="sumName">—</div>
+      </div>
+      <div class="sg-row">
+        <div class="sg-cell sg-label">SKU</div>
+        <div class="sg-cell sg-val empty" id="sumSku" style="font-family:'Courier Prime','Courier New',monospace;font-weight:700;letter-spacing:0.13em;text-transform:uppercase;color:var(--sku-color) !important;-webkit-text-fill-color:var(--sku-color) !important;text-shadow:0 0 10px var(--sku-color),0 0 18px var(--sku-color)">—</div>
+      </div>
+      <div class="sg-row">
+        <div class="sg-cell sg-label">Form / Count</div>
+        <div class="sg-cell sg-val empty" id="sumForm">—</div>
+      </div>
+      <div class="sg-row">
+        <div class="sg-cell sg-label">Potency / Flavor</div>
+        <div class="sg-cell sg-val empty" id="sumPotency">—</div>
+      </div>
+      <div class="sg-row">
+        <div class="sg-cell sg-label">Origin / Expiry</div>
+        <div class="sg-cell sg-val empty" id="sumOrigin">—</div>
+      </div>
 
-    <div class="summary-row">
-      <span class="summary-label">Buying Cost</span>
-      <span class="summary-val empty" id="sumBuyCost">—</span>
-    </div>
-    <div class="summary-row">
-      <span class="summary-label">Weight Cost</span>
-      <span class="summary-val empty" id="sumWeightCost">—</span>
-    </div>
-    <div class="summary-row">
-      <span class="summary-label">Margin</span>
-      <span class="summary-val empty" id="sumMarginRow">—</span>
-    </div>
+      <div class="sg-section-head sg-section-boundary">Payment Details</div>
 
-    <div class="summary-total-row">
-      <span class="summary-total-label">Selling Price</span>
-      <span class="summary-total-val" id="sumSellPrice">৳0</span>
+      <div class="sg-row">
+        <div class="sg-cell sg-label">Buying Cost (USD)</div>
+        <div class="sg-cell sg-val empty" id="sumUsdCost">—</div>
+      </div>
+      <div class="sg-row">
+        <div class="sg-cell sg-label">Buying Cost (BDT)</div>
+        <div class="sg-cell sg-val empty" id="sumBuyCost">—</div>
+      </div>
+      <div class="sg-row">
+        <div class="sg-cell sg-label">Weight</div>
+        <div class="sg-cell sg-val empty" id="sumWeightQty">—</div>
+      </div>
+      <div class="sg-row">
+        <div class="sg-cell sg-label">Selling Price (BDT)</div>
+        <div class="sg-cell sg-val empty" id="sumSellPriceRow">—</div>
+      </div>
+      <div class="sg-row">
+        <div class="sg-cell sg-label">Margin</div>
+        <div class="sg-cell sg-val empty" id="sumMarginRow">—</div>
+      </div>
+
+      <div class="sg-total-row sg-section-boundary">
+        <div class="sg-total-label">Profit</div>
+        <div class="sg-total-val" id="sumSellPrice">৳0</div>
+      </div>
     </div>
   </div>
 
@@ -18094,17 +18222,21 @@ function openRestockModal() {
   if (_npEl('inpWeightSuffix')) _npEl('inpWeightSuffix').textContent = 'kg';
   if (_npEl('inpUsdCost')) _npEl('inpUsdCost').value = '';
   if (_npEl('inpSellPrice')) _npEl('inpSellPrice').value = '';
-  if (_npEl('inpStock')) _npEl('inpStock').value = '';
+  if (_npEl('inpStock')) _npEl('inpStock').value = '1';
   if (_npEl('inpSku')) _npEl('inpSku').value = '';
   if (_npEl('inpBrand')) _npEl('inpBrand').value = '';
   if (_npEl('inpName')) _npEl('inpName').value = '';
   if (_npEl('inpForm')) _npEl('inpForm').value = '';
+  { const _fLbl = _npEl('npFormSelectLabel'); if (_fLbl) { _fLbl.textContent = 'Select form'; _fLbl.classList.add('placeholder'); } document.querySelectorAll('#npFormSelectMenu .pcm-item').forEach(o => o.classList.remove('active')); }
   if (_npEl('inpCount')) _npEl('inpCount').value = '';
   if (_npEl('inpPotencyQty')) _npEl('inpPotencyQty').value = '';
   if (_npEl('inpPotencyUnit')) _npEl('inpPotencyUnit').value = 'MG';
+  { const _pLbl = _npEl('npPotencyUnitSelectLabel'); if (_pLbl) _pLbl.textContent = 'MG'; document.querySelectorAll('#npPotencyUnitSelectMenu .pcm-item').forEach(o => o.classList.remove('active')); const _pFirst = document.querySelector('#npPotencyUnitSelectMenu .pcm-item'); if (_pFirst) _pFirst.classList.add('active'); }
   if (_npEl('inpFlavor')) _npEl('inpFlavor').value = '';
   if (_npEl('inpOrigin')) _npEl('inpOrigin').value = '';
+  { const _oLbl = _npEl('npOriginSelectLabel'); if (_oLbl) { _oLbl.innerHTML = 'Select country'; _oLbl.classList.add('placeholder'); } document.querySelectorAll('#npOriginSelectMenu .pcm-item').forEach(o => o.classList.remove('active')); }
   if (_npEl('inpExpiry')) _npEl('inpExpiry').value = '';
+  { const _eDisp = _npEl('inpExpiryDisplay'); if (_eDisp) { _eDisp.textContent = 'Select date'; _eDisp.classList.add('placeholder'); } }
   if (_npEl('inpExpiryStatusPill')) _npEl('inpExpiryStatusPill').style.display = 'none';
   if (_npEl('inpBdtCost')) _npEl('inpBdtCost').value = '';
   if (_npEl('inpWeightCost')) _npEl('inpWeightCost').value = '';
@@ -18182,6 +18314,154 @@ function toggleNpCategoryMenu(e) {
     document.querySelector('.fs-modal-body')?.addEventListener('scroll', reposition);
     window.addEventListener('resize', reposition);
   }
+}
+
+function toggleNpFormMenu(e) {
+  if (e) e.stopPropagation();
+  const btn = document.getElementById('npFormSelectBtn') || _npSafeEl();
+  const menu = document.getElementById('npFormSelectMenu') || _npSafeEl();
+  const opening = !menu.classList.contains('open');
+  const positionMenu = () => {
+    const r = btn.getBoundingClientRect();
+    const menuWidth = Math.max(r.width, 160);
+    let left = r.left;
+    if (left + menuWidth > window.innerWidth - 12) left = window.innerWidth - 12 - menuWidth;
+    if (left < 12) left = 12;
+    menu.style.left = left + 'px';
+    menu.style.top = (r.bottom + 6) + 'px';
+    menu.style.width = menuWidth + 'px';
+  };
+  if (opening) positionMenu();
+  menu.classList.toggle('open', opening);
+  btn.classList.toggle('open', opening);
+  if (opening) {
+    const reposition = positionMenu;
+    const closeOnOutside = (ev) => {
+      if (!menu.contains(ev.target) && !btn.contains(ev.target)) {
+        menu.classList.remove('open');
+        btn.classList.remove('open');
+        document.removeEventListener('click', closeOnOutside);
+        document.querySelector('.fs-modal-body')?.removeEventListener('scroll', reposition);
+        window.removeEventListener('resize', reposition);
+      }
+    };
+    setTimeout(() => document.addEventListener('click', closeOnOutside), 0);
+    document.querySelector('.fs-modal-body')?.addEventListener('scroll', reposition);
+    window.addEventListener('resize', reposition);
+  }
+}
+
+function setNpForm(val, el) {
+  const hidden = document.getElementById('inpForm') || _npSafeEl();
+  const labelEl = document.getElementById('npFormSelectLabel') || _npSafeEl();
+  if (hidden) hidden.value = val;
+  if (labelEl) { labelEl.textContent = val; labelEl.classList.remove('placeholder'); }
+  document.querySelectorAll('#npFormSelectMenu .pcm-item').forEach(o => o.classList.remove('active'));
+  if (el) el.classList.add('active');
+  document.getElementById('npFormSelectMenu')?.classList.remove('open');
+  document.getElementById('npFormSelectBtn')?.classList.remove('open');
+  updateNpSummary();
+}
+
+function toggleNpPotencyUnitMenu(e) {
+  if (e) e.stopPropagation();
+  const btn = document.getElementById('npPotencyUnitSelectBtn') || _npSafeEl();
+  const menu = document.getElementById('npPotencyUnitSelectMenu') || _npSafeEl();
+  const opening = !menu.classList.contains('open');
+  const positionMenu = () => {
+    const r = btn.getBoundingClientRect();
+    const menuWidth = Math.max(r.width, 120);
+    let left = r.left;
+    if (left + menuWidth > window.innerWidth - 12) left = window.innerWidth - 12 - menuWidth;
+    if (left < 12) left = 12;
+    menu.style.left = left + 'px';
+    menu.style.top = (r.bottom + 6) + 'px';
+    menu.style.width = menuWidth + 'px';
+  };
+  if (opening) positionMenu();
+  menu.classList.toggle('open', opening);
+  btn.classList.toggle('open', opening);
+  if (opening) {
+    const reposition = positionMenu;
+    const closeOnOutside = (ev) => {
+      if (!menu.contains(ev.target) && !btn.contains(ev.target)) {
+        menu.classList.remove('open');
+        btn.classList.remove('open');
+        document.removeEventListener('click', closeOnOutside);
+        document.querySelector('.fs-modal-body')?.removeEventListener('scroll', reposition);
+        window.removeEventListener('resize', reposition);
+      }
+    };
+    setTimeout(() => document.addEventListener('click', closeOnOutside), 0);
+    document.querySelector('.fs-modal-body')?.addEventListener('scroll', reposition);
+    window.addEventListener('resize', reposition);
+  }
+}
+
+function setNpPotencyUnit(val, el) {
+  const hidden = document.getElementById('inpPotencyUnit') || _npSafeEl();
+  const labelEl = document.getElementById('npPotencyUnitSelectLabel') || _npSafeEl();
+  if (hidden) hidden.value = val;
+  if (labelEl) labelEl.textContent = val;
+  document.querySelectorAll('#npPotencyUnitSelectMenu .pcm-item').forEach(o => o.classList.remove('active'));
+  if (el) el.classList.add('active');
+  document.getElementById('npPotencyUnitSelectMenu')?.classList.remove('open');
+  document.getElementById('npPotencyUnitSelectBtn')?.classList.remove('open');
+  updatePotencyPreview();
+}
+
+const NP_ORIGIN_FLAGS = { USA: '🇺🇸', China: '🇨🇳', UK: '🇬🇧', India: '🇮🇳' };
+
+function toggleNpOriginMenu(e) {
+  if (e) e.stopPropagation();
+  const btn = document.getElementById('npOriginSelectBtn') || _npSafeEl();
+  const menu = document.getElementById('npOriginSelectMenu') || _npSafeEl();
+  const opening = !menu.classList.contains('open');
+  const positionMenu = () => {
+    const r = btn.getBoundingClientRect();
+    const menuWidth = Math.max(r.width, 180);
+    let left = r.left;
+    if (left + menuWidth > window.innerWidth - 12) left = window.innerWidth - 12 - menuWidth;
+    if (left < 12) left = 12;
+    menu.style.left = left + 'px';
+    menu.style.top = (r.bottom + 6) + 'px';
+    menu.style.width = menuWidth + 'px';
+  };
+  if (opening) positionMenu();
+  menu.classList.toggle('open', opening);
+  btn.classList.toggle('open', opening);
+  if (opening) {
+    const reposition = positionMenu;
+    const closeOnOutside = (ev) => {
+      if (!menu.contains(ev.target) && !btn.contains(ev.target)) {
+        menu.classList.remove('open');
+        btn.classList.remove('open');
+        document.removeEventListener('click', closeOnOutside);
+        document.querySelector('.fs-modal-body')?.removeEventListener('scroll', reposition);
+        window.removeEventListener('resize', reposition);
+      }
+    };
+    setTimeout(() => document.addEventListener('click', closeOnOutside), 0);
+    document.querySelector('.fs-modal-body')?.addEventListener('scroll', reposition);
+    window.addEventListener('resize', reposition);
+  }
+}
+
+function setNpOrigin(country, el) {
+  const hidden = document.getElementById('inpOrigin') || _npSafeEl();
+  const labelEl = document.getElementById('npOriginSelectLabel') || _npSafeEl();
+  if (hidden) hidden.value = country;
+  if (labelEl) {
+    labelEl.innerHTML = `<span style="font-size:15px;line-height:1;margin-right:6px">${NP_ORIGIN_FLAGS[country] || ''}</span>${country}`;
+    labelEl.classList.remove('placeholder');
+  }
+  document.querySelectorAll('#npOriginSelectMenu .pcm-item').forEach(o => o.classList.remove('active'));
+  if (el) el.classList.add('active');
+  const menu = document.getElementById('npOriginSelectMenu') || _npSafeEl();
+  const btn = document.getElementById('npOriginSelectBtn') || _npSafeEl();
+  menu.classList.remove('open');
+  btn.classList.remove('open');
+  updateNpSummary();
 }
 
 const NP_CAT_META = {
@@ -18354,6 +18634,43 @@ function formatExpiryMonthsDays(days) {
   return remDays > 0 ? months + 'm ' + remDays + 'd' : months + 'm';
 }
 
+function npStockClamp() {
+  const el = document.getElementById('inpStock');
+  if (!el) return;
+  let v = parseInt(el.value, 10);
+  if (isNaN(v) || v < 1) v = 1;
+  el.value = v;
+}
+
+function npStockStep(delta) {
+  const el = document.getElementById('inpStock');
+  if (!el) return;
+  let v = parseInt(el.value, 10);
+  if (isNaN(v)) v = 1;
+  v = Math.max(1, v + delta);
+  el.value = v;
+}
+
+function updateNpExpiryDisplay() {
+  const raw = document.getElementById('inpExpiry')?.value || '';
+  const disp = document.getElementById('inpExpiryDisplay');
+  if (!disp) return;
+  if (!raw) { disp.textContent = 'Select date'; disp.classList.add('placeholder'); return; }
+  disp.textContent = formatDateDMY(raw);
+  disp.classList.remove('placeholder');
+}
+
+function formatDateDMY(isoDate) {
+  if (!isoDate) return '';
+  const parts = isoDate.split('-');
+  if (parts.length !== 3) return isoDate;
+  const [y, m, d] = parts;
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const mi = parseInt(m, 10) - 1;
+  if (mi < 0 || mi > 11) return isoDate;
+  return d.padStart(2, '0') + '/' + months[mi] + '/' + y;
+}
+
 function updateExpiryStatusPill() {
   const pill = document.getElementById('inpExpiryStatusPill');
   if (!pill) return;
@@ -18399,7 +18716,11 @@ function calcAddProductForm() {
   if (weightCostInput) weightCostInput.value = weightCostTk > 0 ? Math.round(weightCostTk) : '';
 
   const profitInput = document.getElementById('inpProfit');
-  if (profitInput) profitInput.value = sell > 0 ? Math.round(profit) : 0;
+  if (profitInput) {
+    profitInput.value = sell > 0 ? Math.round(profit) : 0;
+    profitInput.classList.remove('green', 'red');
+    if (sell > 0) profitInput.classList.add(profit >= 0 ? 'green' : 'red');
+  }
 
   const marginCls = sell > 0 ? (margin >= 30 ? 'green' : margin >= 20 ? 'amber' : 'red') : '';
 
@@ -18416,6 +18737,34 @@ function calcAddProductForm() {
   setText('calcWeightCost', '৳' + Math.round(weightCostTk).toLocaleString('en-IN'));
   setText('calcProfit', (profit >= 0 ? '+' : '') + '৳' + Math.round(profit).toLocaleString('en-IN'));
   setText('calcMargin', (sell > 0 ? margin.toFixed(1) : 0) + '%');
+  const calcProfitEl = document.getElementById('calcProfit');
+  if (calcProfitEl) {
+    calcProfitEl.classList.remove('green', 'red');
+    calcProfitEl.classList.add(profit >= 0 ? 'green' : 'red');
+  }
+
+  const profitHint = document.getElementById('npSellPriceProfitHint');
+  const profitHintVal = document.getElementById('npSellPriceProfitVal');
+  if (profitHint && profitHintVal) {
+    if (sell > 0) {
+      profitHint.style.display = 'block';
+      profitHintVal.textContent = (profit >= 0 ? '+' : '') + '৳' + Math.round(profit).toLocaleString('en-IN');
+      profitHintVal.classList.remove('green', 'red');
+      profitHintVal.classList.add(profit >= 0 ? 'green' : 'red');
+    } else {
+      profitHint.style.display = 'none';
+    }
+  }
+
+  const sumUsdCost = document.getElementById('sumUsdCost');
+  if (sumUsdCost) { sumUsdCost.textContent = usd > 0 ? '$' + usd.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '—'; sumUsdCost.classList.toggle('empty', !(usd > 0)); }
+
+  const sumWeightQty = document.getElementById('sumWeightQty');
+  if (sumWeightQty) { sumWeightQty.textContent = weightQty > 0 ? weightQty + ' ' + weightUnit : '—'; sumWeightQty.classList.toggle('empty', !(weightQty > 0)); }
+
+  const sumSellPriceRow = document.getElementById('sumSellPriceRow');
+  if (sumSellPriceRow) { sumSellPriceRow.textContent = sell > 0 ? '৳' + Math.round(sell).toLocaleString('en-IN') : '—'; sumSellPriceRow.classList.toggle('empty', !(sell > 0)); }
+
   const calcMarginEl = document.getElementById('calcMargin');
   if (calcMarginEl) {
     calcMarginEl.classList.remove('green', 'amber', 'red');
@@ -18434,7 +18783,10 @@ function calcAddProductForm() {
     sumMarginRow.classList.remove('green', 'amber', 'red');
     if (marginCls) sumMarginRow.classList.add(marginCls);
   }
-  if (sumSellPrice) sumSellPrice.textContent = '৳' + Math.round(sell).toLocaleString('en-IN');
+  if (sumSellPrice) {
+    sumSellPrice.textContent = sell > 0 ? (profit >= 0 ? '+' : '') + '৳' + Math.round(profit).toLocaleString('en-IN') : '৳0';
+    sumSellPrice.style.color = sell > 0 && profit < 0 ? '#d95353' : '#2f9b68';
+  }
 }
 
 function calcNewProductMargin() {
@@ -18486,7 +18838,7 @@ function calcNewProductMargin() {
   if (sumBuyCost) { sumBuyCost.textContent = bdtCost > 0 ? '৳' + Math.round(bdtCost).toLocaleString('en-IN') : '—'; sumBuyCost.classList.toggle('empty', !(bdtCost > 0)); }
   if (sumWeightCost) { sumWeightCost.textContent = weightCostTk > 0 ? '৳' + Math.round(weightCostTk).toLocaleString('en-IN') : '—'; sumWeightCost.classList.toggle('empty', !(weightCostTk > 0)); }
   if (sumMarginRow) { sumMarginRow.textContent = sell > 0 ? margin.toFixed(1) + '%' : '—'; sumMarginRow.classList.toggle('empty', !(sell > 0)); }
-  if (sumSellPrice) sumSellPrice.textContent = '৳' + Math.round(sell).toLocaleString('en-IN');
+  if (sumSellPrice) sumSellPrice.textContent = sell > 0 ? (profit >= 0 ? '+' : '') + '৳' + Math.round(profit).toLocaleString('en-IN') : '৳0';
 }
 
 function updateNpSummary() {
@@ -18530,7 +18882,8 @@ function updateNpSummary() {
   }
 
   const origin = ((document.getElementById('inpOrigin')||_npSafeEl())?.value || '').trim();
-  const expiry = ((document.getElementById('inpExpiry')||_npSafeEl())?.value || '').trim();
+  const expiryRaw = ((document.getElementById('inpExpiry')||_npSafeEl())?.value || '').trim();
+  const expiry = formatDateDMY(expiryRaw);
   const sumOrigin = document.getElementById('sumOrigin');
   if (sumOrigin) {
     const combined = [origin, expiry].filter(Boolean).join(' · ');
