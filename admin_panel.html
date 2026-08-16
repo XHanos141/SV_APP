@@ -768,22 +768,8 @@ body.dark-mode .pay-badge-bank svg path[style*="fill:#66cde7"]{fill:#fff!importa
         </div>
       </div>
       <div class="carousel-slide">
-        <div class="card-wrap" style="width:140px">
-          <div class="hd-card" id="hcard">
-            <div class="corner-badge corner-badge-sm"><span>HOT</span></div>
-            <div class="corner-badge corner-badge-sm corner-badge-pct"><span id="hcardDiscount">-20%</span></div>
-            <div class="hd-img" id="hcardImgWrap" style="background:linear-gradient(135deg,#ff6b6b,#ee5a24)">
-              <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
-              <span class="hd-add"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></span>
-            </div>
-            <div class="hd-info">
-              <div class="hd-name" id="hcardName">Gold Standard Whey 2lb</div>
-              <div class="hd-price-row">
-                <span class="hd-price">&#2547;<span id="hcardPrice">4,200</span></span>
-                <span class="hd-price-old">&#2547;<span id="hcardOld">5,600</span></span>
-              </div>
-            </div>
-          </div>
+        <div class="card-wrap" style="width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch;padding:2px 0">
+          <div id="hdRowPreview" style="display:flex;gap:10px;padding:0 2px"></div>
         </div>
       </div>
       <div class="carousel-slide">
@@ -964,41 +950,35 @@ body.dark-mode .pay-badge-bank svg path[style*="fill:#66cde7"]{fill:#fff!importa
     Swipe or use arrows to cycle card types · all update live
   </div>
   <div id="landingForms">
-  <div class="form-card">
+  <div class="form-card" data-form="hotdeal" style="display:none">
+    <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>Hot Deals</h3>
+    <div class="field">
+      <label>Pick products to show in the row</label>
+      <div id="hotDealsPicker"></div>
+    </div>
+    <div class="hint-row" style="margin-top:2px">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+      Publish products in Store → Products first, then pick them here. Use ↑ / ↓ to reorder.
+    </div>
+  </div>
+  <div class="form-card" data-form="banner">
     <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/></svg>Landing Page Banner</h3>
     <div class="field">
-      <label>Tag</label>
-      <input type="text" id="inpBannerTag" value="Free Shipping" oninput="updateBanner()">
-    </div>
-    <div class="field">
-      <label>Title</label>
-      <input type="text" id="inpBannerTitle" value="On Orders Over ৳2000" oninput="updateBanner()">
-    </div>
-    <div class="field">
-      <label>Subtitle</label>
-      <input type="text" id="inpBannerSub" value="Anywhere across Bangladesh" oninput="updateBanner()">
-    </div>
-    <div class="field-row">
-      <div class="field">
-        <label>Colorway</label>
-        <select id="inpBannerColor" onchange="updateBanner()">
-          <option value="bc-green" selected>Green</option>
-          <option value="bc-purple">Purple</option>
-        </select>
-      </div>
-      <div class="field">
-        <label>Icon</label>
-        <select id="inpBannerIcon" onchange="updateBanner()">
-          <option value="shipping" selected>Shipping</option>
-          <option value="heart">Deal / Heart</option>
-        </select>
+      <label>Background Image <span style="font-weight:400;color:var(--text3)">(recommended: 1200×500px, 2.4:1)</span></label>
+      <div class="img-upload" id="bannerImgUploadBox">
+        <input type="file" accept="image/jpeg,image/png" id="bannerImgInput" onchange="handleBannerImage(event)">
+        <div id="bannerImgUploadEmpty">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>
+          <p>Tap to upload banner image</p>
+          <span>JPG or PNG · 1200×500px (2.4:1) · under 200KB</span>
+        </div>
       </div>
     </div>
   </div>
 
   
 
-  <div class="form-card">
+  <div class="form-card" data-form="stats">
     <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M18 17V9M13 17V5M8 17v-3"/></svg>Landing Page Stats</h3>
     <div class="field-row">
       <div class="field">
@@ -1010,6 +990,10 @@ body.dark-mode .pay-badge-bank svg path[style*="fill:#66cde7"]{fill:#fff!importa
         <input type="text" id="inpStat1Label" value="Products" oninput="updateStats()">
       </div>
     </div>
+    <div class="field">
+      <label>Stat 1 — Description</label>
+      <input type="text" id="inpStat1Desc" value="Curated inventory, ready to ship" oninput="updateStats()">
+    </div>
     <div class="field-row">
       <div class="field">
         <label>Stat 2 — Number</label>
@@ -1019,6 +1003,10 @@ body.dark-mode .pay-badge-bank svg path[style*="fill:#66cde7"]{fill:#fff!importa
         <label>Stat 2 — Label</label>
         <input type="text" id="inpStat2Label" value="Brands" oninput="updateStats()">
       </div>
+    </div>
+    <div class="field">
+      <label>Stat 2 — Description</label>
+      <input type="text" id="inpStat2Desc" value="Trusted global brand partners" oninput="updateStats()">
     </div>
     <div class="field-row">
       <div class="field">
@@ -1030,6 +1018,10 @@ body.dark-mode .pay-badge-bank svg path[style*="fill:#66cde7"]{fill:#fff!importa
         <input type="text" id="inpStat3Label" value="Districts" oninput="updateStats()">
       </div>
     </div>
+    <div class="field">
+      <label>Stat 3 — Description</label>
+      <input type="text" id="inpStat3Desc" value="Nationwide delivery coverage" oninput="updateStats()">
+    </div>
     <div class="field-row">
       <div class="field">
         <label>Stat 4 — Number</label>
@@ -1040,13 +1032,17 @@ body.dark-mode .pay-badge-bank svg path[style*="fill:#66cde7"]{fill:#fff!importa
         <input type="text" id="inpStat4Label" value="Authentic" oninput="updateStats()">
       </div>
     </div>
+    <div class="field">
+      <label>Stat 4 — Description</label>
+      <input type="text" id="inpStat4Desc" value="Verified & guaranteed sourcing" oninput="updateStats()">
+    </div>
     <div class="hint-row" style="margin-top:2px">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.13-9.36L23 10"/></svg>
       Swipe to the Stats slide to replay the roll-in animation
     </div>
   </div>
 
-  <div class="form-card">
+  <div class="form-card" data-form="catbadge">
     <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>Category Badge</h3>
     <div class="field">
       <label>Category</label>
@@ -1064,11 +1060,11 @@ body.dark-mode .pay-badge-bank svg path[style*="fill:#66cde7"]{fill:#fff!importa
     </div>
   </div>
 
-  <div class="form-card">
+  <div class="form-card" data-form="testimonial">
     <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z"/></svg>Customer Testimonial</h3>
     <div class="field">
       <label>Review Text</label>
-      <textarea id="inpTestiText" rows="3" oninput="updateTestimonial()">Ordered Optimum Nutrition whey through proxy import. Arrived in 12 days, perfectly sealed, authentic. Saved me ৳2,000 compared to local shops.</textarea>
+      <textarea id="inpTestiText" rows="6" oninput="updateTestimonial()">Ordered Optimum Nutrition whey through proxy import. Arrived in 12 days, perfectly sealed, authentic. Saved me ৳2,000 compared to local shops.</textarea>
     </div>
     <div class="field-row">
       <div class="field">
@@ -1078,6 +1074,14 @@ body.dark-mode .pay-badge-bank svg path[style*="fill:#66cde7"]{fill:#fff!importa
       <div class="field">
         <label>Rating (1–5)</label>
         <input type="number" id="inpTestiRating" value="5" min="1" max="5" step="1" oninput="updateTestimonial()">
+      </div>
+    </div>
+    <div class="field">
+      <label>Reviewer Photo <span style="font-weight:400;color:var(--text3)">(optional — 150×150px, under 100KB, falls back to initials)</span></label>
+      <div style="display:flex;align-items:center;gap:10px">
+        <div id="testiAvatarPreview" style="width:36px;height:36px;border-radius:50%;flex-shrink:0;overflow:hidden;background:linear-gradient(135deg,#009ddc,#6761a8);display:flex;align-items:center;justify-content:center;color:#fff;font-size:12px;font-weight:700;font-family:var(--font-display)">RA</div>
+        <label for="testiAvatarInput" style="flex:1;height:38px;border:1.5px dashed var(--border-strong);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:11.5px;color:var(--text3);cursor:pointer;font-weight:600">Tap to upload photo</label>
+        <input type="file" accept="image/jpeg,image/png" id="testiAvatarInput" style="display:none" onchange="handleTestiAvatar(event)">
       </div>
     </div>
     <div class="field-row">
@@ -1095,7 +1099,7 @@ body.dark-mode .pay-badge-bank svg path[style*="fill:#66cde7"]{fill:#fff!importa
     </div>
   </div>
 
-  <div class="form-card">
+  <div class="form-card" data-form="faq">
     <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>FAQ</h3>
     <div class="field">
       <label>Question</label>
@@ -1111,8 +1115,38 @@ body.dark-mode .pay-badge-bank svg path[style*="fill:#66cde7"]{fill:#fff!importa
     </div>
   </div>
 
-  <div class="form-card">
+  <div class="form-card" data-form="footerpay">
     <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>Footer Payment Badges</h3>
+    <div class="field">
+      <label style="font-weight:700;font-size:11px;letter-spacing:.04em;text-transform:uppercase;color:var(--text3)">Social Links</label>
+    </div>
+    <div class="field">
+      <label style="display:flex;align-items:center;gap:6px"><span style="width:18px;height:18px;display:inline-flex;border-radius:5px;overflow:hidden"><svg xmlns="http://www.w3.org/2000/svg"
+aria-label="Facebook" role="img"
+viewBox="0 0 512 512"><rect
+width="512" height="512"
+rx="15%"
+fill="#1877f2"/><path d="M355.6 330l11.4-74h-71v-48c0-20.2 9.9-40 41.7-40H370v-63s-29.3-5-57.3-5c-58.5 0-96.7 35.4-96.7 99.6V256h-65v74h65v182h80V330h59.6z" fill="#ffffff"/></svg></span>Facebook URL</label>
+      <input type="url" id="inpSocialFb" placeholder="https://facebook.com/suppversebd" oninput="updateSocialLink('fb', this.value)">
+    </div>
+    <div class="field">
+      <label style="display:flex;align-items:center;gap:6px"><span style="width:18px;height:18px;display:inline-flex;border-radius:5px;overflow:hidden"><svg   viewBox="0 0 3364.7 3364.7" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="0" cx="217.76" cy="3290.99" r="4271.92" gradientUnits="userSpaceOnUse"><stop offset=".09" stop-color="#fa8f21"/><stop offset=".78" stop-color="#d82d7e"/></radialGradient><radialGradient id="1" cx="2330.61" cy="3182.95" r="3759.33" gradientUnits="userSpaceOnUse"><stop offset=".64" stop-color="#8c3aaa" stop-opacity="0"/><stop offset="1" stop-color="#8c3aaa"/></radialGradient></defs><path d="M853.2,3352.8c-200.1-9.1-308.8-42.4-381.1-70.6-95.8-37.3-164.1-81.7-236-153.5S119.7,2988.6,82.6,2892.8c-28.2-72.3-61.5-181-70.6-381.1C2,2295.4,0,2230.5,0,1682.5s2.2-612.8,11.9-829.3C21,653.1,54.5,544.6,82.5,472.1,119.8,376.3,164.3,308,236,236c71.8-71.8,140.1-116.4,236-153.5C544.3,54.3,653,21,853.1,11.9,1069.5,2,1134.5,0,1682.3,0c548,0,612.8,2.2,829.3,11.9,200.1,9.1,308.6,42.6,381.1,70.6,95.8,37.1,164.1,81.7,236,153.5s116.2,140.2,153.5,236c28.2,72.3,61.5,181,70.6,381.1,9.9,216.5,11.9,281.3,11.9,829.3,0,547.8-2,612.8-11.9,829.3-9.1,200.1-42.6,308.8-70.6,381.1-37.3,95.8-81.7,164.1-153.5,235.9s-140.2,116.2-236,153.5c-72.3,28.2-181,61.5-381.1,70.6-216.3,9.9-281.3,11.9-829.3,11.9-547.8,0-612.8-1.9-829.1-11.9" fill="url(#0)"/><path d="M853.2,3352.8c-200.1-9.1-308.8-42.4-381.1-70.6-95.8-37.3-164.1-81.7-236-153.5S119.7,2988.6,82.6,2892.8c-28.2-72.3-61.5-181-70.6-381.1C2,2295.4,0,2230.5,0,1682.5s2.2-612.8,11.9-829.3C21,653.1,54.5,544.6,82.5,472.1,119.8,376.3,164.3,308,236,236c71.8-71.8,140.1-116.4,236-153.5C544.3,54.3,653,21,853.1,11.9,1069.5,2,1134.5,0,1682.3,0c548,0,612.8,2.2,829.3,11.9,200.1,9.1,308.6,42.6,381.1,70.6,95.8,37.1,164.1,81.7,236,153.5s116.2,140.2,153.5,236c28.2,72.3,61.5,181,70.6,381.1,9.9,216.5,11.9,281.3,11.9,829.3,0,547.8-2,612.8-11.9,829.3-9.1,200.1-42.6,308.8-70.6,381.1-37.3,95.8-81.7,164.1-153.5,235.9s-140.2,116.2-236,153.5c-72.3,28.2-181,61.5-381.1,70.6-216.3,9.9-281.3,11.9-829.3,11.9-547.8,0-612.8-1.9-829.1-11.9" fill="url(#1)"/><path d="M1269.25,1689.52c0-230.11,186.49-416.7,416.6-416.7s416.7,186.59,416.7,416.7-186.59,416.7-416.7,416.7-416.6-186.59-416.6-416.7m-225.26,0c0,354.5,287.36,641.86,641.86,641.86s641.86-287.36,641.86-641.86-287.36-641.86-641.86-641.86S1044,1335,1044,1689.52m1159.13-667.31a150,150,0,1,0,150.06-149.94h-0.06a150.07,150.07,0,0,0-150,149.94M1180.85,2707c-121.87-5.55-188.11-25.85-232.13-43-58.36-22.72-100-49.78-143.78-93.5s-70.88-85.32-93.5-143.68c-17.16-44-37.46-110.26-43-232.13-6.06-131.76-7.27-171.34-7.27-505.15s1.31-373.28,7.27-505.15c5.55-121.87,26-188,43-232.13,22.72-58.36,49.78-100,93.5-143.78s85.32-70.88,143.78-93.5c44-17.16,110.26-37.46,232.13-43,131.76-6.06,171.34-7.27,505-7.27S2059.13,666,2191,672c121.87,5.55,188,26,232.13,43,58.36,22.62,100,49.78,143.78,93.5s70.78,85.42,93.5,143.78c17.16,44,37.46,110.26,43,232.13,6.06,131.87,7.27,171.34,7.27,505.15s-1.21,373.28-7.27,505.15c-5.55,121.87-25.95,188.11-43,232.13-22.72,58.36-49.78,100-93.5,143.68s-85.42,70.78-143.78,93.5c-44,17.16-110.26,37.46-232.13,43-131.76,6.06-171.34,7.27-505.15,7.27s-373.28-1.21-505-7.27M1170.5,447.09c-133.07,6.06-224,27.16-303.41,58.06-82.19,31.91-151.86,74.72-221.43,144.18S533.39,788.47,501.48,870.76c-30.9,79.46-52,170.34-58.06,303.41-6.16,133.28-7.57,175.89-7.57,515.35s1.41,382.07,7.57,515.35c6.06,133.08,27.16,223.95,58.06,303.41,31.91,82.19,74.62,152,144.18,221.43s139.14,112.18,221.43,144.18c79.56,30.9,170.34,52,303.41,58.06,133.35,6.06,175.89,7.57,515.35,7.57s382.07-1.41,515.35-7.57c133.08-6.06,223.95-27.16,303.41-58.06,82.19-32,151.86-74.72,221.43-144.18s112.18-139.24,144.18-221.43c30.9-79.46,52.1-170.34,58.06-303.41,6.06-133.38,7.47-175.89,7.47-515.35s-1.41-382.07-7.47-515.35c-6.06-133.08-27.16-224-58.06-303.41-32-82.19-74.72-151.86-144.18-221.43S2586.8,537.06,2504.71,505.15c-79.56-30.9-170.44-52.1-303.41-58.06C2068,441,2025.41,439.52,1686,439.52s-382.1,1.41-515.45,7.57" fill="#ffffff"/></svg></span>Instagram URL</label>
+      <input type="url" id="inpSocialIg" placeholder="https://instagram.com/suppversebd" oninput="updateSocialLink('ig', this.value)">
+    </div>
+    <div class="field">
+      <label style="display:flex;align-items:center;gap:6px"><span style="width:18px;height:18px;display:inline-flex;border-radius:5px;overflow:hidden"><svg xmlns="http://www.w3.org/2000/svg"
+aria-label="YouTube" role="img"
+viewBox="0 0 512 512"
+fill="#ed1d24"><rect width="512" height="512" rx="15%" fill="#ed1d24"/><path d="m427 169c-4-15-17-27-32-31-34-9-239-10-278 0-15 4-28 16-32 31-9 38-10 135 0 174 4 15 17 27 32 31 36 10 241 10 278 0 15-4 28-16 32-31 9-36 9-137 0-174" fill="#ffffff"/><path d="m220 203v106l93-53z" fill="#ed1d24"/></svg></span>YouTube URL</label>
+      <input type="url" id="inpSocialYt" placeholder="https://youtube.com/@suppversebd" oninput="updateSocialLink('yt', this.value)">
+    </div>
+    <div class="hint-row" style="margin-top:2px;margin-bottom:12px">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+      Not wired to live site yet — saved locally until Supabase config is connected.
+    </div>
+    <div class="field" style="padding-top:14px;border-top:1px solid var(--line)">
+      <label style="font-weight:700;font-size:11px;letter-spacing:.04em;text-transform:uppercase;color:var(--text3)">Payment Badges</label>
+    </div>
     <div class="toggle-row">
       <label>bKash</label>
       <div class="switch on" id="switchPayBkash" onclick="togglePay('bkash','switchPayBkash')"></div>
@@ -1149,6 +1183,14 @@ body.dark-mode .pay-badge-bank svg path[style*="fill:#66cde7"]{fill:#fff!importa
   </div>
 
   <div id="storeForms" style="display:none">
+  <div class="form-card">
+    <div class="field">
+      <label>Editing</label>
+      <select id="inpEditProduct" onchange="loadProductToEditor(this.value)">
+        <option value="new" selected>+ New Product</option>
+      </select>
+    </div>
+  </div>
   <div class="form-card">
     <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>Product Image</h3>
     <div class="img-upload" id="imgUploadBox">
@@ -1238,8 +1280,8 @@ body.dark-mode .pay-badge-bank svg path[style*="fill:#66cde7"]{fill:#fff!importa
 
   <div class="form-card" style="padding:0">
     <div class="save-bar" style="margin:0;border-radius:18px;border-top:none">
-      <button class="btn-draft">Save Draft</button>
-      <button class="btn-save">Publish Product</button>
+      <button class="btn-draft" onclick="saveProduct(false, event)">Save Draft</button>
+      <button class="btn-save" onclick="saveProduct(true, event)">Publish Product</button>
     </div>
   </div>
 </div>
@@ -1293,8 +1335,15 @@ const landingCarousel = makeCarousel({
   trackId:'carouselTrackLanding', dotsId:'carouselDotsLanding', labelId:'slideLabelLanding',
   prevId:'carouselPrevLanding', nextId:'carouselNextLanding', boxId:'carouselBoxLanding',
   total:7, labels:['Banner','Hot Deal Card','Stats','Category Badge','Testimonial','FAQ','Footer Payments'],
-  onSlide:(i)=>{ if(i===2 && typeof replayStatsAnimation==='function') replayStatsAnimation(); }
+  onSlide:(i)=>{
+    if(i===2 && typeof replayStatsAnimation==='function') replayStatsAnimation();
+    const formKeys = ['banner','hotdeal','stats','catbadge','testimonial','faq','footerpay'];
+    document.querySelectorAll('#landingForms .form-card').forEach(card=>{
+      card.style.display = card.dataset.form === formKeys[i] ? '' : 'none';
+    });
+  }
 });
+landingCarousel.goToSlide(0);
 const storeCarousel = makeCarousel({
   trackId:'carouselTrackStore', dotsId:'carouselDotsStore', labelId:'slideLabelStore',
   prevId:'carouselPrevStore', nextId:'carouselNextStore', boxId:'carouselBoxStore',
@@ -1393,12 +1442,14 @@ function applyImageToCards(){
     tWrap.innerHTML = currentImg ? '<img src="' + currentImg + '">' : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M8 2h8"/><path d="M9 2v6.5L4.5 15A3 3 0 0 0 7 20h10a3 3 0 0 0 2.5-5L15 8.5V2"/></svg>';
   }
   const hWrap = document.getElementById('hcardImgWrap');
-  if(currentImg){
-    hWrap.style.background = 'none';
-    hWrap.innerHTML = '<img src="' + currentImg + '" style="width:100%;height:100%;object-fit:cover"><span class="hd-add"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></span>';
-  } else {
-    hWrap.style.background = currentGradient;
-    hWrap.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg><span class="hd-add"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></span>';
+  if(hWrap){
+    if(currentImg){
+      hWrap.style.background = 'none';
+      hWrap.innerHTML = '<img src="' + currentImg + '" style="width:100%;height:100%;object-fit:cover"><span class="hd-add"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></span>';
+    } else {
+      hWrap.style.background = currentGradient;
+      hWrap.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg><span class="hd-add"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></span>';
+    }
   }
 }
 function updateStockAndSale(){
@@ -1472,10 +1523,201 @@ function updateAll(){
     iconEl.className = 'trending-type-icon ' + meta.cls;
     iconEl.querySelector('svg').innerHTML = meta.svg;
   }
-  document.getElementById('hcardName').textContent = name;
-  document.getElementById('hcardPrice').textContent = price.toLocaleString();
-  document.getElementById('hcardOld').textContent = old.toLocaleString();
-  document.getElementById('hcardDiscount').textContent = discountShort;
+  renderHotDealsRow();
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   PRODUCT LIST — localStorage-backed until Supabase wiring
+   ═══════════════════════════════════════════════════════════════ */
+let currentEditId = null;
+
+function getProducts(){
+  try { return JSON.parse(localStorage.getItem('sv-products') || '[]'); }
+  catch(e){ return []; }
+}
+function saveProducts(list){
+  localStorage.setItem('sv-products', JSON.stringify(list));
+}
+function getHotDealsSelection(){
+  try { return JSON.parse(localStorage.getItem('sv-hotdeals-selection') || '[]'); }
+  catch(e){ return []; }
+}
+function saveHotDealsSelection(ids){
+  localStorage.setItem('sv-hotdeals-selection', JSON.stringify(ids));
+}
+
+function saveProduct(publish, evt){
+  const name = document.getElementById('inpName').value || 'Unnamed Product';
+  const cat = document.getElementById('inpCat').value;
+  const rating = parseFloat(document.getElementById('inpRating').value) || 0;
+  const price = parseInt(document.getElementById('inpPrice').value) || 0;
+  const old = parseInt(document.getElementById('inpOld').value) || 0;
+  const discount = document.getElementById('inpDiscount').value;
+  const stock = document.getElementById('inpStock').value;
+  const sale = document.getElementById('switchSale').classList.contains('on');
+  const hot = document.getElementById('switchHot').classList.contains('on');
+  const trending = document.getElementById('switchTrending').classList.contains('on');
+
+  const list = getProducts();
+  const id = currentEditId || ('p' + Date.now());
+  const product = { id, name, cat, rating, price, old, discount, stock, sale, hot, trending,
+                     image: currentImg, gradient: currentGradient, published: !!publish };
+  const idx = list.findIndex(p => p.id === id);
+  if(idx >= 0) list[idx] = product; else list.push(product);
+  saveProducts(list);
+  currentEditId = id;
+
+  refreshProductEditorSelect();
+  document.getElementById('inpEditProduct').value = id;
+  renderHotDealsPicker();
+  renderHotDealsRow();
+
+  const btn = evt.target;
+  const original = btn.textContent;
+  btn.textContent = publish ? 'Published ✓' : 'Draft Saved ✓';
+  setTimeout(() => { btn.textContent = original; }, 1400);
+}
+
+function refreshProductEditorSelect(){
+  const sel = document.getElementById('inpEditProduct');
+  const current = sel.value;
+  const list = getProducts();
+  sel.innerHTML = '<option value="new">+ New Product</option>' +
+    list.map(p => '<option value="' + p.id + '">' + p.name + '</option>').join('');
+  sel.value = list.some(p => p.id === current) ? current : 'new';
+}
+
+function loadProductToEditor(id){
+  if(id === 'new'){
+    currentEditId = null;
+    document.getElementById('inpName').value = 'New Product';
+    document.getElementById('inpCat').value = 'Supplement';
+    document.getElementById('inpRating').value = '4.8';
+    document.getElementById('inpPrice').value = '0';
+    document.getElementById('inpOld').value = '0';
+    document.getElementById('inpDiscount').value = '0% OFF';
+    manualDiscount = false;
+    document.getElementById('inpStock').value = 'in';
+    ['switchSale'].forEach(s => document.getElementById(s).classList.remove('on'));
+    ['switchHot','switchTrending'].forEach(s => document.getElementById(s).classList.add('on'));
+    removeImage({stopPropagation(){}});
+    updateAll();
+    return;
+  }
+  const list = getProducts();
+  const p = list.find(x => x.id === id);
+  if(!p) return;
+  currentEditId = p.id;
+  document.getElementById('inpName').value = p.name;
+  document.getElementById('inpCat').value = p.cat;
+  document.getElementById('inpRating').value = p.rating;
+  document.getElementById('inpPrice').value = p.price;
+  document.getElementById('inpOld').value = p.old;
+  document.getElementById('inpDiscount').value = p.discount;
+  manualDiscount = true;
+  document.getElementById('inpStock').value = p.stock;
+  document.getElementById('switchSale').classList.toggle('on', p.sale);
+  document.getElementById('switchHot').classList.toggle('on', p.hot);
+  document.getElementById('switchTrending').classList.toggle('on', p.trending);
+  currentImg = p.image;
+  currentGradient = p.gradient || 'linear-gradient(135deg,#ff6b6b,#ee5a24)';
+  if(currentImg){
+    const box = document.getElementById('imgUploadBox');
+    box.classList.add('has-img');
+    box.innerHTML = '<img src="' + currentImg + '" class="img-preview-thumb"><div class="img-remove" onclick="removeImage(event)"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></div><input type="file" accept="image/*" id="imgInput" onchange="handleImage(event)">';
+  } else {
+    removeImage({stopPropagation(){}});
+  }
+  applyImageToCards();
+  updateAll();
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   HOT DEALS — pick from published products, reorder, live row
+   ═══════════════════════════════════════════════════════════════ */
+function renderHotDealsPicker(){
+  const el = document.getElementById('hotDealsPicker');
+  if(!el) return;
+  const list = getProducts();
+  if(list.length === 0){
+    el.innerHTML = '<div class="hint-row" style="margin:0"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>No products yet — add one in Store → Products</div>';
+    return;
+  }
+  const selection = getHotDealsSelection().filter(id => list.some(p => p.id === id));
+  el.innerHTML = list.map(p => {
+    const checked = selection.includes(p.id);
+    const idx = selection.indexOf(p.id);
+    const thumb = p.image ? '<img src="' + p.image + '" style="width:100%;height:100%;object-fit:cover">' : '<div style="width:100%;height:100%;background:' + p.gradient + '"></div>';
+    return '<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--line)">' +
+      '<div style="width:36px;height:36px;border-radius:8px;overflow:hidden;flex-shrink:0">' + thumb + '</div>' +
+      '<div style="flex:1;min-width:0">' +
+        '<div style="font-size:12.5px;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + p.name + '</div>' +
+        '<div style="font-size:11px;color:var(--text3)">৳' + p.price.toLocaleString() + '</div>' +
+      '</div>' +
+      (checked ? '<button onclick="moveHotDeal(\'' + p.id + '\',-1)" style="border:none;background:none;color:var(--text3);font-size:16px;padding:2px 6px;cursor:pointer" ' + (idx===0?'disabled style="opacity:.3"':'') + '>↑</button>' +
+       '<button onclick="moveHotDeal(\'' + p.id + '\',1)" style="border:none;background:none;color:var(--text3);font-size:16px;padding:2px 6px;cursor:pointer" ' + (idx===selection.length-1?'disabled style="opacity:.3"':'') + '>↓</button>' : '') +
+      '<div class="switch' + (checked ? ' on' : '') + '" onclick="toggleHotDeal(\'' + p.id + '\')"></div>' +
+    '</div>';
+  }).join('');
+}
+
+function toggleHotDeal(id){
+  let selection = getHotDealsSelection();
+  if(selection.includes(id)) selection = selection.filter(x => x !== id);
+  else selection.push(id);
+  saveHotDealsSelection(selection);
+  renderHotDealsPicker();
+  renderHotDealsRow();
+}
+
+function moveHotDeal(id, dir){
+  const selection = getHotDealsSelection();
+  const i = selection.indexOf(id);
+  const j = i + dir;
+  if(i < 0 || j < 0 || j >= selection.length) return;
+  [selection[i], selection[j]] = [selection[j], selection[i]];
+  saveHotDealsSelection(selection);
+  renderHotDealsPicker();
+  renderHotDealsRow();
+}
+
+function renderHotDealsRow(){
+  const el = document.getElementById('hdRowPreview');
+  if(!el) return;
+  const list = getProducts();
+  const selection = getHotDealsSelection().filter(id => list.some(p => p.id === id));
+  if(selection.length === 0){
+    el.innerHTML = '<div class="hint-row" style="margin:0 34px;white-space:normal;text-align:center;justify-content:center;width:100%">No products selected yet — pick some in the form above</div>';
+    return;
+  }
+  el.innerHTML = selection.map(id => {
+    let p = list.find(x => x.id === id);
+    if(currentEditId === id){
+      p = Object.assign({}, p, {
+        name: document.getElementById('inpName').value || p.name,
+        price: parseInt(document.getElementById('inpPrice').value) || p.price,
+        old: parseInt(document.getElementById('inpOld').value) || p.old,
+        image: currentImg,
+        gradient: currentGradient
+      });
+    }
+    const pctMatch = (p.discount || '').match(/(\d+)/);
+    const pct = pctMatch ? pctMatch[1] : '0';
+    const imgHtml = p.image
+      ? '<img src="' + p.image + '" style="width:100%;height:100%;object-fit:cover">'
+      : '<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>';
+    return '<div class="hd-card" style="flex-shrink:0">' +
+      '<div class="corner-badge corner-badge-sm"><span>HOT</span></div>' +
+      '<div class="corner-badge corner-badge-sm corner-badge-pct"><span>-' + pct + '%</span></div>' +
+      '<div class="hd-img" style="background:' + (p.image ? 'none' : p.gradient) + '">' + imgHtml +
+        '<span class="hd-add"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></span>' +
+      '</div>' +
+      '<div class="hd-info">' +
+        '<div class="hd-name">' + p.name + '</div>' +
+        '<div class="hd-price-row"><span class="hd-price">৳' + p.price.toLocaleString() + '</span><span class="hd-price-old">৳' + p.old.toLocaleString() + '</span></div>' +
+      '</div>' +
+    '</div>';
+  }).join('');
 }
 function toggleWish(btn){
   var svg = btn.querySelector('.heart-icon');
@@ -1492,18 +1734,41 @@ const BANNER_DECO = {
   shipping: '<svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>',
   heart: '<svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>'
 };
-function updateBanner(){
-  const tag = document.getElementById('inpBannerTag').value || '';
-  const title = document.getElementById('inpBannerTitle').value || '';
-  const sub = document.getElementById('inpBannerSub').value || '';
-  const color = document.getElementById('inpBannerColor').value;
-  const icon = document.getElementById('inpBannerIcon').value;
+let currentBannerImg = null;
 
-  document.getElementById('bcardTag').textContent = tag;
-  document.getElementById('bcardTitle').textContent = title;
-  document.getElementById('bcardSub').textContent = sub;
-  document.getElementById('bcard').className = 'banner-card ' + color;
-  document.getElementById('bcardDeco').innerHTML = BANNER_DECO[icon] || BANNER_DECO.shipping;
+function updateBanner(){
+  const bcard = document.getElementById('bcard');
+  bcard.className = 'banner-card bc-green';
+  if(currentBannerImg){
+    bcard.style.backgroundImage = 'linear-gradient(rgba(0,0,0,.28),rgba(0,0,0,.28)), url(' + currentBannerImg + ')';
+    bcard.style.backgroundSize = 'cover';
+    bcard.style.backgroundPosition = 'center';
+  } else {
+    bcard.style.backgroundImage = '';
+  }
+  document.getElementById('bcardDeco').innerHTML = BANNER_DECO.shipping;
+}
+
+function handleBannerImage(e){
+  const file = e.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = function(ev){
+    currentBannerImg = ev.target.result;
+    const box = document.getElementById('bannerImgUploadBox');
+    box.classList.add('has-img');
+    box.innerHTML = '<img src="' + currentBannerImg + '" class="img-preview-thumb"><div class="img-remove" onclick="removeBannerImage(event)"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></div><input type="file" accept="image/jpeg,image/png" id="bannerImgInput" onchange="handleBannerImage(event)">';
+    updateBanner();
+  };
+  reader.readAsDataURL(file);
+}
+function removeBannerImage(e){
+  e.stopPropagation();
+  currentBannerImg = null;
+  const box = document.getElementById('bannerImgUploadBox');
+  box.classList.remove('has-img');
+  box.innerHTML = '<input type="file" accept="image/jpeg,image/png" id="bannerImgInput" onchange="handleBannerImage(event)"><div id="bannerImgUploadEmpty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg><p>Tap to upload banner image</p><span>JPG or PNG · 1200×500px (2.4:1) · under 200KB</span></div>';
+  updateBanner();
 }
 
 /* ═══════════════════════════════════════════════════════════════
@@ -1567,10 +1832,13 @@ function updateStats(){
   for(let n=1; n<=4; n++){
     const num = document.getElementById('inpStat' + n + 'Num').value || '0';
     const label = document.getElementById('inpStat' + n + 'Label').value || '';
+    const desc = document.getElementById('inpStat' + n + 'Desc').value || '';
     const numEl = document.getElementById('stat' + n + 'Num');
     const labelEl = document.getElementById('stat' + n + 'Label');
+    const descEl = document.getElementById('stat' + n + 'Desc');
     numEl.dataset.target = num;
     labelEl.textContent = label;
+    if(descEl) descEl.textContent = desc;
   }
   replayStatsAnimation();
 }
@@ -1596,8 +1864,26 @@ function updateTestimonial(){
   document.getElementById('tscardText').textContent = '"' + text + '"';
   document.getElementById('tscardName').textContent = name;
   document.getElementById('tscardRole').textContent = (city ? city + ' · ' : '') + role;
-  document.getElementById('tscardAvatar').textContent = initialsFromName(name);
+  const avatarEl = document.getElementById('tscardAvatar');
+  if(currentTestiAvatar){
+    avatarEl.innerHTML = '<img src="' + currentTestiAvatar + '" style="width:100%;height:100%;object-fit:cover;border-radius:50%">';
+  } else {
+    avatarEl.textContent = initialsFromName(name);
+  }
   document.getElementById('tscardStars').innerHTML = STAR_SVG_FILLED.repeat(rating) + STAR_SVG_EMPTY.repeat(5 - rating);
+}
+
+let currentTestiAvatar = null;
+function handleTestiAvatar(e){
+  const file = e.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = function(ev){
+    currentTestiAvatar = ev.target.result;
+    document.getElementById('testiAvatarPreview').innerHTML = '<img src="' + currentTestiAvatar + '" style="width:100%;height:100%;object-fit:cover">';
+    updateTestimonial();
+  };
+  reader.readAsDataURL(file);
 }
 
 /* ═══════════════════════════════════════════════════════════════
@@ -1645,7 +1931,23 @@ function togglePay(key, switchId){
   if(badge) badge.style.display = isOn ? '' : 'none';
 }
 
+function updateSocialLink(key, value){
+  const links = JSON.parse(localStorage.getItem('sv-social-links') || '{}');
+  links[key] = value.trim();
+  localStorage.setItem('sv-social-links', JSON.stringify(links));
+}
+
+function loadSocialLinks(){
+  const links = JSON.parse(localStorage.getItem('sv-social-links') || '{}');
+  if(links.fb) document.getElementById('inpSocialFb').value = links.fb;
+  if(links.ig) document.getElementById('inpSocialIg').value = links.ig;
+  if(links.yt) document.getElementById('inpSocialYt').value = links.yt;
+}
+loadSocialLinks();
+
 applyImageToCards();
+refreshProductEditorSelect();
+renderHotDealsPicker();
 updateAll();
 updateBanner();
 updateStats();
