@@ -4447,7 +4447,7 @@ html[data-theme="dark"] .product-line-total {
 }
 .prod-picker-overlay.active { opacity: 1; pointer-events: auto; }
 .prod-picker-sheet {
-  width: 100%; height: 78vh; max-height: 78vh;
+  width: 100%; height: 92vh; max-height: 92vh;
   background: #ffffff; border-radius: 20px 20px 0 0;
   display: flex; flex-direction: column;
   transform: translateY(100%);
@@ -4458,18 +4458,18 @@ html[data-theme="dark"] .product-line-total {
 html[data-theme="dark"] .prod-picker-sheet { background: #1a1d2e; }
 .prod-picker-overlay.active .prod-picker-sheet { transform: translateY(0); }
 
-.prod-picker-handle { width: 36px; height: 4px; background: #d0d4de; border-radius: 999px; margin: 10px auto 0; flex-shrink: 0; }
+.prod-picker-handle { width: 36px; height: 4px; background: #d0d4de; border-radius: 999px; margin: 8px auto 0; flex-shrink: 0; }
 html[data-theme="dark"] .prod-picker-handle { background: rgba(255,255,255,0.2); }
 
 .prod-picker-header {
   display: flex; align-items: center; justify-content: space-between;
-  padding: 12px 18px 10px; flex-shrink: 0;
+  padding: 8px 18px 8px; flex-shrink: 0;
   border-bottom: 1px solid #eef0f7;
 }
 html[data-theme="dark"] .prod-picker-header { border-bottom-color: rgba(255,255,255,0.08); }
 .prod-picker-title { font-size: 14px; font-weight: 800; color: #001f3c; }
 html[data-theme="dark"] .prod-picker-title { color: #ffffff; }
-.prod-picker-close { width: 28px; height: 28px; border-radius: 50%; background: #f0f2f8; border: none; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+.prod-picker-close { width: 26px; height: 26px; border-radius: 50%; background: #f0f2f8; border: none; display: flex; align-items: center; justify-content: center; cursor: pointer; }
 html[data-theme="dark"] .prod-picker-close { background: rgba(255,255,255,0.1); }
 .prod-picker-close svg { width: 14px; height: 14px; color: #556070; }
 html[data-theme="dark"] .prod-picker-close svg { color: rgba(255,255,255,0.6); }
@@ -4477,11 +4477,17 @@ html[data-theme="dark"] .prod-picker-close svg { color: rgba(255,255,255,0.6); }
 .prod-picker-list { overflow-y: auto; flex: 1; padding: 8px 0 20px; }
 
 .prod-picker-cat-row {
-  display: flex; gap: 16px; padding: 10px 18px; overflow-x: auto;
+  display: flex; gap: 16px; padding: 8px 18px; overflow-x: auto;
   -webkit-overflow-scrolling: touch; border-bottom: 1px solid #eef0f7; flex-shrink: 0;
 }
 .prod-picker-cat-row::-webkit-scrollbar { display: none; }
 html[data-theme="dark"] .prod-picker-cat-row { border-bottom-color: rgba(255,255,255,0.08); }
+.prod-picker-search-wrap {
+  padding: 8px 18px; flex-shrink: 0; border-bottom: 1px solid #eef0f7;
+}
+html[data-theme="dark"] .prod-picker-search-wrap { border-bottom-color: rgba(255,255,255,0.08); }
+.prod-picker-search-wrap .products-search-input-wrap { flex: none; width: 100%; }
+.prod-picker-search-wrap .products-search-input { height: 36px; }
 .picker-cat-pill {
   display: flex; align-items: center; justify-content: center; padding: 4px;
   border-radius: 13px; background: transparent; flex-shrink: 0; cursor: pointer;
@@ -4489,8 +4495,8 @@ html[data-theme="dark"] .prod-picker-cat-row { border-bottom-color: rgba(255,255
   transition: background 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
 }
 .picker-cat-pill.active { transform: scale(1.04); }
-.pill-dot { width: 34px; height: 34px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; position: relative; }
-.pill-dot svg { width: 18px; height: 18px; color: #fff; transition: opacity 0.15s ease; }
+.pill-dot { width: 30px; height: 30px; border-radius: 9px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; position: relative; }
+.pill-dot svg { width: 16px; height: 16px; color: #fff; transition: opacity 0.15s ease; }
 .picker-cat-pill.active .pill-dot svg { opacity: 0; }
 .picker-cat-pill.active .pill-dot::after {
   content: "";
@@ -4505,7 +4511,7 @@ html[data-theme="dark"] .prod-picker-cat-row { border-bottom-color: rgba(255,255
 /* Product item in picker */
 .prod-picker-item {
   display: flex; align-items: center; gap: 12px;
-  padding: 11px 18px; cursor: pointer;
+  padding: 8px 18px; cursor: pointer;
   transition: background 0.15s ease;
   border-bottom: 1px solid #f2f4f8;
 }
@@ -4525,13 +4531,11 @@ html[data-theme="dark"] .prod-sl { background: #7b75bf; }
 .prod-info { flex: 1; min-width: 0; }
 .prod-picker-item .cat-icon-badge { width: 30px; height: 30px; border-radius: 9px; flex-shrink: 0; }
 .prod-picker-item .cat-icon-badge .cat-icon { width: 16px; height: 16px; }
-.prod-info-name { font-size: 13px; font-weight: 700; color: #001f3c; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.prod-info-name { font-size: 14.5px; font-weight: 700; color: #001f3c; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 html[data-theme="dark"] .prod-info-name { color: #ffffff; }
-.prod-info-sku { font-family: "Courier Prime", "Courier New", monospace; font-size: 10px; font-weight: 700; color: #0891b2; letter-spacing: 0.1em; margin-top: 1px; }
+.prod-info-sku { font-family: "Courier Prime", "Courier New", monospace; font-size: 11px; font-weight: 700; color: #0891b2; letter-spacing: 0.1em; margin-top: 2px; }
 
-.prod-right { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; flex-shrink: 0; }
-.prod-price { font-size: 13px; font-weight: 700; color: #001f3c; }
-html[data-theme="dark"] .prod-price { color: #ffffff; }
+.prod-right { display: flex; align-items: center; flex-shrink: 0; }
 
 /* Stock badges */
 .stock-badge {
@@ -4541,6 +4545,7 @@ html[data-theme="dark"] .prod-price { color: #ffffff; }
 .stock-badge.stock-good { background: rgba(47,155,104,0.12);  color: #2f9b68; border: 1px solid rgba(47,155,104,0.3); }
 .stock-badge.stock-low  { background: rgba(245,166,35,0.12);  color: #c27a08; border: 1px solid rgba(245,166,35,0.35); }
 .stock-badge.stock-out  { background: rgba(217,83,83,0.1);    color: #d95353; border: 1px solid rgba(217,83,83,0.3); }
+.picker-stock-badge { font-size: 15px; padding: 8px 16px; letter-spacing: 0.2px; font-weight: 800; border-radius: 12px; }
 .product-row-top {
   display: flex;
   align-items: center;
@@ -5750,6 +5755,18 @@ html[data-theme="dark"] #restockNewBody{
   --np2-bg:#0B0F18; --np2-surface:#141B2A; --np2-border:rgba(255,255,255,0.06);
   --np2-text:#F0F4FA; --np2-text2:#A0AAB8; --np2-text3:#6B7585;
 }
+#restockExistingBody{
+  --np2-bg:#F4F7FB; --np2-surface:#ffffff; --np2-border:rgba(10,22,40,0.07);
+  --np2-text:#0B1220; --np2-text2:#5E6B7D; --np2-text3:#9AA3B2;
+  --np2-accent:#7C6FF7; --np2-accent2:#6a5ce0; --np2-green:#0A9B72;
+  --np2-shadow-sm:0 1px 3px rgba(0,0,0,0.04),0 1px 2px rgba(0,0,0,0.02);
+  --np2-shadow-md:0 4px 14px rgba(0,0,0,0.06),0 2px 4px rgba(0,0,0,0.03);
+  --np2-font-body:'DM Sans',sans-serif; --np2-font-display:'Plus Jakarta Sans',sans-serif;
+}
+html[data-theme="dark"] #restockExistingBody{
+  --np2-bg:#0B0F18; --np2-surface:#141B2A; --np2-border:rgba(255,255,255,0.06);
+  --np2-text:#F0F4FA; --np2-text2:#A0AAB8; --np2-text3:#6B7585;
+}
 
 #restockNewBody body.dark-mode{
   --bg:#0B0F18; --surface:#141B2A; --border:rgba(255,255,255,0.06);
@@ -5789,6 +5806,103 @@ html[data-theme="dark"] #restockNewBody{
 #restockNewBody .form-card h3 .card-icon svg{width:14px;height:14px;color:#fff}
 #restockNewBody .form-card h3.payment-header .card-icon{background:linear-gradient(135deg,#0A9B72,#088a5e);box-shadow:0 3px 8px rgba(10,155,114,0.35)}
 #restockNewBody .form-card h3.summary-header .card-icon{background:linear-gradient(135deg,#0EA5E9,#0284C7);box-shadow:0 3px 8px rgba(14,165,233,0.35)}
+#restockNewBody .form-card h3.specs-header .card-icon{background:linear-gradient(135deg,#F4A922,#DB8F0C);box-shadow:0 3px 8px rgba(244,169,34,0.35)}
+#restockNewBody .specs-sub{font-size:11px;color:var(--np2-text3);margin:-8px 0 14px;font-weight:500;line-height:1.4}
+#restockNewBody #npCustomSpecsList{display:flex;flex-direction:column;gap:10px;margin-bottom:12px}
+#restockNewBody .np-spec-row{display:flex;align-items:center;gap:8px;animation:npSpecRowIn 0.22s ease}
+@keyframes npSpecRowIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:translateY(0)}}
+#restockNewBody .np-spec-input-wrap{flex:1;min-width:0;display:flex;flex-direction:column;gap:4px}
+#restockNewBody .np-spec-input-wrap label{font-size:9.5px;font-weight:700;color:var(--np2-text3);text-transform:uppercase;letter-spacing:0.04em}
+#restockNewBody .np-spec-input-wrap input{
+  width:100%;height:44px;box-sizing:border-box;border:1.5px solid var(--np2-border);
+  background:var(--np2-bg);color:var(--np2-text);border-radius:10px;padding:0 12px;
+  font-family:var(--np2-font-body);font-size:13px;font-weight:600;
+  transition:border-color .2s ease, background .2s ease;
+}
+#restockNewBody .np-spec-input-wrap input::placeholder{color:var(--np2-text3);font-weight:500}
+#restockNewBody .np-spec-input-wrap input:focus{outline:none;border-color:var(--np2-accent);background:var(--np2-surface)}
+#restockNewBody .np-spec-remove-btn{
+  flex:0 0 32px;width:32px;height:32px;margin-top:17px;
+  display:flex;align-items:center;justify-content:center;
+  border:none;border-radius:9px;cursor:pointer;
+  background:rgba(217,83,83,0.08);color:#d95353;
+  transition:background .15s ease, transform .12s ease;
+  -webkit-tap-highlight-color:transparent;
+}
+#restockNewBody .np-spec-remove-btn:hover{background:rgba(217,83,83,0.16)}
+#restockNewBody .np-spec-remove-btn:active{transform:scale(0.9)}
+#restockNewBody .np-spec-remove-btn svg{width:15px;height:15px}
+#restockNewBody .np-spec-add-trigger{
+  width:100%;display:flex;align-items:center;justify-content:center;gap:7px;
+  padding:12px;background:rgba(124,111,247,0.06);border:1.5px dashed rgba(124,111,247,0.35);
+  border-radius:12px;color:#7c6ff7;font-family:var(--np2-font-display);font-size:12.5px;font-weight:700;
+  cursor:pointer;transition:background 0.2s ease, border-color 0.2s ease;
+  -webkit-tap-highlight-color:transparent;
+}
+#restockNewBody .np-spec-add-trigger:hover{background:rgba(124,111,247,0.12);border-color:rgba(124,111,247,0.55)}
+#restockNewBody .np-spec-add-trigger:active{background:rgba(124,111,247,0.18);transform:scale(0.99)}
+#restockNewBody .np-spec-add-trigger svg{width:14px;height:14px;flex-shrink:0}
+#restockNewBody .np-specs-empty-hint{text-align:center;font-size:11.5px;color:var(--np2-text3);font-weight:500;padding:8px 0 4px;display:none}
+#restockNewBody .np-specs-empty-hint.show{display:block}
+#restockNewBody .np-color-swatch-row, #restockExistingBody .np-color-swatch-row{display:flex;flex-wrap:wrap;gap:10px;padding-top:2px}
+#restockNewBody .np-color-swatch, #restockExistingBody .np-color-swatch{
+  width:38px;height:38px;border-radius:11px;flex-shrink:0;cursor:pointer;
+  border:2px solid transparent;box-shadow:0 1px 3px rgba(0,0,0,0.12), inset 0 0 0 1px rgba(0,0,0,0.06);
+  transition:transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+  -webkit-tap-highlight-color:transparent; padding:0;
+}
+#restockNewBody .np-color-swatch:hover, #restockExistingBody .np-color-swatch:hover{transform:translateY(-2px) scale(1.06);box-shadow:0 4px 10px rgba(0,0,0,0.22), inset 0 0 0 1px rgba(0,0,0,0.06)}
+#restockNewBody .np-color-swatch:active, #restockExistingBody .np-color-swatch:active{transform:scale(0.9)}
+#restockNewBody .np-color-swatch.selected, #restockExistingBody .np-color-swatch.selected{border-color:#ffffff;box-shadow:0 0 0 2px #ffffff, 0 0 0 4px var(--np2-accent), 0 3px 8px rgba(0,0,0,0.25)}
+#restockNewBody .np-color-swatch.selected:hover, #restockExistingBody .np-color-swatch.selected:hover{transform:translateY(-2px) scale(1.06)}
+#restockNewBody .np-color-swatch-custom, #restockExistingBody .np-color-swatch-custom{
+  background:var(--np2-bg) !important;border:1.5px dashed rgba(124,111,247,0.4) !important;
+  display:flex;align-items:center;justify-content:center;color:#7c6ff7;
+}
+#restockNewBody .np-color-swatch-custom svg, #restockExistingBody .np-color-swatch-custom svg{width:16px;height:16px}
+#restockNewBody .np-color-swatch-custom.selected, #restockExistingBody .np-color-swatch-custom.selected{border-style:solid !important}
+#restockNewBody .np-color-selected-row, #restockExistingBody .np-color-selected-row{
+  display:flex;align-items:center;gap:8px;margin-top:10px;
+  font-family:var(--np2-font-body);font-size:12.5px;font-weight:600;color:var(--np2-text2);
+}
+#restockNewBody .np-color-selected-dot, #restockExistingBody .np-color-selected-dot{
+  width:18px;height:18px;border-radius:6px;flex-shrink:0;box-shadow:inset 0 0 0 1px rgba(0,0,0,0.1);
+}
+
+/* ===== Size field ===== */
+#restockNewBody .np-size-mode-toggle, #restockExistingBody .np-size-mode-toggle{
+  display:inline-flex;background:var(--np2-bg);border:1.5px solid var(--np2-border);
+  border-radius:10px;padding:3px;gap:2px;margin-bottom:12px;
+}
+#restockNewBody .np-size-mode-btn, #restockExistingBody .np-size-mode-btn{
+  border:none;background:transparent;color:var(--np2-text3);font-family:var(--np2-font-display);
+  font-size:11.5px;font-weight:700;padding:7px 16px;border-radius:8px;cursor:pointer;
+  transition:background .15s ease, color .15s ease;-webkit-tap-highlight-color:transparent;
+}
+#restockNewBody .np-size-mode-btn.active, #restockExistingBody .np-size-mode-btn.active{background:var(--np2-accent);color:#ffffff;box-shadow:0 2px 6px rgba(124,111,247,0.35)}
+#restockNewBody .np-size-letter-row, #restockExistingBody .np-size-letter-row{display:flex;flex-wrap:wrap;gap:9px}
+#restockNewBody .np-size-pill, #restockExistingBody .np-size-pill{
+  min-width:44px;height:38px;padding:0 12px;border-radius:10px;flex-shrink:0;cursor:pointer;
+  border:1.5px solid var(--np2-border);background:var(--np2-bg);color:var(--np2-text);
+  font-family:var(--np2-font-display);font-size:12.5px;font-weight:700;
+  transition:transform 0.15s ease, border-color 0.15s ease, background 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
+  -webkit-tap-highlight-color:transparent;
+}
+#restockNewBody .np-size-pill:hover, #restockExistingBody .np-size-pill:hover{transform:translateY(-2px);box-shadow:0 4px 10px rgba(0,0,0,0.14)}
+#restockNewBody .np-size-pill:active, #restockExistingBody .np-size-pill:active{transform:scale(0.94)}
+#restockNewBody .np-size-pill.selected, #restockExistingBody .np-size-pill.selected{
+  background:var(--np2-accent);border-color:var(--np2-accent);color:#ffffff;
+  box-shadow:0 0 0 2px #ffffff, 0 0 0 4px var(--np2-accent), 0 3px 8px rgba(0,0,0,0.25);
+}
+#restockNewBody .np-size-numeric-input, #restockExistingBody .np-size-numeric-input{
+  width:100%;height:48px;box-sizing:border-box;border:1.5px solid var(--np2-border);
+  background:var(--np2-bg);color:var(--np2-text);border-radius:10px;padding:0 12px;
+  font-family:var(--np2-font-body);font-size:13.5px;font-weight:600;
+  transition:border-color .2s ease, background .2s ease;
+}
+#restockNewBody .np-size-numeric-input::placeholder, #restockExistingBody .np-size-numeric-input::placeholder{color:var(--np2-text3);font-weight:500}
+#restockNewBody .np-size-numeric-input:focus, #restockExistingBody .np-size-numeric-input:focus{outline:none;border-color:var(--np2-accent);background:var(--np2-surface)}
+
 #restockNewBody .field{margin-bottom:14px;min-width:0}
 #restockNewBody .field:last-child{margin-bottom:0}
 #restockNewBody .field label{
@@ -5796,8 +5910,8 @@ html[data-theme="dark"] #restockNewBody{
   margin-bottom:6px;font-family:var(--np2-font-display);
 }
 #restockNewBody .field input, #restockNewBody .field select{
-  width:100%;border:1.5px solid var(--np2-border);background:var(--np2-bg);color:var(--np2-text);
-  border-radius:10px;padding:11px 12px;font-family:var(--np2-font-body);font-size:13.5px;font-weight:600;
+  width:100%;height:48px;box-sizing:border-box;border:1.5px solid var(--np2-border);background:var(--np2-bg);color:var(--np2-text);
+  border-radius:10px;padding:0 12px;font-family:var(--np2-font-body);font-size:13.5px;font-weight:600;
   transition:border-color .2s ease, background .2s ease;
 }
 #restockNewBody .field input::placeholder{color:var(--np2-text3);font-weight:500}
@@ -5805,17 +5919,17 @@ html[data-theme="dark"] #restockNewBody{
 #restockNewBody .field-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 #restockNewBody .field-row-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
 #restockNewBody .field-hint{font-size:10.5px;color:var(--np2-text3);margin-top:5px;font-weight:500}
-#restockNewBody .np-date-wrap{ position:relative; }
-#restockNewBody .np-date-native{
+#restockNewBody .np-date-wrap, #restockExistingBody .np-date-wrap{ position:relative; }
+#restockNewBody .np-date-native, #restockExistingBody .np-date-native{
   color:transparent; -webkit-text-fill-color:transparent; position:relative; z-index:1; background:transparent;
 }
-#restockNewBody .np-date-native::-webkit-calendar-picker-indicator{ position:relative; z-index:2; opacity:1; }
-#restockNewBody .np-date-display{
+#restockNewBody .np-date-native::-webkit-calendar-picker-indicator, #restockExistingBody .np-date-native::-webkit-calendar-picker-indicator{ position:relative; z-index:2; opacity:1; }
+#restockNewBody .np-date-display, #restockExistingBody .np-date-display{
   position:absolute; left:12px; top:50%; transform:translateY(-50%);
   font-family:var(--np2-font-body); font-size:13.5px; font-weight:600; color:var(--np2-text);
   pointer-events:none; z-index:0;
 }
-#restockNewBody .np-date-display.placeholder{ color:var(--np2-text3); font-weight:500; }
+#restockNewBody .np-date-display.placeholder, #restockExistingBody .np-date-display.placeholder{ color:var(--np2-text3); font-weight:500; }
 #restockNewBody .np-stepper{
   display:flex; align-items:stretch; gap:8px;
 }
@@ -5842,17 +5956,17 @@ html[data-theme="dark"] #restockNewBody{
 #restockNewBody .np-profit-hint span{ font-weight:800; }
 #restockNewBody .np-profit-hint span.green{ color:#2f9b68; }
 #restockNewBody .np-profit-hint span.red{ color:#d95353; }
-#restockNewBody .expiry-status-pill{
+#restockNewBody .expiry-status-pill, #restockExistingBody .expiry-status-pill{
   display:inline-flex;align-items:center;gap:4px;margin-top:6px;
   font-family:"Plus Jakarta Sans",sans-serif;font-size:10px;font-weight:800;
   padding:3px 9px;border-radius:999px;letter-spacing:0.02em;white-space:nowrap;width:fit-content;
 }
-#restockNewBody .expiry-status-pill.red    { background: rgba(217,83,83,0.12);  color: #d95353; }
-#restockNewBody .expiry-status-pill.orange { background: rgba(232,156,15,0.13); color: #b87200; }
-#restockNewBody .expiry-status-pill.green  { background: rgba(47,155,104,0.11); color: #2f9b68; }
-html[data-theme="dark"] #restockNewBody .expiry-status-pill.red    { background: rgba(255,107,107,0.15); color: #ff6b6b; }
-html[data-theme="dark"] #restockNewBody .expiry-status-pill.orange { background: rgba(255,181,70,0.14);  color: #FFB546; }
-html[data-theme="dark"] #restockNewBody .expiry-status-pill.green  { background: rgba(77,204,138,0.12);  color: #4dcc8a; }
+#restockNewBody .expiry-status-pill.red, #restockExistingBody .expiry-status-pill.red    { background: rgba(217,83,83,0.12);  color: #d95353; }
+#restockNewBody .expiry-status-pill.orange, #restockExistingBody .expiry-status-pill.orange { background: rgba(232,156,15,0.13); color: #b87200; }
+#restockNewBody .expiry-status-pill.green, #restockExistingBody .expiry-status-pill.green  { background: rgba(47,155,104,0.11); color: #2f9b68; }
+html[data-theme="dark"] #restockNewBody .expiry-status-pill.red, html[data-theme="dark"] #restockExistingBody .expiry-status-pill.red    { background: rgba(255,107,107,0.15); color: #ff6b6b; }
+html[data-theme="dark"] #restockNewBody .expiry-status-pill.orange, html[data-theme="dark"] #restockExistingBody .expiry-status-pill.orange { background: rgba(255,181,70,0.14);  color: #FFB546; }
+html[data-theme="dark"] #restockNewBody .expiry-status-pill.green, html[data-theme="dark"] #restockExistingBody .expiry-status-pill.green  { background: rgba(77,204,138,0.12);  color: #4dcc8a; }
 #restockNewBody /* prefix inputs (USD $ / BDT ৳) */
 .weight-input-row{display:flex;gap:8px}
 #restockNewBody .weight-input-row input{flex:1;min-width:0}
@@ -6386,9 +6500,9 @@ html[data-theme="dark"] .color-picker-close { background: rgba(255,255,255,0.1);
 .color-picker-body { padding: 4px 20px 12px; }
 .cp-sb-wrap {
   position: relative; width: 100%; height: 180px; border-radius: 12px; overflow: hidden;
-  margin-bottom: 14px; cursor: crosshair;
+  margin-bottom: 14px; cursor: crosshair; touch-action: none;
 }
-.cp-sb-canvas { width: 100%; height: 100%; display: block; }
+.cp-sb-canvas { width: 100%; height: 100%; display: block; touch-action: none; }
 .cp-sb-cursor {
   position: absolute; width: 18px; height: 18px; border-radius: 50%;
   border: 2.5px solid #ffffff; box-shadow: 0 0 0 1.5px rgba(0,0,0,0.3), 0 2px 6px rgba(0,0,0,0.3);
@@ -6396,10 +6510,10 @@ html[data-theme="dark"] .color-picker-close { background: rgba(255,255,255,0.1);
   transition: top 0.0s, left 0.0s;
 }
 .cp-slider-row {
-  position: relative; height: 20px; margin-bottom: 14px; cursor: pointer;
+  position: relative; height: 20px; margin-bottom: 14px; cursor: pointer; touch-action: none;
 }
 .cp-hue-canvas {
-  width: 100%; height: 14px; border-radius: 7px; display: block; margin-top: 3px;
+  width: 100%; height: 14px; border-radius: 7px; display: block; margin-top: 3px; touch-action: none;
 }
 .cp-hue-thumb {
   position: absolute; top: 50%; width: 20px; height: 20px; border-radius: 50%;
@@ -6737,6 +6851,72 @@ html[data-theme="dark"] .expiry-val { color: #ffffff; }
 }
 html[data-theme="dark"] .expiry-bar-chevron { color: rgba(255,255,255,0.25); }
 .expiry-bar.expanded .expiry-bar-chevron { transform: rotate(180deg); color: #8c92a1; }
+
+/* ── VARIANT BAR (Colour/Size) — mirrors expiry-bar exactly ── */
+.variant-bar {
+  background: #f8f9fb; border-radius: 8px; padding: 6px 10px;
+  display: flex; justify-content: space-between; align-items: center; margin-top: 10px;
+  cursor: pointer; user-select: none; transition: background 0.2s ease;
+}
+html[data-theme="dark"] .variant-bar { background: rgba(255,255,255,0.05); }
+.variant-bar:hover { background: #f0f1f4; }
+html[data-theme="dark"] .variant-bar:hover { background: rgba(255,255,255,0.08); }
+.variant-bar-label { font-size: 9px; font-weight: 600; color: #8c92a1; display: flex; align-items: center; gap: 5px; }
+.variant-bar-label svg { width: 14px; height: 14px; flex-shrink: 0; }
+.variant-bar-right { display: flex; align-items: center; gap: 6px; }
+.variant-preview-dots { display: flex; align-items: center; margin-right: 2px; }
+.variant-preview-dot { width: 14px; height: 14px; border-radius: 5px; border: 1.5px solid #f8f9fb; flex-shrink: 0; margin-left: -5px; }
+html[data-theme="dark"] .variant-preview-dot { border-color: #1b2738; }
+.variant-preview-dot:first-child { margin-left: 0; }
+.variant-bar-count { font-family: "Plus Jakarta Sans", sans-serif; font-size: 10px; font-weight: 700; color: #001f3c; }
+html[data-theme="dark"] .variant-bar-count { color: #ffffff; }
+.variant-bar-chevron { display: flex; align-items: center; color: rgba(0,0,0,0.2); transition: transform 0.36s cubic-bezier(0.4,0,0.2,1); }
+html[data-theme="dark"] .variant-bar-chevron { color: rgba(255,255,255,0.25); }
+.variant-bar.expanded .variant-bar-chevron { transform: rotate(180deg); color: #8c92a1; }
+
+.variant-list { display: grid; grid-template-rows: 0fr; transition: grid-template-rows 0.36s cubic-bezier(0.4,0,0.2,1); }
+.variant-list.expanded { grid-template-rows: 1fr; }
+.variant-list-inner { overflow: hidden; min-height: 0; padding: 0; transition: padding 0.36s cubic-bezier(0.4,0,0.2,1); }
+.variant-list.expanded .variant-list-inner { padding: 6px 0 2px; }
+
+.variant-row {
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  padding: 7px 10px; margin-bottom: 5px; border-radius: 8px; background: #f8f9fb;
+  border-left: 3px solid #7C6FF7;
+  opacity: 0; transform: translateY(8px);
+  transition: opacity 0.24s ease, transform 0.24s cubic-bezier(0.25,0.46,0.45,0.94), background 0.15s ease;
+}
+html[data-theme="dark"] .variant-row { background: rgba(255,255,255,0.04); }
+.variant-list.expanded .variant-row { opacity: 1; transform: translateY(0); }
+.variant-list.expanded .variant-row:nth-child(1) { transition-delay: 0.10s; }
+.variant-list.expanded .variant-row:nth-child(2) { transition-delay: 0.16s; }
+.variant-list.expanded .variant-row:nth-child(3) { transition-delay: 0.22s; }
+.variant-list.expanded .variant-row:nth-child(4) { transition-delay: 0.28s; }
+.variant-list:not(.expanded) .variant-row { transition-delay: 0s !important; }
+.variant-row:hover { background: #f0f1f4; }
+html[data-theme="dark"] .variant-row:hover { background: rgba(255,255,255,0.07); }
+.variant-row:last-child { margin-bottom: 0; }
+
+.variant-row-left { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.variant-row-dot { width: 16px; height: 16px; border-radius: 6px; flex-shrink: 0; border: 1.5px solid #ffffff; box-shadow: 0 0 0 1px rgba(0,0,0,0.15); }
+.variant-row-name { font-family: "Plus Jakarta Sans", sans-serif; font-size: 11px; font-weight: 700; color: #001f3c; white-space: nowrap; }
+html[data-theme="dark"] .variant-row-name { color: #ffffff; }
+.variant-row-size { font-family: "Plus Jakarta Sans", sans-serif; font-size: 9.5px; font-weight: 800; color: #7C6FF7; background: rgba(124,111,247,0.12); border-radius: 5px; padding: 2px 6px; flex-shrink: 0; }
+html[data-theme="dark"] .variant-row-size { color: #a095f5; background: rgba(124,111,247,0.16); }
+.variant-row-right { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+.variant-row-qty { font-family: "Roboto Mono", monospace; font-size: 10px; font-weight: 700; color: #8c92a1; }
+html[data-theme="dark"] .variant-row-qty { color: rgba(255,255,255,0.5); }
+
+.variant-single-row { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+.variant-chip { display: inline-flex; align-items: center; gap: 6px; background: #f8f9fb; border-radius: 8px; padding: 5px 10px 5px 6px; }
+html[data-theme="dark"] .variant-chip { background: rgba(255,255,255,0.05); }
+.variant-chip-dot { width: 14px; height: 14px; border-radius: 5px; flex-shrink: 0; border: 1.5px solid #ffffff; box-shadow: 0 0 0 1px rgba(0,0,0,0.15); }
+.variant-chip-text { font-family: "Plus Jakarta Sans", sans-serif; font-size: 10.5px; font-weight: 700; color: #001f3c; }
+html[data-theme="dark"] .variant-chip-text { color: #ffffff; }
+.variant-chip.size-chip { background: rgba(124,111,247,0.1); padding: 5px 10px; }
+html[data-theme="dark"] .variant-chip.size-chip { background: rgba(124,111,247,0.14); }
+.variant-chip.size-chip .variant-chip-text { color: #7C6FF7; }
+html[data-theme="dark"] .variant-chip.size-chip .variant-chip-text { color: #a095f5; }
 
 /* ── BATCH LIST — grid expand (no max-height jank) ── */
 .batch-list {
@@ -14724,6 +14904,13 @@ window.addEventListener('message',function(e){
       </button>
     </div>
     <div class="prod-picker-cat-row" id="prodPickerCatRow" style="display:none"></div>
+    <div class="prod-picker-search-wrap" id="prodPickerSearchWrap" style="display:none">
+      <div class="products-search-input-wrap">
+        <div class="products-search-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div>
+        <input class="products-search-input" type="text" placeholder="Search product or SKU..." id="prodPickerSearchInput" oninput="onProductPickerSearch(this.value)">
+        <div class="products-search-clear" id="prodPickerSearchClear" style="display:none" onclick="clearProductPickerSearch()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></div>
+      </div>
+    </div>
     <div class="prod-picker-list" id="prodPickerList"></div>
   </div>
 </div>
@@ -14844,11 +15031,49 @@ window.addEventListener('message',function(e){
         <input type="text" class="fs-input" id="rsSupplier" placeholder="Supplier name or notes">
       </div>
       <div class="fs-field" id="rsExpiryField">
-        <label class="fs-label">Expiry Date</label>
-        <div style="position:relative;display:flex;align-items:center;gap:10px;">
-          <input type="date" class="fs-input" id="rsDate" style="flex:1;" oninput="updateRsExpiryPreview()">
-          <span id="rsExpiryTag" style="display:none;font-family:'Plus Jakarta Sans',sans-serif;font-size:11px;font-weight:800;padding:3px 8px;border-radius:6px;white-space:nowrap;flex-shrink:0;"></span>
+        <label class="fs-label" id="rsExpiryLabel">Expiry Date</label>
+        <div class="np-date-wrap">
+          <input type="date" id="rsDate" class="fs-input np-date-native" onchange="updateRsExpiryPreview()">
+          <span class="np-date-display placeholder" id="rsDateDisplay">Select date</span>
         </div>
+        <span class="expiry-status-pill" id="rsExpiryTag" style="display:none"></span>
+      </div>
+      <div class="fs-field" id="rsVariantField" style="display:none">
+        <label class="fs-label" id="rsColorFieldLabel">Colour</label>
+        <input type="hidden" id="rsProductColor" value="">
+        <div class="np-color-swatch-row" id="rsColorSwatchRow">
+          <button type="button" class="np-color-swatch" style="background:#1c1c1e" onclick="pickRsColor('#1c1c1e','Black',this)" aria-label="Black"></button>
+          <button type="button" class="np-color-swatch" style="background:#f5f5f7" onclick="pickRsColor('#f5f5f7','White',this)" aria-label="White"></button>
+          <button type="button" class="np-color-swatch" style="background:#8e8e93" onclick="pickRsColor('#8e8e93','Space Grey',this)" aria-label="Space Grey"></button>
+          <button type="button" class="np-color-swatch" style="background:#d4af37" onclick="pickRsColor('#d4af37','Gold',this)" aria-label="Gold"></button>
+          <button type="button" class="np-color-swatch" style="background:#4a5568" onclick="pickRsColor('#4a5568','Graphite',this)" aria-label="Graphite"></button>
+          <button type="button" class="np-color-swatch" style="background:#0A9BDC" onclick="pickRsColor('#0A9BDC','Blue',this)" aria-label="Blue"></button>
+          <button type="button" class="np-color-swatch" style="background:#d95353" onclick="pickRsColor('#d95353','Red',this)" aria-label="Red"></button>
+          <button type="button" class="np-color-swatch np-color-swatch-custom" id="rsColorCustomTrigger" onclick="openCustomColorPicker('rs')" aria-label="Custom colour">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          </button>
+        </div>
+        <div class="np-color-selected-row" id="rsColorSelectedRow" style="display:none">
+          <span class="np-color-selected-dot" id="rsColorSelectedDot"></span>
+          <span class="np-color-selected-label" id="rsColorSelectedLabel">—</span>
+        </div>
+      </div>
+      <div class="fs-field" id="rsSizeField" style="display:none">
+        <label class="fs-label">Size</label>
+        <input type="hidden" id="rsProductSize" value="">
+        <div class="np-size-mode-toggle">
+          <button type="button" class="np-size-mode-btn active" id="rsSizeModeLetterBtn" onclick="setRsSizeMode('letter')">Letter</button>
+          <button type="button" class="np-size-mode-btn" id="rsSizeModeNumericBtn" onclick="setRsSizeMode('numeric')">Numeric</button>
+        </div>
+        <div class="np-size-letter-row" id="rsSizeLetterRow">
+          <button type="button" class="np-size-pill" onclick="pickRsSize('S', this)">S</button>
+          <button type="button" class="np-size-pill" onclick="pickRsSize('M', this)">M</button>
+          <button type="button" class="np-size-pill" onclick="pickRsSize('L', this)">L</button>
+          <button type="button" class="np-size-pill" onclick="pickRsSize('XL', this)">XL</button>
+          <button type="button" class="np-size-pill" onclick="pickRsSize('XXL', this)">XXL</button>
+          <button type="button" class="np-size-pill" onclick="pickRsSize('XXXL', this)">XXXL</button>
+        </div>
+        <input type="text" class="np-size-numeric-input" id="rsSizeNumericInput" placeholder="e.g. 32, 40, 8.5" style="display:none" oninput="pickRsSize(this.value.trim(), null)">
       </div>
     </div>
 
@@ -14943,6 +15168,7 @@ window.addEventListener('message',function(e){
       </div>
     </div>
 
+    <div id="npSpecsSection">
     <div class="field-row">
       <div class="field">
         <label>Form Type</label>
@@ -14995,6 +15221,7 @@ window.addEventListener('message',function(e){
       <label>Flavor</label>
       <input type="text" id="inpFlavor" placeholder="e.g. Unflavored" oninput="updateNpSummary()">
     </div>
+    </div>
 
     <div class="field-row">
       <div class="field">
@@ -15021,13 +15248,56 @@ window.addEventListener('message',function(e){
           </div>
         </div>
       </div>
-      <div class="field">
+      <div class="field" id="npExpiryField">
         <label>Expiry Date *</label>
         <div class="np-date-wrap">
           <input type="date" id="inpExpiry" class="np-date-native" onchange="updateNpSummary(); updateExpiryStatusPill(); updateNpExpiryDisplay();">
           <span class="np-date-display placeholder" id="inpExpiryDisplay">Select date</span>
         </div>
         <span class="expiry-status-pill" id="inpExpiryStatusPill" style="display:none"></span>
+      </div>
+    </div>
+
+    <div id="npVariantSection">
+      <div class="field">
+        <label id="npColorFieldLabel">Product Colour</label>
+        <input type="hidden" id="inpProductColor" value="">
+        <div class="np-color-swatch-row" id="npColorSwatchRow">
+          <button type="button" class="np-color-swatch" style="background:#1c1c1e" onclick="pickNpProductColor('#1c1c1e','Black',this)" aria-label="Black"></button>
+          <button type="button" class="np-color-swatch" style="background:#f5f5f7" onclick="pickNpProductColor('#f5f5f7','White',this)" aria-label="White"></button>
+          <button type="button" class="np-color-swatch" style="background:#8e8e93" onclick="pickNpProductColor('#8e8e93','Space Grey',this)" aria-label="Space Grey"></button>
+          <button type="button" class="np-color-swatch" style="background:#d4af37" onclick="pickNpProductColor('#d4af37','Gold',this)" aria-label="Gold"></button>
+          <button type="button" class="np-color-swatch" style="background:#4a5568" onclick="pickNpProductColor('#4a5568','Graphite',this)" aria-label="Graphite"></button>
+          <button type="button" class="np-color-swatch" style="background:#0A9BDC" onclick="pickNpProductColor('#0A9BDC','Blue',this)" aria-label="Blue"></button>
+          <button type="button" class="np-color-swatch" style="background:#d95353" onclick="pickNpProductColor('#d95353','Red',this)" aria-label="Red"></button>
+          <button type="button" class="np-color-swatch np-color-swatch-custom" id="npColorCustomTrigger" onclick="openCustomColorPicker()" aria-label="Custom colour">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          </button>
+        </div>
+        <div class="np-color-selected-row" id="npColorSelectedRow" style="display:none">
+          <span class="np-color-selected-dot" id="npColorSelectedDot"></span>
+          <span class="np-color-selected-label" id="npColorSelectedLabel">—</span>
+        </div>
+      </div>
+
+      <div class="field" id="npSizeField" style="display:none">
+        <label>Size *</label>
+        <input type="hidden" id="inpProductSize" value="">
+        <div class="np-size-mode-toggle">
+          <button type="button" class="np-size-mode-btn active" id="npSizeModeLetterBtn" onclick="setNpSizeMode('letter')">Letter</button>
+          <button type="button" class="np-size-mode-btn" id="npSizeModeNumericBtn" onclick="setNpSizeMode('numeric')">Numeric</button>
+        </div>
+
+        <div class="np-size-letter-row" id="npSizeLetterRow">
+          <button type="button" class="np-size-pill" onclick="pickNpSize('S', this)">S</button>
+          <button type="button" class="np-size-pill" onclick="pickNpSize('M', this)">M</button>
+          <button type="button" class="np-size-pill" onclick="pickNpSize('L', this)">L</button>
+          <button type="button" class="np-size-pill" onclick="pickNpSize('XL', this)">XL</button>
+          <button type="button" class="np-size-pill" onclick="pickNpSize('XXL', this)">XXL</button>
+          <button type="button" class="np-size-pill" onclick="pickNpSize('XXXL', this)">XXXL</button>
+        </div>
+
+        <input type="text" class="np-size-numeric-input" id="npSizeNumericInput" placeholder="e.g. 32, 40, 8.5" style="display:none" oninput="pickNpSize(this.value.trim(), null)">
       </div>
     </div>
   </div>
@@ -15124,6 +15394,20 @@ window.addEventListener('message',function(e){
     </div>
   </div>
 
+  <!-- ============ CARD 2.5: ADDITIONAL SPECIFICATIONS ============ -->
+  <div class="form-card">
+    <h3 class="specs-header"><span class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></span>Additional Specifications</h3>
+    <div class="specs-sub">Add product-specific details that don't fit the standard fields — e.g. Storage, Voltage, Warranty. Optional, add as many as needed.</div>
+
+    <div id="npCustomSpecsList"></div>
+    <div class="np-specs-empty-hint" id="npSpecsEmptyHint">No extra specs added yet.</div>
+
+    <button type="button" class="np-spec-add-trigger" onclick="addNpCustomSpecRow()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Add Spec
+    </button>
+  </div>
+
   <!-- ============ CARD 3: PRODUCT SUMMARY ============ -->
   <div class="form-card">
     <h3 class="summary-header"><span class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></span>Product Summary</h3>
@@ -15163,6 +15447,19 @@ window.addEventListener('message',function(e){
         <div class="sg-cell sg-label">Origin / Expiry</div>
         <div class="sg-cell sg-val empty" id="sumOrigin">—</div>
       </div>
+      <div class="sg-row" id="sumColorRow" style="display:none">
+        <div class="sg-cell sg-label">Colour</div>
+        <div class="sg-cell sg-val" id="sumColor" style="display:flex;align-items:center;justify-content:flex-end;gap:7px">
+          <span id="sumColorDot" style="width:16px;height:16px;border-radius:6px;flex-shrink:0;border:1.5px solid #ffffff;box-shadow:0 0 0 1px rgba(0,0,0,0.15),0 1px 3px rgba(0,0,0,0.2)"></span>
+          <span id="sumColorText">—</span>
+        </div>
+      </div>
+      <div class="sg-row" id="sumSizeRow" style="display:none">
+        <div class="sg-cell sg-label">Size</div>
+        <div class="sg-cell sg-val empty" id="sumSize">—</div>
+      </div>
+
+      <div id="sumCustomSpecsList"></div>
 
       <div class="sg-section-head sg-section-boundary">Payment Details</div>
 
@@ -15205,6 +15502,39 @@ window.addEventListener('message',function(e){
       </button>
     </div>
 
+  </div>
+</div>
+
+<!-- ====== CUSTOM COLOUR PICKER ====== -->
+<div class="color-picker-overlay" id="colorPickerOverlay" onclick="if(event.target===this) closeCustomColorPicker()">
+  <div class="color-picker-modal">
+    <div class="color-picker-header">
+      <div class="color-picker-title">Pick a Colour</div>
+      <button type="button" class="color-picker-close" onclick="closeCustomColorPicker()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="color-picker-body">
+      <div class="cp-sb-wrap" id="cpSbWrap">
+        <canvas class="cp-sb-canvas" id="cpSbCanvas"></canvas>
+        <div class="cp-sb-cursor" id="cpSbCursor"></div>
+      </div>
+      <div class="cp-slider-row">
+        <canvas class="cp-hue-canvas" id="cpHueCanvas"></canvas>
+        <div class="cp-hue-thumb" id="cpHueThumb"></div>
+      </div>
+      <div class="cp-bottom-row">
+        <div class="cp-preview" id="cpPreview"></div>
+        <div class="cp-hex-wrap">
+          <span class="cp-hex-hash">#</span>
+          <input type="text" class="cp-hex-input" id="cpHexInput" maxlength="6" placeholder="7C6FF7" oninput="cpHexChanged(this.value.replace(/[^0-9a-fA-F]/g,''))">
+        </div>
+      </div>
+    </div>
+    <div class="color-picker-footer">
+      <button type="button" class="cp-btn-cancel" onclick="closeCustomColorPicker()">Cancel</button>
+      <button type="button" class="cp-btn-apply" onclick="applyProductColor()">Apply Colour</button>
+    </div>
   </div>
 </div>
 
@@ -17648,8 +17978,13 @@ function openProductPicker(rowId) {
   if (rowId === '__restock__') {
     // Restock pulls from the real, live inventory — not the sample order catalog.
     _restockPickerCategory = 'all';
+    _pickerSearchTerm = '';
     catRow.style.display = 'flex';
     buildPickerCatRow('all', 'filterRestockPicker');
+    document.getElementById('prodPickerSearchWrap').style.display = 'block';
+    const searchInput = document.getElementById('prodPickerSearchInput');
+    if (searchInput) searchInput.value = '';
+    document.getElementById('prodPickerSearchClear').style.display = 'none';
     renderRestockPickerList('all');
     document.getElementById('prodPickerOverlay').classList.add('active');
     return;
@@ -17657,10 +17992,38 @@ function openProductPicker(rowId) {
 
   _orderPickerRowId = rowId;
   _orderPickerCategory = 'all';
+  _pickerSearchTerm = '';
   catRow.style.display = 'flex';
   buildPickerCatRow('all', 'filterOrderPicker');
+  document.getElementById('prodPickerSearchWrap').style.display = 'block';
+  const searchInput2 = document.getElementById('prodPickerSearchInput');
+  if (searchInput2) searchInput2.value = '';
+  document.getElementById('prodPickerSearchClear').style.display = 'none';
   renderOrderPickerList('all', rowId);
   document.getElementById('prodPickerOverlay').classList.add('active');
+}
+
+let _pickerSearchTerm = '';
+function onProductPickerSearch(val) {
+  _pickerSearchTerm = (val || '').toLowerCase().trim();
+  document.getElementById('prodPickerSearchClear').style.display = _pickerSearchTerm ? 'flex' : 'none';
+  if (_restockPickerActive) {
+    renderRestockPickerList(_restockPickerCategory);
+  } else {
+    renderOrderPickerList(_orderPickerCategory, _orderPickerRowId);
+  }
+}
+
+function clearProductPickerSearch() {
+  _pickerSearchTerm = '';
+  const el = document.getElementById('prodPickerSearchInput');
+  if (el) el.value = '';
+  document.getElementById('prodPickerSearchClear').style.display = 'none';
+  if (_restockPickerActive) {
+    renderRestockPickerList(_restockPickerCategory);
+  } else {
+    renderOrderPickerList(_orderPickerCategory, _orderPickerRowId);
+  }
 }
 
 let _orderPickerRowId = null;
@@ -17674,9 +18037,15 @@ function filterOrderPicker(cat) {
 
 function renderOrderPickerList(cat, rowId) {
   const list = document.getElementById('prodPickerList');
-  const filtered = cat === 'all' ? PRODUCTS_DATA : PRODUCTS_DATA.filter(p => p.category === cat);
+  let filtered = cat === 'all' ? PRODUCTS_DATA : PRODUCTS_DATA.filter(p => p.category === cat);
+  if (_pickerSearchTerm) {
+    filtered = filtered.filter(p =>
+      p.name.toLowerCase().includes(_pickerSearchTerm) ||
+      p.sku.toLowerCase().includes(_pickerSearchTerm)
+    );
+  }
   if (filtered.length === 0) {
-    list.innerHTML = `<div style="padding:40px 20px;text-align:center;color:#8c92a1;font-size:13px;font-weight:600">No products in this category</div>`;
+    list.innerHTML = `<div style="padding:40px 20px;text-align:center;color:#8c92a1;font-size:13px;font-weight:600">No products found</div>`;
     return;
   }
   list.innerHTML = filtered.map(p => {
@@ -17689,8 +18058,7 @@ function renderOrderPickerList(cat, rowId) {
           <div class="prod-info-sku">${p.sku}</div>
         </div>
         <div class="prod-right">
-          <span class="stock-badge ${stock.cls}">${stock.label}</span>
-          <span class="prod-price">৳${p.price.toLocaleString('en-IN')}</span>
+          <span class="stock-badge ${stock.cls} picker-stock-badge">${stock.label}</span>
         </div>
       </div>`;
   }).join('');
@@ -17722,9 +18090,15 @@ function filterRestockPicker(cat) {
 
 function renderRestockPickerList(cat) {
   const list = document.getElementById('prodPickerList');
-  const filtered = cat === 'all' ? PRODUCTS_DATA : PRODUCTS_DATA.filter(p => p.category === cat);
+  let filtered = cat === 'all' ? PRODUCTS_DATA : PRODUCTS_DATA.filter(p => p.category === cat);
+  if (_pickerSearchTerm) {
+    filtered = filtered.filter(p =>
+      p.name.toLowerCase().includes(_pickerSearchTerm) ||
+      p.sku.toLowerCase().includes(_pickerSearchTerm)
+    );
+  }
   if (filtered.length === 0) {
-    list.innerHTML = `<div style="padding:40px 20px;text-align:center;color:#8c92a1;font-size:13px;font-weight:600">No products in this category</div>`;
+    list.innerHTML = `<div style="padding:40px 20px;text-align:center;color:#8c92a1;font-size:13px;font-weight:600">No products found</div>`;
     return;
   }
   list.innerHTML = filtered.map(p => {
@@ -17737,8 +18111,7 @@ function renderRestockPickerList(cat) {
           <div class="prod-info-sku">${p.sku}</div>
         </div>
         <div class="prod-right">
-          <span class="stock-badge ${stock.cls}">${stock.label}</span>
-          <span class="prod-price">৳${p.price.toLocaleString('en-IN')}</span>
+          <span class="stock-badge ${stock.cls} picker-stock-badge">${stock.label}</span>
         </div>
       </div>`;
   }).join('');
@@ -18242,6 +18615,9 @@ function openRestockModal() {
   if (_npEl('inpWeightCost')) _npEl('inpWeightCost').value = '';
   if (_npEl('inpProfit')) _npEl('inpProfit').value = '';
   if (_npEl('inpMargin')) _npEl('inpMargin').value = '';
+  resetNpCustomSpecs();
+  resetNpProductColor();
+  resetNpSize();
   updatePotencyPreview();
   const sumCatReset = document.getElementById('sumCategory');
   if (sumCatReset) { sumCatReset.textContent = '—'; sumCatReset.classList.add('empty'); }
@@ -18497,9 +18873,14 @@ function setNpCategory(cat, el) {
   const needsVariant = cat === 'electronics' || cat === 'clothing';
   const isSupplement = cat === 'supplement';
 
-  (document.getElementById('npSpecsSection')||_npSafeEl()).style.display   = needsExpiry  ? 'block' : 'none';
+  (document.getElementById('npSpecsSection')||_npSafeEl()).style.display   = isSupplement ? 'block' : 'none';
   (document.getElementById('npExpiryField')||_npSafeEl()).style.display    = needsExpiry  ? 'block' : 'none';
   (document.getElementById('npVariantSection')||_npSafeEl()).style.display = needsVariant ? 'block' : 'none';
+  const npColorFieldLabel = document.getElementById('npColorFieldLabel');
+  if (npColorFieldLabel) npColorFieldLabel.textContent = 'Product Colour';
+  const isClothing = cat === 'clothing';
+  (document.getElementById('npSizeField')||_npSafeEl()).style.display = isClothing ? 'block' : 'none';
+  if (!isClothing) resetNpSize();
   (document.getElementById('npBrandColorSection')||_npSafeEl()).style.display = isSupplement ? 'none' : 'block';
   (document.getElementById('npProductCodeField')||_npSafeEl()).style.display  = isSupplement ? 'none' : 'block';
   const npFlavorField = document.getElementById('npFlavorField') || _npSafeEl();
@@ -18841,7 +19222,119 @@ function calcNewProductMargin() {
   if (sumSellPrice) sumSellPrice.textContent = sell > 0 ? (profit >= 0 ? '+' : '') + '৳' + Math.round(profit).toLocaleString('en-IN') : '৳0';
 }
 
+/* ====== ADD NEW PRODUCT — CUSTOM SPECS (universal, all categories) ====== */
+let npSpecCounter = 0;
+
+function addNpCustomSpecRow(prefillLabel, prefillValue) {
+  npSpecCounter++;
+  const id = npSpecCounter;
+  const list = document.getElementById('npCustomSpecsList');
+  if (!list) return;
+  const row = document.createElement('div');
+  row.className = 'np-spec-row';
+  row.id = 'npSpecRow' + id;
+  const lblVal = prefillLabel ? prefillLabel.replace(/"/g, '&quot;') : '';
+  const valVal = prefillValue ? prefillValue.replace(/"/g, '&quot;') : '';
+  row.innerHTML = `
+    <div class="np-spec-input-wrap">
+      <label>Spec Name</label>
+      <input type="text" class="np-spec-title" placeholder="e.g. Storage" value="${lblVal}" oninput="updateNpSummary()">
+    </div>
+    <div class="np-spec-input-wrap">
+      <label>Value</label>
+      <input type="text" class="np-spec-value" placeholder="e.g. 128GB" value="${valVal}" oninput="updateNpSummary()">
+    </div>
+    <button type="button" class="np-spec-remove-btn" onclick="removeNpCustomSpecRow(${id})" aria-label="Remove spec">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+  `;
+  list.appendChild(row);
+  updateNpSpecsEmptyHint();
+  renderNpCustomSpecsSummary();
+  if (!prefillLabel && !prefillValue) {
+    const titleInput = row.querySelector('.np-spec-title');
+    if (titleInput) titleInput.focus();
+  }
+}
+
+function removeNpCustomSpecRow(id) {
+  const row = document.getElementById('npSpecRow' + id);
+  if (row) row.remove();
+  updateNpSpecsEmptyHint();
+  updateNpSummary();
+}
+
+function updateNpSpecsEmptyHint() {
+  const list = document.getElementById('npCustomSpecsList');
+  const hint = document.getElementById('npSpecsEmptyHint');
+  if (list && hint) hint.classList.toggle('show', list.children.length === 0);
+}
+
+function resetNpCustomSpecs() {
+  const list = document.getElementById('npCustomSpecsList');
+  if (list) list.innerHTML = '';
+  npSpecCounter = 0;
+  updateNpSpecsEmptyHint();
+  const sumList = document.getElementById('sumCustomSpecsList');
+  if (sumList) sumList.innerHTML = '';
+}
+
+function collectNpCustomSpecs() {
+  const rows = document.querySelectorAll('#npCustomSpecsList .np-spec-row');
+  const data = [];
+  rows.forEach(row => {
+    const titleEl = row.querySelector('.np-spec-title');
+    const valueEl = row.querySelector('.np-spec-value');
+    const label = titleEl ? titleEl.value.trim() : '';
+    const value = valueEl ? valueEl.value.trim() : '';
+    if (label || value) data.push({ label, value });
+  });
+  return data;
+}
+
+function renderNpCustomSpecsSummary() {
+  const target = document.getElementById('sumCustomSpecsList');
+  if (!target) return;
+  const specs = collectNpCustomSpecs();
+  if (specs.length === 0) { target.innerHTML = ''; return; }
+  target.innerHTML = specs.map(s => `
+    <div class="sg-row">
+      <div class="sg-cell sg-label">${(s.label || 'Spec').replace(/</g,'&lt;')}</div>
+      <div class="sg-cell sg-val">${(s.value || '—').replace(/</g,'&lt;')}</div>
+    </div>
+  `).join('');
+}
+
 function updateNpSummary() {
+  renderNpCustomSpecsSummary();
+  const colorVal = (document.getElementById('inpProductColor')||{}).value || '';
+  const sumColorRow = document.getElementById('sumColorRow');
+  const sumColorDot = document.getElementById('sumColorDot');
+  const sumColorText = document.getElementById('sumColorText');
+  if (sumColorRow && sumColorDot && sumColorText) {
+    if (colorVal) {
+      const label = (document.getElementById('npColorSelectedLabel')||{}).textContent || colorVal.toUpperCase();
+      sumColorRow.style.display = 'flex';
+      sumColorDot.style.background = colorVal;
+      sumColorText.textContent = label;
+    } else {
+      sumColorRow.style.display = 'none';
+    }
+  }
+  const sizeVal = (document.getElementById('inpProductSize')||{}).value || '';
+  const sumSizeRow = document.getElementById('sumSizeRow');
+  const sumSize = document.getElementById('sumSize');
+  if (sumSizeRow && sumSize) {
+    const sizeField = document.getElementById('npSizeField');
+    const sizeFieldVisible = sizeField && sizeField.style.display !== 'none';
+    if (sizeFieldVisible) {
+      sumSizeRow.style.display = 'flex';
+      sumSize.textContent = sizeVal || '—';
+      sumSize.classList.toggle('empty', !sizeVal);
+    } else {
+      sumSizeRow.style.display = 'none';
+    }
+  }
   const syncField = (inputId, sumId) => {
     const inp = document.getElementById(inputId);
     const sum = document.getElementById(sumId);
@@ -18930,6 +19423,10 @@ function clearRestockProduct() {
   document.getElementById('rsProdLineTotal').textContent = '৳0';
   document.getElementById('rsCpmRow').style.display = 'none';
   document.getElementById('rsExpiryField').style.display = 'block';
+  document.getElementById('rsVariantField').style.display = 'none';
+  document.getElementById('rsSizeField').style.display = 'none';
+  resetRsColor();
+  resetRsSize();
 }
 
 function selectRestockProduct(name) {
@@ -18940,10 +19437,21 @@ function selectRestockProduct(name) {
   const cat = CATEGORY_META[p.category] || CATEGORY_META.general;
   const needsExpiry = p.category === 'supplement' || p.category === 'cosmetic';
   document.getElementById('rsExpiryField').style.display = needsExpiry ? 'block' : 'none';
+  const rsExpiryLabel = document.getElementById('rsExpiryLabel');
+  if (rsExpiryLabel) rsExpiryLabel.textContent = needsExpiry ? 'Expiry Date *' : 'Expiry Date';
   if (!needsExpiry) {
     document.getElementById('rsDate').value = '';
     document.getElementById('rsExpiryTag').style.display = 'none';
   }
+
+  const hasColor = p.category === 'electronics' || p.category === 'clothing';
+  const hasSize  = p.category === 'clothing';
+  document.getElementById('rsVariantField').style.display = hasColor ? 'block' : 'none';
+  document.getElementById('rsSizeField').style.display = hasSize ? 'block' : 'none';
+  const rsColorFieldLabel = document.getElementById('rsColorFieldLabel');
+  if (rsColorFieldLabel) rsColorFieldLabel.textContent = 'Colour';
+  resetRsColor();
+  resetRsSize();
 
   const margin = p.price > 0 ? ((p.price - p.cost) / p.price * 100).toFixed(1) : 0;
   const mCls = margin < 20 ? 'red' : margin < 30 ? 'amber' : 'green';
@@ -18986,22 +19494,21 @@ function updateRestockSku() {}
 
 function updateRsExpiryPreview() {
   const val = document.getElementById('rsDate').value;
-  const tag = document.getElementById('rsExpiryTag');
-  if (!val) { tag.style.display = 'none'; return; }
-  const st  = getBatchExpiryStatus(val);
-  const lbl = formatTimeLeft(st.days);
-  const c   = st.color;
-  const r = parseInt(c.slice(1,3),16), g = parseInt(c.slice(3,5),16), b = parseInt(c.slice(5,7),16);
-  tag.textContent = lbl;
-  tag.style.display       = 'inline-block';
-  tag.style.color         = c;
-  tag.style.background    = `rgba(${r},${g},${b},0.1)`;
-  tag.style.border        = `1px solid rgba(${r},${g},${b},0.3)`;
-  tag.style.padding       = '3px 8px';
-  tag.style.borderRadius  = '6px';
-  tag.style.fontSize      = '11px';
-  tag.style.fontWeight    = '800';
-  tag.style.fontFamily    = '"Plus Jakarta Sans",sans-serif';
+  const disp = document.getElementById('rsDateDisplay');
+  const pill = document.getElementById('rsExpiryTag');
+  if (disp) {
+    if (!val) { disp.textContent = 'Select date'; disp.classList.add('placeholder'); }
+    else { disp.textContent = formatDateDMY(val); disp.classList.remove('placeholder'); }
+  }
+  if (!pill) return;
+  if (!val) { pill.style.display = 'none'; return; }
+
+  const st = getBatchExpiryStatus(val);
+  const label = st.days >= 365 ? formatTimeLeft(st.days) : formatExpiryMonthsDays(st.days);
+  pill.textContent = st.days < 0 ? 'EXPIRED · ' + formatExpiryMonthsDays(Math.abs(st.days)) + ' ago' : label + ' left';
+  pill.classList.remove('red', 'orange', 'green');
+  pill.classList.add(st.days < 0 ? 'red' : st.tagClass);
+  pill.style.display = 'inline-flex';
 }
 
 /* ====== CUSTOM COLOR PICKER ENGINE ====== */
@@ -19085,9 +19592,14 @@ function cpHexChanged(val) {
   if(val.length===6 && /^[0-9a-fA-F]{6}$/.test(val)) cpSetHex(val);
 }
 
-function openCustomColorPicker() {
+function openCustomColorPicker(context) {
   const overlay = document.getElementById('colorPickerOverlay');
+  overlay._context = context || 'np';
   overlay.classList.add('active');
+
+  // Clean up any listeners from a previous open before attaching new ones,
+  // so repeated opens never stack duplicate handlers.
+  if (overlay._cleanup) { overlay._cleanup(); overlay._cleanup = null; }
 
   setTimeout(() => {
     const sbWrap   = document.getElementById('cpSbWrap');
@@ -19103,26 +19615,20 @@ function openCustomColorPicker() {
 
     let rafId = null;
 
-    function getPos(e) {
-      return e.touches ? e.touches[0] : e;
-    }
-
     function updateSb(e) {
       const rect = sbWrap.getBoundingClientRect();
-      const p = getPos(e);
-      CP.s = Math.max(0, Math.min(1, (p.clientX - rect.left)  / rect.width));
-      CP.v = Math.max(0, Math.min(1, 1 - (p.clientY - rect.top) / rect.height));
+      CP.s = Math.max(0, Math.min(1, (e.clientX - rect.left)  / rect.width));
+      CP.v = Math.max(0, Math.min(1, 1 - (e.clientY - rect.top) / rect.height));
     }
 
     function updateHue(e) {
       const rect = hCanvas.getBoundingClientRect();
-      const p = getPos(e);
-      CP.h = Math.round(Math.max(0, Math.min(360, ((p.clientX - rect.left) / rect.width) * 360)));
+      CP.h = Math.round(Math.max(0, Math.min(360, ((e.clientX - rect.left) / rect.width) * 360)));
     }
 
     function rafSb(e) {
-      e.preventDefault();
       if (!CP.draggingSb) return;
+      e.preventDefault();
       if (rafId) cancelAnimationFrame(rafId);
       rafId = requestAnimationFrame(() => {
         updateSb(e);
@@ -19131,8 +19637,8 @@ function openCustomColorPicker() {
     }
 
     function rafHue(e) {
-      e.preventDefault();
       if (!CP.draggingHue) return;
+      e.preventDefault();
       if (rafId) cancelAnimationFrame(rafId);
       rafId = requestAnimationFrame(() => {
         updateHue(e);
@@ -19140,23 +19646,45 @@ function openCustomColorPicker() {
       });
     }
 
-    sbWrap.addEventListener('mousedown',  e => { CP.draggingSb = true; updateSb(e); cpDrawSb(); cpUpdateCursors(); cpUpdatePreview(); }, { passive: false });
-    sbWrap.addEventListener('touchstart', e => { CP.draggingSb = true; updateSb(e); cpDrawSb(); cpUpdateCursors(); cpUpdatePreview(); }, { passive: false });
-    hCanvas.addEventListener('mousedown',  e => { CP.draggingHue = true; updateHue(e); cpDrawSb(); cpUpdateCursors(); cpUpdatePreview(); }, { passive: false });
-    hCanvas.addEventListener('touchstart', e => { CP.draggingHue = true; updateHue(e); cpDrawSb(); cpUpdateCursors(); cpUpdatePreview(); }, { passive: false });
+    function onSbDown(e) {
+      e.preventDefault();
+      CP.draggingSb = true;
+      if (sbWrap.setPointerCapture && e.pointerId != null) {
+        try { sbWrap.setPointerCapture(e.pointerId); } catch(err) {}
+      }
+      updateSb(e); cpDrawSb(); cpUpdateCursors(); cpUpdatePreview();
+    }
 
-    document.addEventListener('mousemove',  rafSb);
-    document.addEventListener('touchmove',  rafSb, { passive: false });
-    document.addEventListener('mousemove',  rafHue);
-    document.addEventListener('touchmove',  rafHue, { passive: false });
-    document.addEventListener('mouseup',  () => { CP.draggingSb = false; CP.draggingHue = false; });
-    document.addEventListener('touchend', () => { CP.draggingSb = false; CP.draggingHue = false; });
+    function onHueDown(e) {
+      e.preventDefault();
+      CP.draggingHue = true;
+      if (hCanvas.setPointerCapture && e.pointerId != null) {
+        try { hCanvas.setPointerCapture(e.pointerId); } catch(err) {}
+      }
+      updateHue(e); cpDrawSb(); cpUpdateCursors(); cpUpdatePreview();
+    }
+
+    function onPointerUp() { CP.draggingSb = false; CP.draggingHue = false; }
+
+    sbWrap.addEventListener('pointerdown', onSbDown, { passive: false });
+    hCanvas.addEventListener('pointerdown', onHueDown, { passive: false });
+    document.addEventListener('pointermove', rafSb, { passive: false });
+    document.addEventListener('pointermove', rafHue, { passive: false });
+    document.addEventListener('pointerup', onPointerUp);
+    document.addEventListener('pointercancel', onPointerUp);
+
+    // touch-action:none on both surfaces (set inline as a safety net in case
+    // the stylesheet class is missed) stops the page from scrolling while dragging.
+    sbWrap.style.touchAction = 'none';
+    hCanvas.style.touchAction = 'none';
 
     overlay._cleanup = () => {
-      document.removeEventListener('mousemove',  rafSb);
-      document.removeEventListener('touchmove',  rafSb);
-      document.removeEventListener('mousemove',  rafHue);
-      document.removeEventListener('touchmove',  rafHue);
+      sbWrap.removeEventListener('pointerdown', onSbDown);
+      hCanvas.removeEventListener('pointerdown', onHueDown);
+      document.removeEventListener('pointermove', rafSb);
+      document.removeEventListener('pointermove', rafHue);
+      document.removeEventListener('pointerup', onPointerUp);
+      document.removeEventListener('pointercancel', onPointerUp);
     };
   }, 60);
 }
@@ -19172,6 +19700,161 @@ function applyCustomColor() {
   selectBrandColor(hex, (document.getElementById('npColorCustom')||_npSafeEl()));
   (document.getElementById('npColorCustom')||_npSafeEl()).style.background=hex;
   closeCustomColorPicker();
+}
+
+/* ====== ADD NEW PRODUCT — PRODUCT COLOUR (Electronics/Clothing) ====== */
+function pickNpProductColor(hex, name, btnEl) {
+  document.getElementById('inpProductColor').value = hex;
+  document.querySelectorAll('#npColorSwatchRow .np-color-swatch').forEach(b => b.classList.remove('selected'));
+  if (btnEl) btnEl.classList.add('selected');
+  const row = document.getElementById('npColorSelectedRow');
+  const dot = document.getElementById('npColorSelectedDot');
+  const label = document.getElementById('npColorSelectedLabel');
+  if (row && dot && label) {
+    row.style.display = 'flex';
+    dot.style.background = hex;
+    label.textContent = name + ' · ' + hex.toUpperCase();
+  }
+  updateNpSummary();
+}
+
+function applyProductColor() {
+  const hex = '#' + cpHsvToHex(CP.h, CP.s, CP.v);
+  const overlay = document.getElementById('colorPickerOverlay');
+  const context = overlay ? overlay._context : 'np';
+  if (context === 'rs') {
+    pickRsColor(hex, 'Custom', document.getElementById('rsColorCustomTrigger'));
+    const trigger = document.getElementById('rsColorCustomTrigger');
+    if (trigger) trigger.style.background = hex;
+  } else {
+    pickNpProductColor(hex, 'Custom', document.getElementById('npColorCustomTrigger'));
+    const trigger = document.getElementById('npColorCustomTrigger');
+    if (trigger) trigger.style.background = hex;
+  }
+  closeCustomColorPicker();
+}
+
+function resetNpProductColor() {
+  const input = document.getElementById('inpProductColor');
+  if (input) input.value = '';
+  document.querySelectorAll('#npColorSwatchRow .np-color-swatch').forEach(b => b.classList.remove('selected'));
+  const trigger = document.getElementById('npColorCustomTrigger');
+  if (trigger) trigger.style.background = '';
+  const row = document.getElementById('npColorSelectedRow');
+  if (row) row.style.display = 'none';
+}
+
+/* ====== ADD NEW PRODUCT — SIZE (Clothing only) ====== */
+function setNpSizeMode(mode) {
+  const letterBtn = document.getElementById('npSizeModeLetterBtn');
+  const numericBtn = document.getElementById('npSizeModeNumericBtn');
+  const letterRow = document.getElementById('npSizeLetterRow');
+  const numericInput = document.getElementById('npSizeNumericInput');
+  if (!letterBtn || !numericBtn || !letterRow || !numericInput) return;
+  letterBtn.classList.toggle('active', mode === 'letter');
+  numericBtn.classList.toggle('active', mode === 'numeric');
+  letterRow.style.display = mode === 'letter' ? 'flex' : 'none';
+  numericInput.style.display = mode === 'numeric' ? 'block' : 'none';
+  document.getElementById('inpProductSize').value = '';
+  document.querySelectorAll('#npSizeLetterRow .np-size-pill').forEach(b => b.classList.remove('selected'));
+  numericInput.value = '';
+  updateNpSummary();
+}
+
+function pickNpSize(value, btnEl) {
+  document.getElementById('inpProductSize').value = value;
+  if (btnEl) {
+    document.querySelectorAll('#npSizeLetterRow .np-size-pill').forEach(b => b.classList.remove('selected'));
+    btnEl.classList.add('selected');
+  }
+  updateNpSummary();
+}
+
+function resetNpSize() {
+  const input = document.getElementById('inpProductSize');
+  if (input) input.value = '';
+  document.querySelectorAll('#npSizeField .np-size-pill').forEach(b => b.classList.remove('selected'));
+  const numericInput = document.getElementById('npSizeNumericInput');
+  if (numericInput) numericInput.value = '';
+  setNpSizeModeQuiet('letter');
+}
+
+function setNpSizeModeQuiet(mode) {
+  const letterBtn = document.getElementById('npSizeModeLetterBtn');
+  const numericBtn = document.getElementById('npSizeModeNumericBtn');
+  const letterRow = document.getElementById('npSizeLetterRow');
+  const numericInput = document.getElementById('npSizeNumericInput');
+  if (!letterBtn || !numericBtn || !letterRow || !numericInput) return;
+  letterBtn.classList.toggle('active', mode === 'letter');
+  numericBtn.classList.toggle('active', mode === 'numeric');
+  letterRow.style.display = mode === 'letter' ? 'flex' : 'none';
+  numericInput.style.display = mode === 'numeric' ? 'block' : 'none';
+}
+
+/* ====== RESTOCK EXISTING — COLOUR (Electronics/Clothing/Cosmetic) ====== */
+function pickRsColor(hex, name, btnEl) {
+  document.getElementById('rsProductColor').value = hex;
+  document.querySelectorAll('#rsColorSwatchRow .np-color-swatch').forEach(b => b.classList.remove('selected'));
+  if (btnEl) btnEl.classList.add('selected');
+  const row = document.getElementById('rsColorSelectedRow');
+  const dot = document.getElementById('rsColorSelectedDot');
+  const label = document.getElementById('rsColorSelectedLabel');
+  if (row && dot && label) {
+    row.style.display = 'flex';
+    dot.style.background = hex;
+    label.textContent = name + ' · ' + hex.toUpperCase();
+  }
+}
+
+function resetRsColor() {
+  const input = document.getElementById('rsProductColor');
+  if (input) input.value = '';
+  document.querySelectorAll('#rsColorSwatchRow .np-color-swatch').forEach(b => b.classList.remove('selected'));
+  const trigger = document.getElementById('rsColorCustomTrigger');
+  if (trigger) trigger.style.background = '';
+  const row = document.getElementById('rsColorSelectedRow');
+  if (row) row.style.display = 'none';
+}
+
+/* ====== RESTOCK EXISTING — SIZE (Clothing) ====== */
+function setRsSizeMode(mode) {
+  const letterBtn = document.getElementById('rsSizeModeLetterBtn');
+  const numericBtn = document.getElementById('rsSizeModeNumericBtn');
+  const letterRow = document.getElementById('rsSizeLetterRow');
+  const numericInput = document.getElementById('rsSizeNumericInput');
+  if (!letterBtn || !numericBtn || !letterRow || !numericInput) return;
+  letterBtn.classList.toggle('active', mode === 'letter');
+  numericBtn.classList.toggle('active', mode === 'numeric');
+  letterRow.style.display = mode === 'letter' ? 'flex' : 'none';
+  numericInput.style.display = mode === 'numeric' ? 'block' : 'none';
+  document.getElementById('rsProductSize').value = '';
+  document.querySelectorAll('#rsSizeLetterRow .np-size-pill').forEach(b => b.classList.remove('selected'));
+  numericInput.value = '';
+}
+
+function pickRsSize(value, btnEl) {
+  document.getElementById('rsProductSize').value = value;
+  if (btnEl) {
+    document.querySelectorAll('#rsSizeLetterRow .np-size-pill').forEach(b => b.classList.remove('selected'));
+    btnEl.classList.add('selected');
+  }
+}
+
+function resetRsSize() {
+  const input = document.getElementById('rsProductSize');
+  if (input) input.value = '';
+  document.querySelectorAll('#rsSizeLetterRow .np-size-pill').forEach(b => b.classList.remove('selected'));
+  const numericInput = document.getElementById('rsSizeNumericInput');
+  if (numericInput) numericInput.value = '';
+  const letterBtn = document.getElementById('rsSizeModeLetterBtn');
+  const numericBtn = document.getElementById('rsSizeModeNumericBtn');
+  const letterRow = document.getElementById('rsSizeLetterRow');
+  if (letterBtn && numericBtn && letterRow && numericInput) {
+    letterBtn.classList.add('active');
+    numericBtn.classList.remove('active');
+    letterRow.style.display = 'flex';
+    numericInput.style.display = 'none';
+  }
 }
 
 function updateRestockBdt() {}
@@ -19207,8 +19890,22 @@ async function restockExistingProduct() {
   const supplier    = document.getElementById('rsSupplier').value.trim();
   const expiryDate  = document.getElementById('rsDate').value;
   const needsExpiry = category === 'supplement' || category === 'cosmetic';
+  const hasColorCat = category === 'electronics' || category === 'clothing';
+  const hasSizeCat  = category === 'clothing';
+  const pickedColor = hasColorCat ? (document.getElementById('rsProductColor').value || '') : '';
+  const pickedColorLabel = hasColorCat ? ((document.getElementById('rsColorSelectedLabel')||{}).textContent || '') : '';
+  const pickedSize   = hasSizeCat ? (document.getElementById('rsProductSize').value || '') : '';
 
   if (!productName || !sku) { showToast('Please select a product'); return; }
+  if (needsExpiry && !expiryDate) {
+    showToast('⚠ Missing: Expiry Date');
+    const dateInput = document.getElementById('rsDate');
+    if (dateInput) {
+      dateInput.classList.add('shake');
+      setTimeout(() => dateInput.classList.remove('shake'), 400);
+    }
+    return;
+  }
 
   showToast('Saving…');
 
@@ -19229,6 +19926,22 @@ async function restockExistingProduct() {
       qty: qty,
       costPerUnit: cost
     });
+  }
+
+  if (hasColorCat && pickedColor) {
+    if (!Array.isArray(localProd.variants)) localProd.variants = [];
+    const existing = localProd.variants.find(v => v.color === pickedColor && (v.size || '') === (pickedSize || ''));
+    if (existing) {
+      existing.qty = (existing.qty || 0) + qty;
+    } else {
+      localProd.variants.push({
+        id: 'VAR-' + Date.now().toString().slice(-6),
+        color: pickedColor,
+        colorName: pickedColorLabel.split(' · ')[0] || pickedColor,
+        size: pickedSize || null,
+        qty: qty
+      });
+    }
   }
 
   // No manual catalog sync needed — getProductCatalog() always reads live from PRODUCTS_DATA.
@@ -19287,6 +20000,9 @@ async function saveNewProduct() {
     { val: stock >= 0 && (document.getElementById('inpStock')||_npSafeEl()).value !== '', hint: 'npStockHint', input: 'inpStock' },
   ];
   if (needsExpiry) fields.push({ val: expiry, hint: 'npExpiryHint', input: 'inpExpiry' });
+  const isClothingSave = npCategory === 'clothing';
+  const sizeVal = (document.getElementById('inpProductSize')||_npSafeEl()).value;
+  if (isClothingSave) fields.push({ val: sizeVal, hint: 'npSizeHint', input: null });
   fields.forEach(f => {
     const ok = typeof f.val === 'boolean' ? f.val : !!f.val;
     const hintEl = document.getElementById(f.hint);
@@ -19297,7 +20013,7 @@ async function saveNewProduct() {
   });
   if (hasError) {
     const missing = fields.filter(f => !(typeof f.val === 'boolean' ? f.val : !!f.val)).map(f => {
-      const labels = { npCatHint: 'Category', npSkuHint: 'SKU', npBrandHint: 'Brand', npProductHint: 'Product Name', npSellHint: 'Selling Price', npStockHint: 'Stock Quantity', npExpiryHint: 'Expiry Date' };
+      const labels = { npCatHint: 'Category', npSkuHint: 'SKU', npBrandHint: 'Brand', npProductHint: 'Product Name', npSellHint: 'Selling Price', npStockHint: 'Stock Quantity', npExpiryHint: 'Expiry Date', npSizeHint: 'Size' };
       return labels[f.hint] || f.hint;
     });
     showToast('⚠ Missing: ' + missing.join(', '));
@@ -19325,15 +20041,29 @@ async function saveNewProduct() {
   const avatarColor = (color === '#2f9b68' || color === '#4CAF7D') ? 'g' : (color === '#d95353' || color === '#e91e8c') ? 'r' : 'p';
   const variantStr = (npColor2 && npSize2) ? (npColor2 + ', ' + npSize2) : (npColor2 || npSize2 || null);
 
+  const newProductColor = (document.getElementById('inpProductColor')||{}).value || '';
+  const newProductColorLabel = (document.getElementById('npColorSelectedLabel')||{}).textContent || '';
+  const newProductSize = (document.getElementById('inpProductSize')||{}).value || '';
+  const initialVariants = newProductColor ? [{
+    id: 'VAR-' + Date.now().toString().slice(-6),
+    color: newProductColor,
+    colorName: newProductColorLabel.split(' · ')[0] || newProductColor,
+    size: newProductSize || null,
+    qty: stock
+  }] : null;
+
   const newProduct = {
     name: productName, sku, price: sell, cost: bdtCost, stock,
     color: avatarColor, supplier, category: npCategory, subcategory: npSubcategory || null, variant: variantStr,
     batches: needsExpiry ? [{ id: 'BTH-' + Date.now().toString().slice(-6), expiryDate: expiry, qty: stock, costPerUnit: bdtCost }] : null,
+    variants: initialVariants,
     meta: { brandName, brandCode, brandColor: color, productCode: prodCode, form,
             capsuleCount: caps ? parseInt(caps) : null, potencyType: potency, potencyAmount: potencyAmt || null,
             flavor: flavor || null, countryOfOrigin: origin || null,
             weight: weightGrams > 0 ? weightGrams : null, usdCost: usd,
-            costingMethod: npCostingMethod, costOutdated: false }
+            costingMethod: npCostingMethod, costOutdated: false, customSpecs: collectNpCustomSpecs(),
+            productColor: newProductColor || null,
+            productSize: newProductSize || null }
   };
 
   showToast('Saving…');
@@ -20381,8 +21111,7 @@ function renderReturnPickerList(cat, rowId) {
           <div class="prod-info-sku">${p.sku}</div>
         </div>
         <div class="prod-right">
-          <span class="stock-badge ${stock.cls}">${stock.label}</span>
-          <span class="prod-price">৳${p.price.toLocaleString('en-IN')}</span>
+          <span class="stock-badge ${stock.cls} picker-stock-badge">${stock.label}</span>
         </div>
       </div>`;
   }).join('');
@@ -20642,6 +21371,35 @@ function toggleBatchDropdown(productId, event) {
   list.classList.toggle('expanded', !!_batchExpanded[productId]);
 }
 
+function buildVariantDropdown(productId, variants) {
+  if (!variants || !variants.length) return '';
+  const rows = variants.map(v => {
+    const name = escapeHtml(v.colorName || v.color || '');
+    return `
+    <div class="variant-row">
+      <div class="variant-row-left">
+        <span class="variant-row-dot" style="background:${escapeHtml(v.color||'#8c92a1')}"></span>
+        <span class="variant-row-name">${name}</span>
+        ${v.size ? `<span class="variant-row-size">${escapeHtml(v.size)}</span>` : ''}
+      </div>
+      <div class="variant-row-right"><span class="variant-row-qty">${v.qty||0} unit${(v.qty||0) !== 1 ? 's' : ''}</span></div>
+    </div>`;
+  }).join('');
+  return `<div class="variant-list" id="variant-list-${productId}"><div class="variant-list-inner">${rows}</div></div>`;
+}
+
+/* Track open/closed state per product slot (separate from batch state) */
+const _variantExpanded = {};
+function toggleVariantDropdown(productId, event) {
+  if (event) event.stopPropagation();
+  _variantExpanded[productId] = !_variantExpanded[productId];
+  const bar  = document.getElementById('variant-bar-' + productId);
+  const list = document.getElementById('variant-list-' + productId);
+  if (!bar || !list) return;
+  bar.classList.toggle('expanded',  !!_variantExpanded[productId]);
+  list.classList.toggle('expanded', !!_variantExpanded[productId]);
+}
+
 function stockClass(s) { return s === 0 ? 'out' : s <= 10 ? 'low' : 'ok'; }
 function marginPct(p, c) { return p > 0 ? ((p - c) / p * 100).toFixed(1) : '0.0'; }
 function marginClass(p, c) {
@@ -20695,10 +21453,46 @@ function renderProductsTab(searchDisplayVal) {
     const loDateStr   = lowestBatch ? formatExpiryDate(lowestBatch.expiryDate) : (p.expiry || '—');
     const hasBatches  = p.batches && p.batches.length > 0;
     const isExpanded  = !!_batchExpanded[pid];
+    const isVariantExpanded = !!_variantExpanded[pid];
 
     const chevronSVG = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-chevron-down"/></svg>`;
+    const variantIconSVG = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4l4 4-4 12H8L4 8l4-4"/></svg>`;
     const cat = CATEGORY_META[p.category] || CATEGORY_META.general;
     const expires = p.category === 'supplement' || p.category === 'cosmetic';
+    const hasVariants = Array.isArray(p.variants) && p.variants.length > 0;
+    const multiVariant = hasVariants && p.variants.length > 1;
+
+    let variantSectionHtml = '';
+    if (hasVariants && multiVariant) {
+      const previewDots = p.variants.slice(0, 3).map(v => `<span class="variant-preview-dot" style="background:${escapeHtml(v.color||'#8c92a1')}"></span>`).join('');
+      variantSectionHtml = `
+      <div class="variant-bar${isVariantExpanded ? ' expanded' : ''}" id="variant-bar-${pid}" onclick="toggleVariantDropdown('${pid}', event)">
+        <div class="variant-bar-label">${variantIconSVG} Colour / Size</div>
+        <div class="variant-bar-right">
+          <div class="variant-preview-dots">${previewDots}</div>
+          <span class="variant-bar-count">${p.variants.length} variants</span>
+          <span class="variant-bar-chevron">${chevronSVG}</span>
+        </div>
+      </div>
+      ${buildVariantDropdown(pid, p.variants)}`;
+    } else if (hasVariants) {
+      const v = p.variants[0];
+      variantSectionHtml = `
+      <div class="variant-single-row">
+        <div class="variant-chip">
+          <span class="variant-chip-dot" style="background:${escapeHtml(v.color||'#8c92a1')}"></span>
+          <span class="variant-chip-text">${escapeHtml(v.colorName || v.color || '')}</span>
+        </div>
+        ${v.size ? `<div class="variant-chip size-chip"><span class="variant-chip-text">Size ${escapeHtml(v.size)}</span></div>` : ''}
+      </div>`;
+    } else if (p.variant) {
+      // Legacy fallback — old products saved before colour/size existed
+      variantSectionHtml = `
+      <div class="expiry-bar" style="cursor:default">
+        <div class="expiry-label">Variant</div>
+        <div class="expiry-right"><span class="expiry-val">${escapeHtml(p.variant)}</span></div>
+      </div>`;
+    }
 
     return `
     <div class="prod-card" style="border-color:${cat.color};background:${cat.color}0D">
@@ -20744,12 +21538,8 @@ function renderProductsTab(searchDisplayVal) {
         </div>
       </div>
       ${hasBatches ? buildBatchDropdown(pid, p.batches) : ''}
-      ` : (p.variant ? `
-      <div class="expiry-bar" style="cursor:default">
-        <div class="expiry-label">Variant</div>
-        <div class="expiry-right"><span class="expiry-val">${escapeHtml(p.variant)}</span></div>
-      </div>
-      ` : '')}
+      ` : ''}
+      ${variantSectionHtml}
     </div>`;
   }).join('');
 
