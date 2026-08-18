@@ -2135,7 +2135,7 @@ html[data-theme="dark"] .invoice-customer-copy .invoice-grand-value {
 .modal-overlay {
   position: fixed; inset: 0;
   background: rgba(0,0,0,0.5);
-  z-index: 9000;
+  z-index: 10000;
   opacity: 0; pointer-events: none;
   display: flex; align-items: center; justify-content: center;
   padding: 24px 16px;
@@ -18479,6 +18479,14 @@ function openDeleteSubcategory(name) {
   _subcatPendingDelete = name;
   const nameEl = document.getElementById('subcatDeleteName');
   if (nameEl) nameEl.textContent = '"' + name + '"';
+  // Close the sub-category dropdown first — it stays open underneath otherwise
+  // (its delete button stops the outside-click listener from firing), and having
+  // both a fixed-position dropdown and the centered confirm popup on screen at
+  // once is what caused the jump/flicker when the popup faded in.
+  const menu = document.getElementById('npSubcatSelectMenu');
+  const btn = document.getElementById('npSubcatSelectBtn');
+  if (menu) menu.classList.remove('open');
+  if (btn) btn.classList.remove('open');
   const modal = document.getElementById('subcatDeleteModal');
   if (modal) modal.classList.add('active');
 }
@@ -19666,12 +19674,64 @@ function openCustomColorPicker(context) {
 
     function onPointerUp() { CP.draggingSb = false; CP.draggingHue = false; }
 
+    // Some in-app WebViews (e.g. embedded chat previews) don't fully support the
+    // Pointer Events spec, so plain touch events are wired in parallel as a fallback.
+    // Both paths normalize into the same clientX/clientY shape and call the same
+    // update functions, so dragging works identically whichever fires.
+    function touchPoint(e) {
+      const t = (e.touches && e.touches[0]) || (e.changedTouches && e.changedTouches[0]);
+      return t ? { clientX: t.clientX, clientY: t.clientY } : null;
+    }
+
+    function onSbTouchStart(e) {
+      const pt = touchPoint(e);
+      if (!pt) return;
+      e.preventDefault();
+      CP.draggingSb = true;
+      updateSb(pt); cpDrawSb(); cpUpdateCursors(); cpUpdatePreview();
+    }
+    function onSbTouchMove(e) {
+      if (!CP.draggingSb) return;
+      const pt = touchPoint(e);
+      if (!pt) return;
+      e.preventDefault();
+      if (rafId) cancelAnimationFrame(rafId);
+      rafId = requestAnimationFrame(() => {
+        updateSb(pt); cpDrawSb(); cpUpdateCursors(); cpUpdatePreview();
+      });
+    }
+    function onHueTouchStart(e) {
+      const pt = touchPoint(e);
+      if (!pt) return;
+      e.preventDefault();
+      CP.draggingHue = true;
+      updateHue(pt); cpDrawSb(); cpUpdateCursors(); cpUpdatePreview();
+    }
+    function onHueTouchMove(e) {
+      if (!CP.draggingHue) return;
+      const pt = touchPoint(e);
+      if (!pt) return;
+      e.preventDefault();
+      if (rafId) cancelAnimationFrame(rafId);
+      rafId = requestAnimationFrame(() => {
+        updateHue(pt); cpDrawSb(); cpUpdateCursors(); cpUpdatePreview();
+      });
+    }
+    function onTouchEnd() { CP.draggingSb = false; CP.draggingHue = false; }
+
     sbWrap.addEventListener('pointerdown', onSbDown, { passive: false });
     hCanvas.addEventListener('pointerdown', onHueDown, { passive: false });
     document.addEventListener('pointermove', rafSb, { passive: false });
     document.addEventListener('pointermove', rafHue, { passive: false });
     document.addEventListener('pointerup', onPointerUp);
     document.addEventListener('pointercancel', onPointerUp);
+
+    sbWrap.addEventListener('touchstart', onSbTouchStart, { passive: false });
+    sbWrap.addEventListener('touchmove', onSbTouchMove, { passive: false });
+    hCanvas.addEventListener('touchstart', onHueTouchStart, { passive: false });
+    hCanvas.addEventListener('touchmove', onHueTouchMove, { passive: false });
+    document.addEventListener('touchend', onTouchEnd);
+    document.addEventListener('touchcancel', onTouchEnd);
 
     // touch-action:none on both surfaces (set inline as a safety net in case
     // the stylesheet class is missed) stops the page from scrolling while dragging.
@@ -19685,6 +19745,12 @@ function openCustomColorPicker(context) {
       document.removeEventListener('pointermove', rafHue);
       document.removeEventListener('pointerup', onPointerUp);
       document.removeEventListener('pointercancel', onPointerUp);
+      sbWrap.removeEventListener('touchstart', onSbTouchStart);
+      sbWrap.removeEventListener('touchmove', onSbTouchMove);
+      hCanvas.removeEventListener('touchstart', onHueTouchStart);
+      hCanvas.removeEventListener('touchmove', onHueTouchMove);
+      document.removeEventListener('touchend', onTouchEnd);
+      document.removeEventListener('touchcancel', onTouchEnd);
     };
   }, 60);
 }
@@ -21459,39 +21525,31 @@ function renderProductsTab(searchDisplayVal) {
     const variantIconSVG = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4l4 4-4 12H8L4 8l4-4"/></svg>`;
     const cat = CATEGORY_META[p.category] || CATEGORY_META.general;
     const expires = p.category === 'supplement' || p.category === 'cosmetic';
-    const hasVariants = Array.isArray(p.variants) && p.variants.length > 0;
-    const multiVariant = hasVariants && p.variants.length > 1;
+    let effectiveVariants = Array.isArray(p.variants) && p.variants.length > 0 ? p.variants : null;
+    if (!effectiveVariants && p.variant) {
+      // Legacy fallback — migrate old "Colour, Size" string into the same variant shape on the fly
+      const parts = String(p.variant).split(',').map(s => s.trim()).filter(Boolean);
+      const legacyColor = parts[0] || '';
+      const legacySize = parts[1] || null;
+      effectiveVariants = [{ id: 'LEGACY-' + pid, color: '#8c92a1', colorName: legacyColor, size: legacySize, qty: p.stock }];
+    }
+    const hasVariants = !!effectiveVariants;
+    const multiVariant = hasVariants && effectiveVariants.length > 1;
 
     let variantSectionHtml = '';
-    if (hasVariants && multiVariant) {
-      const previewDots = p.variants.slice(0, 3).map(v => `<span class="variant-preview-dot" style="background:${escapeHtml(v.color||'#8c92a1')}"></span>`).join('');
+    if (hasVariants) {
+      const previewDots = effectiveVariants.slice(0, 3).map(v => `<span class="variant-preview-dot" style="background:${escapeHtml(v.color||'#8c92a1')}"></span>`).join('');
+      const countLabel = multiVariant ? `${effectiveVariants.length} variants` : (effectiveVariants[0].colorName || effectiveVariants[0].color || '1 variant');
       variantSectionHtml = `
       <div class="variant-bar${isVariantExpanded ? ' expanded' : ''}" id="variant-bar-${pid}" onclick="toggleVariantDropdown('${pid}', event)">
         <div class="variant-bar-label">${variantIconSVG} Colour / Size</div>
         <div class="variant-bar-right">
           <div class="variant-preview-dots">${previewDots}</div>
-          <span class="variant-bar-count">${p.variants.length} variants</span>
+          <span class="variant-bar-count">${countLabel}</span>
           <span class="variant-bar-chevron">${chevronSVG}</span>
         </div>
       </div>
-      ${buildVariantDropdown(pid, p.variants)}`;
-    } else if (hasVariants) {
-      const v = p.variants[0];
-      variantSectionHtml = `
-      <div class="variant-single-row">
-        <div class="variant-chip">
-          <span class="variant-chip-dot" style="background:${escapeHtml(v.color||'#8c92a1')}"></span>
-          <span class="variant-chip-text">${escapeHtml(v.colorName || v.color || '')}</span>
-        </div>
-        ${v.size ? `<div class="variant-chip size-chip"><span class="variant-chip-text">Size ${escapeHtml(v.size)}</span></div>` : ''}
-      </div>`;
-    } else if (p.variant) {
-      // Legacy fallback — old products saved before colour/size existed
-      variantSectionHtml = `
-      <div class="expiry-bar" style="cursor:default">
-        <div class="expiry-label">Variant</div>
-        <div class="expiry-right"><span class="expiry-val">${escapeHtml(p.variant)}</span></div>
-      </div>`;
+      ${buildVariantDropdown(pid, effectiveVariants)}`;
     }
 
     return `
@@ -23873,9 +23931,13 @@ html[data-theme="dark"] .ch-count {
 .fab svg { width: 16px; height: 16px; }
 
 /* =============================================
-   CONFIRM MODAL (deactivate/delete)
+   CONFIRM MODAL (deactivate/delete) — voucher-scoped,
+   renamed from .modal-overlay to stop it colliding with
+   the shared centered-dialog .modal-overlay used elsewhere
+   (that collision was pushing other confirmation popups,
+   e.g. delete sub-category, down and behind other content)
    ============================================= */
-.modal-overlay {
+.voucher-modal-overlay {
   position: fixed;
   inset: 0;
   background: rgba(0,0,0,0.6);
@@ -23887,7 +23949,7 @@ html[data-theme="dark"] .ch-count {
   pointer-events: none;
   transition: opacity 0.25s ease;
 }
-.modal-overlay.open { opacity: 1; pointer-events: auto; }
+.voucher-modal-overlay.open { opacity: 1; pointer-events: auto; }
 .modal-sheet {
   width: 100%;
   max-width: 420px;
@@ -23898,7 +23960,7 @@ html[data-theme="dark"] .ch-count {
   transition: transform 0.3s cubic-bezier(0.4,0,0.2,1);
   border-top: 1px solid var(--border);
 }
-.modal-overlay.open .modal-sheet { transform: translateY(0); }
+.voucher-modal-overlay.open .modal-sheet { transform: translateY(0); }
 .modal-handle {
   width: 36px; height: 4px;
   border-radius: 2px;
@@ -25027,7 +25089,7 @@ html[data-theme="light"] .mini-voucher .tear-notch { background: var(--surface-2
      ============================================ -->
 
 <!-- DEACTIVATE MODAL -->
-<div class="modal-overlay" id="deactivateModal">
+<div class="voucher-modal-overlay" id="deactivateModal">
   <div class="modal-sheet">
     <div class="modal-handle"></div>
     <div class="modal-title">⏸ Pause Voucher?</div>
@@ -25042,7 +25104,7 @@ html[data-theme="light"] .mini-voucher .tear-notch { background: var(--surface-2
 </div>
 
 <!-- REACTIVATE MODAL -->
-<div class="modal-overlay" id="reactivateModal">
+<div class="voucher-modal-overlay" id="reactivateModal">
   <div class="modal-sheet">
     <div class="modal-handle"></div>
     <div class="modal-title">▶ Reactivate Voucher?</div>
@@ -25057,7 +25119,7 @@ html[data-theme="light"] .mini-voucher .tear-notch { background: var(--surface-2
 </div>
 
 <!-- DELETE MODAL -->
-<div class="modal-overlay" id="deleteModal">
+<div class="voucher-modal-overlay" id="deleteModal">
   <div class="modal-sheet">
     <div class="modal-handle"></div>
     <div class="modal-title">🗑 Delete Voucher?</div>
@@ -25215,7 +25277,7 @@ function confirmDelete() {
 }
 
 // Close modal on overlay click
-_hq('.modal-overlay').forEach(overlay => {
+_hq('.voucher-modal-overlay').forEach(overlay => {
   overlay.addEventListener('click', function(e) {
     if (e.target === this) this.classList.remove('open');
   });
