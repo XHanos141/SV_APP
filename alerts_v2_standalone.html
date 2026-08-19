@@ -54,16 +54,20 @@
   .tone-warning { background: #FEF6E9; border: 2px solid #FBE3B8; }
   .tone-danger  { background: #FBEEEE; border: 2px solid #F3C8C8; }
   .tone-success { background: #EAF5F0; border: 2px solid #BCDFCF; }
+  .tone-order   { background: #F2F1FE; border: 2px solid #D5D1FC; }
   html[data-theme="dark"] .tone-warning { background: rgba(93,64,13,0.55); border-color: rgba(166,115,23,0.5); }
   html[data-theme="dark"] .tone-danger  { background: rgba(82,32,32,0.55); border-color: rgba(148,56,56,0.5); }
   html[data-theme="dark"] .tone-success { background: rgba(18,59,40,0.55); border-color: rgba(32,105,71,0.5); }
+  html[data-theme="dark"] .tone-order   { background: rgba(56,50,111,0.55); border-color: rgba(99,89,198,0.5); }
 
   .tone-warning .actions-row { border-top-color: rgba(166,115,23,0.22); }
   .tone-danger  .actions-row { border-top-color: rgba(148,56,56,0.22); }
   .tone-success .actions-row { border-top-color: rgba(32,105,71,0.22); }
+  .tone-order   .actions-row { border-top-color: rgba(99,89,198,0.22); }
   html[data-theme="dark"] .tone-warning .actions-row { border-top-color: rgba(251,227,184,0.14); }
   html[data-theme="dark"] .tone-danger  .actions-row { border-top-color: rgba(243,200,200,0.14); }
   html[data-theme="dark"] .tone-success .actions-row { border-top-color: rgba(188,223,207,0.14); }
+  html[data-theme="dark"] .tone-order   .actions-row { border-top-color: rgba(213,209,252,0.14); }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
   html, body { height: 100%; }
@@ -158,6 +162,28 @@
 
   .status-badge { font-size: 10px; font-weight: 800; padding: 3px 9px; border-radius: 999px; flex-shrink: 0; white-space: nowrap; }
 
+  /* Order ID badge — LOCKED spec, do not modify without explicit request */
+  .order-id-badge {
+    font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 800; font-size: 11px;
+    color: #7C6FF7; background: rgba(124,111,247,0.12);
+    border: 1px solid rgba(124,111,247,0.38); border-radius: 6px;
+    padding: 2px 7px; letter-spacing: 0.3px; line-height: 1;
+    display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  html[data-theme="dark"] .order-id-badge { background: rgba(124,111,247,0.18); border-color: rgba(124,111,247,0.5); }
+
+  /* New Order card */
+  .customer-row { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; margin-bottom: 8px; }
+  .customer-name { font-size: 14px; font-weight: 700; color: var(--txt); line-height: 1.25; margin-bottom: 2px; }
+  .customer-phone { font-size: 11px; font-weight: 600; color: var(--muted); }
+
+  .order-summary-block { display: flex; align-items: center; justify-content: space-between; margin-bottom: 9px; padding: 10px 12px; background: rgba(255,255,255,0.5); border-radius: 12px; }
+  html[data-theme="dark"] .order-summary-block { background: rgba(255,255,255,0.05); }
+  .order-total { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 19px; font-weight: 800; color: var(--txt); line-height: 1; }
+  .order-total-label { font-size: 10px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; margin-top: 3px; }
+  .order-items-meta { text-align: right; font-size: 11px; font-weight: 600; color: var(--muted); }
+  .order-items-meta strong { display: block; color: var(--txt); font-size: 12px; font-weight: 700; margin-bottom: 2px; }
+
   /* meter */
   .meter-block { margin-bottom: 9px; }
   .meter-labels { display: flex; justify-content: space-between; font-size: 10.5px; font-weight: 600; color: var(--muted); margin-bottom: 5px; }
@@ -202,7 +228,7 @@
   <div class="stage-head">
     <div>
       <div class="stage-title">Alerts</div>
-      <div class="stage-sub">3 needing attention</div>
+      <div class="stage-sub">4 needing attention</div>
     </div>
     <button class="theme-toggle" id="themeToggle" aria-label="Toggle day/night mode">
       <div class="knob" id="knob">
@@ -227,6 +253,9 @@ const ICONS = {
   archive:  `<polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/>`,
   tag:      `<path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/>`,
   history:  `<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>`,
+  bag:      `<path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/>`,
+  phone:    `<path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/>`,
+  storefront: `<path d="M3 9l1-5h16l1 5"/><path d="M3 9a2 2 0 004 0 2 2 0 004 0 2 2 0 004 0 2 2 0 004 0"/><path d="M4 9v10h16V9"/>`,
   sun:      `<circle cx="12" cy="12" r="4"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>`,
   moon:     `<path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/>`,
 };
@@ -238,6 +267,7 @@ const SEVERITY = {
   warning: { accent: 'var(--warning)', labelColor: 'var(--warning-txt)', chipBg: 'rgba(244,169,34,0.22)', tone: 'tone-warning' },
   critical:{ accent: 'var(--danger)',  labelColor: 'var(--danger)',      chipBg: 'rgba(217,83,83,0.20)',  tone: 'tone-danger' },
   success: { accent: 'var(--success)', labelColor: 'var(--success)',    chipBg: 'rgba(47,155,104,0.20)',  tone: 'tone-success' },
+  order:   { accent: 'var(--purple)',  labelColor: 'var(--purple)',     chipBg: 'rgba(124,111,247,0.20)', tone: 'tone-order' },
 };
 
 function actionBtn(cls, iconName, label) {
@@ -354,16 +384,65 @@ function expiryCard() {
   </div>`;
 }
 
-document.getElementById('cards').innerHTML = lowStockCard() + outOfStockCard() + expiryCard();
-
-/* ---- Equal card heights, regardless of content length ---- */
-function equalizeCardHeights() {
-  const cards = document.querySelectorAll('.alert-card');
-  cards.forEach(c => { c.style.minHeight = '0px'; });
-  let max = 0;
-  cards.forEach(c => { max = Math.max(max, c.getBoundingClientRect().height); });
-  cards.forEach(c => { c.style.minHeight = max + 'px'; });
+/* ---- Card 4: New Order ---- */
+function newOrderCard() {
+  const sv = SEVERITY.order;
+  return `
+  <div class="alert-card glass-shadow ${sv.tone}" data-group="order">
+    <div class="card-top">
+      <div class="icon-chip" style="background:${sv.accent};box-shadow:0 3px 10px rgba(124,111,247,0.4)">${icon('bag',16,'#fff',2.5)}</div>
+      <div class="card-label-col">
+        <div class="card-label" style="color:${sv.labelColor}">New Order</div>
+        <div class="card-time">12m ago</div>
+      </div>
+      <span class="order-id-badge">SV-1014</span>
+    </div>
+    <div class="customer-row">
+      <div>
+        <div class="customer-name">Rafiq Ahmed</div>
+        <div class="customer-phone">+880 1712-345678</div>
+      </div>
+    </div>
+    <div class="order-summary-block">
+      <div>
+        <div class="order-total">৳2,450</div>
+        <div class="order-total-label">Order total</div>
+      </div>
+      <div class="order-items-meta">
+        <strong>3 items</strong>
+        Cash on delivery
+      </div>
+    </div>
+    <div class="chips-row">
+      ${chip('storefront','Channel','Facebook')}
+      ${chip('phone','Address','Mirpur, Dhaka')}
+    </div>
+    <div class="actions-row">
+      ${actionBtn('primary','box','Accept')}
+      ${actionBtn('ghost','phone','Call')}
+      ${actionBtn('ghost','history','Details')}
+    </div>
+  </div>`;
 }
+
+document.getElementById('cards').innerHTML = lowStockCard() + outOfStockCard() + expiryCard() + newOrderCard();
+document.querySelectorAll('.alert-card:not([data-group])').forEach(c => c.setAttribute('data-group', 'stock'));
+
+/* ---- Equal card heights, regardless of content length (grouped by card type) ---- */
+function equalizeCardHeights() {
+  const groups = {};
+  document.querySelectorAll('.alert-card').forEach(c => {
+    c.style.minHeight = '0px';
+    const g = c.getAttribute('data-group');
+    (groups[g] = groups[g] || []).push(c);
+  });
+  Object.values(groups).forEach(cards => {
+    let max = 0;
+    cards.forEach(c => { max = Math.max(max, c.getBoundingClientRect().height); });
+    cards.forEach(c => { c.style.minHeight = max + 'px'; });
+  });
+}
+equalizeCardHeights();
 window.addEventListener('load', equalizeCardHeights);
 window.addEventListener('resize', equalizeCardHeights);
 if (document.fonts && document.fonts.ready) { document.fonts.ready.then(equalizeCardHeights); }
