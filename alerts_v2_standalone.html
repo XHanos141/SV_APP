@@ -55,19 +55,23 @@
   .tone-danger  { background: #FBEEEE; border: 2px solid #F3C8C8; }
   .tone-success { background: #EAF5F0; border: 2px solid #BCDFCF; }
   .tone-order   { background: #F2F1FE; border: 2px solid #D5D1FC; }
+  .tone-proxy   { background: #FEF0EA; border: 2px solid #FBCAB9; }
   html[data-theme="dark"] .tone-warning { background: rgba(93,64,13,0.55); border-color: rgba(166,115,23,0.5); }
   html[data-theme="dark"] .tone-danger  { background: rgba(82,32,32,0.55); border-color: rgba(148,56,56,0.5); }
   html[data-theme="dark"] .tone-success { background: rgba(18,59,40,0.55); border-color: rgba(32,105,71,0.5); }
   html[data-theme="dark"] .tone-order   { background: rgba(56,50,111,0.55); border-color: rgba(99,89,198,0.5); }
+  html[data-theme="dark"] .tone-proxy   { background: rgba(109,45,22,0.55); border-color: rgba(198,82,39,0.5); }
 
   .tone-warning .actions-row { border-top-color: rgba(166,115,23,0.22); }
   .tone-danger  .actions-row { border-top-color: rgba(148,56,56,0.22); }
   .tone-success .actions-row { border-top-color: rgba(32,105,71,0.22); }
   .tone-order   .actions-row { border-top-color: rgba(99,89,198,0.22); }
+  .tone-proxy   .actions-row { border-top-color: rgba(198,82,39,0.22); }
   html[data-theme="dark"] .tone-warning .actions-row { border-top-color: rgba(251,227,184,0.14); }
   html[data-theme="dark"] .tone-danger  .actions-row { border-top-color: rgba(243,200,200,0.14); }
   html[data-theme="dark"] .tone-success .actions-row { border-top-color: rgba(188,223,207,0.14); }
   html[data-theme="dark"] .tone-order   .actions-row { border-top-color: rgba(213,209,252,0.14); }
+  html[data-theme="dark"] .tone-proxy   .actions-row { border-top-color: rgba(251,202,185,0.16); }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
   html, body { height: 100%; }
@@ -172,6 +176,25 @@
   }
   html[data-theme="dark"] .order-id-badge { background: rgba(124,111,247,0.18); border-color: rgba(124,111,247,0.5); }
 
+  /* Tracking ID tag — borrowed from the Buy For Me page's own dashed tracking box */
+  .tracking-tag {
+    display: inline-flex; align-items: center; gap: 5px;
+    background: rgba(255,255,255,0.55); border: 1.5px dashed rgba(198,82,39,0.45);
+    border-radius: 8px; padding: 3px 8px; flex-shrink: 0;
+  }
+  html[data-theme="dark"] .tracking-tag { background: rgba(255,255,255,0.06); border-color: rgba(251,202,185,0.4); }
+  .tracking-tag .tt-label { font-size: 8.5px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
+  .tracking-tag .tt-val { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 11.5px; font-weight: 800; color: #E15A26; letter-spacing: 0.4px; }
+  html[data-theme="dark"] .tracking-tag .tt-val { color: #FF9466; }
+
+  /* Buy For Me item row */
+  .proxy-item-block { display: flex; align-items: center; justify-content: space-between; margin-bottom: 9px; padding: 10px 12px; background: rgba(255,255,255,0.5); border-radius: 12px; gap: 10px; }
+  html[data-theme="dark"] .proxy-item-block { background: rgba(255,255,255,0.05); }
+  .proxy-item-name { font-size: 12px; font-weight: 700; color: var(--txt); line-height: 1.3; }
+  .proxy-item-store { font-size: 10.5px; font-weight: 600; color: var(--muted); margin-top: 2px; }
+  .proxy-item-price { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 15px; font-weight: 800; color: var(--success); flex-shrink: 0; text-align: right; }
+  .proxy-item-qty { font-size: 10px; font-weight: 600; color: var(--muted); text-align: right; margin-top: 2px; }
+
   /* New Order card */
   .customer-row { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; margin-bottom: 8px; }
   .customer-name { font-size: 14px; font-weight: 700; color: var(--txt); line-height: 1.25; margin-bottom: 2px; }
@@ -228,7 +251,7 @@
   <div class="stage-head">
     <div>
       <div class="stage-title">Alerts</div>
-      <div class="stage-sub">4 needing attention</div>
+      <div class="stage-sub">5 needing attention</div>
     </div>
     <button class="theme-toggle" id="themeToggle" aria-label="Toggle day/night mode">
       <div class="knob" id="knob">
@@ -256,6 +279,8 @@ const ICONS = {
   bag:      `<path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/>`,
   phone:    `<path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/>`,
   storefront: `<path d="M3 9l1-5h16l1 5"/><path d="M3 9a2 2 0 004 0 2 2 0 004 0 2 2 0 004 0 2 2 0 004 0"/><path d="M4 9v10h16V9"/>`,
+  link:     `<path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/>`,
+  send:     `<line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>`,
   sun:      `<circle cx="12" cy="12" r="4"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>`,
   moon:     `<path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/>`,
 };
@@ -268,6 +293,7 @@ const SEVERITY = {
   critical:{ accent: 'var(--danger)',  labelColor: 'var(--danger)',      chipBg: 'rgba(217,83,83,0.20)',  tone: 'tone-danger' },
   success: { accent: 'var(--success)', labelColor: 'var(--success)',    chipBg: 'rgba(47,155,104,0.20)',  tone: 'tone-success' },
   order:   { accent: 'var(--purple)',  labelColor: 'var(--purple)',     chipBg: 'rgba(124,111,247,0.20)', tone: 'tone-order' },
+  proxy:   { accent: '#E15A26',        labelColor: '#E15A26',           chipBg: 'rgba(226,90,38,0.20)',   tone: 'tone-proxy' },
 };
 
 function actionBtn(cls, iconName, label) {
@@ -425,7 +451,49 @@ function newOrderCard() {
   </div>`;
 }
 
-document.getElementById('cards').innerHTML = lowStockCard() + outOfStockCard() + expiryCard() + newOrderCard();
+/* ---- Card 5: Buy For Me (Proxy Order) ---- */
+function buyForMeCard() {
+  const sv = SEVERITY.proxy;
+  return `
+  <div class="alert-card glass-shadow ${sv.tone}" data-group="order">
+    <div class="card-top">
+      <div class="icon-chip" style="background:${sv.accent};box-shadow:0 3px 10px rgba(226,90,38,0.4)">${icon('link',16,'#fff',2.5)}</div>
+      <div class="card-label-col">
+        <div class="card-label" style="color:${sv.labelColor}">Buy For Me</div>
+        <div class="card-time">28m ago</div>
+      </div>
+      <span class="tracking-tag"><span class="tt-label">ID</span><span class="tt-val">PX-1013</span></span>
+    </div>
+    <div class="customer-row">
+      <div>
+        <div class="customer-name">Tanvir Islam</div>
+        <div class="customer-phone">+880 1998-221190</div>
+      </div>
+      <span class="status-badge" style="color:${sv.labelColor};background:${sv.chipBg}">Awaiting quote</span>
+    </div>
+    <div class="proxy-item-block">
+      <div>
+        <div class="proxy-item-name">iHerb — Now Foods Zinc 50mg</div>
+        <div class="proxy-item-store">Store: iHerb.com</div>
+      </div>
+      <div>
+        <div class="proxy-item-price">$18.40</div>
+        <div class="proxy-item-qty">Qty: 2</div>
+      </div>
+    </div>
+    <div class="chips-row">
+      ${chip('phone','Contact','WhatsApp')}
+      ${chip('clock','Requested','Today, 2:10 PM')}
+    </div>
+    <div class="actions-row">
+      ${actionBtn('primary','send','Quote')}
+      ${actionBtn('ghost','phone','Message')}
+      ${actionBtn('ghost','link','Open Link')}
+    </div>
+  </div>`;
+}
+
+document.getElementById('cards').innerHTML = lowStockCard() + outOfStockCard() + expiryCard() + newOrderCard() + buyForMeCard();
 document.querySelectorAll('.alert-card:not([data-group])').forEach(c => c.setAttribute('data-group', 'stock'));
 
 /* ---- Equal card heights, regardless of content length (grouped by card type) ---- */
