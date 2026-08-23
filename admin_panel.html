@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>SuppVerse BD — Product Editor</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@600;700;800&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@600;700;800&family=Outfit:wght@400;500;600;700;800&family=Noto+Sans+Bengali:wght@600;700;800&display=swap" rel="stylesheet">
 <style>
 :root{
   --bg:#F4F7FB; --surface:#ffffff; --surface2:#F8FAFD;
@@ -22,6 +22,7 @@
   --shadow-lg:0 12px 32px rgba(0,0,0,0.08),0 4px 8px rgba(0,0,0,0.04);
   --radius:18px; --radius-sm:12px; --radius-xs:8px;
   --font-body:'DM Sans',sans-serif; --font-display:'Plus Jakarta Sans',sans-serif;
+  --font-taka:'Plus Jakarta Sans','Noto Sans Bengali',sans-serif;
   --font-outfit:'Outfit',sans-serif;
   --ease:cubic-bezier(0.4,0,0.2,1);
 }
@@ -73,7 +74,7 @@ body{
   display:flex;align-items:center;justify-content:center;
   padding:10px;position:relative;
 }
-#carouselTrackStore .carousel-slide{width:50%}
+#carouselTrackStore .carousel-slide{width:33.3334%}
 .carousel-slide::before{
   content:'';position:absolute;inset:0;
   background:repeating-linear-gradient(45deg,rgba(0,0,0,.015) 0 10px,transparent 10px 20px);
@@ -249,7 +250,7 @@ body.dark-mode .trending-off{
   color:#fff;display:block;
 }
 .trending-type-icon.type-supplement  {background:linear-gradient(135deg,#009b72,#00704f);}
-.trending-type-icon.type-electronics {background:linear-gradient(135deg,#0EA5E9,#0284C7);}
+.trending-type-icon.type-gadget {background:linear-gradient(135deg,#0EA5E9,#0284C7);}
 .trending-type-icon.type-cosmetic    {background:linear-gradient(135deg,#EC4899,#DB2777);}
 .trending-type-icon.type-clothing    {background:linear-gradient(135deg,#6761a8,#4a4480);}
 .trending-type-icon.type-general     {background:linear-gradient(135deg,#64748B,#475569);}
@@ -329,6 +330,39 @@ body.dark-mode .trending-off{
 .p-price{
   font-family:var(--font-display);font-size:15px;font-weight:800;
   color:#1B2A4A;line-height:1;
+}
+.taka{font-family:var(--font-taka)}
+.pv-specs{
+  background:var(--surface2);border:1px solid var(--border);
+  border-radius:var(--radius-sm);overflow:hidden;
+  width:100%;
+}
+.pv-spec{
+  display:flex;align-items:center;gap:14px;
+  padding:16px;
+  -webkit-tap-highlight-color:transparent;
+}
+.pv-spec-icon{
+  width:44px;height:44px;border-radius:12px;
+  background:var(--accent-soft);
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;
+}
+.pv-spec-icon svg{color:var(--accent)}
+.pv-spec-body{
+  flex:1;display:flex;align-items:center;justify-content:space-between;
+  gap:8px;
+}
+.pv-spec-text{
+  font-size:13px;font-weight:500;color:var(--text2);
+  line-height:1.4;
+}
+.pv-spec-text b{
+  font-family:var(--font-display);font-weight:800;color:var(--text);
+}
+.pv-spec-chevron{
+  width:16px;height:16px;
+  color:var(--text3);flex-shrink:0;
 }
 body.dark-mode .p-price{color:#ffffff}
 .p-price span{
@@ -593,6 +627,19 @@ body.dark-mode .wb-label{color:var(--text)}
 .faq-a{max-height:0;overflow:hidden;transition:max-height .35s cubic-bezier(.4,0,.2,1),padding .35s}
 .faq-item.open .faq-a{max-height:200px;padding:0 16px 14px}
 .faq-a-text{font-size:12.5px;font-weight:500;color:var(--text2);line-height:1.55}
+.faq-picker-row{display:flex;align-items:center;gap:8px;padding:11px 12px;border:1.5px solid var(--border);border-radius:12px;margin-bottom:8px;cursor:pointer;transition:border-color .15s,background .15s;background:var(--surface2)}
+.faq-picker-row.active{border-color:var(--accent);background:var(--accent-soft)}
+.faq-picker-row-text{flex:1;font-size:12.5px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.faq-picker-row.active .faq-picker-row-text{color:var(--accent)}
+.faq-ctrl-btn{border:1.5px solid var(--border);background:var(--surface);color:var(--text2);width:30px;height:30px;border-radius:9px;font-size:15px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;flex-shrink:0;box-shadow:0 1px 2px rgba(0,0,0,.06)}
+.faq-ctrl-btn:hover{background:var(--accent-soft);border-color:var(--accent);color:var(--accent)}
+.faq-ctrl-btn:active{transform:scale(.92);box-shadow:none}
+.faq-ctrl-btn:disabled{opacity:.3;cursor:default;box-shadow:none}
+.faq-ctrl-btn:disabled:hover{background:var(--surface);border-color:var(--border);color:var(--text2)}
+.faq-ctrl-btn.danger{color:#e5484d;border-color:rgba(229,72,77,.3)}
+.faq-ctrl-btn.danger:hover{background:rgba(229,72,77,.1);border-color:#e5484d;color:#e5484d}
+.faq-add-btn{width:100%;border:1.5px dashed var(--border);background:none;color:var(--text2);font-size:13px;font-weight:700;padding:12px;border-radius:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:border-color .15s,color .15s;margin-top:4px}
+.faq-add-btn:hover{border-color:var(--accent);color:var(--accent)}
 
 /* ═══════════════════════════════════════════════════════════════
    9) FOOTER PAYMENT BADGES — EXACT FROM REFERENCE (index.html .pay-badge)
@@ -641,7 +688,7 @@ body.dark-mode .pay-badge-bank svg path[style*="fill:#66cde7"]{fill:#fff!importa
       <path fill="currentColor" stroke="currentColor" stroke-width="11" stroke-linejoin="round" d="M220.867,332.653h49.493l-39.253,45.227c-3.413,3.413-2.56,8.533,0.853,11.947c1.707,0.853,4.267,1.707,5.973,1.707 c2.56,0,5.12-0.853,6.827-2.56l51.2-59.733c1.707-2.56,2.56-5.973,0.853-9.387s-4.267-5.12-7.68-5.12H239.64l38.4-45.227 c3.413-3.413,2.56-8.533-0.853-11.947s-8.533-2.56-11.947,0.853l-51.2,59.733c-1.707,2.56-2.56,5.973-0.853,9.387 S217.453,332.653,220.867,332.653z"/>
     </g>
   </symbol>
-  <symbol id="cat-icon-electronics" viewBox="0 0 64 64">
+  <symbol id="cat-icon-gadget" viewBox="0 0 64 64">
     <path fill="currentColor" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" d="M60.9,49.3l-4.9-26.2c-0.4-2.1-2-3.6-4.1-4V18c0-1.7-1.3-3-3-3h-2c-1.7,0-3,1.3-3,3v1H33v-4.1c1.7-0.4,3-2,3-3.9
       c0-2.2-1.8-4-4-4s-4,1.8-4,4c0,1.9,1.3,3.4,3,3.9V19H20v-1c0-1.7-1.3-3-3-3h-2c-1.7,0-3,1.3-3,3v1.1c-2,0.4-3.7,1.9-4.1,4
       L3.1,49.3c-0.5,2.4,1,4.8,3.4,5.6l5.9,1.9c0.5,0.2,1.1,0.3,1.6,0.3c1.7,0,3.3-0.8,4.3-2.3l5.3-7.8h17.2l5.1,7.8
@@ -882,7 +929,7 @@ body.dark-mode .pay-badge-bank svg path[style*="fill:#66cde7"]{fill:#fff!importa
   </div>
   <div class="carousel-box" id="carouselBoxStore" style="display:none">
     <div class="slide-label" id="slideLabelStore">Vertical Card</div>
-    <div class="carousel-track" id="carouselTrackStore" style="width:200%">
+    <div class="carousel-track" id="carouselTrackStore" style="width:300%">
       <div class="carousel-slide">
         <div class="card-wrap" style="width:172px">
           <div class="p-card" id="pcard">
@@ -899,8 +946,8 @@ body.dark-mode .pay-badge-bank svg path[style*="fill:#66cde7"]{fill:#fff!importa
               <div class="p-name" id="pcardName">Gold Standard Whey Protein 2lb</div>
               <div class="p-footer">
                 <div class="p-price-block">
-                  <div class="p-price">&#2547;<span id="pcardPrice">4,200</span><span class="p-discount-inline" id="pcardDiscount">20% OFF</span></div>
-                  <div class="p-old-price">&#2547;<span id="pcardOld">5,600</span></div>
+                  <div class="p-price"><span class="taka">&#2547;</span><span id="pcardPrice">4,200</span><span class="p-discount-inline" id="pcardDiscount">20% OFF</span></div>
+                  <div class="p-old-price"><span class="taka">&#2547;</span><span id="pcardOld">5,600</span></div>
                 </div>
                 <div class="p-actions" id="pcardActions">
                   <button class="p-add" aria-label="Add to cart"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6.29977 5H21L19 12H7.37671M20 16H8L6 3H3M9 20C9 20.5523 8.55228 21 8 21C7.44772 21 7 20.5523 7 20C7 19.4477 7.44772 19 8 19C8.55228 19 9 19.4477 9 20ZM20 20C20 20.5523 19.5523 21 19 21C18.4477 21 18 20.5523 18 20C18 19.4477 18.4477 19 19 19C19.5523 19 20 19.4477 20 20Z"/></svg></button>
@@ -921,14 +968,27 @@ body.dark-mode .pay-badge-bank svg path[style*="fill:#66cde7"]{fill:#fff!importa
               <div class="trending-tag" id="tcardCat">Protein</div>
               <div class="trending-title" id="tcardName">Optimum Nutrition Gold Standard 100% Whey Protein Isolate 2kg</div>
               <div class="trending-prices">
-                <span class="trending-new">&#2547;<span id="tcardPrice">4,200</span></span>
-                <span class="trending-old">&#2547;<span id="tcardOld">5,600</span></span>
+                <span class="trending-new"><span class="taka">&#2547;</span><span id="tcardPrice">4,200</span></span>
+                <span class="trending-old"><span class="taka">&#2547;</span><span id="tcardOld">5,600</span></span>
                 <span class="trending-off" id="tcardDiscount">20% OFF</span>
               </div>
               <div class="trending-type-icon type-supplement" id="tcardTypeIcon">
                 <svg width="12" height="12" viewBox="0 0 512 512"><use href="#cat-icon-supplement" fill="#fff" stroke="#fff"/></svg>
               </div>
               <button class="trending-link">Explore<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="carousel-slide">
+        <div class="card-wrap" style="width:100%">
+          <div class="pv-specs" id="pvSpecsBox" style="width:100%">
+            <div class="pv-spec" id="pvSpecPreview">
+              <div class="pv-spec-icon" id="pvSpecPreviewIcon"></div>
+              <div class="pv-spec-body">
+                <div class="pv-spec-text" id="pvSpecPreviewText">Expiry date: <b>09/2028</b></div>
+                <svg class="pv-spec-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+              </div>
             </div>
           </div>
         </div>
@@ -943,6 +1003,7 @@ body.dark-mode .pay-badge-bank svg path[style*="fill:#66cde7"]{fill:#fff!importa
     <div class="carousel-dots" id="carouselDotsStore">
       <button class="carousel-dot active" data-slide="0" aria-label="Slide 1"></button>
       <button class="carousel-dot" data-slide="1" aria-label="Slide 2"></button>
+      <button class="carousel-dot" data-slide="2" aria-label="Slide 3"></button>
     </div>
   </div>
   <div class="hint-row">
@@ -963,7 +1024,7 @@ body.dark-mode .pay-badge-bank svg path[style*="fill:#66cde7"]{fill:#fff!importa
   </div>
   <div class="form-card" data-form="banner">
     <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/></svg>Landing Page Banner</h3>
-    <div class="field">
+    <div class="field" style="margin-bottom:0">
       <label>Background Image <span style="font-weight:400;color:var(--text3)">(recommended: 1200×500px, 2.4:1)</span></label>
       <div class="img-upload" id="bannerImgUploadBox">
         <input type="file" accept="image/jpeg,image/png" id="bannerImgInput" onchange="handleBannerImage(event)">
@@ -1102,13 +1163,14 @@ body.dark-mode .pay-badge-bank svg path[style*="fill:#66cde7"]{fill:#fff!importa
   <div class="form-card" data-form="faq">
     <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>FAQ</h3>
     <div class="field">
-      <label>Question</label>
-      <input type="text" id="inpFaqQ" value="Are your products 100% authentic?" oninput="updateFaq()">
+      <label>Select FAQ to edit</label>
+      <div id="faqPicker"></div>
     </div>
-    <div class="field">
-      <label>Answer</label>
-      <textarea id="inpFaqA" rows="3" oninput="updateFaq()">Every product at SuppVerse BD is sourced from trusted brands, authorized distributors, or verified global retailers.</textarea>
-    </div>
+    <button class="faq-add-btn" onclick="addFaq()" type="button">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+      Add FAQ
+    </button>
+    <div id="faqEditor" style="margin-top:14px"></div>
     <div class="hint-row" style="margin-top:2px">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
       Tap the FAQ card in the preview to test open/close
@@ -1183,6 +1245,31 @@ fill="#ed1d24"><rect width="512" height="512" rx="15%" fill="#ed1d24"/><path d="
   </div>
 
   <div id="storeForms" style="display:none">
+  <div id="storeShippingGroup" style="display:none">
+  <div class="form-card">
+    <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="3" x2="9" y2="21"/></svg>Select Badge to Preview</h3>
+    <div id="pvSpecPicker"></div>
+  </div>
+  <div class="form-card">
+    <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>Shipping Rules</h3>
+    <div class="field-row">
+      <div class="field">
+        <label>Flat Shipping Fee (৳)</label>
+        <input type="number" id="inpShipFlat" value="120" min="0" step="10" oninput="updateShipping()">
+      </div>
+      <div class="field">
+        <label>Free Shipping Over (৳)</label>
+        <input type="number" id="inpShipFree" value="6800" min="0" step="50" oninput="updateShipping()">
+      </div>
+    </div>
+    <div class="hint-row" style="margin-top:2px">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+      Applies to Cart, Payment, and the Free Shipping badge on product pages
+    </div>
+  </div>
+  </div>
+
+  <div id="storeProductGroup">
   <div class="form-card">
     <div class="field">
       <label>Editing</label>
@@ -1222,7 +1309,7 @@ fill="#ed1d24"><rect width="512" height="512" rx="15%" fill="#ed1d24"/><path d="
         <label>Category</label>
         <select id="inpCat" onchange="updateAll()">
           <option value="Supplement" selected>Supplement</option>
-          <option value="Electronics">Electronics</option>
+          <option value="Gadget">Gadget</option>
           <option value="Cosmetic">Cosmetic</option>
           <option value="Clothing">Clothing</option>
           <option value="General">General</option>
@@ -1276,13 +1363,13 @@ fill="#ed1d24"><rect width="512" height="512" rx="15%" fill="#ed1d24"/><path d="
       <div class="switch on" id="switchTrending" onclick="toggleSwitch('switchTrending')"></div>
     </div>
   </div>
-  </div>
 
   <div class="form-card" style="padding:0">
     <div class="save-bar" style="margin:0;border-radius:18px;border-top:none">
       <button class="btn-draft" onclick="saveProduct(false, event)">Save Draft</button>
       <button class="btn-save" onclick="saveProduct(true, event)">Publish Product</button>
     </div>
+  </div>
   </div>
 </div>
 <div id="toast"></div>
@@ -1347,8 +1434,70 @@ landingCarousel.goToSlide(0);
 const storeCarousel = makeCarousel({
   trackId:'carouselTrackStore', dotsId:'carouselDotsStore', labelId:'slideLabelStore',
   prevId:'carouselPrevStore', nextId:'carouselNextStore', boxId:'carouselBoxStore',
-  total:2, labels:['Vertical Card','Horizontal Card']
+  total:3, labels:['Vertical Card','Horizontal Card','Product Page Badge'],
+  onSlide: function(i){
+    document.getElementById('storeShippingGroup').style.display = i === 2 ? '' : 'none';
+    document.getElementById('storeProductGroup').style.display = i === 2 ? 'none' : '';
+  }
 });
+storeCarousel.goToSlide(0);
+
+/* ─── Product Page Badge picker: select which spec badge to preview ─── */
+const PV_SPEC_DATA = [
+  {
+    label: 'Expiry date',
+    icon: '<svg xmlns="http://www.w3.org/2000/svg" fill="none" style="width:23px;height:23px" viewBox="0 0 24 24"><path fill="currentColor" d="M7.75 2.5c0-.41421-.33579-.75-.75-.75s-.75.33579-.75.75v1.57926c-1.43933.11525-2.38423.39811-3.07843 1.09231S2.19451 6.81067 2.07926 8.25H21.9207c-.1152-1.43933-.3981-2.38423-1.0923-3.07843s-1.6391-.97706-3.0784-1.09231V2.5c0-.41421-.3358-.75-.75-.75s-.75.33579-.75.75v1.5129C15.5847 4 14.839 4 14 4h-4c-.83903 0-1.58473 0-2.25.0129z"/><path fill="currentColor" fill-rule="evenodd" d="M22 12c0-.839 0-1.5847-.0129-2.25H2.0129C2 10.4153 2 11.161 2 12v2c0 3.7712 0 5.6569 1.17157 6.8284C4.34315 22 6.22876 22 10 22h4c3.7712 0 5.6569 0 6.8284-1.1716C22 19.6569 22 17.7712 22 14zm-8 .25c-.9665 0-1.75.7835-1.75 1.75v2c0 .9665.7835 1.75 1.75 1.75s1.75-.7835 1.75-1.75v-2c0-.9665-.7835-1.75-1.75-1.75m0 1.5c-.1381 0-.25.1119-.25.25v2c0 .1381.1119.25.25.25s.25-.1119.25-.25v-2c0-.1381-.1119-.25-.25-.25m-3.213-1.4429c.2803.1161.463.3896.463.6929v4c0 .4142-.3358.75-.75.75s-.75-.3358-.75-.75v-2.1893l-.21967.2196c-.29289.2929-.76777.2929-1.06066 0s-.29289-.7677 0-1.0606l1.5-1.5c.21453-.2145.53713-.2787.81733-.1626" clip-rule="evenodd"/></svg>',
+    text: 'Expiry date: <b>09/2028</b>'
+  },
+  {
+    label: 'Brand',
+    icon: '<svg xmlns="http://www.w3.org/2000/svg" fill="none" style="transform:scaleX(-1);width:23px;height:23px" viewBox="0 0 24 24"><path fill="currentColor" fill-rule="evenodd" d="M2.678 11.422a2.5 2.5 0 0 0 0 3.536l6.364 6.364a2.5 2.5 0 0 0 3.536 0l7.69-7.69A2.5 2.5 0 0 0 21 11.864V4.5A1.5 1.5 0 0 0 19.5 3h-7.365a2.5 2.5 0 0 0-1.768.732l-7.69 7.69zM14.988 7C13.878 7 13 7.832 13 8.988c0 1.157.878 2.012 1.988 2.012C16.121 11 17 10.145 17 8.988 17 7.832 16.12 7 14.988 7" clip-rule="evenodd"/></svg>',
+    text: 'Brand: <b>Optimum Nutrition</b>'
+  },
+  {
+    label: 'Country of Origin',
+    icon: '<svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" style="width:21px;height:21px" viewBox="0 0 471.461 471.461"><path d="M235.735 471.456c129.984 0 235.726-105.752 235.726-235.726C471.461 105.757 365.709.005 235.735.005S0 105.747 0 235.73c0 129.984 105.751 235.726 235.735 235.726m185.417-277.514c-19.662-11.465-14.746 1.635-14.746 1.635l13.109 11.465c13.111 11.466 22.941 16.39 18.025 32.445-4.914 16.057-13.109 1.961-29.49 15.072-16.391 13.109 19.66 16.389 21.295 36.049 1.637 19.662-19.66 9.832-29.49 29.492s-1.635 40.965-6.551 58.99c-4.914 18.025-45.881 42.602-60.76 50.797s-4.781-18.025 0-36.051-11.34-37.686-11.34-70.457-9.83-22.939-39.322-22.939c-29.49 0-42.6-16.391-45.88-47.518-3.28-31.135 24.576-62.261 37.685-72.091C286.798 171 304.824 161.17 322.839 171c18.025 9.831 24.576 19.661 44.236 19.661s19.66-6.55 31.135-14.746c11.465-8.195-16.391-18.025-32.77-16.313-16.381 1.712-13.111-9.897-34.406-18.092-21.297-8.195-29.492 8.195-36.051 11.465-6.551 3.28-29.49 13.11-31.787 0-2.285-13.11 12.117-14.745 26.871-14.745 14.746 0 1.635-11.465-3.279-19.661-4.916-8.195-14.746-8.195-21.85-14.592-7.096-6.397 8.74-18.178 25.119-14.267 16.381 3.911 9.83 15.75 27.855 14.114s0-18.025 0-33.899 19.662-15.262 32.771-21.592c13.109-6.331 29.49 27.635 40.965 41.377 3.797 4.552 9.219 2.534 14.766-2.113 28.984 33.354 48.367 75.228 53.836 121.338-23.426 8.76-21.904-4.962-39.098-14.993M235.735 9.567c9.046 0 17.949.593 26.718 1.635-3.213 8.941-8.436 15.616-8.436 15.616s-6.549 21.295-21.304 22.94-32.771 0-40.966 13.11-6.55 36.051-19.66 22.94c-13.11-13.11-1.635-14.114-14.746-27.54-13.11-13.425-16.39-13.425-22.94-13.425-1.932 0-4.122-3.337-5.862-8.214 31.929-17.251 68.429-27.062 107.196-27.062M98.991 55.735c-.364 2.362 1.711 5.795 11.781 9.993 19.661 8.195 24.193 24.423 15.138 23.782-9.056-.641-45.853 4.379-12.011 14.209 33.851 9.831 31.059 21.353 16.008 26.268-15.052 4.916-11.829-16.361-15.109 4.944s-6.579 19.67-17.231 22.95c-10.653 3.28-30.323 19.67-30.323 31.136 0 11.465-6.56 17.882 6.55 27.712s-4.103 27.809-10.299 14.708c-7.44-15.721-12.642-24.395-20.837-26.039-8.195-1.635-18.752 11.465 0 24.575s19.661 21.305 19.661 31.135 13.569 9.83 23.992 8.195c10.414-1.635 31.805 26.221 39.14 37.686 7.325 11.467 20.435 22.941 38.46 27.855 18.025 4.916 24.576 16.391 14.746 24.576-9.83 8.195-11.465 27.855-22.94 32.771-11.475 4.914-13.11 19.66-19.661 26.221-3.844 3.844-7.573 8.834-10.691 14.602-9.782-5.498-19.115-11.705-27.941-18.543-.268-1.453-.564-2.926-.698-4.254-1.635-16.391-3.28-36.051-13.11-44.236-9.831-8.195-16.39-19.66-19.661-32.771-3.271-13.109 4.915-32.77-1.635-45.881-6.55-13.109-6.55-.822-19.661-19.248-13.11-18.428-13.11-18.438-21.305-33.183-4.379-7.889-7.334-20.463-9.151-33.708 9.093-59.106 41.184-110.724 86.788-145.455"/></svg>',
+    text: 'Country of Origin: 🇺🇸 <b>USA</b>'
+  },
+  {
+    label: '100% authentic',
+    icon: '<svg xmlns="http://www.w3.org/2000/svg" fill="none" style="width:25px;height:25px" viewBox="0 0 24 24"><path fill="currentColor" d="m21.5609 10.7386-1.36-1.58001c-.26-.3-.47-.86-.47-1.26v-1.7c0-1.06-.87-1.93-1.93-1.93h-1.7c-.39 0-.96-.21-1.26-.47l-1.58-1.36c-.69-.59-1.82-.59-2.52 0l-1.57004 1.37c-.3.25-.87.46-1.26.46h-1.73c-1.06 0-1.93.87-1.93 1.93v1.71c0 .39-.21.95-.46 1.25l-1.35 1.59001c-.58.69-.58 1.81 0 2.5l1.35 1.59c.25.3.46.86.46 1.25v1.71c0 1.06.87 1.93 1.93 1.93h1.73c.39 0 .96.21 1.26.47l1.58004 1.36c.69.59 1.82.59 2.52 0l1.58-1.36c.3-.26.86-.47 1.26-.47h1.7c1.06 0 1.93-.87 1.93-1.93v-1.7c0-.39.21-.96.47-1.26l1.36-1.58c.58-.69.58-1.83-.01-2.52m-5.4-.63-4.83 4.83c-.14.14-.33.22-.53.22s-.39-.08-.53-.22l-2.42004-2.42c-.29-.29-.29-.77 0-1.06s.77-.29 1.06 0l1.89004 1.89 4.3-4.30001c.29-.29.77-.29 1.06 0s.29.77 0 1.06001"/></svg>',
+    text: '<b>100% authentic</b>'
+  },
+  {
+    label: 'Free shipping',
+    icon: '<svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" style="width:19px;height:19px" viewBox="0 0 406.215 406.215"><path d="M226.793 243.186v163.029h134.115c17.431 0 31.568-14.129 31.568-31.57V243.186zm-47.419 0H13.749v131.459c0 17.441 14.141 31.57 31.57 31.57h134.055zm-122.586 129.9c-6.545 0-11.855-5.311-11.855-11.854v-65.778c0-6.544 5.311-11.854 11.855-11.854s11.855 5.312 11.855 11.854v65.778c0 6.543-5.31 11.854-11.855 11.854m314.388-253.522h-59.293c8.184-3.928 15.049-7.986 19.2-12.133 24.423-24.419 24.423-64.03 0-88.453C318.857 6.768 302.85.664 286.844.664c-16.009 0-32.019 6.104-44.229 18.314-10.141 10.144-19.897 35.182-27.862 60.983-3.72-1.021-7.549-1.736-11.577-1.736-4.014 0-7.844.716-11.547 1.729-7.996-26.034-17.844-51.412-28.08-61.641C151.338 6.103 135.346 0 119.322 0c-16.008 0-32.016 6.104-44.227 18.313-24.422 24.432-24.422 64.035 0 88.453 4.369 4.388 11.73 8.679 20.562 12.798H35.038c-17.43 0-31.553 14.128-31.553 31.556v26.852c0 17.43 14.123 31.551 31.553 31.551h144.336v-88.707h47.419v88.707h144.384c17.428 0 31.553-14.123 31.553-31.552v-26.852c-.001-17.427-14.126-31.555-31.554-31.555M264.971 41.332c5.834-5.838 13.612-9.057 21.873-9.057 8.272 0 16.039 3.219 21.891 9.057 5.834 5.841 9.045 13.607 9.045 21.873s-3.211 16.031-9.016 21.835c-6.531 6.161-32.107 15.76-63.725 24.701-.894-3.066-2.101-5.967-3.627-8.716 8.614-29.753 17.661-53.458 23.559-59.693m-167.523-.664c5.836-5.834 13.615-9.053 21.875-9.053 8.273 0 16.039 3.211 21.857 9.037 5.945 6.291 15.098 30.303 23.773 60.365-1.436 2.577-2.576 5.296-3.473 8.158-31.768-8.952-57.502-18.6-64.033-24.758-12.056-12.064-12.056-31.685.001-43.749"/></svg>',
+    text: null
+  },
+  {
+    label: 'Est. delivery',
+    icon: '<svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" style="width:25px;height:25px" viewBox="0 0 612.001 612"><path d="M604.131 440.17h-19.12V333.237c0-12.512-3.776-24.787-10.78-35.173l-47.92-70.975c-11.725-17.311-31.238-27.698-52.169-27.698h-74.28c-8.734 0-15.737 7.082-15.737 15.738v225.043h-121.65c11.567 9.992 19.514 23.92 21.796 39.658H412.53c4.563-31.238 31.475-55.396 63.972-55.396 32.498 0 59.33 24.158 63.895 55.396h63.735c4.328 0 7.869-3.541 7.869-7.869V448.04c-.001-4.327-3.541-7.87-7.87-7.87M525.76 312.227h-98.044c-4.327 0-7.868-3.463-7.868-7.869v-54.372c0-4.328 3.541-7.869 7.868-7.869h59.724c2.597 0 4.957 1.259 6.452 3.305l38.32 54.451c3.619 5.194-.079 12.354-6.452 12.354M476.502 440.17c-27.068 0-48.943 21.953-48.943 49.021 0 26.99 21.875 48.943 48.943 48.943 26.989 0 48.943-21.953 48.943-48.943 0-27.066-21.954-49.021-48.943-49.021m0 73.495c-13.535 0-24.472-11.016-24.472-24.471 0-13.535 10.937-24.473 24.472-24.473 13.533 0 24.472 10.938 24.472 24.473 0 13.455-10.938 24.471-24.472 24.471M68.434 440.17c-4.328 0-7.869 3.543-7.869 7.869v23.922c0 4.328 3.541 7.869 7.869 7.869h87.971c2.282-15.738 10.229-29.666 21.718-39.658H68.434zm151.864 0c-26.989 0-48.943 21.953-48.943 49.021 0 26.99 21.954 48.943 48.943 48.943 27.068 0 48.943-21.953 48.943-48.943.001-27.066-21.874-49.021-48.943-49.021m0 73.495c-13.534 0-24.471-11.016-24.471-24.471 0-13.535 10.937-24.473 24.471-24.473s24.472 10.938 24.472 24.473c0 13.455-10.938 24.471-24.472 24.471m117.716-363.06h-91.198c4.485 13.298 6.846 27.54 6.846 42.255 0 74.28-60.431 134.711-134.711 134.711-13.535 0-26.675-2.045-39.029-5.744v86.949c0 4.328 3.541 7.869 7.869 7.869h265.96c4.329 0 7.869-3.541 7.869-7.869V174.211c-.001-13.062-10.545-23.606-23.606-23.606M118.969 73.866C53.264 73.866 0 127.129 0 192.834s53.264 118.969 118.969 118.969 118.97-53.264 118.97-118.969-53.265-118.968-118.97-118.968m0 210.864c-50.752 0-91.896-41.143-91.896-91.896s41.144-91.896 91.896-91.896c50.753 0 91.896 41.144 91.896 91.896 0 50.753-41.143 91.896-91.896 91.896m35.097-72.488c-1.014 0-2.052-.131-3.082-.407L112.641 201.5c-5.148-1.391-8.729-6.062-8.729-11.396v-59.015c0-6.516 5.287-11.803 11.803-11.803s11.803 5.287 11.803 11.803v49.971l29.614 7.983c6.294 1.698 10.02 8.177 8.322 14.469-1.421 5.264-6.185 8.73-11.388 8.73"/></svg>',
+    text: 'Est. delivery: <b>JUL 24</b>'
+  }
+];
+let pvSpecIdx = 0;
+function renderPvSpecPicker(){
+  const el = document.getElementById('pvSpecPicker');
+  el.innerHTML = PV_SPEC_DATA.map((item, i) =>
+    '<div class="faq-picker-row' + (i===pvSpecIdx ? ' active' : '') + '" onclick="selectPvSpec(' + i + ')">' +
+      '<span class="faq-picker-row-text">' + (i+1) + '. ' + item.label + '</span>' +
+    '</div>'
+  ).join('');
+}
+function renderPvSpecPreview(){
+  const item = PV_SPEC_DATA[pvSpecIdx];
+  document.getElementById('pvSpecPreviewIcon').innerHTML = item.icon;
+  const threshold = document.getElementById('inpShipFree') ? document.getElementById('inpShipFree').value : '6800';
+  const text = item.text !== null ? item.text : 'Free shipping over <b id="pvcardThreshold">৳' + parseInt(threshold, 10).toLocaleString() + '</b>';
+  document.getElementById('pvSpecPreviewText').innerHTML = text;
+}
+function selectPvSpec(i){
+  pvSpecIdx = i;
+  renderPvSpecPicker();
+  renderPvSpecPreview();
+}
+renderPvSpecPicker();
+renderPvSpecPreview();
 function switchSection(section){
   document.querySelectorAll('#sectionTabs button').forEach(b => b.classList.toggle('active', b.dataset.section === section));
   document.getElementById('carouselBoxLanding').style.display = section === 'landing' ? '' : 'none';
@@ -1376,11 +1525,11 @@ let manualDiscount = false;
 let currentImg = null;
 let currentGradient = 'linear-gradient(135deg,#ff6b6b,#ee5a24)';
 const TYPE_ICON = {
-  Supplement:  {cls:'type-supplement',  svg:'<path fill="#fff" d="M12 2 2 7v10l10 5 10-5V7z"/>'},
-  Electronics: {cls:'type-electronics', svg:'<path fill="#fff" d="M4 4h16v12H4z M9 20h6"/>'},
-  Cosmetic:    {cls:'type-cosmetic',    svg:'<circle cx="12" cy="12" r="8" fill="#fff"/>'},
-  Clothing:    {cls:'type-clothing',    svg:'<path fill="#fff" d="M6 4 2 8l3 3 2-2v10h10V9l2 2 3-3-4-4-3 2h-4z"/>'},
-  General:     {cls:'type-general',     svg:'<rect x="4" y="4" width="16" height="16" rx="2" fill="#fff"/>'}
+  Supplement: {cls:'type-supplement', icon:'#cat-icon-supplement', vb:'0 0 512 512'},
+  Gadget:     {cls:'type-gadget',     icon:'#cat-icon-gadget',     vb:'0 0 64 64'},
+  Cosmetic:   {cls:'type-cosmetic',   icon:'#cat-icon-cosmetic',   vb:'0 0 512 512'},
+  Clothing:   {cls:'type-clothing',   icon:'#cat-icon-clothing',   vb:'0 0 512 512'},
+  General:    {cls:'type-general',    icon:'#cat-icon-general',    vb:'0 0 24 24'}
 };
 function buildStars(r){
   const full = Math.floor(r);
@@ -1521,7 +1670,7 @@ function updateAll(){
     const meta = TYPE_ICON[cat] || TYPE_ICON.General;
     const iconEl = document.getElementById('tcardTypeIcon');
     iconEl.className = 'trending-type-icon ' + meta.cls;
-    iconEl.querySelector('svg').innerHTML = meta.svg;
+    iconEl.innerHTML = '<svg width="12" height="12" viewBox="' + meta.vb + '"><use href="' + meta.icon + '" fill="#fff" stroke="#fff"/></svg>';
   }
   renderHotDealsRow();
 }
@@ -1652,7 +1801,7 @@ function renderHotDealsPicker(){
       '<div style="width:36px;height:36px;border-radius:8px;overflow:hidden;flex-shrink:0">' + thumb + '</div>' +
       '<div style="flex:1;min-width:0">' +
         '<div style="font-size:12.5px;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + p.name + '</div>' +
-        '<div style="font-size:11px;color:var(--text3)">৳' + p.price.toLocaleString() + '</div>' +
+        '<div style="font-size:11px;color:var(--text3)"><span class="taka">৳</span>' + p.price.toLocaleString() + '</div>' +
       '</div>' +
       (checked ? '<button onclick="moveHotDeal(\'' + p.id + '\',-1)" style="border:none;background:none;color:var(--text3);font-size:16px;padding:2px 6px;cursor:pointer" ' + (idx===0?'disabled style="opacity:.3"':'') + '>↑</button>' +
        '<button onclick="moveHotDeal(\'' + p.id + '\',1)" style="border:none;background:none;color:var(--text3);font-size:16px;padding:2px 6px;cursor:pointer" ' + (idx===selection.length-1?'disabled style="opacity:.3"':'') + '>↓</button>' : '') +
@@ -1714,7 +1863,7 @@ function renderHotDealsRow(){
       '</div>' +
       '<div class="hd-info">' +
         '<div class="hd-name">' + p.name + '</div>' +
-        '<div class="hd-price-row"><span class="hd-price">৳' + p.price.toLocaleString() + '</span><span class="hd-price-old">৳' + p.old.toLocaleString() + '</span></div>' +
+        '<div class="hd-price-row"><span class="hd-price"><span class="taka">৳</span>' + p.price.toLocaleString() + '</span><span class="hd-price-old"><span class="taka">৳</span>' + p.old.toLocaleString() + '</span></div>' +
       '</div>' +
     '</div>';
   }).join('');
@@ -1735,6 +1884,24 @@ const BANNER_DECO = {
   heart: '<svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>'
 };
 let currentBannerImg = null;
+
+function updateShipping(){
+  const flat = parseInt(document.getElementById('inpShipFlat').value, 10) || 0;
+  const free = parseInt(document.getElementById('inpShipFree').value, 10) || 0;
+  localStorage.setItem('sv-shipping', JSON.stringify({ flat: flat, freeThreshold: free }));
+  const badge = document.getElementById('pvcardThreshold');
+  if(badge) badge.textContent = '৳' + free.toLocaleString();
+}
+function loadShipping(){
+  try {
+    const saved = JSON.parse(localStorage.getItem('sv-shipping') || 'null');
+    if(saved){
+      document.getElementById('inpShipFlat').value = saved.flat;
+      document.getElementById('inpShipFree').value = saved.freeThreshold;
+    }
+  } catch(e){}
+  updateShipping();
+}
 
 function updateBanner(){
   const bcard = document.getElementById('bcard');
@@ -1909,11 +2076,179 @@ function updateWbBadge(fromLabelInput){
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   FAQ — exact toggle behavior ported from index.html toggleFaq()
+   FAQ — multiple items, picker selects which one to edit,
+   preview shows one card at a time (matches other slide types)
    ═══════════════════════════════════════════════════════════════ */
-function updateFaq(){
-  document.getElementById('faqQText').textContent = document.getElementById('inpFaqQ').value || '';
-  document.getElementById('faqAText').textContent = document.getElementById('inpFaqA').value || '';
+const DEFAULT_FAQS = [
+  {q:'Are your products 100% authentic?', a:'Every product at SuppVerse BD is sourced from trusted brands, authorized distributors, or verified global retailers. We carefully inspect every order before shipping and never deal in counterfeit products.'},
+  {q:'What is a pre-order?', a:'A pre-order means you choose—we handle the rest. It lets you buy products from trusted international stores without the hassle. Simply send us the product link from your preferred retailer.'},
+  {q:'How long does pre-order delivery take?', a:'Most pre-order items are delivered within 10–14 business days after your order is confirmed. We handle international sourcing, shipping, customs clearance, and delivery to your doorstep.'},
+  {q:'What payment methods do you accept?', a:'We accept bKash, Nagad, bank transfers, major debit/credit cards, and cash on delivery (COD) for eligible local stock orders. We also support cryptocurrency payments in selected cases.'},
+  {q:"Can I return a product if I'm not satisfied?", a:"Yes. Eligible local stock items may be returned according to our return policy. If your order arrives damaged, incorrect, or defective, we'll replace it or provide an appropriate solution."},
+  {q:'Do you deliver outside Dhaka?', a:'Absolutely. We deliver nationwide across all 64 districts of Bangladesh. Local stock orders in Dhaka are typically delivered the same day or the next business day.'}
+];
+function getFaqs(){
+  try {
+    const saved = JSON.parse(localStorage.getItem('sv-faqs') || 'null');
+    if(saved && Array.isArray(saved) && saved.length){
+      let changed = false;
+      saved.forEach(item => { if(!item._uid){ item._uid = faqUid(); changed = true; } });
+      if(changed) saveFaqs(saved);
+      return saved;
+    }
+  } catch(e){}
+  const fresh = JSON.parse(JSON.stringify(DEFAULT_FAQS));
+  fresh.forEach(item => item._uid = faqUid());
+  saveFaqs(fresh);
+  return fresh;
+}
+function faqUid(){
+  return 'f' + Date.now().toString(36) + Math.random().toString(36).slice(2,7);
+}
+function saveFaqs(list){
+  localStorage.setItem('sv-faqs', JSON.stringify(list));
+}
+function escFaq(s){
+  return (s || '').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+let faqSelectedIdx = parseInt(localStorage.getItem('sv-faq-selected') || '0', 10) || 0;
+function setFaqSelected(i){
+  faqSelectedIdx = i;
+  localStorage.setItem('sv-faq-selected', String(i));
+}
+function renderFaqPicker(){
+  const list = getFaqs();
+  if(faqSelectedIdx >= list.length) setFaqSelected(list.length - 1);
+  const el = document.getElementById('faqPicker');
+  el.innerHTML = list.map((item, i) =>
+    '<div class="faq-picker-row' + (i===faqSelectedIdx ? ' active' : '') + '" data-uid="' + item._uid + '" onclick="selectFaq(' + i + ')">' +
+      '<span class="faq-picker-row-text">' + (i+1) + '. ' + escFaq(item.q) + '</span>' +
+      '<button type="button" class="faq-ctrl-btn" onclick="event.stopPropagation();moveFaq(' + i + ',-1)"' + (i===0?' disabled':'') + ' aria-label="Move up">↑</button>' +
+      '<button type="button" class="faq-ctrl-btn" onclick="event.stopPropagation();moveFaq(' + i + ',1)"' + (i===list.length-1?' disabled':'') + ' aria-label="Move down">↓</button>' +
+      '<button type="button" class="faq-ctrl-btn danger" onclick="event.stopPropagation();removeFaq(' + i + ')" aria-label="Delete">' +
+        '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0-1 14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2L4 6"/></svg>' +
+      '</button>' +
+    '</div>'
+  ).join('');
+}
+function renderFaqEditor(){
+  const list = getFaqs();
+  const item = list[faqSelectedIdx] || {q:'', a:''};
+  const el = document.getElementById('faqEditor');
+  el.innerHTML =
+    '<div class="field">' +
+      '<label>Question</label>' +
+      '<input type="text" id="inpFaqQ" value="' + escFaq(item.q) + '" oninput="updateFaqField(\'q\',this.value)">' +
+    '</div>' +
+    '<div class="field" style="margin-bottom:0">' +
+      '<label>Answer</label>' +
+      '<textarea id="inpFaqA" rows="6" oninput="updateFaqField(\'a\',this.value)">' + escFaq(item.a) + '</textarea>' +
+    '</div>';
+}
+function renderFaqPreviewCard(){
+  const list = getFaqs();
+  const item = list[faqSelectedIdx] || {q:'', a:''};
+  document.getElementById('faqQText').textContent = item.q || '';
+  document.getElementById('faqAText').textContent = item.a || '';
+}
+function refreshFaq(){
+  renderFaqPicker();
+  renderFaqEditor();
+  renderFaqPreviewCard();
+}
+function selectFaq(i){
+  setFaqSelected(i);
+  refreshFaq();
+}
+function updateFaqField(key, val){
+  const list = getFaqs();
+  if(!list[faqSelectedIdx]) return;
+  list[faqSelectedIdx][key] = val;
+  saveFaqs(list);
+  renderFaqPicker();
+  renderFaqPreviewCard();
+}
+function addFaq(){
+  const list = getFaqs();
+  list.push({q:'New question', a:'New answer', _uid: faqUid()});
+  saveFaqs(list);
+  setFaqSelected(list.length - 1);
+  refreshFaq();
+  const rows = document.querySelectorAll('.faq-picker-row');
+  const last = rows[rows.length - 1];
+  if(last){
+    last.style.opacity = '0';
+    last.style.transform = 'translateY(-8px)';
+    requestAnimationFrame(() => {
+      last.style.transition = 'opacity .25s ease, transform .25s ease';
+      last.style.opacity = '1';
+      last.style.transform = 'translateY(0)';
+      setTimeout(() => { last.style.transition = ''; last.style.transform = ''; }, 260);
+    });
+  }
+  T('FAQ added', '➕');
+}
+function removeFaq(i){
+  const list = getFaqs();
+  if(list.length <= 1){ T('Keep at least one FAQ', '⚠️'); return; }
+  const row = document.querySelectorAll('.faq-picker-row')[i];
+  const doRemove = () => {
+    list.splice(i, 1);
+    saveFaqs(list);
+    if(faqSelectedIdx >= list.length) setFaqSelected(list.length - 1);
+    refreshFaq();
+    T('FAQ removed', '🗑️');
+  };
+  if(row){
+    row.style.transition = 'opacity .18s ease, transform .18s ease, max-height .18s ease, margin-bottom .18s ease, padding .18s ease';
+    row.style.maxHeight = row.offsetHeight + 'px';
+    row.style.overflow = 'hidden';
+    requestAnimationFrame(() => {
+      row.style.opacity = '0';
+      row.style.transform = 'translateX(-12px)';
+      row.style.maxHeight = '0px';
+      row.style.marginBottom = '0px';
+      row.style.paddingTop = '0px';
+      row.style.paddingBottom = '0px';
+    });
+    setTimeout(doRemove, 180);
+  } else {
+    doRemove();
+  }
+}
+function flipCapture(){
+  const rects = {};
+  document.querySelectorAll('.faq-picker-row').forEach(row => {
+    rects[row.dataset.uid] = row.getBoundingClientRect();
+  });
+  return rects;
+}
+function flipPlay(before){
+  document.querySelectorAll('.faq-picker-row').forEach(row => {
+    const prev = before[row.dataset.uid];
+    if(!prev) return;
+    const now = row.getBoundingClientRect();
+    const dy = prev.top - now.top;
+    if(Math.abs(dy) < 1) return;
+    row.style.transition = 'none';
+    row.style.transform = 'translateY(' + dy + 'px)';
+    requestAnimationFrame(() => {
+      row.style.transition = 'transform .28s cubic-bezier(.4,0,.2,1)';
+      row.style.transform = '';
+    });
+  });
+}
+function moveFaq(i, dir){
+  const list = getFaqs();
+  const j = i + dir;
+  if(j < 0 || j >= list.length) return;
+  const before = flipCapture();
+  [list[i], list[j]] = [list[j], list[i]];
+  if(faqSelectedIdx === i) setFaqSelected(j);
+  else if(faqSelectedIdx === j) setFaqSelected(i);
+  saveFaqs(list);
+  refreshFaq();
+  flipPlay(before);
 }
 function toggleFaqPreview(e){
   if(e) e.stopPropagation();
@@ -1953,7 +2288,8 @@ updateBanner();
 updateStats();
 updateTestimonial();
 updateWbBadge();
-updateFaq();
+refreshFaq();
+loadShipping();
 </script>
 </body>
 </html>
