@@ -668,7 +668,7 @@ body.dark-mode .pay-badge-bank svg path[style*="fill:#66cde7"]{fill:#fff!importa
 @keyframes heartBounce{
   0%{transform:scale(1)}25%{transform:scale(1.35)}50%{transform:scale(0.85)}75%{transform:scale(1.12)}100%{transform:scale(1)}
 }
-#toast{
+#apToast{
   position:fixed;bottom:20px;left:50%;
   transform:translateX(-50%) translateY(10px);
   background:rgba(10,18,36,.92);color:#fff;
@@ -677,7 +677,7 @@ body.dark-mode .pay-badge-bank svg path[style*="fill:#66cde7"]{fill:#fff!importa
   opacity:0;pointer-events:none;transition:opacity .22s,transform .22s;z-index:999;
   display:flex;align-items:center;gap:8px;box-shadow:0 4px 24px rgba(0,0,0,.4);
 }
-#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+#apToast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 </style>
 </head>
 <body>
@@ -788,9 +788,14 @@ body.dark-mode .pay-badge-bank svg path[style*="fill:#66cde7"]{fill:#fff!importa
     <h1>SuppVerse BD — Product Editor</h1>
     <p>Add / edit a product · live card preview</p>
   </div>
-  <button class="theme-btn" id="themeBtn" aria-label="Toggle theme">
-    <svg id="themeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
-  </button>
+  <div style="display:flex;align-items:center;gap:8px">
+    <button class="theme-btn" id="apCloseBtn" aria-label="Close" style="display:none">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+    <button class="theme-btn" id="themeBtn" aria-label="Toggle theme">
+      <svg id="themeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+    </button>
+  </div>
 </div>
 <div class="admin-wrap">
   <div class="section-tabs" id="sectionTabs">
@@ -1125,7 +1130,7 @@ body.dark-mode .pay-badge-bank svg path[style*="fill:#66cde7"]{fill:#fff!importa
     <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z"/></svg>Customer Testimonial</h3>
     <div class="field">
       <label>Review Text</label>
-      <textarea id="inpTestiText" rows="6" oninput="updateTestimonial()">Ordered Optimum Nutrition whey through proxy import. Arrived in 12 days, perfectly sealed, authentic. Saved me ৳2,000 compared to local shops.</textarea>
+      <textarea id="inpTestiText" rows="6" oninput="updateTestimonial()">Ordered Optimum Nutrition whey through proxy import. Arrived in 12 days, perfectly sealed, authentic. Saved me ৳2,000 compared to local shops.<\/textarea>
     </div>
     <div class="field-row">
       <div class="field">
@@ -1302,7 +1307,7 @@ fill="#ed1d24"><rect width="512" height="512" rx="15%" fill="#ed1d24"/><path d="
     <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 7h-9M14 17H5M17 3v8M7 13v8"/></svg>Product Details</h3>
     <div class="field">
       <label>Product Name</label>
-      <input type="text" id="inpName" value="Gold Standard Whey Protein 2lb" oninput="updateAll()">
+      <input type="text" id="apInpName" value="Gold Standard Whey Protein 2lb" oninput="updateAll()">
     </div>
     <div class="field-row">
       <div class="field">
@@ -1344,7 +1349,7 @@ fill="#ed1d24"><rect width="512" height="512" rx="15%" fill="#ed1d24"/><path d="
     <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>Stock & Flags</h3>
     <div class="field">
       <label>Stock Status</label>
-      <select id="inpStock" onchange="updateAll()">
+      <select id="apInpStock" onchange="updateAll()">
         <option value="in" selected>In Stock</option>
         <option value="low">Low Stock</option>
         <option value="out">Out of Stock</option>
@@ -1372,7 +1377,7 @@ fill="#ed1d24"><rect width="512" height="512" rx="15%" fill="#ed1d24"/><path d="
   </div>
   </div>
 </div>
-<div id="toast"></div>
+<div id="apToast"></div>
 <script>
 function makeCarousel(opts){
   const S = {
@@ -1505,18 +1510,47 @@ function switchSection(section){
   document.getElementById('landingForms').style.display = section === 'landing' ? '' : 'none';
   document.getElementById('storeForms').style.display = section === 'store' ? '' : 'none';
 }
-const themeState = { theme: localStorage.getItem('sv-theme-editor') || 'light' };
+// Theme priority: parent-injected data-theme (set at srcdoc build time) > standalone localStorage fallback
+const _apInjectedTheme = document.documentElement.getAttribute('data-theme');
+const themeState = { theme: _apInjectedTheme || localStorage.getItem('sv-theme-editor') || 'light' };
 function applyTheme(){
   document.body.classList.toggle('dark-mode', themeState.theme === 'dark');
-  localStorage.setItem('sv-theme-editor', themeState.theme);
+  document.documentElement.setAttribute('data-theme', themeState.theme);
+  // Only persist standalone — when embedded, parent app's theme choice is the source of truth
+  if (!window.frameElement) localStorage.setItem('sv-theme-editor', themeState.theme);
 }
 applyTheme();
+// Show close button only when embedded inside parent app's iframe
+if (window.frameElement) {
+  const closeBtn = document.getElementById('apCloseBtn');
+  if (closeBtn) {
+    closeBtn.style.display = 'flex';
+    closeBtn.addEventListener('click', () => {
+      if (window.parent) {
+        try { window.parent.postMessage({ type: 'sv-close-admin-panel' }, '*'); } catch(e) {}
+      }
+    });
+  }
+}
 document.getElementById('themeBtn').addEventListener('click', () => {
   themeState.theme = themeState.theme === 'light' ? 'dark' : 'light';
   applyTheme();
+  // Tell parent app if embedded, so main toggle + other open frames stay in sync
+  if (window.frameElement && window.parent) {
+    try { window.parent.postMessage({ type: 'sv-theme', dark: themeState.theme === 'dark' }, '*'); } catch(e) {}
+  }
+});
+// Live theme sync while open — parent broadcasts on its own toggle
+window.addEventListener('message', function(e){
+  if (!e.data || e.data.type !== 'sv-theme') return;
+  const dark = !!e.data.dark;
+  const newTheme = dark ? 'dark' : 'light';
+  if (themeState.theme === newTheme) return;
+  themeState.theme = newTheme;
+  applyTheme();
 });
 function T(msg, icon){
-  const t = document.getElementById('toast');
+  const t = document.getElementById('apToast');
   t.innerHTML = (icon ? '<span style="font-size:15px">' + icon + '</span>' : '') + '<span>' + msg + '</span>';
   t.classList.add('show');
   setTimeout(() => t.classList.remove('show'), 2200);
@@ -1605,7 +1639,7 @@ function updateStockAndSale(){
   const wrap = document.getElementById('pcardImgWrap');
   const card = document.getElementById('pcard');
   if(!wrap || !card) return;
-  const stockVal = document.getElementById('inpStock').value;
+  const stockVal = document.getElementById('apInpStock').value;
   const stockLabels = {in:'In Stock', low:'Low Stock', out:'Out'};
   let existing = wrap.querySelector('.p-badge-stock');
   if(existing) existing.remove();
@@ -1635,7 +1669,7 @@ function updateStockAndSale(){
   }
 }
 function updateAll(){
-  const name = document.getElementById('inpName').value || 'Unnamed Product';
+  const name = document.getElementById('apInpName').value || 'Unnamed Product';
   const cat = document.getElementById('inpCat').value;
   const rating = parseFloat(document.getElementById('inpRating').value) || 0;
   const price = parseInt(document.getElementById('inpPrice').value) || 0;
@@ -1696,13 +1730,13 @@ function saveHotDealsSelection(ids){
 }
 
 function saveProduct(publish, evt){
-  const name = document.getElementById('inpName').value || 'Unnamed Product';
+  const name = document.getElementById('apInpName').value || 'Unnamed Product';
   const cat = document.getElementById('inpCat').value;
   const rating = parseFloat(document.getElementById('inpRating').value) || 0;
   const price = parseInt(document.getElementById('inpPrice').value) || 0;
   const old = parseInt(document.getElementById('inpOld').value) || 0;
   const discount = document.getElementById('inpDiscount').value;
-  const stock = document.getElementById('inpStock').value;
+  const stock = document.getElementById('apInpStock').value;
   const sale = document.getElementById('switchSale').classList.contains('on');
   const hot = document.getElementById('switchHot').classList.contains('on');
   const trending = document.getElementById('switchTrending').classList.contains('on');
@@ -1739,14 +1773,14 @@ function refreshProductEditorSelect(){
 function loadProductToEditor(id){
   if(id === 'new'){
     currentEditId = null;
-    document.getElementById('inpName').value = 'New Product';
+    document.getElementById('apInpName').value = 'New Product';
     document.getElementById('inpCat').value = 'Supplement';
     document.getElementById('inpRating').value = '4.8';
     document.getElementById('inpPrice').value = '0';
     document.getElementById('inpOld').value = '0';
     document.getElementById('inpDiscount').value = '0% OFF';
     manualDiscount = false;
-    document.getElementById('inpStock').value = 'in';
+    document.getElementById('apInpStock').value = 'in';
     ['switchSale'].forEach(s => document.getElementById(s).classList.remove('on'));
     ['switchHot','switchTrending'].forEach(s => document.getElementById(s).classList.add('on'));
     removeImage({stopPropagation(){}});
@@ -1757,14 +1791,14 @@ function loadProductToEditor(id){
   const p = list.find(x => x.id === id);
   if(!p) return;
   currentEditId = p.id;
-  document.getElementById('inpName').value = p.name;
+  document.getElementById('apInpName').value = p.name;
   document.getElementById('inpCat').value = p.cat;
   document.getElementById('inpRating').value = p.rating;
   document.getElementById('inpPrice').value = p.price;
   document.getElementById('inpOld').value = p.old;
   document.getElementById('inpDiscount').value = p.discount;
   manualDiscount = true;
-  document.getElementById('inpStock').value = p.stock;
+  document.getElementById('apInpStock').value = p.stock;
   document.getElementById('switchSale').classList.toggle('on', p.sale);
   document.getElementById('switchHot').classList.toggle('on', p.hot);
   document.getElementById('switchTrending').classList.toggle('on', p.trending);
@@ -1843,7 +1877,7 @@ function renderHotDealsRow(){
     let p = list.find(x => x.id === id);
     if(currentEditId === id){
       p = Object.assign({}, p, {
-        name: document.getElementById('inpName').value || p.name,
+        name: document.getElementById('apInpName').value || p.name,
         price: parseInt(document.getElementById('inpPrice').value) || p.price,
         old: parseInt(document.getElementById('inpOld').value) || p.old,
         image: currentImg,
@@ -2142,7 +2176,7 @@ function renderFaqEditor(){
     '</div>' +
     '<div class="field" style="margin-bottom:0">' +
       '<label>Answer</label>' +
-      '<textarea id="inpFaqA" rows="6" oninput="updateFaqField(\'a\',this.value)">' + escFaq(item.a) + '</textarea>' +
+      '<textarea id="inpFaqA" rows="6" oninput="updateFaqField(\'a\',this.value)">' + escFaq(item.a) + '<\\/textarea>' +
     '</div>';
 }
 function renderFaqPreviewCard(){
