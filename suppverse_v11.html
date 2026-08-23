@@ -7162,7 +7162,7 @@ html[data-theme="dark"] #alertsTabContent .tone-proxy   .al-actions-row { border
   font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 800; font-size: 11px;
   color: #7C6FF7; background: rgba(124,111,247,0.12);
   border: 1px solid rgba(124,111,247,0.38); border-radius: 6px;
-  padding: 2px 7px; letter-spacing: 0.3px; line-height: 1;
+  padding: 3px 8px; letter-spacing: 0.3px; line-height: 1;
   display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0;
 }
 html[data-theme="dark"] #alertsTabContent .order-id-badge, html[data-theme="dark"] #orderDetailsModal .order-id-badge { background: rgba(124,111,247,0.18); border-color: rgba(124,111,247,0.5); }
@@ -7172,7 +7172,7 @@ html[data-theme="dark"] #alertsTabContent .order-id-badge, html[data-theme="dark
   font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 800; font-size: 11px;
   color: #D95353; background: rgba(217,83,83,0.12);
   border: 1px solid rgba(217,83,83,0.38); border-radius: 6px;
-  padding: 2px 7px; letter-spacing: 0.3px; line-height: 1;
+  padding: 3px 8px; letter-spacing: 0.3px; line-height: 1;
   display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0;
 }
 html[data-theme="dark"] #alertsTabContent .return-id-badge { background: rgba(217,83,83,0.18); border-color: rgba(217,83,83,0.5); }
@@ -24852,7 +24852,7 @@ function al_buyForMeCard() {
         <div class="al-card-label" style="color:${sv.labelColor}">Buy For Me</div>
         <div class="al-card-time">28m ago</div>
       </div>
-      <span class="tracking-tag"><span class="tt-label">ID</span><span class="tt-val">PX-1013</span></span>
+      <span class="tracking-tag"><span class="tt-val">PX-1013</span></span>
     </div>
     <div class="customer-row">
       <div>
@@ -24877,8 +24877,8 @@ function al_buyForMeCard() {
     </div>
     <div class="al-actions-row">
       ${al_actionBtn('primary','send','Quote')}
-      ${al_actionBtn('ghost','phone','Message')}
-      ${al_actionBtn('ghost','link','Open Link')}
+      <a class="al-action-btn" href="https://wa.me/8801998221190" target="_blank" rel="noopener" style="text-decoration:none;background:#25D366;color:#fff;box-shadow:0 4px 12px rgba(37,211,102,0.35)"><svg width="13" height="13" viewBox="0 0 24 24" fill="#fff"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347zM12 0C5.373 0 0 5.373 0 12c0 2.127.558 4.122 1.532 5.855L.054 23.454a.5.5 0 00.623.529l5.792-1.526A11.938 11.938 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.882a9.877 9.877 0 01-5.031-1.375l-.36-.214-3.733.983.998-3.648-.235-.374A9.861 9.861 0 012.118 12C2.118 6.53 6.53 2.118 12 2.118S21.882 6.53 21.882 12 17.47 21.882 12 21.882z"/></svg><span>WhatsApp</span></a>
+      ${al_actionBtn('ghost','history','Details','openOrderDetailsModal()')}
     </div>
   </div>`;
 }
@@ -24897,34 +24897,29 @@ function al_paymentLocalCard() {
       <span class="order-id-badge">SV-1014</span>
     </div>
     <div class="customer-row">
-      <div>
-        <div class="customer-name">Rafiq Ahmed</div>
-        <div class="customer-phone">+880 1712-345678</div>
+      <div class="customer-info">
+        <div class="customer-name"><svg fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><use href="#icon-user-profile"/></svg>Rafiq Ahmed</div>
+        <div class="customer-meta-row"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#icon-tag-price"/></svg><span>+880 1712-345678</span></div>
+        <div class="customer-meta-row address-row"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#icon-link-chain"/></svg><span>Mirpur, Dhaka</span></div>
       </div>
-    </div>
-    <div class="proxy-item-block">
-      <div>
-        <div class="proxy-item-name">Magnesium Glycinate 120ct</div>
-        <div class="proxy-item-store">+ 2 more items</div>
+      <div class="customer-side">
+        <div class="customer-platform-badge" style="background:#1877F2"><svg viewBox="0 0 24 24" fill="#fff"><use href="#icon-facebook"/></svg></div>
       </div>
     </div>
     <div class="payment-summary-block">
-      <div>
-        <div class="payment-amount">৳2,450</div>
-        <div class="payment-amount-label">Paid in full</div>
-      </div>
       <div class="payment-meta">
-        <strong>bKash</strong>
         Today, 3:42 PM
+        <strong>bKash</strong>
       </div>
-    </div>
-    <div class="chips-row">
-      ${al_chip('storefront','Channel','Facebook')}
+      <div style="text-align:right">
+        <div class="payment-amount-label">Paid in full</div>
+        <div class="payment-amount">৳2,450</div>
+      </div>
     </div>
     <div class="al-actions-row">
       ${al_actionBtn('primary','receipt','Receipt')}
-      ${al_actionBtn('ghost','phone','Message')}
-      ${al_actionBtn('ghost','history','Details')}
+      <a class="al-action-btn" href="https://wa.me/8801712345678" target="_blank" rel="noopener" style="text-decoration:none;background:#25D366;color:#fff;box-shadow:0 4px 12px rgba(37,211,102,0.35)"><svg width="13" height="13" viewBox="0 0 24 24" fill="#fff"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347zM12 0C5.373 0 0 5.373 0 12c0 2.127.558 4.122 1.532 5.855L.054 23.454a.5.5 0 00.623.529l5.792-1.526A11.938 11.938 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.882a9.877 9.877 0 01-5.031-1.375l-.36-.214-3.733.983.998-3.648-.235-.374A9.861 9.861 0 012.118 12C2.118 6.53 6.53 2.118 12 2.118S21.882 6.53 21.882 12 17.47 21.882 12 21.882z"/></svg><span>WhatsApp</span></a>
+      ${al_actionBtn('ghost','history','Details','openOrderDetailsModal()')}
     </div>
   </div>`;
 }
@@ -24940,37 +24935,31 @@ function al_paymentProxyCard() {
         <div class="al-card-label" style="color:${sv.labelColor}">Payment Received</div>
         <div class="al-card-time">40m ago</div>
       </div>
-      <span class="tracking-tag"><span class="tt-label">ID</span><span class="tt-val">PX-1013</span></span>
+      <span class="tracking-tag"><span class="tt-val">PX-1013</span></span>
     </div>
     <div class="customer-row">
-      <div>
-        <div class="customer-name">Tanvir Islam</div>
-        <div class="customer-phone">+880 1998-221190</div>
+      <div class="customer-info">
+        <div class="customer-name"><svg fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><use href="#icon-user-profile"/></svg>Tanvir Islam</div>
+        <div class="customer-meta-row"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#icon-tag-price"/></svg><span>+880 1998-221190</span></div>
       </div>
-    </div>
-    <div class="proxy-item-block">
-      <div>
-        <div class="proxy-item-name">iHerb — Now Foods Zinc 50mg</div>
-        <div class="proxy-item-store">Store: iHerb.com · Qty 2</div>
+      <div class="customer-side">
+        <div class="customer-platform-badge" style="background:#25D366">${al_icon('phone',10,'#fff',2.5)}</div>
       </div>
     </div>
     <div class="payment-summary-block">
-      <div>
-        <div class="payment-amount">৳2,890</div>
-        <div class="payment-amount-label">Advance collected</div>
-      </div>
       <div class="payment-meta">
-        <strong>bKash</strong>
         Today, 3:18 PM
+        <strong>bKash</strong>
       </div>
-    </div>
-    <div class="chips-row">
-      ${al_chip('phone','Contact','WhatsApp')}
+      <div style="text-align:right">
+        <div class="payment-amount-label">Advance collected</div>
+        <div class="payment-amount">৳2,890</div>
+      </div>
     </div>
     <div class="al-actions-row">
       ${al_actionBtn('primary','receipt','Receipt')}
-      ${al_actionBtn('ghost','phone','Message')}
-      ${al_actionBtn('ghost','history','Details')}
+      <a class="al-action-btn" href="https://wa.me/8801998221190" target="_blank" rel="noopener" style="text-decoration:none;background:#25D366;color:#fff;box-shadow:0 4px 12px rgba(37,211,102,0.35)"><svg width="13" height="13" viewBox="0 0 24 24" fill="#fff"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347zM12 0C5.373 0 0 5.373 0 12c0 2.127.558 4.122 1.532 5.855L.054 23.454a.5.5 0 00.623.529l5.792-1.526A11.938 11.938 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.882a9.877 9.877 0 01-5.031-1.375l-.36-.214-3.733.983.998-3.648-.235-.374A9.861 9.861 0 012.118 12C2.118 6.53 6.53 2.118 12 2.118S21.882 6.53 21.882 12 17.47 21.882 12 21.882z"/></svg><span>WhatsApp</span></a>
+      ${al_actionBtn('ghost','history','Details','openOrderDetailsModal()')}
     </div>
   </div>`;
 }
@@ -24986,37 +24975,32 @@ function al_returnRequestCard() {
         <div class="al-card-label" style="color:${sv.labelColor}">Return Request</div>
         <div class="al-card-time">1h ago</div>
       </div>
-      <span class="return-id-badge">RT-1042</span>
-    </div>
-    <div class="customer-row">
-      <div>
-        <div class="customer-name">Nusrat Jahan</div>
-        <div class="customer-phone">+880 1611-778823</div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">
+        <span class="return-id-badge">RT-1042</span>
+        <span class="order-id-badge">SV-0998</span>
       </div>
     </div>
-    <div class="proxy-item-block">
-      <div>
-        <div class="proxy-item-name">Vitamin D3 5000IU 60ct</div>
-        <div class="proxy-item-store">Reason: Wrong item received</div>
+    <div class="customer-row">
+      <div class="customer-info">
+        <div class="customer-name"><svg fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><use href="#icon-user-profile"/></svg>Nusrat Jahan</div>
+        <div class="customer-meta-row"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#icon-tag-price"/></svg><span>+880 1611-778823</span></div>
+        <div class="customer-meta-row address-row"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#icon-link-chain"/></svg><span>Dhanmondi, Dhaka</span></div>
       </div>
     </div>
     <div class="payment-summary-block">
-      <div>
-        <div class="payment-amount" style="color:var(--al-danger)">৳890</div>
-        <div class="payment-amount-label">Refund due</div>
-      </div>
       <div class="payment-meta">
-        <strong>Unopened</strong>
         Requested today
+        <strong>Unopened</strong>
       </div>
-    </div>
-    <div class="chips-row">
-      <span class="ref-order-tag">Original order <span class="order-id-badge">SV-0998</span></span>
+      <div style="text-align:right">
+        <div class="payment-amount-label">Refund due</div>
+        <div class="payment-amount" style="color:var(--al-danger)">৳890</div>
+      </div>
     </div>
     <div class="al-actions-row">
       ${al_actionBtn('primary','box','Approve')}
       ${al_actionBtn('ghost','archive','Reject')}
-      ${al_actionBtn('ghost','history','Details')}
+      ${al_actionBtn('ghost','history','Details','openOrderDetailsModal()')}
     </div>
   </div>`;
 }
@@ -25037,26 +25021,21 @@ function al_paymentDueCard(overdue) {
       <span class="order-id-badge">SV-1021</span>
     </div>
     <div class="customer-row">
-      <div>
-        <div class="customer-name">Kamal Hossain</div>
-        <div class="customer-phone">+880 1855-330214</div>
+      <div class="customer-info">
+        <div class="customer-name"><svg fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><use href="#icon-user-profile"/></svg>Kamal Hossain</div>
+        <div class="customer-meta-row"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#icon-tag-price"/></svg><span>+880 1855-330214</span></div>
+        <div class="customer-meta-row address-row"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#icon-link-chain"/></svg><span>Uttara, Dhaka</span></div>
       </div>
       <span class="al-status-badge" style="color:${dueColor};background:${sv.chipBg}">${dueText}</span>
     </div>
-    <div class="proxy-item-block">
-      <div>
-        <div class="proxy-item-name">Omega-3 Ultra 180ct</div>
-        <div class="proxy-item-store">2 items · Cash on delivery</div>
-      </div>
-    </div>
     <div class="payment-summary-block">
-      <div>
-        <div class="payment-amount" style="color:${dueColor}">৳1,850</div>
-        <div class="payment-amount-label">Amount due</div>
-      </div>
       <div class="payment-meta">
-        <strong>COD</strong>
         Delivered Aug 18
+        <strong>COD</strong>
+      </div>
+      <div style="text-align:right">
+        <div class="payment-amount-label">Amount due</div>
+        <div class="payment-amount" style="color:${dueColor}">৳1,850</div>
       </div>
     </div>
     <div class="al-actions-row">
