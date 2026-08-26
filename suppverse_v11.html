@@ -5460,6 +5460,19 @@ html[data-theme="dark"] .tx-discount-pill { color:#ff6b6b; background:rgba(217,8
 .tx-pay-chip.upay  { background:#fff; }
 .tx-pay-chip.upay svg { width:78%; height:78%; top:11%; left:11%; }
 .tx-pay-chip.cellfin{ background:#fff; }
+.pmt-pay-badge { display:inline-flex; align-items:center; justify-content:center; width:30px; height:30px; border-radius:7px; flex-shrink:0; overflow:hidden; box-shadow:0 2px 8px rgba(0,0,0,0.3); position:relative; }
+.pmt-pay-badge svg { position:absolute; display:block; }
+.pmt-pay-badge.bkash { background:#e2136e; }
+.pmt-pay-badge.bkash svg { width:66%; height:66%; top:17%; left:17%; }
+.pmt-pay-badge.cash { background:#2f9b68; }
+.pmt-pay-badge.cash svg { width:58%; height:58%; top:21%; left:21%; }
+.pmt-pay-badge.bank { background:#0891b2; }
+.pmt-pay-badge.bank svg { width:52%; height:52%; top:24%; left:24%; }
+.pmt-pay-badge.usdt { background:#26a17b; border-radius:50%; }
+.pmt-pay-badge.usdt svg { width:76%; height:76%; top:12%; left:12%; }
+.pmt-pay-badge.usdc { background:#3e73c4; border-radius:50%; }
+.pmt-pay-badge.usdc svg { width:76%; height:76%; top:12%; left:12%; }
+.payment-meta-left { display:flex; align-items:center; gap:9px; }
 .tx-cat-chip { display:inline-flex; align-items:center; gap:3px; font-family:"Plus Jakarta Sans",sans-serif; font-size:9px; font-weight:700; padding:2px 8px 2px 6px; border-radius:999px; flex-shrink:0; border:1px solid transparent; white-space:nowrap; }
 .tx-cat-chip svg { width:10px; height:10px; flex-shrink:0; fill:currentColor; }
 .tx-cat-dot { width:6px; height:6px; border-radius:50%; flex-shrink:0; }
@@ -24943,9 +24956,12 @@ function al_paymentLocalCard() {
       </div>
     </div>
     <div class="payment-summary-block">
-      <div class="payment-meta">
-        Today, 3:42 PM
-        <strong>bKash</strong>
+      <div class="payment-meta-left">
+        <div class="pmt-pay-badge bkash">${payBadgeIcon('bkash')}</div>
+        <div class="payment-meta" style="text-align:left">
+          Today, 3:42 PM
+          <strong>bKash</strong>
+        </div>
       </div>
       <div style="text-align:right">
         <div class="payment-amount-label">Paid in full</div>
@@ -24983,9 +24999,12 @@ function al_paymentProxyCard() {
       </div>
     </div>
     <div class="payment-summary-block">
-      <div class="payment-meta">
-        Today, 3:18 PM
-        <strong>bKash</strong>
+      <div class="payment-meta-left">
+        <div class="pmt-pay-badge bkash">${payBadgeIcon('bkash')}</div>
+        <div class="payment-meta" style="text-align:left">
+          Today, 3:18 PM
+          <strong>bKash</strong>
+        </div>
       </div>
       <div style="text-align:right">
         <div class="payment-amount-label">Advance collected</div>
