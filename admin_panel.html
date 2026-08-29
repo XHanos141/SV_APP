@@ -119,6 +119,8 @@ body{
 #carouselTrackStore .carousel-slide{width:33.3334%}
 #carouselTrackBuyForMe{width:500%}
 #carouselTrackBuyForMe .carousel-slide{width:20%}
+#carouselTrackLanding{width:1100%}
+#carouselTrackLanding .carousel-slide{width:9.0909%}
 .carousel-slide::before{
   content:'';position:absolute;inset:0;
   background:repeating-linear-gradient(45deg,rgba(0,0,0,.015) 0 10px,transparent 10px 20px);
@@ -157,7 +159,30 @@ body.dark-mode .slide-label{background:var(--accent);color:#0a1628;}
 body.dark-mode .carousel-dot{background:rgba(255,255,255,.2);}
 body.dark-mode .carousel-dot.active{background:var(--accent);}
 .form-card{background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:18px 16px;box-shadow:var(--shadow-sm);margin-bottom:16px}
+.page-preview-frame{width:100%;height:520px;overflow-y:auto;overflow-x:hidden;border-radius:16px;background:#fff;position:relative;-webkit-overflow-scrolling:touch}
+#carouselBoxLanding.is-pages-slide{height:560px}
+.page-preview-frame.dark-mode{background:#060d1a}
+.page-preview-inner{padding:20px 16px 32px}
+.page-section-row{border:1px solid var(--border);border-radius:14px;padding:12px;margin-bottom:12px;background:var(--surface2)}
+.page-section-row-head{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.page-section-row-head input{flex:1;font-family:var(--font-display);font-size:13px;font-weight:700;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 10px;color:var(--text)}
+.page-section-remove{width:32px;height:32px;flex-shrink:0;border:none;background:transparent;color:#d92d2d;border-radius:8px;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.page-section-remove:hover{background:rgba(217,45,45,.1)}
+.page-section-remove svg{width:16px;height:16px}
+.page-add-section-btn{width:100%;padding:12px;border:1.5px dashed var(--border);border-radius:12px;background:transparent;color:var(--accent);font-family:var(--font-body);font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;margin-top:4px}
+.page-add-section-btn:hover{background:var(--accent-soft)}
+.page-picker-row{display:flex;gap:6px;flex-wrap:nowrap}
+.page-picker-btn{flex:1;min-width:0;padding:10px 4px;border-radius:12px;border:1.5px solid var(--border);background:var(--surface2);color:var(--text);font-family:var(--font-body);font-size:11px;font-weight:700;cursor:pointer;transition:.2s;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.page-picker-btn.active{background:var(--accent);border-color:var(--accent);color:#fff}
 .form-card h3{font-family:var(--font-display);font-size:12.5px;font-weight:800;margin-bottom:14px;color:var(--text);display:flex;align-items:center;gap:6px}
+.edit-lock-btn{display:flex;align-items:center;gap:5px;padding:6px 12px;border-radius:20px;border:1.5px solid var(--accent);background:transparent;color:var(--accent);font-family:var(--font-body);font-size:11px;font-weight:700;cursor:pointer}
+.form-card h3 .edit-lock-btn svg{width:13px;height:13px;color:inherit}
+.edit-lock-btn.is-editing{background:var(--accent);color:#fff}
+#pageFieldset:disabled{opacity:.55}
+fieldset:disabled .switch{pointer-events:none;opacity:.6}
+fieldset:disabled .faq-add-btn{pointer-events:none;opacity:.5}
+#pageFieldset:disabled .rte-box,#pageFieldset:disabled .page-picker-btn,#pageFieldset:disabled .rte-toolbar button,#pageFieldset:disabled .rte-block-select{cursor:not-allowed}
+.btn-save:disabled{opacity:.5;cursor:not-allowed}
 .form-card h3 svg{width:15px;height:15px;color:var(--accent)}
 .field{margin-bottom:14px}
 .field:last-child{margin-bottom:0}
@@ -1115,8 +1140,9 @@ body.dark-mode .pay-badge-bank svg path[style*="fill:#66cde7"]{fill:#fff!importa
           </div>
         </div>
       </div>
-    
-    
+    <div class="carousel-slide">
+      <div class="page-preview-frame" id="pagePreviewFrame" style="width:100%;height:100%"><div class="page-preview-inner" id="pagePreviewInner"></div></div>
+    </div>
     </div>
     <button class="carousel-nav prev" id="carouselPrevLanding" aria-label="Previous">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
@@ -1135,6 +1161,7 @@ body.dark-mode .pay-badge-bank svg path[style*="fill:#66cde7"]{fill:#fff!importa
       <button class="carousel-dot" data-slide="7" aria-label="Slide 8"></button>
       <button class="carousel-dot" data-slide="8" aria-label="Slide 9"></button>
       <button class="carousel-dot" data-slide="9" aria-label="Slide 10"></button>
+      <button class="carousel-dot" data-slide="10" aria-label="Slide 11"></button>
     </div>
   </div>
   <div class="carousel-box" id="carouselBoxStore" style="display:none">
@@ -1222,7 +1249,11 @@ body.dark-mode .pay-badge-bank svg path[style*="fill:#66cde7"]{fill:#fff!importa
   </div>
   <div id="landingForms">
   <div class="form-card" data-form="maincards" style="display:none">
-    <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="18" rx="2"/><rect x="14" y="3" width="7" height="18" rx="2"/></svg>Main Action Cards</h3>
+    <h3>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="18" rx="2"/><rect x="14" y="3" width="7" height="18" rx="2"/></svg>Main Action Cards
+      <button type="button" class="edit-lock-btn" id="mcardEditBtn" style="margin-left:auto"></button>
+    </h3>
+    <fieldset id="mcardFieldset" style="border:none;margin:0;padding:0">
     <div id="mcardPicker"></div>
     <div class="field">
       <label>Eyebrow Label</label>
@@ -1240,10 +1271,19 @@ body.dark-mode .pay-badge-bank svg path[style*="fill:#66cde7"]{fill:#fff!importa
       <label>Button Text</label>
       <input type="text" id="inpMcardCta" oninput="updateMcardField('cta', this.value)">
     </div>
+    </fieldset>
+    <div class="save-bar" style="margin:14px 0 0;border-radius:14px">
+      <button class="btn-draft" id="mcardCancelBtn" style="display:none">Cancel</button>
+      <button class="btn-save" id="mcardSaveBtn" disabled>Save Changes</button>
+    </div>
   </div>
 
   <div class="form-card" data-form="hotdeal" style="display:none">
-    <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>Hot Deals</h3>
+    <h3>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>Hot Deals
+      <button type="button" class="edit-lock-btn" id="hotdealEditBtn" style="margin-left:auto"></button>
+    </h3>
+    <fieldset id="hotdealFieldset" style="border:none;margin:0;padding:0">
     <div class="field">
       <label>Pick products to show in the row</label>
       <div id="hotDealsPicker"></div>
@@ -1252,9 +1292,18 @@ body.dark-mode .pay-badge-bank svg path[style*="fill:#66cde7"]{fill:#fff!importa
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
       Publish products in Store → Products first, then pick them here. Use ↑ / ↓ to reorder.
     </div>
+    </fieldset>
+    <div class="save-bar" style="margin:14px 0 0;border-radius:14px">
+      <button class="btn-draft" id="hotdealCancelBtn" style="display:none">Cancel</button>
+      <button class="btn-save" id="hotdealSaveBtn" disabled>Save Changes</button>
+    </div>
   </div>
   <div class="form-card" data-form="hero" style="display:none">
-    <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l7 4v6c0 5-3.5 9-7 10-3.5-1-7-5-7-10V6l7-4z"/></svg>Hero Section</h3>
+    <h3>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l7 4v6c0 5-3.5 9-7 10-3.5-1-7-5-7-10V6l7-4z"/></svg>Hero Section
+      <button type="button" class="edit-lock-btn" id="heroEditBtn" style="margin-left:auto"></button>
+    </h3>
+    <fieldset id="heroFieldset" style="border:none;margin:0;padding:0">
     <div class="field">
       <label>Top Badge Text</label>
       <input type="text" id="inpHeroBadge" value="Discover Better. Beyond Borders." oninput="updateHero()">
@@ -1289,10 +1338,19 @@ body.dark-mode .pay-badge-bank svg path[style*="fill:#66cde7"]{fill:#fff!importa
       <label>Pill 3</label>
       <input type="text" id="inpHeroPill3" value="Fast Delivery" oninput="updateHero()">
     </div>
+    </fieldset>
+    <div class="save-bar" style="margin:14px 0 0;border-radius:14px">
+      <button class="btn-draft" id="heroCancelBtn" style="display:none">Cancel</button>
+      <button class="btn-save" id="heroSaveBtn" disabled>Save Changes</button>
+    </div>
   </div>
 
   <div class="form-card" data-form="banner">
-    <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/></svg>Landing Page Banner</h3>
+    <h3>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/></svg>Landing Page Banner
+      <button type="button" class="edit-lock-btn" id="bannerEditBtn" style="margin-left:auto"></button>
+    </h3>
+    <fieldset id="bannerFieldset" style="border:none;margin:0;padding:0">
     <div class="field" style="margin-bottom:0">
       <label>Background Image <span style="font-weight:400;color:var(--text3)">(recommended: 1200×500px, 2.4:1)</span></label>
       <div class="img-upload" id="bannerImgUploadBox">
@@ -1304,10 +1362,19 @@ body.dark-mode .pay-badge-bank svg path[style*="fill:#66cde7"]{fill:#fff!importa
         </div>
       </div>
     </div>
+    </fieldset>
+    <div class="save-bar" style="margin:14px 0 0;border-radius:14px">
+      <button class="btn-draft" id="bannerCancelBtn" style="display:none">Cancel</button>
+      <button class="btn-save" id="bannerSaveBtn" disabled>Save Changes</button>
+    </div>
   </div>
 
   <div class="form-card" data-form="services" style="display:none">
-    <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>Why Choose Us — Section</h3>
+    <h3>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>Why Choose Us — Section
+      <button type="button" class="edit-lock-btn" id="svcEditBtn" style="margin-left:auto"></button>
+    </h3>
+    <fieldset id="svcFieldset" style="border:none;margin:0;padding:0">
     <div class="field">
       <label>Section Title</label>
       <input type="text" id="inpSvcSectionTitle" value="Why Choose SuppVerse BD?" oninput="updateServices()">
@@ -1316,10 +1383,12 @@ body.dark-mode .pay-badge-bank svg path[style*="fill:#66cde7"]{fill:#fff!importa
       <label>Section Subtitle</label>
       <input type="text" id="inpSvcSectionSubtitle" value="Trusted sourcing. Global access. Fast delivery. Everything in one place." oninput="updateServices()">
     </div>
+    </fieldset>
   </div>
 
   <div class="form-card" data-form="services" style="display:none">
     <h3>Select Badge</h3>
+    <fieldset id="svcBadgeFieldset" style="border:none;margin:0;padding:0">
     <div id="svcPicker"></div>
     <div class="field">
       <label>Badge — Title</label>
@@ -1329,10 +1398,19 @@ body.dark-mode .pay-badge-bank svg path[style*="fill:#66cde7"]{fill:#fff!importa
       <label>Badge — Subtitle</label>
       <input type="text" id="inpSvcBadgeDesc" oninput="updateSvcBadgeField('desc', this.value)">
     </div>
+    </fieldset>
+    <div class="save-bar" style="margin:14px 0 0;border-radius:14px">
+      <button class="btn-draft" id="svcCancelBtn" style="display:none">Cancel</button>
+      <button class="btn-save" id="svcSaveBtn" disabled>Save Changes</button>
+    </div>
   </div>
 
   <div class="form-card" data-form="stats">
-    <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M18 17V9M13 17V5M8 17v-3"/></svg>Landing Page Stats</h3>
+    <h3>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M18 17V9M13 17V5M8 17v-3"/></svg>Landing Page Stats
+      <button type="button" class="edit-lock-btn" id="statsEditBtn" style="margin-left:auto"></button>
+    </h3>
+    <fieldset id="statsFieldset" style="border:none;margin:0;padding:0">
     <div class="field-row">
       <div class="field">
         <label>Stat 1 — Number</label>
@@ -1393,10 +1471,19 @@ body.dark-mode .pay-badge-bank svg path[style*="fill:#66cde7"]{fill:#fff!importa
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.13-9.36L23 10"/></svg>
       Swipe to the Stats slide to replay the roll-in animation
     </div>
+    </fieldset>
+    <div class="save-bar" style="margin:14px 0 0;border-radius:14px">
+      <button class="btn-draft" id="statsCancelBtn" style="display:none">Cancel</button>
+      <button class="btn-save" id="statsSaveBtn" disabled>Save Changes</button>
+    </div>
   </div>
 
   <div class="form-card" data-form="catbadge">
-    <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>Category Badge</h3>
+    <h3>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>Category Badge
+      <button type="button" class="edit-lock-btn" id="catbadgeEditBtn" style="margin-left:auto"></button>
+    </h3>
+    <fieldset id="catbadgeFieldset" style="border:none;margin:0;padding:0">
     <div class="field">
       <label>Category</label>
       <select id="inpWbCat" onchange="updateWbBadge()">
@@ -1411,10 +1498,19 @@ body.dark-mode .pay-badge-bank svg path[style*="fill:#66cde7"]{fill:#fff!importa
       <label>Label Text</label>
       <input type="text" id="inpWbLabel" value="Supplement" oninput="updateWbBadge(true)">
     </div>
+    </fieldset>
+    <div class="save-bar" style="margin:14px 0 0;border-radius:14px">
+      <button class="btn-draft" id="catbadgeCancelBtn" style="display:none">Cancel</button>
+      <button class="btn-save" id="catbadgeSaveBtn" disabled>Save Changes</button>
+    </div>
   </div>
 
   <div class="form-card" data-form="testimonial">
-    <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z"/></svg>Customer Testimonial</h3>
+    <h3>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z"/></svg>Customer Testimonial
+      <button type="button" class="edit-lock-btn" id="testiEditBtn" style="margin-left:auto"></button>
+    </h3>
+    <fieldset id="testiFieldset" style="border:none;margin:0;padding:0">
     <div class="field">
       <label>Review Text</label>
       <textarea id="inpTestiText" rows="6" oninput="updateTestimonial()">Ordered Optimum Nutrition whey through proxy import. Arrived in 12 days, perfectly sealed, authentic. Saved me ৳2,000 compared to local shops.</textarea>
@@ -1450,10 +1546,19 @@ body.dark-mode .pay-badge-bank svg path[style*="fill:#66cde7"]{fill:#fff!importa
         </select>
       </div>
     </div>
+    </fieldset>
+    <div class="save-bar" style="margin:14px 0 0;border-radius:14px">
+      <button class="btn-draft" id="testiCancelBtn" style="display:none">Cancel</button>
+      <button class="btn-save" id="testiSaveBtn" disabled>Save Changes</button>
+    </div>
   </div>
 
   <div class="form-card" data-form="faq">
-    <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>FAQ</h3>
+    <h3>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>FAQ
+      <button type="button" class="edit-lock-btn" id="faqEditBtn" style="margin-left:auto"></button>
+    </h3>
+    <fieldset id="faqFieldset" style="border:none;margin:0;padding:0">
     <div class="field">
       <label>Select FAQ to edit</label>
       <div id="faqPicker"></div>
@@ -1467,10 +1572,19 @@ body.dark-mode .pay-badge-bank svg path[style*="fill:#66cde7"]{fill:#fff!importa
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
       Tap the FAQ card in the preview to test open/close
     </div>
+    </fieldset>
+    <div class="save-bar" style="margin:14px 0 0;border-radius:14px">
+      <button class="btn-draft" id="faqCancelBtn" style="display:none">Cancel</button>
+      <button class="btn-save" id="faqSaveBtn" disabled>Save Changes</button>
+    </div>
   </div>
 
   <div class="form-card" data-form="footerpay">
-    <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>Footer Payment Badges</h3>
+    <h3>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>Footer Payment Badges
+      <button type="button" class="edit-lock-btn" id="footerpayEditBtn" style="margin-left:auto"></button>
+    </h3>
+    <fieldset id="footerpayFieldset" style="border:none;margin:0;padding:0">
     <div class="field">
       <label style="font-weight:700;font-size:11px;letter-spacing:.04em;text-transform:uppercase;color:var(--text3)">Social Links</label>
     </div>
@@ -1549,6 +1663,94 @@ fill="#ed1d24"><rect width="512" height="512" rx="15%" fill="#ed1d24"/><path d="
       <label>Cash on Delivery</label>
       <div class="switch on" id="switchPayCod" onclick="togglePay('cod','switchPayCod')"></div>
     </div>
+    </fieldset>
+    <div class="save-bar" style="margin:14px 0 0;border-radius:14px">
+      <button class="btn-draft" id="footerpayCancelBtn" style="display:none">Cancel</button>
+      <button class="btn-save" id="footerpaySaveBtn" disabled>Save Changes</button>
+    </div>
+  </div>
+  <div class="form-card" data-form="pages" style="display:none">
+    <h3>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/></svg>Static Pages
+      <button type="button" class="edit-lock-btn" id="pageEditBtn" onclick="pageToggleEditLock()" style="margin-left:auto">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        Edit
+      </button>
+    </h3>
+    <fieldset id="pageFieldset" disabled style="border:none;margin:0;padding:0">
+    <div class="field">
+      <label>Select page to edit</label>
+      <div id="pagePicker" class="page-picker-row"></div>
+    </div>
+    <div id="pageEditorWrap">
+      <label id="pageEditorTitle" style="display:block;margin-bottom:8px">About Us</label>
+      <div class="rte-toolbar" id="pageToolbar" onmousedown="event.preventDefault()">
+        <select class="rte-block-select" id="pageRteBlockSelect" onchange="pageRteBlock(this.value)" title="Text style">
+          <option value="p">Paragraph</option>
+          <option value="h2">Heading</option>
+          <option value="h3">Subheading</option>
+        </select>
+        <span class="rte-sep"></span>
+        <button type="button" onclick="pageRteCmd('bold')" title="Bold"><b>B</b></button>
+        <button type="button" onclick="pageRteCmd('italic')" title="Italic"><i>I</i></button>
+        <button type="button" onclick="pageRteCmd('underline')" title="Underline"><u>U</u></button>
+        <span class="rte-sep"></span>
+        <div class="rte-color-wrap" id="pageRteColorWrap">
+          <button type="button" onclick="pageToggleRteColorPicker(event)" title="Text colour">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 17L11 5h2l4.5 12"/><path d="M7.5 13h9"/></svg>
+            <span class="rte-color-chip" id="pageRteColorChip" style="background:#1a2e4d"></span>
+          </button>
+          <div class="rte-color-pop" id="pageRteColorPop">
+            <div class="rte-color-grid">
+              <button type="button" class="rte-swatch" style="background:#1a2e4d" onclick="pageRteApplyColor('#1a2e4d')" title="Navy"></button>
+              <button type="button" class="rte-swatch" style="background:#009ddc" onclick="pageRteApplyColor('#009ddc')" title="Cyan"></button>
+              <button type="button" class="rte-swatch" style="background:#f26430" onclick="pageRteApplyColor('#f26430')" title="Orange"></button>
+              <button type="button" class="rte-swatch" style="background:#6761a8" onclick="pageRteApplyColor('#6761a8')" title="Purple"></button>
+              <button type="button" class="rte-swatch" style="background:#009b72" onclick="pageRteApplyColor('#009b72')" title="Green"></button>
+              <button type="button" class="rte-swatch" style="background:#d92d2d" onclick="pageRteApplyColor('#d92d2d')" title="Red"></button>
+              <button type="button" class="rte-swatch" style="background:#e0a800" onclick="pageRteApplyColor('#e0a800')" title="Gold"></button>
+              <button type="button" class="rte-swatch" style="background:#6b7280" onclick="pageRteApplyColor('#6b7280')" title="Grey"></button>
+              <button type="button" class="rte-swatch" style="background:#000000" onclick="pageRteApplyColor('#000000')" title="Black"></button>
+            </div>
+            <label class="rte-color-custom">
+              <input type="color" id="pageRteColorCustom" value="#1a2e4d" oninput="pageRteApplyColor(this.value)">
+              <span>Custom</span>
+            </label>
+          </div>
+        </div>
+        <span class="rte-sep"></span>
+        <button type="button" onclick="pageRteCmd('insertUnorderedList')" title="Bullet list">•≡</button>
+        <button type="button" onclick="pageRteCmd('insertOrderedList')" title="Numbered list">1≡</button>
+        <span class="rte-sep"></span>
+        <button type="button" onclick="pageRteCmd('justifyLeft')" title="Align left">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="15" y2="12"/><line x1="3" y1="18" x2="18" y2="18"/></svg>
+        </button>
+        <button type="button" onclick="pageRteCmd('justifyCenter')" title="Align center">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="6" y1="12" x2="18" y2="12"/><line x1="4" y1="18" x2="20" y2="18"/></svg>
+        </button>
+        <button type="button" onclick="pageRteCmd('justifyRight')" title="Align right">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="9" y1="12" x2="21" y2="12"/><line x1="6" y1="18" x2="21" y2="18"/></svg>
+        </button>
+        <span class="rte-sep"></span>
+        <button type="button" onclick="pageRteLink()" title="Insert link">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 007.07 0l2.83-2.83a5 5 0 00-7.07-7.07L11.5 4.5"/><path d="M14 11a5 5 0 00-7.07 0L4.1 13.83a5 5 0 007.07 7.07L12.5 19.5"/></svg>
+        </button>
+        <button type="button" onclick="pageRteCmd('unlink')" title="Remove link">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 007.07 0l1.41-1.41"/><path d="M14 11a5 5 0 00-7.07 0l-1.41 1.41"/><line x1="2" y1="2" x2="22" y2="22"/></svg>
+        </button>
+        <span class="rte-sep"></span>
+        <button type="button" onclick="pageRteCmd('undo')" title="Undo">↶</button>
+        <button type="button" onclick="pageRteCmd('redo')" title="Redo">↷</button>
+      </div>
+      <div class="rte-box" id="pageRteBox" contenteditable="false" oninput="updatePageBody();updatePageRteWordCount()" onmouseup="pageRteColorPenCheck()" ontouchend="pageRteColorPenCheck()"></div>
+      <div class="rte-color-hint" id="pageRteColorHint">Colour pen active — select text to apply <button type="button" onclick="pageRteColorPenOff()">Done</button></div>
+      <div class="rte-footer"><span id="pageRteWordCount">0 words</span></div>
+    </div>
+    </fieldset>
+    <div class="save-bar" style="margin:14px 0 0;border-radius:14px">
+      <button class="btn-draft" id="pageCancelBtn" onclick="pageCancelEdit(event)" style="display:none">Cancel</button>
+      <button class="btn-save" id="pageSaveBtn" onclick="pageSaveChanges(event)" disabled>Save Changes</button>
+    </div>
   </div>
   </div>
 
@@ -1559,7 +1761,11 @@ fill="#ed1d24"><rect width="512" height="512" rx="15%" fill="#ed1d24"/><path d="
     <div id="pvSpecPicker"></div>
   </div>
   <div class="form-card">
-    <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>Shipping Rules</h3>
+    <h3>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>Shipping Rules
+      <button type="button" class="edit-lock-btn" id="shipEditBtn" style="margin-left:auto"></button>
+    </h3>
+    <fieldset id="shipFieldset" style="border:none;margin:0;padding:0">
     <div class="field-row">
       <div class="field">
         <label>Flat Shipping Fee (৳)</label>
@@ -1574,11 +1780,20 @@ fill="#ed1d24"><rect width="512" height="512" rx="15%" fill="#ed1d24"/><path d="
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
       Applies to Cart, Payment, and the Free Shipping badge on product pages
     </div>
+    </fieldset>
+    <div class="save-bar" style="margin:14px 0 0;border-radius:14px">
+      <button class="btn-draft" id="shipCancelBtn" style="display:none">Cancel</button>
+      <button class="btn-save" id="shipSaveBtn" disabled>Save Changes</button>
+    </div>
   </div>
   </div>
 
   <div id="storeProductGroup">
   <div class="form-card">
+    <h3 style="margin-bottom:10px">
+      <span style="flex:1">Product Editor</span>
+      <button type="button" class="edit-lock-btn" id="productEditBtn"></button>
+    </h3>
     <div class="field">
       <label>Editing</label>
       <select id="inpEditProduct" onchange="loadProductToEditor(this.value)">
@@ -1586,6 +1801,7 @@ fill="#ed1d24"><rect width="512" height="512" rx="15%" fill="#ed1d24"/><path d="
       </select>
     </div>
   </div>
+  <fieldset id="productFieldset" style="border:none;margin:0;padding:0">
   <div class="form-card">
     <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>Product Image</h3>
     <div class="img-upload" id="imgUploadBox">
@@ -1740,11 +1956,12 @@ fill="#ed1d24"><rect width="512" height="512" rx="15%" fill="#ed1d24"/><path d="
       <div class="switch on" id="switchTrending" onclick="toggleSwitch('switchTrending')"></div>
     </div>
   </div>
+  </fieldset>
 
   <div class="form-card" style="padding:0">
     <div class="save-bar" style="margin:0;border-radius:18px;border-top:none">
-      <button class="btn-draft" onclick="saveProduct(false, event)">Save Draft</button>
-      <button class="btn-save" onclick="saveProduct(true, event)">Publish Product</button>
+      <button class="btn-draft" id="productCancelBtn" style="display:none">Cancel</button>
+      <button class="btn-save" id="productSaveBtn" disabled onclick="saveProduct(true, event)">Save Changes</button>
     </div>
   </div>
   </div>
@@ -1854,7 +2071,11 @@ fill="#ed1d24"><rect width="512" height="512" rx="15%" fill="#ed1d24"/><path d="
 </div>
 <div id="buyForMeForms" style="display:none">
   <div class="form-card" data-form="hero">
-    <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>Buy For Me — Hero</h3>
+    <h3>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>Buy For Me — Hero
+      <button type="button" class="edit-lock-btn" id="bfmHeroEditBtn" style="margin-left:auto"></button>
+    </h3>
+    <fieldset id="bfmHeroFieldset" style="border:none;margin:0;padding:0">
     <div class="field">
       <label>Eyebrow Text</label>
       <input type="text" id="inpBfmEyebrow" value="Global Import" oninput="updateBfmHero()">
@@ -1867,8 +2088,10 @@ fill="#ed1d24"><rect width="512" height="512" rx="15%" fill="#ed1d24"/><path d="
       <label>Heading — Line 2</label>
       <input type="text" id="inpBfmH2" value="From Any International Store" oninput="updateBfmHero()">
     </div>
+    </fieldset>
   </div>
   <div class="form-card" data-form="badges">
+    <fieldset id="bfmBadgesFieldset" style="border:none;margin:0;padding:0">
     <div class="field">
       <label>Step 1 Label</label>
       <input type="text" id="inpBfmStep1" value="Paste Link" oninput="updateBfmHero()">
@@ -1885,15 +2108,32 @@ fill="#ed1d24"><rect width="512" height="512" rx="15%" fill="#ed1d24"/><path d="
       <label>Step 4 Label</label>
       <input type="text" id="inpBfmStep4" value="Delivered" oninput="updateBfmHero()">
     </div>
+    </fieldset>
+    <div class="save-bar" style="margin:14px 0 0;border-radius:14px">
+      <button class="btn-draft" id="bfmHeroCancelBtn" style="display:none">Cancel</button>
+      <button class="btn-save" id="bfmHeroSaveBtn" disabled>Save Changes</button>
+    </div>
   </div>
   <div class="form-card" data-form="stores">
-    <h3 id="bfmStoresHeading">Supported Stores</h3>
+    <h3 id="bfmStoresHeading" style="display:flex;align-items:center">Supported Stores
+      <button type="button" class="edit-lock-btn" id="bfmStoresEditBtn" style="margin-left:auto"></button>
+    </h3>
     <p id="bfmStoresSub" style="font-size:12px;color:var(--text3);margin:-6px 0 12px">Toggle a store off to hide it from the customer dropdown on buy_for_me.html. Rename labels as needed.</p>
+    <fieldset id="bfmStoresFieldset" style="border:none;margin:0;padding:0">
     <div id="bfmStoresList"></div>
+    </fieldset>
+    <div class="save-bar" style="margin:14px 0 0;border-radius:14px">
+      <button class="btn-draft" id="bfmStoresCancelBtn" style="display:none">Cancel</button>
+      <button class="btn-save" id="bfmStoresSaveBtn" disabled>Save Changes</button>
+    </div>
   </div>
   <div class="form-card" data-form="fees" style="display:none">
-    <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>Fee &amp; Markup Rules</h3>
+    <h3>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>Fee &amp; Markup Rules
+      <button type="button" class="edit-lock-btn" id="bfmFeesEditBtn" style="margin-left:auto"></button>
+    </h3>
     <p style="font-size:12px;color:var(--text3);margin:-6px 0 12px">These apply to every proxy quote, regardless of store.</p>
+    <fieldset id="bfmFeesFieldset" style="border:none;margin:0;padding:0">
     <div class="field">
       <label>Shipping (%)</label>
       <input type="number" id="inpBfmShip" value="12" min="0" step="0.5" oninput="updateBfmFees()">
@@ -1914,9 +2154,18 @@ fill="#ed1d24"><rect width="512" height="512" rx="15%" fill="#ed1d24"/><path d="
       <label>Sample Product Price (USD) — preview only</label>
       <input type="number" id="inpBfmSampleUsd" value="50" min="0" step="1" oninput="updateBfmFees()">
     </div>
+    </fieldset>
+    <div class="save-bar" style="margin:14px 0 0;border-radius:14px">
+      <button class="btn-draft" id="bfmFeesCancelBtn" style="display:none">Cancel</button>
+      <button class="btn-save" id="bfmFeesSaveBtn" disabled>Save Changes</button>
+    </div>
   </div>
   <div class="form-card" data-form="preorder" style="display:none">
-    <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>How Pre-Order Works</h3>
+    <h3>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>How Pre-Order Works
+      <button type="button" class="edit-lock-btn" id="bfmPoEditBtn" style="margin-left:auto"></button>
+    </h3>
+    <fieldset id="bfmPoFieldset" style="border:none;margin:0;padding:0">
     <div class="field">
       <label>Section Title</label>
       <input type="text" id="inpBfmPreorderTitle" value="How Pre-Order Works?" oninput="updateBfmPreorderTitle()">
@@ -1933,9 +2182,18 @@ fill="#ed1d24"><rect width="512" height="512" rx="15%" fill="#ed1d24"/><path d="
       <label>Description</label>
       <input type="text" id="inpBfmPoD" value="" oninput="updateBfmPoField('d', this.value)">
     </div>
+    </fieldset>
+    <div class="save-bar" style="margin:14px 0 0;border-radius:14px">
+      <button class="btn-draft" id="bfmPoCancelBtn" style="display:none">Cancel</button>
+      <button class="btn-save" id="bfmPoSaveBtn" disabled>Save Changes</button>
+    </div>
   </div>
   <div class="form-card" data-form="faq" style="display:none">
-    <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>FAQ</h3>
+    <h3>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>FAQ
+      <button type="button" class="edit-lock-btn" id="bfmFaqEditBtn" style="margin-left:auto"></button>
+    </h3>
+    <fieldset id="bfmFaqFieldset" style="border:none;margin:0;padding:0">
     <div class="field">
       <label>Select FAQ to edit</label>
       <div id="bfmFaqPicker"></div>
@@ -1945,8 +2203,537 @@ fill="#ed1d24"><rect width="512" height="512" rx="15%" fill="#ed1d24"/><path d="
       Add FAQ
     </button>
     <div id="bfmFaqEditor" style="margin-top:14px"></div>
+    </fieldset>
+    <div class="save-bar" style="margin:14px 0 0;border-radius:14px">
+      <button class="btn-draft" id="bfmFaqCancelBtn" style="display:none">Cancel</button>
+      <button class="btn-save" id="bfmFaqSaveBtn" disabled>Save Changes</button>
+    </div>
   </div>
 </div>
+<textarea id="page-src-about" style="display:none"><!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SuppVerse BD — About Us</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=Plus+Jakarta+Sans:wght@600;700;800&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --cyan:#009ddc; --orange:#f26430; --green:#009b72; --gold:#f4a922; --purple:#6761a8;
+  --font:'DM Sans',sans-serif; --fd:'Plus Jakarta Sans',sans-serif; --fs:'Outfit',sans-serif;
+  --bg:#ffffff; --surface:#ffffff; --surface2:#f5f7fc; --border:rgba(0,0,0,0.07);
+  --text:#0a1628; --t2:#4a5568; --t3:#9aa5b4;
+  --shadow:0 2px 16px rgba(0,0,0,0.07); --shadow-md:0 6px 28px rgba(0,0,0,0.1);
+}
+body.dark-mode {
+  --bg:#060d1a; --surface:#0f1a2e; --surface2:#162338; --border:rgba(255,255,255,0.08);
+  --text:#eef4ff; --t2:rgba(238,244,255,0.55); --t3:rgba(238,244,255,0.28);
+  --shadow:0 2px 16px rgba(0,0,0,0.4); --shadow-md:0 6px 28px rgba(0,0,0,0.5);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html{font-size:16px;-webkit-text-size-adjust:100%}
+body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;display:flex;align-items:center;justify-content:center;padding:20px;transition:background .35s ease,color .35s ease}
+
+/* Card */
+.about-card{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:32px 24px;box-shadow:var(--shadow);max-width:560px;width:100%;animation:cardIn .5s ease both}
+@keyframes cardIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+
+.about-text{font-size:14px;font-weight:500;color:var(--t2);line-height:1.6;margin-bottom:16px;text-align:justify;text-align-last:left;word-spacing:0.5px}
+.about-text:last-child{margin-bottom:0}
+.about-text strong{color:var(--text);font-weight:700}
+.about-divider{height:1px;background:var(--border);margin:20px 0}
+.about-closing{font-family:var(--fd);font-size:18px;font-weight:800;color:var(--text);text-align:center;margin-top:4px;letter-spacing:-.3px}
+.about-closing-sub{font-size:12px;font-weight:600;color:var(--t3);text-align:center;margin-top:6px;letter-spacing:.12em;text-transform:uppercase}
+
+/* Back link */
+.back-link{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:600;color:var(--cyan);text-decoration:none;margin-bottom:20px;transition:opacity .2s}
+.back-link:hover{opacity:.75}
+.back-link svg{width:16px;height:16px;stroke:var(--cyan);stroke-width:2;fill:none;stroke-linecap:round;stroke-linejoin:round}
+</style>
+</head>
+<body>
+
+<div class="about-card">
+  <a href="#" class="back-link" onclick="history.back();return false">
+    <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+    Back
+  </a>
+
+  <p class="about-text"><strong>SuppVerseBD</strong> was created with a simple idea: everyone in Bangladesh should have easy access to authentic products from trusted brands around the world.</p>
+
+  <p class="about-text">We know how frustrating it can be to search for genuine products, worry about counterfeits, or deal with the complexity of international shopping. That's why we built a service that makes the process simple, transparent, and reliable.</p>
+
+  <p class="about-text">Whether you're choosing from our <strong>local stock</strong> or placing a <strong>pre-order</strong> from your favorite international store, we take care of everything after your order is confirmed. From sourcing and purchasing to international shipping, customs clearance, and final delivery, we manage every step so you can shop with confidence.</p>
+
+  <p class="about-text">Trust is the foundation of everything we do. We carefully source products from trusted brands, authorized distributors, verified retailers, and reputable global marketplaces. Every order is handled with attention to detail because we believe authenticity isn't just a promise, it's our responsibility.</p>
+
+  <p class="about-text">Today, SuppVerseBD is more than an online store. We're building a trusted bridge between Bangladesh and the world's best products, making global shopping easier, safer, and more accessible for everyone.</p>
+
+  <p class="about-text">As we continue to grow, our commitment remains the same: honest service, authentic products, and a shopping experience you can rely on every time.</p>
+
+  <div class="about-divider"></div>
+
+  <p class="about-text" style="text-align:center;font-style:italic;color:var(--t3);text-align-last:center;">Thank you for choosing SuppVerseBD.</p>
+
+  <div class="about-closing">Discover Better.</div>
+  <div class="about-closing-sub">Beyond Borders.</div>
+</div>
+
+<script>
+(function(){
+  const theme = localStorage.getItem('sv-theme') || 'light';
+  document.body.classList.toggle('dark-mode', theme === 'dark');
+})();
+</script>
+
+</body>
+</html></textarea>
+<textarea id="page-src-privacy" style="display:none"><!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SuppVerse BD — Privacy Policy</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=Plus+Jakarta+Sans:wght@600;700;800&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --cyan:#009ddc; --orange:#f26430; --green:#009b72; --gold:#f4a922; --purple:#6761a8;
+  --font:'DM Sans',sans-serif; --fd:'Plus Jakarta Sans',sans-serif; --fs:'Outfit',sans-serif;
+  --bg:#ffffff; --surface:#ffffff; --surface2:#f5f7fc; --border:rgba(0,0,0,0.07);
+  --text:#0a1628; --t2:#4a5568; --t3:#9aa5b4;
+  --shadow:0 2px 16px rgba(0,0,0,0.07); --shadow-md:0 6px 28px rgba(0,0,0,0.1);
+}
+body.dark-mode {
+  --bg:#060d1a; --surface:#0f1a2e; --surface2:#162338; --border:rgba(255,255,255,0.08);
+  --text:#eef4ff; --t2:rgba(238,244,255,0.55); --t3:rgba(238,244,255,0.28);
+  --shadow:0 2px 16px rgba(0,0,0,0.4); --shadow-md:0 6px 28px rgba(0,0,0,0.5);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html{font-size:16px;-webkit-text-size-adjust:100%}
+body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;display:flex;align-items:center;justify-content:center;padding:20px;transition:background .35s ease,color .35s ease}
+
+/* Card */
+.pp-card{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:32px 24px;box-shadow:var(--shadow);max-width:600px;width:100%;animation:cardIn .5s ease both}
+@keyframes cardIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+
+/* Back link */
+.back-link{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:600;color:var(--cyan);text-decoration:none;margin-bottom:24px;transition:opacity .2s}
+.back-link:hover{opacity:.75}
+.back-link svg{width:16px;height:16px;stroke:var(--cyan);stroke-width:2;fill:none;stroke-linecap:round;stroke-linejoin:round}
+
+/* Title */
+.pp-title{font-family:var(--fd);font-size:24px;font-weight:800;color:var(--text);letter-spacing:-.5px;line-height:1.2;margin-bottom:4px}
+.pp-updated{font-size:11px;font-weight:600;color:var(--t3);letter-spacing:.08em;margin-bottom:20px}
+
+/* Sections */
+.pp-section{margin-bottom:22px}
+.pp-section:last-of-type{margin-bottom:16px}
+.pp-heading{font-family:var(--fd);font-size:14px;font-weight:700;color:var(--text);margin-bottom:8px;letter-spacing:-.2px}
+.pp-text{font-size:13.5px;font-weight:500;color:var(--t2);line-height:1.65;margin-bottom:10px;text-align:justify;text-align-last:left;word-spacing:0.5px}
+.pp-text:last-child{margin-bottom:0}
+.pp-text strong{color:var(--text);font-weight:700}
+
+/* Lists */
+.pp-list{list-style:none;padding:0;margin:0 0 10px 0}
+.pp-list li{position:relative;font-size:13px;font-weight:500;color:var(--t2);line-height:1.65;padding-left:16px;margin-bottom:4px}
+.pp-list li::before{content:"";position:absolute;left:0;top:9px;width:5px;height:5px;border-radius:50%;background:var(--cyan);opacity:.7}
+.pp-list li:last-child{margin-bottom:0}
+
+/* Divider */
+.pp-divider{height:1px;background:var(--border);margin:18px 0}
+
+/* Closing */
+.pp-closing{font-family:var(--fd);font-size:18px;font-weight:800;color:var(--text);text-align:center;margin-top:4px;letter-spacing:-.3px}
+.pp-closing-sub{font-size:12px;font-weight:600;color:var(--t3);text-align:center;margin-top:6px;letter-spacing:.12em;text-transform:uppercase}
+.pp-thanks{font-size:13px;font-weight:500;color:var(--t3);text-align:center;font-style:italic;margin-bottom:6px;text-align-last:center}
+
+/* Contact block */
+.pp-contact{font-size:13px;font-weight:500;color:var(--t2);line-height:1.7;text-align:center;margin-top:8px}
+.pp-contact a{color:var(--cyan);text-decoration:none;font-weight:600}
+.pp-contact a:hover{opacity:.75}
+</style>
+</head>
+<body>
+
+<div class="pp-card">
+  <a href="#" class="back-link" onclick="history.back();return false">
+    <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+    Back
+  </a>
+
+  <h1 class="pp-title">Privacy Policy</h1>
+  <div class="pp-updated">Last Updated: 11 July 2026</div>
+
+  <p class="pp-text">At <strong>SuppVerseBD</strong>, your privacy matters to us. We believe trust is earned through transparency, and we're committed to protecting your personal information while providing a safe and reliable shopping experience.</p>
+  <p class="pp-text">By using our website or placing an order with SuppVerseBD, you agree to the practices described in this Privacy Policy.</p>
+
+  <div class="pp-divider"></div>
+
+  <div class="pp-section">
+    <div class="pp-heading">Information We Collect</div>
+    <p class="pp-text">To process your orders and provide our services, we may collect:</p>
+    <ul class="pp-list">
+      <li>Full name</li>
+      <li>Phone number</li>
+      <li>Email address (if provided)</li>
+      <li>Delivery address</li>
+      <li>Order history</li>
+      <li>Payment details required to complete your purchase</li>
+    </ul>
+    <p class="pp-text">We only collect the information necessary to provide you with the best possible service.</p>
+  </div>
+
+  <div class="pp-section">
+    <div class="pp-heading">How We Use Your Information</div>
+    <p class="pp-text">Your information helps us:</p>
+    <ul class="pp-list">
+      <li>Process and confirm your orders</li>
+      <li>Deliver your products</li>
+      <li>Provide customer support</li>
+      <li>Send order updates and delivery notifications</li>
+      <li>Improve our website and services</li>
+      <li>Prevent fraud and unauthorized activities</li>
+      <li>Respond to your questions and requests</li>
+    </ul>
+    <p class="pp-text">Your information is used only for legitimate business purposes.</p>
+  </div>
+
+  <div class="pp-section">
+    <div class="pp-heading">International Pre-Orders</div>
+    <p class="pp-text">For pre-order services, you may share a product link from your preferred international store. To complete your order, we may share only the information required with trusted suppliers, shipping partners, customs agents, or logistics providers involved in sourcing and delivering your product.</p>
+    <p class="pp-text">Your information is shared only when necessary to complete your order.</p>
+  </div>
+
+  <div class="pp-section">
+    <div class="pp-heading">Protecting Your Information</div>
+    <p class="pp-text">We take reasonable security measures to protect your personal information from unauthorized access, misuse, or disclosure.</p>
+    <p class="pp-text">While no online system can guarantee absolute security, we continuously work to keep your information as safe as possible.</p>
+  </div>
+
+  <div class="pp-section">
+    <div class="pp-heading">Sharing Your Information</div>
+    <p class="pp-text">We respect your privacy. We do not sell, rent, or trade your personal information.</p>
+    <p class="pp-text">Your information may only be shared when necessary with:</p>
+    <ul class="pp-list">
+      <li>Delivery and courier partners</li>
+      <li>Payment service providers</li>
+      <li>Trusted international suppliers for pre-orders</li>
+      <li>Government or legal authorities when required by law</li>
+    </ul>
+  </div>
+
+  <div class="pp-section">
+    <div class="pp-heading">Cookies</div>
+    <p class="pp-text">Our website may use cookies to improve your browsing experience, remember your preferences, and help us understand how visitors use our website.</p>
+    <p class="pp-text">You can disable cookies through your browser settings at any time.</p>
+  </div>
+
+  <div class="pp-section">
+    <div class="pp-heading">Marketing Communications</div>
+    <p class="pp-text">Occasionally, we may send updates about new arrivals, exclusive offers, or important announcements.</p>
+    <p class="pp-text">You can unsubscribe from promotional communications whenever you choose.</p>
+  </div>
+
+  <div class="pp-section">
+    <div class="pp-heading">Your Rights</div>
+    <p class="pp-text">You may contact us at any time if you wish to:</p>
+    <ul class="pp-list">
+      <li>Access your personal information</li>
+      <li>Correct inaccurate information</li>
+      <li>Request deletion of your data where applicable</li>
+      <li>Ask questions about how your information is handled</li>
+    </ul>
+    <p class="pp-text">We'll always do our best to respond promptly.</p>
+  </div>
+
+  <div class="pp-section">
+    <div class="pp-heading">Policy Updates</div>
+    <p class="pp-text">As SuppVerseBD continues to grow, this Privacy Policy may be updated from time to time. Any changes will be published on this page along with the latest revision date.</p>
+  </div>
+
+  <div class="pp-divider"></div>
+
+  <div class="pp-section" style="margin-bottom:10px">
+    <div class="pp-heading" style="text-align:center">Contact Us</div>
+    <p class="pp-text" style="text-align:center;text-align-last:center">If you have any questions about this Privacy Policy or how your information is handled, we're always happy to help.</p>
+    <div class="pp-contact">
+      <strong>SuppVerseBD</strong><br>
+      Email: <a href="mailto:suppverse141@gmail.com">suppverse141@gmail.com</a><br>
+      WhatsApp: <a href="https://wa.me/8801644232935">+880 1644-232935</a>
+    </div>
+  </div>
+
+  <div class="pp-divider"></div>
+
+  <p class="pp-thanks">Thank you for trusting SuppVerseBD.</p>
+  <div class="pp-closing">Discover Better.</div>
+  <div class="pp-closing-sub">Beyond Borders.</div>
+</div>
+
+<script>
+(function(){
+  const theme = localStorage.getItem('sv-theme') || 'light';
+  document.body.classList.toggle('dark-mode', theme === 'dark');
+})();
+</script>
+
+</body>
+</html></textarea>
+<textarea id="page-src-terms" style="display:none"><!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SuppVerse BD — Terms & Conditions</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=Plus+Jakarta+Sans:wght@600;700;800&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --cyan:#009ddc; --orange:#f26430; --green:#009b72; --gold:#f4a922; --purple:#6761a8;
+  --font:'DM Sans',sans-serif; --fd:'Plus Jakarta Sans',sans-serif; --fs:'Outfit',sans-serif;
+  --bg:#ffffff; --surface:#ffffff; --surface2:#f5f7fc; --border:rgba(0,0,0,0.07);
+  --text:#0a1628; --t2:#4a5568; --t3:#9aa5b4;
+  --shadow:0 2px 16px rgba(0,0,0,0.07); --shadow-md:0 6px 28px rgba(0,0,0,0.1);
+}
+body.dark-mode {
+  --bg:#060d1a; --surface:#0f1a2e; --surface2:#162338; --border:rgba(255,255,255,0.08);
+  --text:#eef4ff; --t2:rgba(238,244,255,0.55); --t3:rgba(238,244,255,0.28);
+  --shadow:0 2px 16px rgba(0,0,0,0.4); --shadow-md:0 6px 28px rgba(0,0,0,0.5);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html{font-size:16px;-webkit-text-size-adjust:100%}
+body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;display:flex;align-items:center;justify-content:center;padding:20px;transition:background .35s ease,color .35s ease}
+
+/* Card */
+.tc-card{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:32px 24px;box-shadow:var(--shadow);max-width:600px;width:100%;animation:cardIn .5s ease both}
+@keyframes cardIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+
+/* Back link */
+.back-link{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:600;color:var(--cyan);text-decoration:none;margin-bottom:24px;transition:opacity .2s}
+.back-link:hover{opacity:.75}
+.back-link svg{width:16px;height:16px;stroke:var(--cyan);stroke-width:2;fill:none;stroke-linecap:round;stroke-linejoin:round}
+
+/* Title */
+.tc-title{font-family:var(--fd);font-size:24px;font-weight:800;color:var(--text);letter-spacing:-.5px;line-height:1.2;margin-bottom:4px}
+.tc-updated{font-size:11px;font-weight:600;color:var(--t3);letter-spacing:.08em;margin-bottom:20px}
+
+/* Sections */
+.tc-section{margin-bottom:22px}
+.tc-section:last-of-type{margin-bottom:16px}
+.tc-heading{font-family:var(--fd);font-size:14px;font-weight:700;color:var(--text);margin-bottom:8px;letter-spacing:-.2px}
+.tc-text{font-size:13.5px;font-weight:500;color:var(--t2);line-height:1.65;margin-bottom:10px;text-align:justify;text-align-last:left;word-spacing:0.5px}
+.tc-text:last-child{margin-bottom:0}
+.tc-text strong{color:var(--text);font-weight:700}
+
+/* Lists */
+.tc-list{list-style:none;padding:0;margin:0 0 10px 0}
+.tc-list li{position:relative;font-size:13px;font-weight:500;color:var(--t2);line-height:1.65;padding-left:16px;margin-bottom:4px}
+.tc-list li::before{content:"";position:absolute;left:0;top:9px;width:5px;height:5px;border-radius:50%;background:var(--cyan);opacity:.7}
+.tc-list li:last-child{margin-bottom:0}
+
+/* Divider */
+.tc-divider{height:1px;background:var(--border);margin:18px 0}
+
+/* Closing */
+.tc-closing{font-family:var(--fd);font-size:18px;font-weight:800;color:var(--text);text-align:center;margin-top:4px;letter-spacing:-.3px}
+.tc-closing-sub{font-size:12px;font-weight:600;color:var(--t3);text-align:center;margin-top:6px;letter-spacing:.12em;text-transform:uppercase}
+.tc-thanks{font-size:13px;font-weight:500;color:var(--t3);text-align:center;font-style:italic;margin-bottom:6px;text-align-last:center}
+
+/* Contact block */
+.tc-contact{font-size:13px;font-weight:500;color:var(--t2);line-height:1.7;text-align:center;margin-top:8px}
+.tc-contact a{color:var(--cyan);text-decoration:none;font-weight:600}
+.tc-contact a:hover{opacity:.75}
+</style>
+</head>
+<body>
+
+<div class="tc-card">
+  <a href="#" class="back-link" onclick="history.back();return false">
+    <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+    Back
+  </a>
+
+  <h1 class="tc-title">Terms & Conditions</h1>
+  <div class="tc-updated">Last Updated: 11 July 2026</div>
+
+  <p class="tc-text">Welcome to <strong>SuppVerseBD</strong>.</p>
+  <p class="tc-text">By accessing our website or placing an order with us, you agree to these Terms & Conditions. Please read them carefully before making a purchase.</p>
+
+  <div class="tc-divider"></div>
+
+  <div class="tc-section">
+    <div class="tc-heading">Orders</div>
+    <p class="tc-text">An order is considered confirmed only after the required payment has been successfully received.</p>
+    <ul class="tc-list">
+      <li>Local stock orders using Cash on Delivery (COD) require the applicable local delivery charge to be paid in advance.</li>
+      <li>Pre-order items require an advance payment. The amount may vary depending on the product, supplier, or specific order conditions.</li>
+    </ul>
+    <p class="tc-text">Orders may be cancelled before payment. Once payment has been received and order processing has begun, cancellation may not be possible. Orders that have already been shipped cannot be cancelled.</p>
+  </div>
+
+  <div class="tc-section">
+    <div class="tc-heading">Local Stock & Pre-Orders</div>
+    <p class="tc-text">SuppVerseBD offers both local stock and international pre-order services.</p>
+    <p class="tc-text">For pre-orders, simply share the product link from your preferred international store. Once your order is confirmed, we purchase the product, arrange international shipping, complete customs clearance, and deliver it to your doorstep.</p>
+    <p class="tc-text">Delivery times are estimated and may vary depending on supplier processing, international shipping, customs inspections, public holidays, or other circumstances beyond our control.</p>
+  </div>
+
+  <div class="tc-section">
+    <div class="tc-heading">Pricing</div>
+    <p class="tc-text">Product prices may change due to exchange rate fluctuations, supplier price changes, shipping costs, taxes, or import-related expenses before a purchase is completed.</p>
+    <p class="tc-text">If an incorrect price is displayed because of a technical or human error, SuppVerseBD reserves the right to cancel the order and issue a full refund.</p>
+  </div>
+
+  <div class="tc-section">
+    <div class="tc-heading">Product Availability</div>
+    <p class="tc-text">Although we work hard to keep our catalog up to date, product availability cannot always be guaranteed.</p>
+    <p class="tc-text">If a product becomes unavailable after your order is placed, you may choose to:</p>
+    <ul class="tc-list">
+      <li>Receive a full refund</li>
+      <li>Wait for the product to become available</li>
+      <li>Select an alternative product</li>
+    </ul>
+  </div>
+
+  <div class="tc-section">
+    <div class="tc-heading">Authenticity Guarantee</div>
+    <p class="tc-text">Authenticity is one of our highest priorities. Every product sold by SuppVerseBD is sourced from trusted brands, authorized distributors, verified retailers, or reputable international marketplaces. We proudly stand behind the authenticity of every product we sell.</p>
+  </div>
+
+  <div class="tc-section">
+    <div class="tc-heading">Packaging & Product Changes</div>
+    <p class="tc-text">Manufacturers may occasionally update product packaging, labeling, ingredients, or manufacturing locations. As long as the product remains authentic, customers may receive packaging that differs from images shown on our website.</p>
+  </div>
+
+  <div class="tc-section">
+    <div class="tc-heading">Shipping & Delivery</div>
+    <p class="tc-text">Delivery times are estimates and are not guaranteed. SuppVerseBD is not responsible for delays caused by:</p>
+    <ul class="tc-list">
+      <li>Courier services</li>
+      <li>Customs inspections</li>
+      <li>Airline delays</li>
+      <li>Public holidays</li>
+      <li>Natural disasters</li>
+      <li>Political events</li>
+      <li>Government restrictions</li>
+      <li>Strikes</li>
+      <li>Other circumstances beyond our reasonable control</li>
+    </ul>
+    <p class="tc-text">If a shipment is confirmed lost during local delivery, SuppVerseBD will investigate the issue and provide an appropriate solution, including replacement or refund where applicable.</p>
+  </div>
+
+  <div class="tc-section">
+    <div class="tc-heading">Returns & Refunds</div>
+    <p class="tc-text"><strong>Local Stock</strong> — Eligible local stock items may be returned within 2–3 business days of delivery. To qualify, the product must remain unopened and unused, original packaging must be intact, and local courier charges will be deducted from the refund amount.</p>
+    <p class="tc-text"><strong>Pre-Orders</strong> — Because pre-order items are sourced specifically for each customer, they are generally non-returnable. Returns or replacements are available only if the wrong product was delivered, the item arrives damaged, or a verified product defect is confirmed.</p>
+    <p class="tc-text"><strong>Damaged Deliveries</strong> — If your order arrives damaged, please take clear photos or videos of the package and product, and contact SuppVerseBD within 24 hours of receiving the shipment. Claims submitted after this period may not be eligible for replacement or compensation.</p>
+  </div>
+
+  <div class="tc-section">
+    <div class="tc-heading">Cash on Delivery (COD)</div>
+    <p class="tc-text">Customers who refuse a confirmed Cash on Delivery order without a valid reason may lose COD eligibility for future purchases. SuppVerseBD may require advance payment for future orders.</p>
+  </div>
+
+  <div class="tc-section">
+    <div class="tc-heading">Payments</div>
+    <p class="tc-text">We currently accept:</p>
+    <ul class="tc-list">
+      <li>bKash</li>
+      <li>Nagad</li>
+      <li>Bank Transfer</li>
+      <li>Cash on Delivery (eligible orders)</li>
+      <li>Cryptocurrency including USDT, USDC, BTC, and other supported digital assets</li>
+    </ul>
+    <p class="tc-text">Payment availability may vary depending on the product or order type.</p>
+  </div>
+
+  <div class="tc-section">
+    <div class="tc-heading">Vouchers & Promotions</div>
+    <p class="tc-text">Voucher terms are announced with each promotion. Unless otherwise stated:</p>
+    <ul class="tc-list">
+      <li>Voucher conditions apply only during the promotional period.</li>
+      <li>Only eligible orders may use promotional vouchers.</li>
+      <li>SuppVerseBD reserves the right to modify, suspend, revoke, or cancel any voucher or promotional campaign when necessary.</li>
+      <li>Returned orders purchased using a voucher may be refunded as Store Credit instead of cash.</li>
+      <li>Store Credit may include an expiration date and additional usage conditions.</li>
+    </ul>
+  </div>
+
+  <div class="tc-section">
+    <div class="tc-heading">Customer Responsibilities</div>
+    <p class="tc-text">Customers are responsible for providing accurate personal and delivery information, reviewing product details before placing an order, reading ingredients, specifications, and usage instructions before using any product, and following manufacturer recommendations.</p>
+  </div>
+
+  <div class="tc-section">
+    <div class="tc-heading">Health Disclaimer</div>
+    <p class="tc-text">Products sold by SuppVerseBD, including dietary supplements, are not intended to diagnose, treat, cure, or prevent any disease. Information provided on our website is intended for educational and informational purposes only and should never replace professional medical advice. Always consult a qualified healthcare professional before using supplements or health-related products.</p>
+  </div>
+
+  <div class="tc-section">
+    <div class="tc-heading">Privacy</div>
+    <p class="tc-text">Your personal information is handled according to our Privacy Policy. We never sell your personal information to third parties.</p>
+  </div>
+
+  <div class="tc-section">
+    <div class="tc-heading">Reviews & User Content</div>
+    <p class="tc-text">By submitting reviews, photos, videos, or testimonials to SuppVerseBD, you grant us permission to use this content for our website, social media, and marketing materials. We will never intentionally publish sensitive personal information without your permission.</p>
+  </div>
+
+  <div class="tc-section">
+    <div class="tc-heading">Customs & Import Compliance</div>
+    <p class="tc-text">International shipments may be subject to customs inspections or import regulations. SuppVerseBD manages the import process on behalf of our customers whenever applicable. However, customs procedures, government regulations, and clearance times remain under the authority of the relevant government agencies and may affect delivery schedules.</p>
+  </div>
+
+  <div class="tc-section">
+    <div class="tc-heading">Intellectual Property</div>
+    <p class="tc-text">All content on the SuppVerseBD website, including our logo, branding, graphics, text, product descriptions, and design elements, is the property of SuppVerseBD unless otherwise stated. Unauthorized copying, reproduction, or commercial use is prohibited.</p>
+  </div>
+
+  <div class="tc-section">
+    <div class="tc-heading">Order Refusal</div>
+    <p class="tc-text">SuppVerseBD reserves the right to refuse or cancel any order if we reasonably believe it involves fraudulent activity, payment verification issues, pricing errors, product unavailability, abuse or misuse of our services, or any activity that may harm our business or customers.</p>
+  </div>
+
+  <div class="tc-section">
+    <div class="tc-heading">Governing Law</div>
+    <p class="tc-text">These Terms & Conditions are governed by the laws of Bangladesh.</p>
+    <p class="tc-text">Our goal is simple: to provide authentic products, honest service, and a shopping experience you can trust.</p>
+  </div>
+
+  <div class="tc-divider"></div>
+
+  <div class="tc-section" style="margin-bottom:10px">
+    <div class="tc-heading" style="text-align:center">Contact Us</div>
+    <p class="tc-text" style="text-align:center;text-align-last:center">If you have any questions regarding these Terms & Conditions, please contact us.</p>
+    <div class="tc-contact">
+      <strong>SuppVerseBD</strong><br>
+      Email: <a href="mailto:suppverse141@gmail.com">suppverse141@gmail.com</a><br>
+      WhatsApp: <a href="https://wa.me/8801644232935">+880 1644-232935</a>
+    </div>
+  </div>
+
+  <div class="tc-divider"></div>
+
+  
+  <p class="tc-thanks">Thank you for choosing SuppVerseBD.</p>
+  <div class="tc-closing">Discover Better.</div>
+  <div class="tc-closing-sub">Beyond Borders.</div>
+</div>
+
+<script>
+(function(){
+  const theme = localStorage.getItem('sv-theme') || 'light';
+  document.body.classList.toggle('dark-mode', theme === 'dark');
+})();
+</script>
+
+</body>
+</html></textarea>
 <div id="apToast"></div>
 <script>
 function makeCarousel(opts){
@@ -1996,13 +2783,15 @@ function makeCarousel(opts){
 const landingCarousel = makeCarousel({
   trackId:'carouselTrackLanding', dotsId:'carouselDotsLanding', labelId:'slideLabelLanding',
   prevId:'carouselPrevLanding', nextId:'carouselNextLanding', boxId:'carouselBoxLanding',
-  total:10, labels:['Hero','Banner','Main Cards','Hot Deal Card','Why Choose Us','Stats','Category Badge','Testimonial','FAQ','Footer Payments'],
+  total:11, labels:['Hero','Banner','Main Cards','Hot Deal Card','Why Choose Us','Stats','Category Badge','Testimonial','FAQ','Footer Payments','Pages'],
   onSlide:(i)=>{
     if(i===5 && typeof replayStatsAnimation==='function') replayStatsAnimation();
-    const formKeys = ['hero','banner','maincards','hotdeal','services','stats','catbadge','testimonial','faq','footerpay'];
+    const formKeys = ['hero','banner','maincards','hotdeal','services','stats','catbadge','testimonial','faq','footerpay','pages'];
     document.querySelectorAll('#landingForms .form-card').forEach(card=>{
       card.style.display = card.dataset.form === formKeys[i] ? '' : 'none';
     });
+    document.getElementById('carouselBoxLanding').classList.toggle('is-pages-slide', i===10);
+    if(i===10 && typeof renderPagePicker==='function') renderPagePicker();
   }
 });
 landingCarousel.goToSlide(0);
@@ -2034,7 +2823,341 @@ const buyForMeCarousel = makeCarousel({
 });
 buyForMeCarousel.goToSlide(0);
 
-/* ─── Product Page Badge picker: select which spec badge to preview ─── */
+/* ─── Pages: About Us / Privacy Policy / Terms & Conditions ─── */
+const PAGE_CONFIG = {
+  about:   { srcId:'page-src-about',   sectionClass:'about-text', headingClass:null, containerSel:'.about-card', label:'About Us', storageKey:'sv-page-about' },
+  privacy: { srcId:'page-src-privacy', sectionClass:'pp-section', headingClass:'pp-heading', containerSel:'.pp-card, .about-card', label:'Privacy Policy', storageKey:'sv-page-privacy' },
+  terms:   { srcId:'page-src-terms',   sectionClass:'tc-section', headingClass:'tc-heading', containerSel:'.tc-card, .about-card', label:'Terms & Conditions', storageKey:'sv-page-terms' }
+};
+const pageState = {}; // { about: {sections:[{heading,html}], raw: fullHtmlString}, ... }
+
+function parsePageSource(key){
+  const cfg = PAGE_CONFIG[key];
+  const saved = localStorage.getItem(cfg.storageKey);
+  if(saved){
+    try { pageState[key] = JSON.parse(saved); return pageState[key]; } catch(e){}
+  }
+  const raw = document.getElementById(cfg.srcId).value;
+  const doc = new DOMParser().parseFromString(raw, 'text/html');
+  const sections = [];
+  if(key === 'about'){
+    doc.querySelectorAll('.about-text').forEach(p => {
+      sections.push({ heading:null, html:p.innerHTML.trim() });
+    });
+  } else {
+    doc.querySelectorAll('.' + cfg.sectionClass).forEach(sec => {
+      const hEl = sec.querySelector('.' + cfg.headingClass);
+      const heading = hEl ? hEl.textContent.trim() : '';
+      const clone = sec.cloneNode(true);
+      const hClone = clone.querySelector('.' + cfg.headingClass);
+      if(hClone) hClone.remove();
+      sections.push({ heading, html: clone.innerHTML.trim() });
+    });
+    // capture intro block (content before first section, after back-link)
+    const introParts = [];
+    let node = doc.querySelector('.back-link');
+    if(node){
+      node = node.nextElementSibling;
+      while(node && !node.classList.contains(cfg.sectionClass)){
+        if(node.tagName === 'H1' || node.className.includes('updated')){
+          // skip title/updated - kept static
+        } else if(node.className.includes('divider')){
+          // skip divider
+        } else if(node.tagName === 'P'){
+          introParts.push(node.outerHTML);
+        }
+        node = node.nextElementSibling;
+      }
+    }
+    if(introParts.length) sections.unshift({ heading:'Intro', html: introParts.join('\n'), isIntro:true });
+  }
+  pageState[key] = { sections, raw };
+  return pageState[key];
+}
+
+let pagesSelectedKey = 'about';
+let pageRteActiveColor = null;
+
+function renderPagePicker(){
+  const el = document.getElementById('pagePicker');
+  if(!el) return;
+  const items = [
+    {key:'about', label:'About Us'},
+    {key:'privacy', label:'Privacy'},
+    {key:'terms', label:'Terms'}
+  ];
+  el.innerHTML = items.map(it =>
+    '<button type="button" class="page-picker-btn' + (it.key===pagesSelectedKey?' active':'') + '" onclick="selectPage(\'' + it.key + '\')">' + it.label + '</button>'
+  ).join('');
+}
+
+function pageSectionsToHtml(key){
+  const state = pageState[key];
+  if(key === 'about'){
+    return state.sections.map(s => '<p>' + s.html + '</p>').join('');
+  }
+  let html = '';
+  state.sections.forEach(s => {
+    if(s.isIntro){
+      html += s.html;
+    } else {
+      html += '<h3>' + (s.heading||'') + '</h3>' + s.html;
+    }
+  });
+  return html;
+}
+
+function htmlToPageSections(key, html){
+  // Store the whole edited blob as a single section - simplest reliable round-trip
+  pageState[key].editedHtml = html;
+}
+
+function selectPage(key){
+  pagesSelectedKey = key;
+  renderPagePicker();
+  if(!pageState[key]) parsePageSource(key);
+  const titleMap = {about:'About Us', privacy:'Privacy Policy', terms:'Terms & Conditions'};
+  document.getElementById('pageEditorTitle').textContent = titleMap[key];
+  const box = document.getElementById('pageRteBox');
+  box.innerHTML = pageState[key].editedHtml !== undefined ? pageState[key].editedHtml : pageSectionsToHtml(key);
+  if(typeof pageRteColorPenOff === 'function') pageRteColorPenOff();
+  updatePageRteWordCount();
+  renderPagePreview(key);
+}
+
+function renderPagePreview(key){
+  const state = pageState[key] || parsePageSource(key);
+  const inner = document.getElementById('pagePreviewInner');
+  const frame = document.getElementById('pagePreviewFrame');
+  if(!inner) return;
+  const isDark = document.body.classList.contains('dark-mode');
+  frame.classList.toggle('dark-mode', isDark);
+  const bodyHtml = state.editedHtml !== undefined ? state.editedHtml : pageSectionsToHtml(key);
+  let html = '';
+  if(key === 'about'){
+    html = '<div style="font-size:14px;font-weight:500;color:var(--t2);line-height:1.6;text-align:justify">' + bodyHtml + '</div>';
+  } else {
+    const titleMap = { privacy:'Privacy Policy', terms:'Terms & Conditions' };
+    html += `<h1 style="font-family:var(--font-display);font-size:22px;font-weight:800;color:var(--text);margin-bottom:4px">${titleMap[key]}</h1>`;
+    html += `<div style="font-size:11px;font-weight:600;color:var(--t3);margin-bottom:14px">Last Updated: 11 July 2026</div>`;
+    html += '<div style="font-size:13px;color:var(--t2);line-height:1.6">' + bodyHtml + '</div>';
+  }
+  inner.innerHTML = html;
+}
+
+function updatePageBody(){
+  const box = document.getElementById('pageRteBox');
+  htmlToPageSections(pagesSelectedKey, box.innerHTML);
+  renderPagePreview(pagesSelectedKey);
+}
+
+function pageRteCmd(cmd){
+  document.getElementById('pageRteBox').focus();
+  document.execCommand(cmd, false, null);
+  updatePageBody();
+  updatePageRteWordCount();
+}
+function pageRteBlock(tag){
+  document.getElementById('pageRteBox').focus();
+  document.execCommand('formatBlock', false, tag === 'p' ? 'P' : tag.toUpperCase());
+  updatePageBody();
+}
+function pageToggleRteColorPicker(evt){
+  evt.stopPropagation();
+  if(pageRteActiveColor){
+    pageRteColorPenOff();
+    return;
+  }
+  document.getElementById('pageRteColorPop').classList.toggle('open');
+}
+function pageRteApplyColor(hex){
+  pageRteActiveColor = hex;
+  document.getElementById('pageRteColorChip').style.background = hex;
+  document.getElementById('pageRteColorCustom').value = hex;
+  document.getElementById('pageRteColorPop').classList.remove('open');
+  document.getElementById('pageRteColorWrap').classList.add('pen-active');
+  document.getElementById('pageRteColorHint').classList.add('show');
+}
+function pageRteColorPenCheck(){
+  if(!pageRteActiveColor) return;
+  const sel = window.getSelection();
+  const box = document.getElementById('pageRteBox');
+  if(sel && sel.rangeCount > 0 && !sel.isCollapsed && box.contains(sel.anchorNode)){
+    document.execCommand('foreColor', false, pageRteActiveColor);
+    updatePageBody();
+  }
+}
+function pageRteColorPenOff(){
+  pageRteActiveColor = null;
+  document.getElementById('pageRteColorWrap').classList.remove('pen-active');
+  document.getElementById('pageRteColorHint').classList.remove('show');
+}
+document.addEventListener('click', function(e){
+  const wrap = document.getElementById('pageRteColorWrap');
+  if(wrap && !wrap.contains(e.target)) document.getElementById('pageRteColorPop').classList.remove('open');
+});
+function pageRteLink(){
+  const url = prompt('Link URL:', 'https://');
+  if(!url) return;
+  document.getElementById('pageRteBox').focus();
+  document.execCommand('createLink', false, url);
+  updatePageBody();
+}
+
+function updatePageRteWordCount(){
+  const el = document.getElementById('pageRteBox');
+  const text = el ? (el.innerText || '').trim() : '';
+  const words = text ? text.split(/\s+/).length : 0;
+  const wc = document.getElementById('pageRteWordCount');
+  if(wc) wc.textContent = words + (words === 1 ? ' word' : ' words');
+}
+
+let pageEditBackup = null;
+
+function pageToggleEditLock(){
+  const fieldset = document.getElementById('pageFieldset');
+  const btn = document.getElementById('pageEditBtn');
+  const saveBtn = document.getElementById('pageSaveBtn');
+  const cancelBtn = document.getElementById('pageCancelBtn');
+  const isLocked = fieldset.disabled;
+  if(isLocked){
+    // entering edit mode - snapshot current state for cancel
+    pageEditBackup = JSON.parse(JSON.stringify(pageState));
+    fieldset.disabled = false;
+    document.getElementById('pageRteBox').setAttribute('contenteditable','true');
+    btn.classList.add('is-editing');
+    btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>Editing';
+    saveBtn.disabled = false;
+    cancelBtn.style.display = '';
+  }
+}
+function pageCancelEdit(evt){
+  if(evt) evt.preventDefault();
+  if(pageEditBackup) Object.assign(pageState, pageEditBackup);
+  pageEditBackup = null;
+  selectPage(pagesSelectedKey);
+  pageLockFieldset();
+  T('Changes discarded','↩️');
+}
+function pageLockFieldset(){
+  const fieldset = document.getElementById('pageFieldset');
+  const btn = document.getElementById('pageEditBtn');
+  const saveBtn = document.getElementById('pageSaveBtn');
+  const cancelBtn = document.getElementById('pageCancelBtn');
+  fieldset.disabled = true;
+  document.getElementById('pageRteBox').setAttribute('contenteditable','false');
+  btn.classList.remove('is-editing');
+  btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Edit';
+  saveBtn.disabled = true;
+  cancelBtn.style.display = 'none';
+  pageRteColorPenOff();
+}
+function pageSaveChanges(evt){
+  if(evt) evt.preventDefault();
+  htmlToPageSections(pagesSelectedKey, document.getElementById('pageRteBox').innerHTML);
+  ['about','privacy','terms'].forEach(key => {
+    if(pageState[key]) localStorage.setItem(PAGE_CONFIG[key].storageKey, JSON.stringify(pageState[key]));
+  });
+  pageEditBackup = null;
+  pageLockFieldset();
+  T('Changes saved','✅');
+}
+function initPagesTab(){
+  renderPagePicker();
+  parsePageSource('about');
+  selectPage('about');
+}
+initPagesTab();
+
+/* ─── Generic Edit/Lock helper for all other slide form-cards ─── */
+function initEditLock(fieldsetIds, btnId, saveBtnId, cancelBtnId, opts){
+  opts = opts || {};
+  const ids = Array.isArray(fieldsetIds) ? fieldsetIds : [fieldsetIds];
+  const fieldsets = ids.map(id=>document.getElementById(id)).filter(Boolean);
+  const btn = document.getElementById(btnId);
+  const saveBtn = document.getElementById(saveBtnId);
+  const cancelBtn = document.getElementById(cancelBtnId);
+  if(!fieldsets.length || !btn || !saveBtn) return;
+  let backup = null;
+  const EDIT_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Edit';
+  const EDITING_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>Editing';
+
+  function serialize(){
+    const data = {};
+    fieldsets.forEach(fieldset=>{
+      fieldset.querySelectorAll('input,textarea,select,[contenteditable]').forEach(el=>{
+        if(el.type === 'file') return;
+        data[el.id] = el.matches('[contenteditable]') ? el.innerHTML : el.value;
+      });
+    });
+    return data;
+  }
+  function restore(data){
+    Object.keys(data).forEach(id=>{
+      const el = document.getElementById(id);
+      if(!el) return;
+      if(el.matches('[contenteditable]')) el.innerHTML = data[id]; else el.value = data[id];
+    });
+  }
+  function lock(){
+    fieldsets.forEach(fieldset=>{
+      fieldset.disabled = true;
+      fieldset.querySelectorAll('[contenteditable]').forEach(el=>el.setAttribute('contenteditable','false'));
+    });
+    btn.classList.remove('is-editing');
+    btn.innerHTML = EDIT_ICON;
+    saveBtn.disabled = true;
+    if(cancelBtn) cancelBtn.style.display = 'none';
+  }
+  function unlock(){
+    backup = serialize();
+    fieldsets.forEach(fieldset=>{
+      fieldset.disabled = false;
+      fieldset.querySelectorAll('[contenteditable]').forEach(el=>el.setAttribute('contenteditable','true'));
+    });
+    btn.classList.add('is-editing');
+    btn.innerHTML = EDITING_ICON;
+    saveBtn.disabled = false;
+    if(cancelBtn) cancelBtn.style.display = '';
+  }
+  btn.addEventListener('click', ()=>{ if(fieldsets[0].disabled) unlock(); });
+  saveBtn.addEventListener('click', (e)=>{
+    e.preventDefault();
+    backup = null;
+    lock();
+    if(typeof opts.onSave === 'function') opts.onSave();
+    T('Changes saved','✅');
+  });
+  if(cancelBtn){
+    cancelBtn.addEventListener('click', (e)=>{
+      e.preventDefault();
+      if(backup) restore(backup);
+      backup = null;
+      lock();
+      if(typeof opts.onCancel === 'function') opts.onCancel();
+      T('Changes discarded','↩️');
+    });
+  }
+  lock();
+}
+initEditLock('testiFieldset','testiEditBtn','testiSaveBtn','testiCancelBtn');
+initEditLock('mcardFieldset','mcardEditBtn','mcardSaveBtn','mcardCancelBtn');
+initEditLock('hotdealFieldset','hotdealEditBtn','hotdealSaveBtn','hotdealCancelBtn');
+initEditLock('heroFieldset','heroEditBtn','heroSaveBtn','heroCancelBtn');
+initEditLock('bannerFieldset','bannerEditBtn','bannerSaveBtn','bannerCancelBtn');
+initEditLock(['svcFieldset','svcBadgeFieldset'],'svcEditBtn','svcSaveBtn','svcCancelBtn');
+initEditLock('statsFieldset','statsEditBtn','statsSaveBtn','statsCancelBtn');
+initEditLock('catbadgeFieldset','catbadgeEditBtn','catbadgeSaveBtn','catbadgeCancelBtn');
+initEditLock('faqFieldset','faqEditBtn','faqSaveBtn','faqCancelBtn');
+initEditLock('footerpayFieldset','footerpayEditBtn','footerpaySaveBtn','footerpayCancelBtn');
+initEditLock('productFieldset','productEditBtn','productSaveBtn','productCancelBtn');
+initEditLock('shipFieldset','shipEditBtn','shipSaveBtn','shipCancelBtn');
+initEditLock(['bfmHeroFieldset','bfmBadgesFieldset'],'bfmHeroEditBtn','bfmHeroSaveBtn','bfmHeroCancelBtn');
+initEditLock('bfmStoresFieldset','bfmStoresEditBtn','bfmStoresSaveBtn','bfmStoresCancelBtn');
+initEditLock('bfmFeesFieldset','bfmFeesEditBtn','bfmFeesSaveBtn','bfmFeesCancelBtn');
+initEditLock('bfmPoFieldset','bfmPoEditBtn','bfmPoSaveBtn','bfmPoCancelBtn');
+initEditLock('bfmFaqFieldset','bfmFaqEditBtn','bfmFaqSaveBtn','bfmFaqCancelBtn');
+
 const PV_SPEC_DATA = [
   {
     label: 'Expiry date',
@@ -2118,18 +3241,19 @@ function switchSection(section){
   const bfmForms = document.getElementById('buyForMeForms');
   if (bfmBox) bfmBox.style.display = section === 'buyforme' ? '' : 'none';
   if (bfmForms) bfmForms.style.display = section === 'buyforme' ? '' : 'none';
-  const hint = document.getElementById('sectionCarouselHint');
-  if (hint) hint.style.display = '';
   if (section === 'buyforme' && typeof buyForMeCarousel !== 'undefined') buyForMeCarousel.goToSlide(0);
   const badge = document.getElementById('sectionToggleBadge');
-  if (section === 'buyforme'){
-    badge.className = 'section-toggle-badge is-buyforme';
-    badge.innerHTML = GLOBE_ICON;
-    badge.title = 'Buy for Me';
-  } else {
-    badge.className = 'section-toggle-badge is-store';
-    badge.innerHTML = HOUSE_ICON;
-    badge.title = 'Shop from Local';
+  {
+    badge.style.display = '';
+    if (section === 'buyforme'){
+      badge.className = 'section-toggle-badge is-buyforme';
+      badge.innerHTML = GLOBE_ICON;
+      badge.title = 'Buy for Me';
+    } else {
+      badge.className = 'section-toggle-badge is-store';
+      badge.innerHTML = HOUSE_ICON;
+      badge.title = 'Shop from Local';
+    }
   }
 }
 function toggleStoreBadge(evt){
@@ -2481,6 +3605,7 @@ if (window.frameElement) {
 document.getElementById('themeBtn').addEventListener('click', () => {
   themeState.theme = themeState.theme === 'light' ? 'dark' : 'light';
   applyTheme();
+  if(typeof pagesSelectedKey !== 'undefined' && typeof renderPagePreview === 'function') renderPagePreview(pagesSelectedKey);
   // Tell parent app if embedded, so main toggle + other open frames stay in sync
   if (window.frameElement && window.parent) {
     try { window.parent.postMessage({ type: 'sv-theme', dark: themeState.theme === 'dark' }, '*'); } catch(e) {}
@@ -2494,6 +3619,7 @@ window.addEventListener('message', function(e){
   if (themeState.theme === newTheme) return;
   themeState.theme = newTheme;
   applyTheme();
+  if(typeof pagesSelectedKey !== 'undefined' && typeof renderPagePreview === 'function') renderPagePreview(pagesSelectedKey);
 });
 function T(msg, icon){
   const t = document.getElementById('apToast');
@@ -2703,11 +3829,6 @@ function saveProduct(publish, evt){
   document.getElementById('inpEditProduct').value = id;
   renderHotDealsPicker();
   renderHotDealsRow();
-
-  const btn = evt.target;
-  const original = btn.textContent;
-  btn.textContent = publish ? 'Published ✓' : 'Draft Saved ✓';
-  setTimeout(() => { btn.textContent = original; }, 1400);
 }
 
 function refreshProductEditorSelect(){
