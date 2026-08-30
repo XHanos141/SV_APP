@@ -1538,6 +1538,7 @@ html[data-theme="dark"] .drawer-footer { color: rgba(255,255,255,0.15); }
 
 /* MAIN CONTENT */
 .main-content { flex: 1; padding: 32px 28px; display: flex; flex-direction: column; gap: 20px; overflow-y: auto; }
+#tab-products.main-content, #tab-sales.main-content { padding-top: 14px; }
 .content-card { background: #ffffff; border: 1px solid #ececec; border-radius: 18px; padding: 22px 26px; transition: background 0.4s ease, border-color 0.35s ease; }
 html[data-theme="dark"] .content-card { background: #1b2738; border-color: rgba(255,255,255,0.08); }
 .content-card h2 { font-family: "Plus Jakarta Sans", sans-serif; font-size: 17px; font-weight: 700; color: #001f3c; margin-bottom: 10px; transition: color 0.35s ease; }
@@ -4263,6 +4264,15 @@ html[data-theme="dark"] .fs-input:focus {
 html[data-theme="dark"] .qty-value {
   color: #ffffff;
 }
+.qty-limit-flash {
+  color: #d95353 !important;
+  animation: qtyLimitShake 0.45s ease;
+}
+@keyframes qtyLimitShake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-3px); }
+  75% { transform: translateX(3px); }
+}
 
 /* Product Row */
 .product-row {
@@ -4779,18 +4789,18 @@ html[data-theme="dark"] .fs-input.shake {
   font-family: "Plus Jakarta Sans", sans-serif;
   font-size: 12px;
   font-weight: 800;
-  color: #7C6FF7;
-  background: rgba(124,111,247,0.12);
-  border: 1px solid rgba(124,111,247,0.28);
+  color: #0A9BDC;
+  background: rgba(10,155,220,0.12);
+  border: 1px solid rgba(10,155,220,0.38);
   padding: 4px 10px;
   border-radius: 7px;
   letter-spacing: 0.3px;
   transition: background 0.35s ease, color 0.35s ease;
 }
 html[data-theme="dark"] .fs-draft-id {
-  background: rgba(124,111,247,0.18);
-  border-color: rgba(124,111,247,0.38);
-  color: #a095f5;
+  background: rgba(10,155,220,0.18);
+  border-color: rgba(10,155,220,0.5);
+  color: #0A9BDC;
 }
 
 /* Source selector */
@@ -5227,6 +5237,9 @@ html[data-theme="dark"] .filter-chip { background: rgba(255,255,255,0.07); borde
 html[data-theme="dark"] .filter-chip:hover { background: rgba(255,255,255,0.13); border-color: rgba(255,255,255,0.22); color: rgba(255,255,255,0.88); box-shadow: 0 2px 8px rgba(0,0,0,0.28); }
 html[data-theme="dark"] .filter-chip.active { background: transparent; border-color: transparent; color: #fff; box-shadow: none; }
 .filter-chip:active { transform: scale(0.95) translateY(0); box-shadow: none; }
+.filter-chip-icon { display: inline-flex; align-items: center; justify-content: center; width: 12px; height: 12px; vertical-align: -2px; margin-right: 6px; overflow: visible; }
+.filter-chip-icon svg { width: 100%; height: 100%; display: block; transform: scale(1.4); }
+#productsTabContent .filter-chip-icon svg { transform: scale(1.7); }
 
 /* Product Card */
 .prod-card {
@@ -5237,11 +5250,25 @@ html[data-theme="dark"] .filter-chip.active { background: transparent; border-co
 }
 html[data-theme="dark"] .prod-card { background: #1b2738; border-color: rgba(255,255,255,0.08); }
 .prod-card:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.1); }
+.prod-card.sv-sort-out, .tx-card-expand.sv-sort-out {
+  animation: svSortOut 0.22s cubic-bezier(.4,0,.2,1) forwards;
+}
+.prod-card.sv-sort-in, .tx-card-expand.sv-sort-in {
+  animation: svSortIn 0.3s cubic-bezier(.4,0,.2,1) both;
+}
+@keyframes svSortOut {
+  from { opacity: 1; transform: scale(1) translateY(0); }
+  to { opacity: 0; transform: scale(0.88) translateY(12px); }
+}
+@keyframes svSortIn {
+  from { opacity: 0; transform: scale(0.92) translateY(18px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
 html[data-theme="dark"] .prod-card:hover { box-shadow: 0 8px 28px rgba(124,111,247,0.15), 0 0 0 1px rgba(124,111,247,0.1); }
 
 /* Sort animation */
-.prod-card.sort-out { animation: sortOut 0.35s cubic-bezier(0.4,0,0.2,1) forwards; }
-.prod-card.sort-in  { animation: sortIn 0.45s cubic-bezier(0.4,0,0.2,1) forwards; }
+.prod-card.sort-out { animation: sortOut 0.22s cubic-bezier(0.4,0,0.2,1) forwards; }
+.prod-card.sort-in  { animation: sortIn 0.3s cubic-bezier(0.4,0,0.2,1) forwards; }
 @keyframes sortOut {
   from { opacity: 1; transform: scale(1) translateY(0); }
   to   { opacity: 0; transform: scale(0.88) translateY(12px); }
@@ -5378,6 +5405,16 @@ html[data-theme="dark"] .prod-stat-val.amber  { color: #F4A922 !important; }
   transition: background 0.4s ease, border-color 0.35s ease;
 }
 html[data-theme="dark"] .psb-card { background: #1b2738; border-color: rgba(255,255,255,0.08); }
+.psb-card:has(.psb-val.green) { border-width: 1.5px; border-color: rgba(47,155,104,0.35); background: rgba(47,155,104,0.06); }
+.psb-card:has(.psb-val.red) { border-width: 1.5px; border-color: rgba(217,83,83,0.35); background: rgba(217,83,83,0.06); }
+.psb-card:has(.psb-val.amber) { border-width: 1.5px; border-color: rgba(212,140,10,0.35); background: rgba(212,140,10,0.06); }
+.psb-card:has(.psb-val.teal) { border-width: 1.5px; border-color: rgba(8,145,178,0.35); background: rgba(8,145,178,0.06); }
+.psb-card:has(.psb-val.blue) { border-width: 1.5px; border-color: rgba(10,155,220,0.35); background: rgba(10,155,220,0.06); }
+html[data-theme="dark"] .psb-card:has(.psb-val.green) { border-color: rgba(47,155,104,0.4); background: rgba(47,155,104,0.1); }
+html[data-theme="dark"] .psb-card:has(.psb-val.red) { border-color: rgba(217,83,83,0.4); background: rgba(217,83,83,0.1); }
+html[data-theme="dark"] .psb-card:has(.psb-val.amber) { border-color: rgba(244,169,34,0.4); background: rgba(244,169,34,0.1); }
+html[data-theme="dark"] .psb-card:has(.psb-val.teal) { border-color: rgba(34,211,238,0.4); background: rgba(34,211,238,0.1); }
+html[data-theme="dark"] .psb-card:has(.psb-val.blue) { border-color: rgba(45,190,245,0.4); background: rgba(45,190,245,0.1); }
 .psb-val {
   font-family: "Plus Jakarta Sans", sans-serif; font-size: 17px; font-weight: 800;
   color: #001f3c; line-height: 1.1; transition: color 0.35s ease;
@@ -6515,8 +6552,8 @@ html[data-theme="dark"] .fs-form-date { color: rgba(255,255,255,0.45); }
 
 /* fs-draft-id dark */
 html[data-theme="dark"] .fs-draft-id {
-  background: rgba(124,111,247,0.18);
-  border-color: rgba(124,111,247,0.35);
+  background: rgba(10,155,220,0.18);
+  border-color: rgba(10,155,220,0.5);
 }
 
 /* Return form fs-draft-id red variant */
@@ -20736,6 +20773,17 @@ function getNextOrderId() {
       }
     }
   });
+  if (typeof TRANSACTIONS_DATA !== 'undefined' && Array.isArray(TRANSACTIONS_DATA)) {
+    TRANSACTIONS_DATA.forEach(tx => {
+      if (tx.id) {
+        const match = tx.id.match(/(?:SV|PX)-(\d+)/);
+        if (match) {
+          const num = parseInt(match[1]);
+          if (num > maxNum) maxNum = num;
+        }
+      }
+    });
+  }
   return 'SV-' + (maxNum + 1);
 }
 
@@ -21146,11 +21194,27 @@ function removeProductRow(id) {
 function changeProductQty(id, delta) {
   const input = document.getElementById('no-qty-' + id);
   const disp = document.getElementById('no-qty-disp-' + id);
+  const select = document.getElementById('no-prod-' + id);
   let val = parseInt(input.value) || 1;
   val = Math.max(1, val + delta);
+  const productName = select ? select.value : '';
+  const catalogEntry = productName ? getProductCatalog()[productName] : null;
+  if (catalogEntry && typeof catalogEntry.stock === 'number') {
+    if (val > catalogEntry.stock) {
+      val = catalogEntry.stock;
+      flashStockLimitWarning(id);
+    }
+  }
   input.value = val;
   disp.textContent = val;
   updateProductLineTotal(id);
+}
+
+function flashStockLimitWarning(id) {
+  const disp = document.getElementById('no-qty-disp-' + id);
+  if (!disp) return;
+  disp.classList.add('qty-limit-flash');
+  setTimeout(() => disp.classList.remove('qty-limit-flash'), 450);
 }
 
 function updateProductLineTotal(id) {
@@ -24545,6 +24609,7 @@ function _positionFilterIndicator(id, prevRect, activeBtn) {
 
 function renderProductsTab(searchDisplayVal) {
   const _prevFilterInd = _captureIndicatorRect('productsFilterSlide');
+  const _prevProductsFilterScroll = document.getElementById('productsFilterRow') ? document.getElementById('productsFilterRow').scrollLeft : 0;
   const inputVal = searchDisplayVal !== undefined ? searchDisplayVal : productSearch;
   const subcatSourceProducts = productCategory === 'all' ? PRODUCTS_DATA : PRODUCTS_DATA.filter(p => p.category === productCategory);
   const allUsedSubcats = [...new Set(subcatSourceProducts.filter(p => p.subcategory).map(p => p.subcategory))].sort();
@@ -24738,14 +24803,16 @@ function renderProductsTab(searchDisplayVal) {
     <div class="products-filter-row" id="productsFilterRow">
       <div class="filter-slide-indicator" id="productsFilterSlide"></div>
       <div class="filter-chip ${productFilter==='all'?'active':''}" onclick="setProductFilter('all')">All (${totalSKUs})</div>
-      <div class="filter-chip ${productFilter==='ok'?'active':''}" onclick="setProductFilter('ok')">✅ In Stock</div>
-      <div class="filter-chip ${productFilter==='low'?'active':''}" onclick="setProductFilter('low')">⚠️ Low (${lowCount})</div>
-      <div class="filter-chip ${productFilter==='out'?'active':''}" onclick="setProductFilter('out')">🔴 Out (${outCount})</div>
+      <div class="filter-chip ${productFilter==='ok'?'active':''}" onclick="setProductFilter('ok')"><span class="filter-chip-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="#2F9B68"/><path d="M16.2,10.3l-4.8,4.8c-0.4,0.4-1,0.4-1.4,0l0,0l-2.2-2.2c-0.4-0.4-0.4-1,0-1.4c0.4-0.4,1-0.4,1.4,0c0,0,0,0,0,0l1.5,1.5l4.1-4.1c0.4-0.4,1-0.4,1.4,0C16.6,9.3,16.6,9.9,16.2,10.3z" fill="#ffffff"/></svg></span> In Stock</div>
+      <div class="filter-chip ${productFilter==='low'?'active':''}" onclick="setProductFilter('low')"><span class="filter-chip-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="#F4A922"/><path d="M12,6.5 a1.3,1.3 0 0 1 1.3,1.42 l-0.52,5.72 a0.78,0.78 0 0 1 -1.56,0 l-0.52,-5.72 A1.3,1.3 0 0 1 12,6.5 Z" fill="#000000"/><circle cx="12" cy="17" r="1.15" fill="#000000"/></svg></span> Low (${lowCount})</div>
+      <div class="filter-chip ${productFilter==='out'?'active':''}" onclick="setProductFilter('out')"><span class="filter-chip-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="#d95353"/></svg></span> Out (${outCount})</div>
     </div>
     ${cards}${empty}
   `;
   requestAnimationFrame(() => {
     const activeBtn = document.querySelector('#productsFilterRow .filter-chip.active');
+    const row = document.getElementById('productsFilterRow');
+    if (row) row.scrollLeft = _prevProductsFilterScroll;
     _positionFilterIndicator('productsFilterSlide', _prevFilterInd, activeBtn);
   });
 }
@@ -24786,7 +24853,7 @@ function animateProductsRepaint() {
         c.style.animationDelay = (i * 0.06) + 's';
         c.classList.add('sort-in');
       });
-    }, 320);
+    }, 220);
   } else {
     renderProductsTab();
   }
@@ -24925,7 +24992,21 @@ document.addEventListener('click', function(e) {
 function setProductFilter(f) {
   productFilter = f;
   const el = document.getElementById('productSearchInput');
-  renderProductsTab(el ? el.value : productSearch);
+  const existingCards = document.querySelectorAll('#productsTabContent .prod-card');
+  if (existingCards.length) {
+    existingCards.forEach(c => c.classList.add('sv-sort-out'));
+    setTimeout(() => {
+      renderProductsTab(el ? el.value : productSearch);
+      requestAnimationFrame(() => {
+        document.querySelectorAll('#productsTabContent .prod-card').forEach((c, i) => {
+          c.style.animationDelay = (i * 0.04) + 's';
+          c.classList.add('sv-sort-in');
+        });
+      });
+    }, 220);
+  } else {
+    renderProductsTab(el ? el.value : productSearch);
+  }
 }
 
 /* ============================================================
@@ -25401,7 +25482,7 @@ function al_expiredCard() {
     </div>
     <div class="chips-row">
       ${al_chip('box','Stock','8 units')}
-      ${al_chip('barChart','Value at risk','৳3,200')}
+      ${al_chip('barChart','Value at risk','৳3,200','var(--al-danger)')}
     </div>
     <div class="al-actions-row">
       ${al_actionBtn('primary','archive','Write Off')}
@@ -25961,6 +26042,7 @@ function toggleTxCard(txId) {
 
 function renderSalesTab() {
   const _prevSalesFilterInd = _captureIndicatorRect('salesFilterSlide');
+  const _prevSalesFilterScroll = document.getElementById('salesFilterRow') ? document.getElementById('salesFilterRow').scrollLeft : 0;
   const totalRevenue = TRANSACTIONS_DATA.filter(t=>t.status==='paid').reduce((s,t)=>s+t.items.reduce((a,i)=>a+i.total,0)-t.discount+t.shipping,0);
   const totalOrders  = TRANSACTIONS_DATA.length;
   const returnCount  = RETURNS_DATA.length;
@@ -25993,16 +26075,18 @@ function renderSalesTab() {
     <div class="products-filter-row" id="salesFilterRow">
       <div class="filter-slide-indicator" id="salesFilterSlide"></div>
       <div class="filter-chip ${salesFilter==='all'?'active':''}" onclick="setSalesFilter('all')">All (${totalOrders + returnCount})</div>
-      <div class="filter-chip ${salesFilter==='paid'?'active':''}" onclick="setSalesFilter('paid')">✅ Paid</div>
-      <div class="filter-chip ${salesFilter==='pending'?'active':''}" onclick="setSalesFilter('pending')">⏳ Pending</div>
-      <div class="filter-chip ${salesFilter==='return'?'active':''}" onclick="setSalesFilter('return')">↩ Returns</div>
-      <div class="filter-chip ${salesFilter==='multi'?'active':''}" onclick="setSalesFilter('multi')">📦 Multi-item</div>
+      <div class="filter-chip ${salesFilter==='paid'?'active':''}" onclick="setSalesFilter('paid')"><span class="filter-chip-icon"><svg viewBox="0 0 24 24" style="transform:scale(1.5)"><path d="M13.41,15.41a2,2,0,0,1-2.83,0l-4-4a2,2,0,0,1,0-2.83,2,2,0,0,1,2.82,0L12,11.17l6.63-6.63a10,10,0,1,0,3.15,9.53,9.87,9.87,0,0,0-.73-6.29Z" fill="#2F9B68"/><path d="M12,15a1,1,0,0,1-.71-.29l-4-4A1,1,0,1,1,8.71,9.29L12,12.59l8.29-8.3a1,1,0,1,1,1.42,1.42l-9,9A1,1,0,0,1,12,15Z" fill="#2F9B68"/></svg></span> Paid</div>
+      <div class="filter-chip ${salesFilter==='pending'?'active':''}" onclick="setSalesFilter('pending')"><span class="filter-chip-icon" style="color:#F4A922"><svg viewBox="80 40 350 430" fill="currentColor" style="transform:scale(1.2)"><path d="M397.074,190.234c0.001-0.075,0.011-0.149,0.011-0.225V91.022h5.689c9.425,0,17.067-7.641,17.067-17.067V17.067C419.841,7.641,412.199,0,402.774,0H109.227c-9.425,0-17.067,7.641-17.067,17.067v56.889c0,9.425,7.641,17.067,17.067,17.067h5.689v98.987c0,0.041,0.006,0.081,0.006,0.122c-0.179,6.134,2.632,12.365,9.067,15.776l95.572,50.662l-95.572,50.662c-5.582,2.959-9.074,8.76-9.074,15.079c0,10.753,0,88.119,0,98.668h-5.689c-9.425,0-17.067,7.641-17.067,17.067v56.889c0,9.425,7.641,17.067,17.067,17.067h293.547c9.425,0,17.067-7.641,17.067-17.067v-56.889c0-9.425-7.641-17.067-17.067-17.067h-5.689c0-10.54,0-87.916,0-98.668c0-6.319-3.491-12.12-9.074-15.079l-95.571-50.662l95.572-50.662C394.403,202.519,397.218,196.337,397.074,190.234z M362.952,332.579v16.719H149.049v-16.719l106.951-56.693L362.952,332.579z M362.952,172.942H149.049v-81.92h213.902V172.942z"/></svg></span> Pending</div>
+      <div class="filter-chip ${salesFilter==='return'?'active':''}" onclick="setSalesFilter('return')"><span class="filter-chip-icon" style="color:#d95353"><svg viewBox="0 40 512 430" fill="currentColor"><path d="M320,112H192V48h-32L0,208l160,160h32v-64h160c88.365,0,112,71.635,112,160h48V304C512,197.962,426.038,112,320,112z"/></svg></span> Returns</div>
+      <div class="filter-chip ${salesFilter==='multi'?'active':''}" onclick="setSalesFilter('multi')"><span class="filter-chip-icon" style="color:#7C6FF7"><svg viewBox="20 20 480 480" fill="currentColor" style="transform:scale(1.2)"><path d="M256,69.424c1.979,0,3.948,0.668,5.554,2.005l37.836,31.536V0h-86.78v102.964l37.836-31.536C252.052,70.092,254.021,69.424,256,69.424z"/><path d="M295.138,227.068c4.348-0.955,8.695-1.441,12.93-1.441h6.856c4.782-5.224,11.637-8.504,19.178-8.504h95.458V43.39c0-23.925-19.465-43.39-43.39-43.39h-69.424v104.821c0,6.465-3.636,12.184-9.494,14.935c-2.265,1.059-4.66,1.571-7.038,1.571c-3.758,0-7.463-1.302-10.509-3.836L256,89.4l-33.705,28.091c-4.972,4.139-11.707,4.999-17.547,2.265c-5.858-2.751-9.494-8.47-9.494-14.935V0H125.83c-23.925,0-43.39,19.465-43.39,43.39v140.488c2.734-0.981,5.615-1.64,8.678-1.64h104.136c7.697,0,14.622,3.358,19.387,8.678h24.003c24.819,0,46.175,14.978,55.591,36.352L295.138,227.068z"/><path d="M143.186,277.698c1.979,0,3.948,0.668,5.554,2.005l37.836,31.536V208.275h-86.78v102.964l37.836-31.536C139.246,278.367,141.216,277.698,143.186,277.698z"/><path d="M238.644,208.271h-34.712v104.821c0,6.465-3.636,12.184-9.494,14.935c-2.265,1.059-4.66,1.571-7.038,1.571c-3.758,0-7.463-1.302-10.509-3.836l-33.705-28.091l-33.705,28.091c-4.972,4.139-11.707,4.998-17.547,2.265c-5.858-2.751-9.494-8.47-9.494-14.935V208.271H47.729c-23.925,0-43.39,19.465-43.39,43.39V468.61c0,23.925,19.465,43.39,43.39,43.39h190.915c23.925,0,43.39-19.465,43.39-43.39V251.661C282.034,227.736,262.569,208.271,238.644,208.271z M238.644,477.288H212.61c-4.79,0-8.678-3.879-8.678-8.678s3.888-8.678,8.678-8.678h26.034c4.79,0,8.678,3.879,8.678,8.678S243.434,477.288,238.644,477.288z M238.644,442.576h-43.39c-4.79,0-8.678-3.879-8.678-8.678c0-4.799,3.888-8.678,8.678-8.678h43.39c4.79,0,8.678,3.879,8.678,8.678C247.322,438.697,243.434,442.576,238.644,442.576z"/><path d="M380.615,314.585c1.614-1.336,3.584-2.005,5.554-2.005c1.979,0,3.948,0.668,5.554,2.005l37.836,31.536V242.983h-86.78v103.138L380.615,314.585z"/><path d="M464.271,242.983h-17.356c-0.017-0.677-0.26-1.284-0.425-1.918c0.182,0.686,0.425,1.345,0.425,2.091v104.821c0,6.465-3.636,12.184-9.494,14.926c-2.265,1.059-4.66,1.579-7.038,1.579c-3.758,0-7.463-1.302-10.509-3.836l-33.705-28.099l-33.705,28.099c-4.972,4.122-11.707,4.99-17.547,2.256c-5.858-2.742-9.494-8.461-9.494-14.926V243.157c0-0.738,0.243-1.388,0.417-2.074c-0.156,0.633-0.399,1.224-0.417,1.9h-17.356c-3.167,0-6.24,0.382-9.216,1.033c0.321,2.508,0.538,5.051,0.538,7.645V468.61c0,14.102-4.868,27.058-12.965,37.385c6.396,3.714,13.729,6.005,21.643,6.005h156.203c23.925,0,43.39-19.465,43.39-43.39V286.373C507.661,262.448,488.196,242.983,464.271,242.983z M464.271,477.288h-26.034c-4.79,0-8.678-3.879-8.678-8.678s3.888-8.678,8.678-8.678h26.034c4.79,0,8.678,3.879,8.678,8.678S469.061,477.288,464.271,477.288z M464.271,442.576h-43.39c-4.79,0-8.678-3.879-8.678-8.678c0-4.799,3.888-8.678,8.678-8.678h43.39c4.79,0,8.678,3.879,8.678,8.678C472.949,438.697,469.061,442.576,464.271,442.576z"/></svg></span> Multi-item</div>
     </div>
     <div id="salesCardsContainer"></div>
   `;
   renderSalesCards();
   requestAnimationFrame(() => {
     const activeBtn = document.querySelector('#salesFilterRow .filter-chip.active');
+    const row = document.getElementById('salesFilterRow');
+    if (row) row.scrollLeft = _prevSalesFilterScroll;
     _positionFilterIndicator('salesFilterSlide', _prevSalesFilterInd, activeBtn);
   });
 }
@@ -26221,7 +26305,21 @@ document.addEventListener('click', function(e) {
 
 function setSalesFilter(f) {
   salesFilter = f;
-  renderSalesTab();
+  const existingCards = document.querySelectorAll('#salesTabContent .tx-card-expand');
+  if (existingCards.length) {
+    existingCards.forEach(c => c.classList.add('sv-sort-out'));
+    setTimeout(() => {
+      renderSalesTab();
+      requestAnimationFrame(() => {
+        document.querySelectorAll('#salesTabContent .tx-card-expand').forEach((c, i) => {
+          c.style.animationDelay = (i * 0.04) + 's';
+          c.classList.add('sv-sort-in');
+        });
+      });
+    }, 220);
+  } else {
+    renderSalesTab();
+  }
 }
 
 
