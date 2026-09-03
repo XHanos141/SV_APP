@@ -999,33 +999,40 @@ html[data-theme="dark"] .calc-icon svg { color: #22d3ee; }
 
 .mc-rate-banner {
   display: flex; align-items: center; justify-content: space-between;
-  background: linear-gradient(135deg, rgba(124,111,247,0.08), rgba(34,211,238,0.05));
-  border: 1px solid rgba(124,111,247,0.15);
-  border-radius: 12px;
-  padding: 8px 12px;
+  background: linear-gradient(135deg, rgba(124,111,247,0.1), rgba(34,211,238,0.06));
+  border: 1px solid rgba(124,111,247,0.22);
+  border-radius: 14px;
+  padding: 10px 14px;
   margin-bottom: 10px;
   position: relative;
   overflow: hidden;
+  box-shadow: 0 2px 10px rgba(124,111,247,0.08);
 }
 html[data-theme="dark"] .mc-rate-banner {
-  background: linear-gradient(135deg, rgba(124,111,247,0.15), rgba(34,211,238,0.1));
-  border-color: rgba(124,111,247,0.2);
+  background: linear-gradient(135deg, rgba(124,111,247,0.18), rgba(34,211,238,0.12));
+  border-color: rgba(124,111,247,0.28);
+  box-shadow: 0 2px 12px rgba(0,0,0,0.2);
 }
 .mc-rate-banner::before {
   content: "";
   position: absolute; top: 0; left: 0; right: 0; height: 2px;
   background: linear-gradient(90deg, #7C6FF7, #22d3ee);
-  opacity: 0.4;
+  opacity: 0.55;
 }
-html[data-theme="dark"] .mc-rate-banner::before { opacity: 0.6; }
+html[data-theme="dark"] .mc-rate-banner::before { opacity: 0.75; }
+.mc-rate-banner-rates { display: flex; flex-direction: column; gap: 5px; }
+.mc-rate-banner-row { display: flex; align-items: baseline; gap: 6px; }
+.mc-rate-banner-row .mc-rate-banner-label { width: 62px; flex-shrink: 0; font-size: 8px; }
+.mc-rate-banner-row .mc-rate-banner-value { font-size: 12px; }
+.mc-rate-banner-row .mc-rate-banner-value span { font-size: 9px; }
 .mc-rate-banner-left { display: flex; flex-direction: column; gap: 1px; }
 .mc-rate-banner-label {
-  font-size: 9px; font-weight: 700;
-  color: #8c92a1;
+  font-size: 9px; font-weight: 800;
+  color: #5b6472;
   letter-spacing: 0.12em; text-transform: uppercase;
   transition: color 0.35s ease;
 }
-html[data-theme="dark"] .mc-rate-banner-label { color: rgba(255,255,255,0.35); }
+html[data-theme="dark"] .mc-rate-banner-label { color: rgba(255,255,255,0.65); }
 .mc-rate-banner-value {
   font-family: "Roboto Mono", monospace;
   font-size: 18px; font-weight: 700;
@@ -1036,20 +1043,20 @@ html[data-theme="dark"] .mc-rate-banner-label { color: rgba(255,255,255,0.35); }
 }
 html[data-theme="dark"] .mc-rate-banner-value { color: #22d3ee; text-shadow: 0 0 12px rgba(34,211,238,0.25); }
 .mc-rate-banner-value span {
-  font-size: 11px; font-weight: 500;
-  color: #8c92a1;
+  font-size: 11px; font-weight: 700;
+  color: #4b5563;
   margin-left: 2px;
   transition: color 0.35s ease;
 }
-html[data-theme="dark"] .mc-rate-banner-value span { color: rgba(255,255,255,0.4); }
+html[data-theme="dark"] .mc-rate-banner-value span { color: rgba(255,255,255,0.75); }
 
 /* TOGGLE SWITCH -- SMOOTH CROSSFADE */
 .mc-mode-toggle {
   display: flex;
   align-items: center;
-  background: rgba(0,31,60,0.06);
-  border: 1px solid rgba(0,31,60,0.1);
-  border-radius: 8px;
+  background: rgba(0,31,60,0.08);
+  border: 1px solid rgba(0,31,60,0.14);
+  border-radius: 9px;
   padding: 3px;
   gap: 2px;
   width: fit-content;
@@ -1057,16 +1064,16 @@ html[data-theme="dark"] .mc-rate-banner-value span { color: rgba(255,255,255,0.4
   position: relative;
 }
 html[data-theme="dark"] .mc-mode-toggle {
-  background: rgba(255,255,255,0.06);
-  border-color: rgba(255,255,255,0.1);
+  background: rgba(255,255,255,0.08);
+  border-color: rgba(255,255,255,0.14);
 }
 .mc-mode-btn {
-  height: 24px;
-  padding: 0 10px;
-  border-radius: 6px;
+  height: 26px;
+  padding: 0 12px;
+  border-radius: 7px;
   border: none;
   background: transparent;
-  color: #8c92a1;
+  color: #6b7280;
   font-family: "Plus Jakarta Sans", sans-serif;
   font-size: 10px;
   font-weight: 700;
@@ -1076,15 +1083,15 @@ html[data-theme="dark"] .mc-mode-toggle {
   position: relative;
   z-index: 1;
 }
-html[data-theme="dark"] .mc-mode-btn { color: rgba(255,255,255,0.4); }
+html[data-theme="dark"] .mc-mode-btn { color: rgba(255,255,255,0.55); }
 .mc-mode-btn:active { transform: scale(0.92); }
 .mc-mode-btn.active {
   background: #7C6FF7;
   color: #ffffff;
-  box-shadow: 0 2px 8px rgba(124,111,247,0.35);
+  box-shadow: 0 2px 8px rgba(124,111,247,0.4);
 }
 html[data-theme="dark"] .mc-mode-btn.active {
-  box-shadow: 0 2px 8px rgba(124,111,247,0.45);
+  box-shadow: 0 2px 10px rgba(124,111,247,0.5);
 }
 
 /* Single/Multi calc containers -- crossfade */
@@ -1356,7 +1363,7 @@ html[data-theme="dark"] .mi-col-input {
   font-family: "Roboto Mono", monospace;
   font-size: 9px;
   font-weight: 600;
-  color: #0891b2;
+  color: #001f3c;
   margin-top: 2px;
   margin-left: 1px;
   transition: color 0.35s ease;
@@ -1365,7 +1372,7 @@ html[data-theme="dark"] .mi-col-input {
   text-overflow: ellipsis;
 }
 html[data-theme="dark"] .mi-bdt-cost {
-  color: #22d3ee;
+  color: #ffffff;
 }
 
 .mi-add-btn {
@@ -1408,6 +1415,10 @@ html[data-theme="dark"] .mi-summary-label { color: rgba(255,255,255,0.45); }
 html[data-theme="dark"] .mi-summary-value { color: #ffffff; }
 .mi-summary-value.gold { color: #d48c0a; }
 html[data-theme="dark"] .mi-summary-value.gold { color: #F4A922; }
+.mi-summary-value.green { color: #2f9b68; }
+html[data-theme="dark"] .mi-summary-value.green { color: #34c281; }
+.mi-summary-value.red { color: #d95353; }
+html[data-theme="dark"] .mi-summary-value.red { color: #e87777; }
 
 /* ====== SAVE BUTTON (NEW) ====== */
 .mi-save-btn {
@@ -13530,9 +13541,15 @@ function showToast(message, type = 'success') {
           <div class="margin-calc">
 
             <div class="mc-rate-banner">
-              <div class="mc-rate-banner-left">
-                <span class="mc-rate-banner-label">Exchange Rate</span>
-                <div class="mc-rate-banner-value" id="mcRateDisplay">130<span>BDT/USD</span></div>
+              <div class="mc-rate-banner-rates">
+                <div class="mc-rate-banner-row">
+                  <span class="mc-rate-banner-label">Exchange Rate</span>
+                  <div class="mc-rate-banner-value" id="mcRateDisplay">130<span>BDT/USD</span></div>
+                </div>
+                <div class="mc-rate-banner-row">
+                  <span class="mc-rate-banner-label">Weight Cost</span>
+                  <div class="mc-rate-banner-value" id="mcWeightRateDisplay">2100<span>TK/KG</span></div>
+                </div>
               </div>
               <div class="mc-mode-toggle">
                 <button class="mc-mode-btn active" id="modeSingle" onclick="setCalcMode('single')">Single</button>
@@ -13613,7 +13630,7 @@ function showToast(message, type = 'success') {
 
               <div class="mi-summary-row">
                 <span class="mi-summary-label">Total Cost</span>
-                <span class="mi-summary-value" id="miTotalCost">&#2547;0</span>
+                <span class="mi-summary-value gold" id="miTotalCost">&#2547;0</span>
               </div>
               <div class="mi-summary-row">
                 <span class="mi-summary-label">Total Revenue</span>
@@ -13621,7 +13638,7 @@ function showToast(message, type = 'success') {
               </div>
               <div class="mi-summary-row">
                 <span class="mi-summary-label">Total Profit</span>
-                <span class="mi-summary-value gold" id="miTotalProfit">&#2547;0</span>
+                <span class="mi-summary-value green" id="miTotalProfit">&#2547;0</span>
               </div>
 
               <div class="mc-field" style="margin-top:6px">
@@ -19574,6 +19591,7 @@ function applyWeightRateChange(updateExisting) {
   if (!isNaN(val) && val > 0) {
     WEIGHT_RATE = val;
     localStorage.setItem("svbd-weight-rate", WEIGHT_RATE);
+    document.getElementById("mcWeightRateDisplay").innerHTML = WEIGHT_RATE + '<span>TK/KG</span>';
 
     PRODUCTS_DATA.forEach(p => {
       if (p.meta && p.meta.costingMethod !== "manual" && p.meta.weight > 0) {
@@ -19737,7 +19755,10 @@ function calcMultiMargin() {
 
   document.getElementById("miTotalCost").textContent = formatBDT(totalCost);
   document.getElementById("miTotalRevenue").textContent = formatBDT(totalRevenue);
-  document.getElementById("miTotalProfit").textContent = formatBDT(profit);
+  const profitEl = document.getElementById("miTotalProfit");
+  profitEl.textContent = formatBDT(profit);
+  profitEl.classList.remove("green", "red");
+  profitEl.classList.add(profit < 0 ? "red" : "green");
   document.getElementById("miBlendedMargin").textContent = margin.toFixed(1) + "%";
 
   const resultBox = document.getElementById("miResult");
@@ -20904,6 +20925,7 @@ if (!isNaN(savedWeightRate) && savedWeightRate > 0) {
   WEIGHT_RATE = savedWeightRate;
   document.getElementById("stWeightRateInput").value = savedWeightRate;
 }
+document.getElementById("mcWeightRateDisplay").innerHTML = WEIGHT_RATE + '<span>TK/KG</span>';
 
 /* Modal overlay close handlers */
 document.getElementById("rateWarningModal").addEventListener("click", function(e) {
