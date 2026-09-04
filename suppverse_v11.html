@@ -23559,15 +23559,17 @@ function renderDrawerVouchers() {
 function openVoucherHub() {
   const menuCb = document.getElementById('menuState');
   if (menuCb) menuCb.checked = false;
-  document.getElementById('voucherHubPanel').classList.add('open');
-  // Sync theme with main app
-  const theme = document.documentElement.getAttribute('data-theme') || 'dark';
-  document.getElementById('voucherHubPanel').setAttribute('data-theme', theme);
-  // Init tab indicator and mini vouchers
-  requestAnimationFrame(() => {
-    if (typeof hubInitTabIndicator === 'function') hubInitTabIndicator();
-    if (typeof renderMiniVouchers === 'function') renderMiniVouchers();
-  });
+  const panel = document.getElementById('voucherHubPanel');
+  const frame = document.getElementById('voucherHubFrame3');
+  const src   = document.getElementById('vh-src');
+  if (!panel || !frame || !src) return;
+  // Inject current theme directly into HTML — no postMessage race condition (same pattern as admin panel)
+  const dark = document.documentElement.getAttribute('data-theme') === 'dark';
+  const vhHtml = src.value
+    .replace(/\<\\\/textarea\>/g, '</textarea>')
+    .replace('data-theme="dark"', 'data-theme="' + (dark ? 'dark' : 'light') + '"');
+  frame.srcdoc = vhHtml; // always reload for fresh state
+  panel.classList.add('open');
 }
 
 function openAdminPanel() {
@@ -23596,6 +23598,10 @@ window.addEventListener('message', function(e) {
   if (!e.data || e.data.type !== 'sv-close-admin-panel') return;
   closeAdminPanel();
 });
+window.addEventListener('message', function(e) {
+  if (!e.data || e.data.type !== 'sv-close-voucher-hub') return;
+  closeVoucherHubPanel();
+});
 
 // SV-Web live storefront URL
 const SV_WEBSITE_URL = 'https://sv-web-sigma.vercel.app';
@@ -23610,7 +23616,10 @@ function closeVoucherHub() {
   if (panel) panel.classList.remove('open');
 }
 function closeVoucherHubPanel() {
-  document.getElementById('voucherHubPanel').classList.remove('open');
+  const panel = document.getElementById('voucherHubPanel');
+  if (panel) panel.classList.remove('open');
+  const frame = document.getElementById('voucherHubFrame3');
+  if (frame) frame.srcdoc = ''; // release iframe content, avoid stale state on reopen
 }
 function openIssueVoucherModal() {
   closeActionSheet();
@@ -26637,6 +26646,28 @@ function closeAnalytics() {
 
 
 <div id="voucherHubPanel">
+  <iframe id="voucherHubFrame3" title="Voucher Hub" style="width:100%;height:100%;border:none;display:block;background:#0f1621;"></iframe>
+</div><!-- end voucherHubPanel -->
+
+<!-- Voucher Hub HTML stored in textarea, loaded into iframe on demand (same pattern as admin panel) -->
+<textarea id="vh-src" style="display:none"><!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Voucher Hub — SuppVerse BD</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Roboto+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html, body { height: 100%; min-height: 100%; overflow: hidden; background: #0f1621; }
+#voucherHubPanel { position: static; display: flex !important; flex-direction: column; height: 100%; width: 100%; }
+#voucherHubPanel.open { animation: none !important; }
+</style>
+</head>
+<body>
+<div id="voucherHubPanel">
 
 <style id="hub-styles">
 /* =============================================
@@ -29416,7 +29447,7 @@ function openEditModal(code) {
 
   const dark = document.documentElement.getAttribute('data-theme') === 'dark';
   const vcHtml = src.value
-    .replace(/\<\\\/textarea\>/g, '</textarea>')
+    .replace(/\<\\\/textarea\>/g, '<\/textarea>')
     .replace('data-theme="dark"','data-theme="'+(dark?'dark':'light')+'"');
   frame.srcdoc = vcHtml; // always reload for fresh state
   overlay.style.display = 'block';
@@ -29435,7 +29466,7 @@ function hubOpenCreateVoucher() {
   openIssueVoucherModal();
 }
 function hubGoBack() {
-  closeVoucherHubPanel();
+  try { window.parent.postMessage({ type: 'sv-close-voucher-hub' }, '*'); } catch(e) {}
 }
 
 // =============================================
@@ -30886,9 +30917,35 @@ document.addEventListener('DOMContentLoaded', () => {
 </script>
 </body>
 </html>
-</textarea>
+<\/textarea>
 
 </div><!-- end voucherHubPanel -->
+
+<script>
+// =============================================
+// STANDALONE LOAD: auto-open panel + sync theme with parent (main app)
+// =============================================
+(function() {
+  var panel = document.getElementById("voucherHubPanel");
+  if (panel) panel.classList.add("open");
+
+  // Receive theme + init data from parent main app
+  window.addEventListener("message", function(e) {
+    if (!e.data) return;
+    if (e.data.type === "SET_THEME") {
+      var theme = e.data.theme === "light" ? "light" : "dark";
+      document.documentElement.setAttribute("data-theme", theme);
+      if (panel) panel.setAttribute("data-theme", theme);
+    }
+  });
+
+  // Let parent know we're ready
+  try { window.parent.postMessage({ type: "VOUCHER_HUB_READY" }, "*"); } catch(e) {}
+})();
+</script>
+</body>
+</html>
+</textarea>
 
 </body>
 </html>
