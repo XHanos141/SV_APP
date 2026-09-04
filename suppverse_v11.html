@@ -23572,20 +23572,37 @@ function openVoucherHub() {
   panel.classList.add('open');
 }
 
+const ADMIN_PANEL_LIVE_URL = 'https://raw.githubusercontent.com/XHanos141/SV_APP/main/admin_panel.html';
+
 function openAdminPanel() {
   const menuCb = document.getElementById('menuState');
   if (menuCb) menuCb.checked = false;
   const overlay = document.getElementById('adminPanelOverlay');
   const frame   = document.getElementById('adminPanelFrame');
-  const src     = document.getElementById('ap-src');
-  if (!overlay || !frame || !src) return;
-  // Inject current theme directly into HTML — no postMessage race condition (same pattern as voucher modal)
+  if (!overlay || !frame) return;
   const dark = document.documentElement.getAttribute('data-theme') === 'dark';
-  const apHtml = src.value
-    .replace(/\<\\\/textarea\>/g, '</textarea>')
-    .replace('<html lang="en">', '<html lang="en" data-theme="' + (dark ? 'dark' : 'light') + '">');
-  frame.srcdoc = apHtml; // always reload for fresh state
+
+  // Show a lightweight loading state while the live file is fetched
+  frame.srcdoc = '<!DOCTYPE html><html><head><meta charset="UTF-8"></head><body style="margin:0;height:100vh;display:flex;align-items:center;justify-content:center;font-family:DM Sans,sans-serif;background:' +
+    (dark ? '#0b1220;color:#cbd5e1' : '#F4F7FB;color:#334155') +
+    ';"><div>Loading latest admin panel…</div></body></html>';
   overlay.style.display = 'block';
+
+  fetch(ADMIN_PANEL_LIVE_URL + '?t=' + Date.now(), { cache: 'no-store' })
+    .then(function(res) {
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      return res.text();
+    })
+    .then(function(html) {
+      // Inject current theme directly into HTML — no postMessage race condition (same pattern as voucher modal)
+      const apHtml = html.replace('<html lang="en">', '<html lang="en" data-theme="' + (dark ? 'dark' : 'light') + '">');
+      frame.srcdoc = apHtml; // always reload for fresh state
+    })
+    .catch(function(err) {
+      frame.srcdoc = '<!DOCTYPE html><html><head><meta charset="UTF-8"></head><body style="margin:0;height:100vh;display:flex;align-items:center;justify-content:center;text-align:center;padding:24px;font-family:DM Sans,sans-serif;background:' +
+        (dark ? '#0b1220;color:#f87171' : '#F4F7FB;color:#d95353') +
+        ';"><div>Could not load the admin panel.<br>Check your internet connection and try again.</div></body></html>';
+    });
 }
 
 function closeAdminPanel() {
