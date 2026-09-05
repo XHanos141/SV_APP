@@ -8094,23 +8094,23 @@ html[data-theme="dark"] .hamburger:hover { background: rgba(255,255,255,0.15); }
 .sec-more { font-size: 11px; color: #7c6ff7; font-weight: 600; }
 .cards-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
 .kpi-mode-switch {
-  position:relative; display:flex; margin:8px 0 14px; height:44px; box-sizing:border-box;
-  background:var(--timeframe-bg); border:1px solid var(--line); border-radius:13px; padding:3px;
+  position:relative; display:flex; margin:8px 0 14px; height:38px; box-sizing:border-box;
+  background:var(--timeframe-bg); border:1px solid var(--line); border-radius:11px; padding:3px;
 }
 .kpi-mode-indicator {
   position:absolute; top:3px; left:3px; width:calc(50% - 3px); height:calc(100% - 6px);
-  border-radius:10px; background:#ffffff;
-  box-shadow:0 2px 6px rgba(0,0,0,0.12), 0 0 14px rgba(0,157,220,0.4);
+  border-radius:8px; background:#ffffff;
+  box-shadow:0 2px 6px rgba(0,0,0,0.12);
   transition:transform 0.42s cubic-bezier(0.22,1,0.36,1), box-shadow 0.42s ease;
   transform:translateX(0%);
 }
-html[data-theme="dark"] .kpi-mode-indicator { background:#243244; box-shadow:0 2px 6px rgba(0,0,0,0.35), 0 0 14px rgba(56,189,248,0.45); }
+html[data-theme="dark"] .kpi-mode-indicator { background:#243244; box-shadow:0 2px 6px rgba(0,0,0,0.35); }
 .kpi-mode-switch.proxy-active .kpi-mode-indicator {
   transform:translateX(100%);
-  box-shadow:0 2px 6px rgba(0,0,0,0.12), 0 0 14px rgba(225,90,38,0.45);
+  box-shadow:0 2px 6px rgba(0,0,0,0.12);
 }
 html[data-theme="dark"] .kpi-mode-switch.proxy-active .kpi-mode-indicator {
-  box-shadow:0 2px 6px rgba(0,0,0,0.35), 0 0 14px rgba(255,148,102,0.5);
+  box-shadow:0 2px 6px rgba(0,0,0,0.35);
 }
 .kpi-mode-btn {
   position:relative; z-index:2; flex:1; height:100%; box-sizing:border-box;
@@ -10447,33 +10447,6 @@ body { width: 100% !important; max-width: 100% !important; }
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-file-document"/></svg>
     View Details
   </div>
-  <div class="action-popup-item" role="menuitem" tabindex="0" data-action="export">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-download"/></svg>
-    Export PDF
-  </div>
-</div>
-
-<!-- ===== REVENUE PDF MODAL ===== -->
-<div class="pdf-backdrop" id="revenuePdfBackdrop"></div>
-<div class="pdf-modal" id="revenuePdfModal">
-  <div class="pdf-header">
-    <span class="pdf-title">Export Report</span>
-    <button class="pdf-close" id="revenuePdfClose" aria-label="Close export">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-close-x"/></svg>
-    </button>
-  </div>
-  <div class="pdf-preview-box">
-    <div class="pdf-preview-title" style="color:#7c6ff7">SuppVerse BD — Revenue Report</div>
-    <div class="pdf-preview-meta" id="revenuePdfMeta">This Month vs Yesterday</div>
-    <table class="pdf-preview-table">
-      <thead><tr><th>SKU</th><th>Product</th><th>Revenue</th><th>Margin</th></tr></thead>
-      <tbody id="revenuePdfTbody"></tbody>
-    </table>
-  </div>
-  <div class="pdf-actions">
-    <button class="pdf-btn" style="background:#7c6ff7;color:#fff;" id="revenuePdfDownloadBtn">Download PDF</button>
-    <button class="pdf-btn pdf-btn-secondary" id="revenuePdfCancelBtn">Cancel</button>
-  </div>
 </div>
 
 <!-- ===== PROFIT CARD ACTION POPUP ===== -->
@@ -10481,10 +10454,6 @@ body { width: 100% !important; max-width: 100% !important; }
   <div class="action-popup-item" role="menuitem" tabindex="0" data-action="details">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-file-document"/></svg>
     View Details
-  </div>
-  <div class="action-popup-item" role="menuitem" tabindex="0" data-action="export">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-download"/></svg>
-    Export PDF
   </div>
 </div>
 
@@ -10527,38 +10496,11 @@ body { width: 100% !important; max-width: 100% !important; }
   </div>
 </div>
 
-<!-- ===== PROFIT PDF MODAL ===== -->
-<div class="pdf-backdrop" id="profitPdfBackdrop"></div>
-<div class="pdf-modal" id="profitPdfModal">
-  <div class="pdf-header">
-    <span class="pdf-title">Export Report</span>
-    <button class="pdf-close" id="profitPdfClose" aria-label="Close export">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-close-x"/></svg>
-    </button>
-  </div>
-  <div class="pdf-preview-box">
-    <div class="pdf-preview-title">SuppVerse BD — Profit Report</div>
-    <div class="pdf-preview-meta" id="profitPdfMeta">This Month vs Yesterday</div>
-    <table class="pdf-preview-table">
-      <thead><tr><th>Qty</th><th>Cost→Sell</th><th>Profit</th><th>Margin</th></tr></thead>
-      <tbody id="profitPdfTbody"></tbody>
-    </table>
-  </div>
-  <div class="pdf-actions">
-    <button class="pdf-btn pdf-btn-primary" id="profitPdfDownloadBtn">Download PDF</button>
-    <button class="pdf-btn pdf-btn-secondary" id="profitPdfCancelBtn">Cancel</button>
-  </div>
-</div>
-
 <!-- ===== ORDER CARD ACTION POPUP ===== -->
 <div class="action-popup" id="orderActionPopup" role="menu">
   <div class="action-popup-item" role="menuitem" tabindex="0" data-action="details">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-file-document"/></svg>
     View Details
-  </div>
-  <div class="action-popup-item" role="menuitem" tabindex="0" data-action="export">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-download"/></svg>
-    Export PDF
   </div>
 </div>
 
@@ -10601,29 +10543,6 @@ body { width: 100% !important; max-width: 100% !important; }
   </div>
 </div>
 
-<!-- ===== ORDER PDF MODAL ===== -->
-<div class="pdf-backdrop" id="orderPdfBackdrop"></div>
-<div class="pdf-modal" id="orderPdfModal">
-  <div class="pdf-header">
-    <span class="pdf-title">Export Report</span>
-    <button class="pdf-close" id="orderPdfClose" aria-label="Close export">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-close-x"/></svg>
-    </button>
-  </div>
-  <div class="pdf-preview-box">
-    <div class="order-pdf-preview-title">SuppVerse BD — Order Report</div>
-    <div class="pdf-preview-meta" id="orderPdfMeta">This Month vs Yesterday</div>
-    <table class="pdf-preview-table">
-      <thead><tr><th>Qty</th><th>Product</th><th>/Unit</th><th>Profit</th><th>Margin</th></tr></thead>
-      <tbody id="orderPdfTbody"></tbody>
-    </table>
-  </div>
-  <div class="pdf-actions">
-    <button class="pdf-btn" style="background:#f4a922;color:#fff;" id="orderPdfDownloadBtn">Download PDF</button>
-    <button class="pdf-btn pdf-btn-secondary" id="orderPdfCancelBtn">Cancel</button>
-  </div>
-</div>
-
 <!-- ===== TOAST CONTAINER ===== -->
 <div class="toast-container" id="toastContainer"></div>
 
@@ -10632,10 +10551,6 @@ body { width: 100% !important; max-width: 100% !important; }
   <div class="action-popup-item" role="menuitem" tabindex="0" data-action="details">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-file-document"/></svg>
     View Details
-  </div>
-  <div class="action-popup-item" role="menuitem" tabindex="0" data-action="export">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-download"/></svg>
-    Export PDF
   </div>
 </div>
 
@@ -10676,28 +10591,6 @@ body { width: 100% !important; max-width: 100% !important; }
   </div>
 </div>
 
-<!-- ===== RETURNS PDF MODAL ===== -->
-<div class="pdf-backdrop" id="returnPdfBackdrop"></div>
-<div class="pdf-modal" id="returnPdfModal">
-  <div class="pdf-header">
-    <span class="pdf-title">Export Report</span>
-    <button class="pdf-close" id="returnPdfClose" aria-label="Close export">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-close-x"/></svg>
-    </button>
-  </div>
-  <div class="pdf-preview-box">
-    <div class="pdf-preview-title" style="color:var(--return-primary)">SuppVerse BD — Returns Report</div>
-    <div class="pdf-preview-meta" id="returnPdfMeta">This Month vs Yesterday</div>
-    <table class="pdf-preview-table">
-      <thead><tr><th>Qty</th><th>Product</th><th>Unit</th><th>Loss</th><th>Rate</th></tr></thead>
-      <tbody id="returnPdfTbody"></tbody>
-    </table>
-  </div>
-  <div class="pdf-actions">
-    <button class="pdf-btn" style="background:var(--return-primary);color:#fff;" id="returnPdfDownloadBtn">Download PDF</button>
-    <button class="pdf-btn pdf-btn-secondary" id="returnPdfCancelBtn">Cancel</button>
-  </div>
-</div>
 
 </div>
 
@@ -12179,137 +12072,9 @@ revenueActionPopup.querySelectorAll('.action-popup-item').forEach(item => {
   item.addEventListener('click', e => {
     e.stopPropagation();
     if (item.dataset.action === 'details') openRevenueCardDetail();
-    if (item.dataset.action === 'export') showRevenuePdfModal();
     hideRevenuePopup();
   });
 });
-
-// — Revenue PDF Modal —
-const revenuePdfBackdrop = document.getElementById('revenuePdfBackdrop');
-const revenuePdfModal    = document.getElementById('revenuePdfModal');
-
-function showRevenuePdfModal() {
-  const fd = CARD_DETAIL_DATA[cardDetailCurrentFrom];
-  const td = CARD_DETAIL_DATA[cardDetailCurrentTo];
-  const pct = Math.round(((fd.revenue - td.revenue) / td.revenue) * 100);
-  document.getElementById('revenuePdfMeta').textContent =
-    `${fd.label} vs ${td.label} — ${pct >= 0 ? '+' : ''}${pct}% change`;
-  document.getElementById('revenuePdfTbody').innerHTML =
-    fd.skus.map(s => `
-      <tr>
-        <td style="font-family:monospace;color:#6761a8;font-size:10px">${s.code}</td>
-        <td>${s.name}</td>
-        <td style="font-weight:700;color:#7c6ff7">৳${(s.revenue/1000).toFixed(1)}K</td>
-        <td style="color:${s.margin<20?'#d95353':s.margin<30?'#F4A922':'#009b72'};font-weight:700">${s.margin}%</td>
-      </tr>`).join('') + `
-    <tr style="border-top:2px solid #ececec">
-      <td colspan="2" style="font-weight:700">Total</td>
-      <td style="font-weight:800;color:#7c6ff7">৳${(fd.revenue/1000).toFixed(1)}K</td>
-      <td></td>
-    </tr>`;
-  revenuePdfBackdrop.classList.add('open');
-  revenuePdfModal.classList.add('open');
-}
-
-function hideRevenuePdfModal() {
-  revenuePdfBackdrop.classList.remove('open');
-  revenuePdfModal.classList.remove('open');
-}
-
-revenuePdfBackdrop.addEventListener('click', hideRevenuePdfModal);
-document.getElementById('revenuePdfClose').addEventListener('click', hideRevenuePdfModal);
-document.getElementById('revenuePdfCancelBtn').addEventListener('click', hideRevenuePdfModal);
-document.getElementById('revenuePdfDownloadBtn').addEventListener('click', () => {
-  generateRevenuePdf();
-  hideRevenuePdfModal();
-});
-
-function generateRevenuePdf() {
-  try {
-    const { jsPDF } = window.jspdf;
-    const fd = CARD_DETAIL_DATA[cardDetailCurrentFrom];
-    const td = CARD_DETAIL_DATA[cardDetailCurrentTo];
-    const pct = Math.round(((fd.revenue - td.revenue) / td.revenue) * 100);
-    const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
-    const W = doc.internal.pageSize.getWidth();
-    const today = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
-
-    // Header bar
-    doc.setFillColor(124, 111, 247);
-    doc.rect(0, 0, W, 38, 'F');
-    doc.setTextColor(255, 255, 255);
-    doc.setFontSize(18); doc.setFont('helvetica', 'bold');
-    doc.text('SuppVerse BD', 14, 14);
-    doc.setFontSize(10); doc.setFont('helvetica', 'normal');
-    doc.text('Revenue Report', 14, 22);
-    doc.text(today, 14, 29);
-    doc.text(`${fd.label} vs ${td.label}`, W - 14, 29, { align: 'right' });
-
-    // Summary box
-    doc.setFillColor(245, 243, 255);
-    doc.roundedRect(14, 44, W - 28, 28, 4, 4, 'F');
-    doc.setTextColor(124, 111, 247);
-    doc.setFontSize(10); doc.setFont('helvetica', 'bold');
-    doc.text('TOTAL REVENUE', 20, 52);
-    doc.setFontSize(20);
-    doc.text(`BDT ${fd.revenue.toLocaleString('en-IN')}`, 20, 63);
-    doc.setFontSize(10); doc.setFont('helvetica', 'normal');
-    doc.setTextColor(pct >= 0 ? 0 : 217, pct >= 0 ? 155 : 83, pct >= 0 ? 104 : 83);
-    doc.text(`${pct >= 0 ? '+' : ''}${pct}% vs ${td.label}`, W - 20, 63, { align: 'right' });
-
-    // SKU Table
-    doc.setTextColor(50, 50, 50);
-    doc.setFontSize(10); doc.setFont('helvetica', 'bold');
-    doc.text('Top SKUs by Revenue', 14, 82);
-    doc.autoTable({
-      startY: 86,
-      head: [['#', 'Product', 'SKU', 'Revenue (BDT)', 'Margin']],
-      body: fd.skus.map((s, i) => [
-        i + 1, s.name, s.code,
-        s.revenue.toLocaleString('en-IN'),
-        s.margin + '%'
-      ]),
-      headStyles: { fillColor: [124, 111, 247], textColor: 255, fontStyle: 'bold', fontSize: 9 },
-      bodyStyles: { fontSize: 9, textColor: [30, 30, 30] },
-      columnStyles: {
-        0: { cellWidth: 8, halign: 'center' },
-        3: { halign: 'right', fontStyle: 'bold' },
-        4: { halign: 'center', fontStyle: 'bold' }
-      },
-      alternateRowStyles: { fillColor: [248, 246, 255] },
-      styles: { lineColor: [220, 220, 230], lineWidth: 0.3 }
-    });
-
-    // Payment methods
-    let y = doc.lastAutoTable.finalY + 10;
-    doc.setFontSize(10); doc.setFont('helvetica', 'bold'); doc.setTextColor(50, 50, 50);
-    doc.text('Payment Methods', 14, y); y += 6;
-    fd.payments.forEach(p => {
-      doc.setFont('helvetica', 'normal'); doc.setFontSize(9);
-      doc.setTextColor(60, 60, 60); doc.text(p.name, 14, y);
-      const barW = (W - 60) * (p.pct / 100);
-      doc.setFillColor(220, 220, 230);
-      doc.roundedRect(42, y - 3.5, W - 56, 5, 2, 2, 'F');
-      const rgb = p.color.match(/\w\w/g).map(x => parseInt(x, 16));
-      doc.setFillColor(...rgb);
-      doc.roundedRect(42, y - 3.5, (W - 56) * (p.pct / 100), 5, 2, 2, 'F');
-      doc.setTextColor(130, 130, 130);
-      doc.text(p.pct + '%', W - 10, y, { align: 'right' });
-      y += 9;
-    });
-
-    // Footer
-    y = doc.internal.pageSize.getHeight() - 12;
-    doc.setFontSize(8); doc.setTextColor(160, 160, 160);
-    doc.text(`Generated by SuppVerse BD Dashboard  |  ${today}`, W / 2, y, { align: 'center' });
-
-    doc.save(`SuppVerse_Revenue_${cardDetailCurrentFrom}_${cardDetailCurrentTo}.pdf`);
-    showToast('Revenue PDF downloaded! ✓', 'success');
-  } catch(err) {
-    console.error('PDF error:', err);
-    showToast('PDF generation failed. Try again.', 'error');
-  }
-}
 
 // ===== RETURNS CARD SYSTEM =====
 const RETURN_DATA = {
@@ -12367,7 +12132,6 @@ returnActionPopup.querySelectorAll('.action-popup-item').forEach(item => {
   item.addEventListener('click', e => {
     e.stopPropagation();
     if (item.dataset.action === 'details') showReturnDetail();
-    else if (item.dataset.action === 'export') showReturnPdfModal();
     hideReturnPopup();
   });
 });
@@ -12500,123 +12264,6 @@ returnDetailOverlay.addEventListener('touchend', e => {
   if (e.changedTouches[0].clientY - returnSwipeY > 120 && returnSwipeStartScrollTop <= 0) hideReturnDetail();
 }, {passive:true});
 
-// — PDF Export —
-const returnPdfBackdrop = document.getElementById('returnPdfBackdrop');
-const returnPdfModal    = document.getElementById('returnPdfModal');
-
-function showReturnPdfModal() {
-  const fd = RETURN_DATA[returnFrom], td = RETURN_DATA[returnTo];
-  const pct = ((fd.loss - td.loss) / td.loss * 100).toFixed(1);
-  document.getElementById('returnPdfMeta').textContent = `${fd.label} vs ${td.label} — ${pct >= 0 ? '+' : ''}${pct}% change`;
-  document.getElementById('returnPdfTbody').innerHTML = fd.itemsReturned.map(item => `
-    <tr>
-      <td>${item.qty}</td><td>${item.name}</td>
-      <td>৳${item.unitLoss.toLocaleString('en-IN')}</td>
-      <td style="color:${LUDBA.red};font-weight:700">৳${item.loss.toLocaleString('en-IN')}</td>
-      <td style="color:${item.rate>=8?LUDBA.red:item.rate>=4?LUDBA.orange:LUDBA.green};font-weight:700">${item.rate}%</td>
-    </tr>`).join('') + `
-    <tr style="border-top:2px solid var(--line)">
-      <td colspan="2" style="font-weight:700">${fd.returns} returns — ${fd.rate}% rate</td>
-      <td></td><td></td><td></td>
-    </tr>`;
-  returnPdfBackdrop.classList.add('open');
-  returnPdfModal.classList.add('open');
-}
-function hideReturnPdfModal() {
-  returnPdfBackdrop.classList.remove('open');
-  returnPdfModal.classList.remove('open');
-}
-returnPdfBackdrop.addEventListener('click', hideReturnPdfModal);
-document.getElementById('returnPdfClose').addEventListener('click', hideReturnPdfModal);
-document.getElementById('returnPdfCancelBtn').addEventListener('click', hideReturnPdfModal);
-document.getElementById('returnPdfDownloadBtn').addEventListener('click', () => { generateReturnPdf(); hideReturnPdfModal(); });
-
-function generateReturnPdf() {
-  try {
-    const { jsPDF } = window.jspdf;
-    const fd = RETURN_DATA[returnFrom], td = RETURN_DATA[returnTo];
-    const pct = ((fd.loss - td.loss) / td.loss * 100).toFixed(1);
-    const isGood = parseFloat(pct) <= 0;
-    const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
-    const W = doc.internal.pageSize.getWidth();
-    const today = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
-
-    // Header
-    doc.setFillColor(217, 83, 83);
-    doc.rect(0, 0, W, 38, 'F');
-    doc.setTextColor(255, 255, 255);
-    doc.setFontSize(18); doc.setFont('helvetica', 'bold');
-    doc.text('SuppVerse BD', 14, 14);
-    doc.setFontSize(10); doc.setFont('helvetica', 'normal');
-    doc.text('Returns Report', 14, 22);
-    doc.text(today, 14, 29);
-    doc.text(`${fd.label} vs ${td.label}`, W - 14, 29, { align: 'right' });
-
-    // Summary
-    doc.setFillColor(255, 243, 243);
-    doc.roundedRect(14, 44, W - 28, 28, 4, 4, 'F');
-    doc.setTextColor(217, 83, 83);
-    doc.setFontSize(10); doc.setFont('helvetica', 'bold');
-    doc.text('TOTAL RETURNS', 20, 52);
-    doc.setFontSize(20);
-    doc.text(`${fd.returns} items  (${fd.rate}% rate)`, 20, 63);
-    doc.setFontSize(10); doc.setFont('helvetica', 'normal');
-    doc.setTextColor(isGood ? 47 : 217, isGood ? 155 : 83, isGood ? 104 : 83);
-    doc.text(`${isGood ? '' : '+'}${Math.abs(pct)}% loss vs ${td.label}`, W - 20, 63, { align: 'right' });
-
-    // Items table
-    doc.setTextColor(50, 50, 50);
-    doc.setFontSize(10); doc.setFont('helvetica', 'bold');
-    doc.text('Most Returned Items', 14, 82);
-    doc.autoTable({
-      startY: 86,
-      head: [['Product', 'SKU', 'Qty', 'Unit Loss', 'Total Loss', 'Rate']],
-      body: fd.itemsReturned.map(i => [
-        i.name, i.sku, i.qty,
-        'BDT ' + i.unitLoss.toLocaleString('en-IN'),
-        'BDT ' + i.loss.toLocaleString('en-IN'),
-        i.rate + '%'
-      ]),
-      headStyles: { fillColor: [217, 83, 83], textColor: 255, fontStyle: 'bold', fontSize: 9 },
-      bodyStyles: { fontSize: 9, textColor: [30, 30, 30] },
-      columnStyles: {
-        2: { halign: 'center' }, 3: { halign: 'right' },
-        4: { halign: 'right', fontStyle: 'bold', textColor: [217, 83, 83] },
-        5: { halign: 'center', fontStyle: 'bold' }
-      },
-      alternateRowStyles: { fillColor: [255, 248, 248] },
-      styles: { lineColor: [230, 220, 220], lineWidth: 0.3 }
-    });
-
-    // Reasons
-    let y = doc.lastAutoTable.finalY + 10;
-    doc.setFontSize(10); doc.setFont('helvetica', 'bold'); doc.setTextColor(50, 50, 50);
-    doc.text('Return Reasons', 14, y); y += 6;
-    fd.reasons.forEach(r => {
-      doc.setFont('helvetica', 'normal'); doc.setFontSize(9); doc.setTextColor(60, 60, 60);
-      doc.text(r.name, 14, y);
-      doc.setFillColor(230, 220, 220);
-      doc.roundedRect(55, y - 3.5, W - 69, 5, 2, 2, 'F');
-      const rgb = r.color.match(/\w\w/g).map(x => parseInt(x, 16));
-      doc.setFillColor(...rgb);
-      doc.roundedRect(55, y - 3.5, (W - 69) * (r.pct / 100), 5, 2, 2, 'F');
-      doc.setTextColor(130, 130, 130);
-      doc.text(r.pct + '%', W - 10, y, { align: 'right' });
-      y += 9;
-    });
-
-    const fY = doc.internal.pageSize.getHeight() - 12;
-    doc.setFontSize(8); doc.setTextColor(160, 160, 160);
-    doc.text(`Generated by SuppVerse BD Dashboard  |  ${today}`, W / 2, fY, { align: 'center' });
-
-    doc.save(`SuppVerse_Returns_${returnFrom}_${returnTo}.pdf`);
-    showToast('Returns PDF downloaded! ✓', 'success');
-  } catch(err) {
-    console.error('PDF error:', err);
-    showToast('PDF generation failed. Try again.', 'error');
-  }
-}
-
 
 // ===== ORDER CARD SYSTEM =====
 const ORDER_DATA = {
@@ -12654,7 +12301,6 @@ orderActionPopup.querySelectorAll('.action-popup-item').forEach(item => {
   item.addEventListener('click', e => {
     e.stopPropagation();
     if (item.dataset.action === 'details') showOrderDetail();
-    else if (item.dataset.action === 'export') showOrderPdfModal();
     hideOrderPopup();
   });
 });
@@ -12807,142 +12453,6 @@ orderDetailOverlay.addEventListener('touchend', e => {
   if (e.changedTouches[0].clientY - orderSwipeY > 120 && orderSwipeStartScrollTop <= 0) hideOrderDetail();
 }, { passive:true });
 
-// — PDF Export —
-const orderPdfBackdrop = document.getElementById('orderPdfBackdrop');
-const orderPdfModal    = document.getElementById('orderPdfModal');
-
-function showOrderPdfModal() {
-  const fd = ORDER_DATA[orderFrom], td = ORDER_DATA[orderTo];
-  const pct = Math.round(((fd.orders - td.orders) / td.orders) * 100);
-  document.getElementById('orderPdfMeta').textContent = `${fd.label} vs ${td.label} — ${pct >= 0 ? '+' : ''}${pct}% change`;
-  document.getElementById('orderPdfTbody').innerHTML = fd.itemsSold.map(item => `
-    <tr>
-      <td>${item.qty}</td><td>${item.name}</td>
-      <td>৳${item.unitProfit.toLocaleString('en-IN')}</td>
-      <td>৳${(item.profit/1000).toFixed(1)}K</td>
-      <td style="color:${item.margin<20?LUDBA.red:item.margin<30?LUDBA.orange:LUDBA.green};font-weight:700">${item.margin}%</td>
-    </tr>`).join('') + `
-    <tr style="border-top:2px solid var(--line)">
-      <td colspan="2" style="font-weight:700">${fd.items} items — ${fd.orders} orders</td>
-      <td></td><td></td><td></td>
-    </tr>`;
-  orderPdfBackdrop.classList.add('open');
-  orderPdfModal.classList.add('open');
-}
-function hideOrderPdfModal() {
-  orderPdfBackdrop.classList.remove('open');
-  orderPdfModal.classList.remove('open');
-}
-orderPdfBackdrop.addEventListener('click', hideOrderPdfModal);
-document.getElementById('orderPdfClose').addEventListener('click', hideOrderPdfModal);
-document.getElementById('orderPdfCancelBtn').addEventListener('click', hideOrderPdfModal);
-document.getElementById('orderPdfDownloadBtn').addEventListener('click', () => { generateOrderPdf(); hideOrderPdfModal(); });
-
-function generateOrderPdf() {
-  try {
-    const { jsPDF } = window.jspdf;
-    const fd = ORDER_DATA[orderFrom], td = ORDER_DATA[orderTo];
-    const pct = Math.round(((fd.orders - td.orders) / td.orders) * 100);
-    const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
-    const W = doc.internal.pageSize.getWidth();
-    const today = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
-
-    // Header
-    doc.setFillColor(244, 169, 34);
-    doc.rect(0, 0, W, 38, 'F');
-    doc.setTextColor(255, 255, 255);
-    doc.setFontSize(18); doc.setFont('helvetica', 'bold');
-    doc.text('SuppVerse BD', 14, 14);
-    doc.setFontSize(10); doc.setFont('helvetica', 'normal');
-    doc.text('Order Report', 14, 22);
-    doc.text(today, 14, 29);
-    doc.text(`${fd.label} vs ${td.label}`, W - 14, 29, { align: 'right' });
-
-    // Summary
-    doc.setFillColor(255, 249, 235);
-    doc.roundedRect(14, 44, W - 28, 28, 4, 4, 'F');
-    doc.setTextColor(184, 114, 0);
-    doc.setFontSize(10); doc.setFont('helvetica', 'bold');
-    doc.text('TOTAL ORDERS', 20, 52);
-    doc.setFontSize(20);
-    doc.text(`${fd.orders.toLocaleString('en-IN')} orders`, 20, 63);
-    doc.setFontSize(10); doc.setFont('helvetica', 'normal');
-    doc.setTextColor(pct >= 0 ? 47 : 217, pct >= 0 ? 155 : 83, pct >= 0 ? 104 : 83);
-    doc.text(`${pct >= 0 ? '+' : ''}${pct}% vs ${td.label}`, W - 20, 63, { align: 'right' });
-
-    // Status
-    const s = fd.status;
-    let y = 82;
-    doc.setTextColor(50, 50, 50); doc.setFontSize(10); doc.setFont('helvetica', 'bold');
-    doc.text('Order Status', 14, y); y += 7;
-    const statuses = [
-      { label: 'Paid', count: s.paid, color: [0, 155, 114] },
-      { label: 'Pending', count: s.pending, color: [244, 169, 34] },
-      { label: 'Returned', count: s.returned, color: [242, 100, 48] },
-      { label: 'Cancelled', count: s.cancelled, color: [140, 146, 161] }
-    ];
-    statuses.forEach((st, i) => {
-      doc.setFillColor(...st.color);
-      doc.roundedRect(14 + i * 46, y, 42, 14, 3, 3, 'F');
-      doc.setTextColor(255, 255, 255); doc.setFontSize(8); doc.setFont('helvetica', 'bold');
-      doc.text(st.label, 14 + i * 46 + 21, y + 5, { align: 'center' });
-      doc.setFontSize(11);
-      doc.text(String(st.count), 14 + i * 46 + 21, y + 11, { align: 'center' });
-    });
-    y += 22;
-
-    // Items table
-    doc.setTextColor(50, 50, 50); doc.setFontSize(10); doc.setFont('helvetica', 'bold');
-    doc.text('Top Sold Items', 14, y); y += 4;
-    doc.autoTable({
-      startY: y,
-      head: [['Product', 'Qty', 'Unit Profit', 'Total Profit', 'Margin']],
-      body: fd.itemsSold.map(i => [
-        i.name, i.qty,
-        'BDT ' + i.unitProfit.toLocaleString('en-IN'),
-        'BDT ' + i.profit.toLocaleString('en-IN'),
-        i.margin + '%'
-      ]),
-      headStyles: { fillColor: [244, 169, 34], textColor: 255, fontStyle: 'bold', fontSize: 9 },
-      bodyStyles: { fontSize: 9, textColor: [30, 30, 30] },
-      columnStyles: {
-        1: { halign: 'center' }, 2: { halign: 'right' },
-        3: { halign: 'right', fontStyle: 'bold', textColor: [5, 150, 105] },
-        4: { halign: 'center', fontStyle: 'bold' }
-      },
-      alternateRowStyles: { fillColor: [255, 251, 240] },
-      styles: { lineColor: [230, 225, 210], lineWidth: 0.3 }
-    });
-
-    // Sources
-    y = doc.lastAutoTable.finalY + 10;
-    doc.setFontSize(10); doc.setFont('helvetica', 'bold'); doc.setTextColor(50, 50, 50);
-    doc.text('Order Sources', 14, y); y += 6;
-    fd.sources.forEach(src => {
-      doc.setFont('helvetica', 'normal'); doc.setFontSize(9); doc.setTextColor(60, 60, 60);
-      doc.text(src.name, 14, y);
-      doc.setFillColor(220, 220, 220);
-      doc.roundedRect(50, y - 3.5, W - 64, 5, 2, 2, 'F');
-      const rgb = src.color.match(/\w\w/g).map(x => parseInt(x, 16));
-      doc.setFillColor(...rgb);
-      doc.roundedRect(50, y - 3.5, (W - 64) * (src.pct / 100), 5, 2, 2, 'F');
-      doc.setTextColor(130, 130, 130);
-      doc.text(src.pct + '%', W - 10, y, { align: 'right' });
-      y += 9;
-    });
-
-    const fY = doc.internal.pageSize.getHeight() - 12;
-    doc.setFontSize(8); doc.setTextColor(160, 160, 160);
-    doc.text(`Generated by SuppVerse BD Dashboard  |  ${today}`, W / 2, fY, { align: 'center' });
-
-    doc.save(`SuppVerse_Orders_${orderFrom}_${orderTo}.pdf`);
-    showToast('Orders PDF downloaded! ✓', 'success');
-  } catch(err) {
-    console.error('PDF error:', err);
-    showToast('PDF generation failed. Try again.', 'error');
-  }
-}
-
 
 // ===== PROFIT CARD SYSTEM =====
 const LUDBA = { purple:'#6761a8', blue:'#009ddc', red:'#d95353', green:'#009b72', dark:'#2a2d34', orange:'#F4A922' };
@@ -13030,7 +12540,6 @@ profitActionPopup.querySelectorAll('.action-popup-item').forEach(item => {
     e.stopPropagation();
     const action = item.dataset.action;
     if (action === 'details') showProfitDetail();
-    else if (action === 'export') showProfitPdfModal();
     hideProfitPopup();
   });
 });
@@ -13182,146 +12691,6 @@ profitDetailOverlay.addEventListener('touchstart', e => {
 profitDetailOverlay.addEventListener('touchend', e => {
   if (e.changedTouches[0].clientY - profitSwipeY > 120 && profitSwipeStartScrollTop <= 0) hideProfitDetail();
 }, { passive:true });
-
-// — PDF Export —
-const profitPdfBackdrop = document.getElementById('profitPdfBackdrop');
-const profitPdfModal    = document.getElementById('profitPdfModal');
-
-function showProfitPdfModal() {
-  const fd = PROFIT_DATA[profitFrom], td = PROFIT_DATA[profitTo];
-  const pct = Math.round(((fd.profit - td.profit) / td.profit) * 100);
-  document.getElementById('profitPdfMeta').textContent = `${fd.label} vs ${td.label} — ${pct >= 0 ? '+' : ''}${pct}% change`;
-  document.getElementById('profitPdfTbody').innerHTML = fd.items.map(item => `
-    <tr>
-      <td>${item.qty}</td>
-      <td>৳${item.cost.toLocaleString('en-IN')} → ৳${item.sell.toLocaleString('en-IN')}</td>
-      <td>৳${item.profit.toLocaleString('en-IN')}</td>
-      <td style="color:${item.margin < 20 ? LUDBA.red : item.margin < 30 ? LUDBA.orange : LUDBA.green};font-weight:700">${item.margin}%</td>
-    </tr>`).join('') + `
-    <tr style="border-top:2px solid var(--line)">
-      <td colspan="2" style="font-weight:700">${fd.summary.units} units — Blended Margin ${fd.summary.blendedMargin}%</td>
-      <td style="font-weight:700">৳${fd.summary.profitTotal.toLocaleString('en-IN')}</td><td></td>
-    </tr>
-    <tr><td colspan="2">Discount</td><td style="color:${LUDBA.red};font-weight:700">-৳${fd.summary.discount.toLocaleString('en-IN')}</td><td></td></tr>
-    <tr style="border-top:2px solid var(--line)">
-      <td colspan="2" style="font-weight:800">Grand Total</td>
-      <td style="font-weight:800">৳${fd.summary.grandTotal.toLocaleString('en-IN')}</td><td></td>
-    </tr>`;
-  profitPdfBackdrop.classList.add('open');
-  profitPdfModal.classList.add('open');
-}
-function hideProfitPdfModal() {
-  profitPdfBackdrop.classList.remove('open');
-  profitPdfModal.classList.remove('open');
-}
-profitPdfBackdrop.addEventListener('click', hideProfitPdfModal);
-document.getElementById('profitPdfClose').addEventListener('click', hideProfitPdfModal);
-document.getElementById('profitPdfCancelBtn').addEventListener('click', hideProfitPdfModal);
-document.getElementById('profitPdfDownloadBtn').addEventListener('click', () => {
-  generateProfitPdf(); hideProfitPdfModal();
-});
-
-function generateProfitPdf() {
-  try {
-    const { jsPDF } = window.jspdf;
-    const fd = PROFIT_DATA[profitFrom], td = PROFIT_DATA[profitTo];
-    const pct = Math.round(((fd.profit - td.profit) / td.profit) * 100);
-    const mc = (fd.summary.blendedMargin - td.summary.blendedMargin).toFixed(1);
-    const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
-    const W = doc.internal.pageSize.getWidth();
-    const today = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
-
-    // Header
-    doc.setFillColor(16, 185, 129);
-    doc.rect(0, 0, W, 38, 'F');
-    doc.setTextColor(255, 255, 255);
-    doc.setFontSize(18); doc.setFont('helvetica', 'bold');
-    doc.text('SuppVerse BD', 14, 14);
-    doc.setFontSize(10); doc.setFont('helvetica', 'normal');
-    doc.text('Profit Report', 14, 22);
-    doc.text(today, 14, 29);
-    doc.text(`${fd.label} vs ${td.label}`, W - 14, 29, { align: 'right' });
-
-    // Exchange rate
-    doc.setFillColor(230, 248, 242);
-    doc.roundedRect(14, 42, W - 28, 10, 3, 3, 'F');
-    doc.setTextColor(0, 157, 220); doc.setFontSize(9); doc.setFont('helvetica', 'bold');
-    doc.text('Exchange Rate:', 18, 49);
-    doc.setFont('helvetica', 'normal');
-    doc.text(`${fd.exchangeRate} BDT / USD`, 50, 49);
-
-    // Summary box
-    doc.setFillColor(236, 253, 245);
-    doc.roundedRect(14, 56, W - 28, 28, 4, 4, 'F');
-    doc.setTextColor(16, 185, 129);
-    doc.setFontSize(10); doc.setFont('helvetica', 'bold');
-    doc.text('NET PROFIT', 20, 64);
-    doc.setFontSize(20);
-    doc.text(`BDT ${fd.profit.toLocaleString('en-IN')}`, 20, 75);
-    doc.setFontSize(10); doc.setFont('helvetica', 'normal');
-    doc.setTextColor(pct >= 0 ? 47 : 217, pct >= 0 ? 155 : 83, pct >= 0 ? 104 : 83);
-    doc.text(`${pct >= 0 ? '+' : ''}${pct}% vs ${td.label}   |   Blended Margin ${fd.summary.blendedMargin}%`, W - 20, 75, { align: 'right' });
-
-    // Items table
-    doc.setTextColor(50, 50, 50); doc.setFontSize(10); doc.setFont('helvetica', 'bold');
-    doc.text('Top 5 Profitable SKU', 14, 94);
-    doc.autoTable({
-      startY: 98,
-      head: [['Product', 'Qty', 'Cost (BDT)', 'Sell (BDT)', 'Profit (BDT)', 'Margin']],
-      body: fd.items.map(i => [
-        i.name || i.sku, i.qty,
-        i.cost.toLocaleString('en-IN'),
-        i.sell.toLocaleString('en-IN'),
-        i.profit.toLocaleString('en-IN'),
-        i.margin + '%'
-      ]),
-      headStyles: { fillColor: [16, 185, 129], textColor: 255, fontStyle: 'bold', fontSize: 9 },
-      bodyStyles: { fontSize: 9, textColor: [30, 30, 30] },
-      columnStyles: {
-        1: { halign: 'center' }, 2: { halign: 'right' }, 3: { halign: 'right' },
-        4: { halign: 'right', fontStyle: 'bold', textColor: [5, 150, 105] },
-        5: { halign: 'center', fontStyle: 'bold' }
-      },
-      alternateRowStyles: { fillColor: [240, 253, 247] },
-      styles: { lineColor: [200, 235, 220], lineWidth: 0.3 }
-    });
-
-    // Summary block
-    let y = doc.lastAutoTable.finalY + 10;
-    doc.setFillColor(245, 250, 247);
-    doc.roundedRect(14, y, W - 28, 34, 4, 4, 'F');
-    doc.setTextColor(60, 60, 60); doc.setFontSize(9); doc.setFont('helvetica', 'normal');
-    doc.text(`${fd.summary.units} units  —  Subtotal`, 20, y + 8);
-    doc.setTextColor(16, 185, 129); doc.setFont('helvetica', 'bold');
-    doc.text(`BDT ${fd.summary.profitTotal.toLocaleString('en-IN')}`, W - 20, y + 8, { align: 'right' });
-    doc.setTextColor(60, 60, 60); doc.setFont('helvetica', 'normal');
-    doc.text('Discount', 20, y + 18);
-    doc.setTextColor(217, 83, 83); doc.setFont('helvetica', 'bold');
-    doc.text(`- BDT ${fd.summary.discount.toLocaleString('en-IN')}`, W - 20, y + 18, { align: 'right' });
-    doc.setDrawColor(200, 230, 215);
-    doc.line(14, y + 22, W - 14, y + 22);
-    doc.setTextColor(30, 30, 30); doc.setFontSize(11); doc.setFont('helvetica', 'bold');
-    doc.text('Grand Total', 20, y + 30);
-    doc.text(`BDT ${fd.summary.grandTotal.toLocaleString('en-IN')}`, W - 20, y + 30, { align: 'right' });
-
-    // Blended margin badge
-    y += 44;
-    doc.setFillColor(16, 185, 129);
-    doc.roundedRect(14, y, W - 28, 12, 6, 6, 'F');
-    doc.setTextColor(255, 255, 255); doc.setFontSize(10); doc.setFont('helvetica', 'bold');
-    doc.text(`✓  Blended Margin: ${fd.summary.blendedMargin}%   |   ${mc >= 0 ? '+' : ''}${mc}% vs ${td.label}`, W / 2, y + 8, { align: 'center' });
-
-    const fY = doc.internal.pageSize.getHeight() - 12;
-    doc.setFontSize(8); doc.setTextColor(160, 160, 160);
-    doc.text(`Generated by SuppVerse BD Dashboard  |  ${today}`, W / 2, fY, { align: 'center' });
-
-    doc.save(`SuppVerse_Profit_${profitFrom}_${profitTo}.pdf`);
-    showToast('Profit PDF downloaded! ✓', 'success');
-  } catch(err) {
-    console.error('PDF error:', err);
-    showToast('PDF generation failed. Try again.', 'error');
-  }
-}
 
 // — Toast —
 function showToast(message, type = 'success') {
