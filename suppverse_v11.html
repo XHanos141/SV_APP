@@ -8100,17 +8100,17 @@ html[data-theme="dark"] .hamburger:hover { background: rgba(255,255,255,0.15); }
 .kpi-mode-indicator {
   position:absolute; top:3px; left:3px; width:calc(50% - 3px); height:calc(100% - 6px);
   border-radius:8px; background:#ffffff;
-  box-shadow:0 2px 6px rgba(0,0,0,0.12);
+  box-shadow:0 2px 16px rgba(0,0,0,0.07), 0 2px 8px rgba(0,157,220,0.22);
   transition:transform 0.42s cubic-bezier(0.22,1,0.36,1), box-shadow 0.42s ease;
   transform:translateX(0%);
 }
-html[data-theme="dark"] .kpi-mode-indicator { background:#243244; box-shadow:0 2px 6px rgba(0,0,0,0.35); }
+#themeCheck:checked ~ .app-shell .kpi-mode-indicator { background:#243244; box-shadow:0 2px 16px rgba(0,0,0,0.4), 0 2px 8px rgba(56,189,248,0.22); }
 .kpi-mode-switch.proxy-active .kpi-mode-indicator {
   transform:translateX(100%);
-  box-shadow:0 2px 6px rgba(0,0,0,0.12);
+  box-shadow:0 2px 16px rgba(0,0,0,0.07), 0 2px 8px rgba(225,90,38,0.22);
 }
-html[data-theme="dark"] .kpi-mode-switch.proxy-active .kpi-mode-indicator {
-  box-shadow:0 2px 6px rgba(0,0,0,0.35);
+#themeCheck:checked ~ .app-shell .kpi-mode-switch.proxy-active .kpi-mode-indicator {
+  box-shadow:0 2px 16px rgba(0,0,0,0.4), 0 2px 8px rgba(255,148,102,0.25);
 }
 .kpi-mode-btn {
   position:relative; z-index:2; flex:1; height:100%; box-sizing:border-box;
@@ -8123,9 +8123,9 @@ html[data-theme="dark"] .kpi-mode-switch.proxy-active .kpi-mode-indicator {
 .kpi-mode-icon { width:15px; height:15px; flex-shrink:0; }
 .kpi-mode-btn:active { transform:scale(0.96); }
 .kpi-mode-btn.kpi-mode-store.active { color:#009ddc; }
-html[data-theme="dark"] .kpi-mode-btn.kpi-mode-store.active { color:#38bdf8; }
+#themeCheck:checked ~ .app-shell .kpi-mode-btn.kpi-mode-store.active { color:#38bdf8; }
 .kpi-mode-btn.kpi-mode-proxy.active { color:#E15A26; }
-html[data-theme="dark"] .kpi-mode-btn.kpi-mode-proxy.active { color:#FF9466; }
+#themeCheck:checked ~ .app-shell .kpi-mode-btn.kpi-mode-proxy.active { color:#FF9466; }
 .card {
   border-radius: 16px; padding: 12px 12px 0; position: relative; overflow: hidden;
   height: 118px; display: flex; flex-direction: column; justify-content: space-between;
@@ -10192,17 +10192,6 @@ body { width: 100% !important; max-width: 100% !important; }
         <div class="sec-title">Revenue Summary</div>
         <div class="sec-more" id="liveDateLabel">--</div>
       </div>
-      <div class="kpi-mode-switch" id="kpiModeSwitch">
-        <div class="kpi-mode-indicator" id="kpiModeIndicator"></div>
-        <button type="button" class="kpi-mode-btn kpi-mode-store active" id="kpiModeStoreBtn" onclick="setKpiMode('store')">
-          <svg class="kpi-mode-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 10l2-6h16l2 6"/><path d="M4 10v10h16V10"/><path d="M9 20v-6h6v6"/></svg>
-          <span>Store</span>
-        </button>
-        <button type="button" class="kpi-mode-btn kpi-mode-proxy" id="kpiModeProxyBtn" onclick="setKpiMode('proxy')">
-          <svg class="kpi-mode-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8l-9-5-9 5 9 5 9-5z"/><path d="M3 8v8l9 5 9-5V8"/><path d="M12 13v8"/></svg>
-          <span>Proxy</span>
-        </button>
-      </div>
       <div class="cards-grid" id="kpiCardsGrid">
         <div class="card purple">
           <div class="card-top">
@@ -10241,6 +10230,17 @@ body { width: 100% !important; max-width: 100% !important; }
           <div class="card-number" id="kpiNumberReturns">6</div>
           <svg class="card-wave" viewBox="0 0 200 50" preserveAspectRatio="none"><path d="M0,18 C35,0 65,36 100,18 C135,0 165,30 200,14 L200,50 L0,50 Z"></path></svg>
         </div>
+      </div>
+      <div class="kpi-mode-switch" id="kpiModeSwitch">
+        <div class="kpi-mode-indicator" id="kpiModeIndicator"></div>
+        <button type="button" class="kpi-mode-btn kpi-mode-store active" id="kpiModeStoreBtn" onclick="setKpiMode('store')">
+          <svg class="kpi-mode-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 10l2-6h16l2 6"/><path d="M4 10v10h16V10"/><path d="M9 20v-6h6v6"/></svg>
+          <span>Store</span>
+        </button>
+        <button type="button" class="kpi-mode-btn kpi-mode-proxy" id="kpiModeProxyBtn" onclick="setKpiMode('proxy')">
+          <svg class="kpi-mode-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8l-9-5-9 5 9 5 9-5z"/><path d="M3 8v8l9 5 9-5V8"/><path d="M12 13v8"/></svg>
+          <span>Proxy</span>
+        </button>
       </div>
     </section>
 
@@ -11277,7 +11277,7 @@ const proxyChartData = {
 
 const kpiCardData = {
   store: { revenueTitle: "Total Revenue", revenueNum: "58,400", profitTitle: "Net Profit", profitNum: "21,300", ordersTitle: "Total Orders", ordersNum: "24", returnsTitle: "Total Returns", returnsNum: "6" },
-  proxy: { revenueTitle: "Proxy Revenue", revenueNum: "32,600", profitTitle: "Service Fee", profitNum: "4,850", ordersTitle: "Proxy Orders", ordersNum: "9", returnsTitle: "Failed Orders", returnsNum: "1" }
+  proxy: { revenueTitle: "Proxy Revenue", revenueNum: "32,600", profitTitle: "Net Profit", profitNum: "4,850", ordersTitle: "Proxy Orders", ordersNum: "9", returnsTitle: "Failed Orders", returnsNum: "1" }
 };
 
 let kpiMode = 'store';
