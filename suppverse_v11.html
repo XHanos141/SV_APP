@@ -2387,6 +2387,50 @@ html[data-theme="dark"] .voucher-empty-subtitle { color:rgba(255,255,255,0.4); }
 .voucher-create-btn:active { transform:scale(0.97); }
 .voucher-create-btn svg { width:13px; height:13px; }
 
+/* ====== WEBSITE SECTION: SOFT EMBOSSED TWIN BADGES ====== */
+.web-neu-row {
+  display:flex; gap:10px;
+}
+.web-neu-badge {
+  flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center;
+  gap:8px; padding:16px 10px; border-radius:16px; border:none; cursor:pointer;
+  font-family:"Plus Jakarta Sans",sans-serif; font-size:12px; font-weight:700;
+  background:#eef1f7;
+  box-shadow: 6px 6px 14px rgba(163,177,198,0.5), -6px -6px 14px rgba(255,255,255,0.85);
+  transition: box-shadow 0.18s ease, transform 0.12s ease;
+}
+.web-neu-badge:active {
+  transform:scale(0.97);
+  box-shadow: inset 4px 4px 10px rgba(163,177,198,0.5), inset -4px -4px 10px rgba(255,255,255,0.85);
+}
+.web-neu-icon {
+  width:38px; height:38px; border-radius:12px; display:flex; align-items:center; justify-content:center;
+  box-shadow: 3px 3px 8px rgba(163,177,198,0.45), -3px -3px 8px rgba(255,255,255,0.9);
+}
+.web-neu-icon svg { width:19px; height:19px; }
+.web-neu-badge.web-neu-admin .web-neu-icon { background:linear-gradient(145deg,#e4f6ff,#cdeeff); }
+.web-neu-badge.web-neu-admin .web-neu-icon svg { color:#009ddc; }
+.web-neu-badge.web-neu-admin { color:#009ddc; }
+.web-neu-badge.web-neu-site .web-neu-icon { background:#009b72; box-shadow:3px 3px 8px rgba(0,155,114,.35), -3px -3px 8px rgba(255,255,255,0.9); }
+.web-neu-badge.web-neu-site .web-neu-icon svg { color:#ffffff; }
+.web-neu-badge.web-neu-site { color:#009b72; }
+
+html[data-theme="dark"] .web-neu-badge {
+  background:#1b2030;
+  box-shadow: 6px 6px 14px rgba(0,0,0,0.45), -6px -6px 14px rgba(255,255,255,0.03);
+}
+html[data-theme="dark"] .web-neu-badge:active {
+  box-shadow: inset 4px 4px 10px rgba(0,0,0,0.45), inset -4px -4px 10px rgba(255,255,255,0.03);
+}
+html[data-theme="dark"] .web-neu-icon {
+  box-shadow: 3px 3px 8px rgba(0,0,0,0.4), -3px -3px 8px rgba(255,255,255,0.04);
+}
+html[data-theme="dark"] .web-neu-badge.web-neu-admin .web-neu-icon { background:linear-gradient(145deg,#173247,#0e2536); }
+html[data-theme="dark"] .web-neu-badge.web-neu-admin .web-neu-icon svg { color:#38bdf8; }
+html[data-theme="dark"] .web-neu-badge.web-neu-admin { color:#38bdf8; }
+html[data-theme="dark"] .web-neu-badge.web-neu-site .web-neu-icon { background:linear-gradient(145deg,#1f6b53,#0f4636); box-shadow:3px 3px 8px rgba(0,0,0,.4), -3px -3px 8px rgba(255,255,255,0.04); }
+html[data-theme="dark"] .web-neu-badge.web-neu-site { color:#34d399; }
+
 /* ====== PAYMENT SUCCESS POPUP ====== */
 .ps-overlay {
   position:fixed; inset:0;
@@ -8049,6 +8093,39 @@ html[data-theme="dark"] .hamburger:hover { background: rgba(255,255,255,0.15); }
 .sec-title { font-family: "Plus Jakarta Sans", sans-serif; font-size: 14px; font-weight: 700; color: var(--text); transition: color 0.35s ease; }
 .sec-more { font-size: 11px; color: #7c6ff7; font-weight: 600; }
 .cards-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.kpi-mode-switch {
+  position:relative; display:flex; margin:8px 0 14px; height:44px; box-sizing:border-box;
+  background:var(--timeframe-bg); border:1px solid var(--line); border-radius:13px; padding:3px;
+}
+.kpi-mode-indicator {
+  position:absolute; top:3px; left:3px; width:calc(50% - 3px); height:calc(100% - 6px);
+  border-radius:10px; background:#ffffff;
+  box-shadow:0 2px 6px rgba(0,0,0,0.12), 0 0 14px rgba(0,157,220,0.4);
+  transition:transform 0.42s cubic-bezier(0.22,1,0.36,1), box-shadow 0.42s ease;
+  transform:translateX(0%);
+}
+html[data-theme="dark"] .kpi-mode-indicator { background:#243244; box-shadow:0 2px 6px rgba(0,0,0,0.35), 0 0 14px rgba(56,189,248,0.45); }
+.kpi-mode-switch.proxy-active .kpi-mode-indicator {
+  transform:translateX(100%);
+  box-shadow:0 2px 6px rgba(0,0,0,0.12), 0 0 14px rgba(225,90,38,0.45);
+}
+html[data-theme="dark"] .kpi-mode-switch.proxy-active .kpi-mode-indicator {
+  box-shadow:0 2px 6px rgba(0,0,0,0.35), 0 0 14px rgba(255,148,102,0.5);
+}
+.kpi-mode-btn {
+  position:relative; z-index:2; flex:1; height:100%; box-sizing:border-box;
+  display:flex; align-items:center; justify-content:center; gap:6px;
+  background:transparent; border:none; border-radius:10px;
+  font-family:"Plus Jakarta Sans",sans-serif; font-weight:700; font-size:13px;
+  color:var(--timeframe-text); cursor:pointer;
+  transition:color 0.42s ease, transform 0.15s ease;
+}
+.kpi-mode-icon { width:15px; height:15px; flex-shrink:0; }
+.kpi-mode-btn:active { transform:scale(0.96); }
+.kpi-mode-btn.kpi-mode-store.active { color:#009ddc; }
+html[data-theme="dark"] .kpi-mode-btn.kpi-mode-store.active { color:#38bdf8; }
+.kpi-mode-btn.kpi-mode-proxy.active { color:#E15A26; }
+html[data-theme="dark"] .kpi-mode-btn.kpi-mode-proxy.active { color:#FF9466; }
 .card {
   border-radius: 16px; padding: 12px 12px 0; position: relative; overflow: hidden;
   height: 118px; display: flex; flex-direction: column; justify-content: space-between;
@@ -10115,50 +10192,61 @@ body { width: 100% !important; max-width: 100% !important; }
         <div class="sec-title">Revenue Summary</div>
         <div class="sec-more" id="liveDateLabel">--</div>
       </div>
-      <div class="cards-grid">
+      <div class="kpi-mode-switch" id="kpiModeSwitch">
+        <div class="kpi-mode-indicator" id="kpiModeIndicator"></div>
+        <button type="button" class="kpi-mode-btn kpi-mode-store active" id="kpiModeStoreBtn" onclick="setKpiMode('store')">
+          <svg class="kpi-mode-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 10l2-6h16l2 6"/><path d="M4 10v10h16V10"/><path d="M9 20v-6h6v6"/></svg>
+          <span>Store</span>
+        </button>
+        <button type="button" class="kpi-mode-btn kpi-mode-proxy" id="kpiModeProxyBtn" onclick="setKpiMode('proxy')">
+          <svg class="kpi-mode-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8l-9-5-9 5 9 5 9-5z"/><path d="M3 8v8l9 5 9-5V8"/><path d="M12 13v8"/></svg>
+          <span>Proxy</span>
+        </button>
+      </div>
+      <div class="cards-grid" id="kpiCardsGrid">
         <div class="card purple">
           <div class="card-top">
-            <div class="card-title">Total Revenue</div>
+            <div class="card-title" id="kpiTitleRevenue">Total Revenue</div>
             <div class="dots-btn"><div class="dots-inner"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div>
           </div>
           <div class="card-taka">&#2547;</div>
-          <div class="card-number">58,400</div>
+          <div class="card-number" id="kpiNumberRevenue">58,400</div>
           <svg class="card-wave" viewBox="0 0 200 50" preserveAspectRatio="none"><path d="M0,18 C35,0 65,36 100,18 C135,0 165,30 200,14 L200,50 L0,50 Z"></path></svg>
         </div>
 
         <div class="card green">
           <div class="card-top">
-            <div class="card-title">Net Profit</div>
+            <div class="card-title" id="kpiTitleProfit">Net Profit</div>
             <div class="dots-btn"><div class="dots-inner"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div>
           </div>
           <div class="card-taka">&#2547;</div>
-          <div class="card-number">21,300</div>
+          <div class="card-number" id="kpiNumberProfit">21,300</div>
           <svg class="card-wave" viewBox="0 0 200 50" preserveAspectRatio="none"><path d="M0,18 C35,0 65,36 100,18 C135,0 165,30 200,14 L200,50 L0,50 Z"></path></svg>
         </div>
 
         <div class="card yellow">
           <div class="card-top">
-            <div class="card-title">Total Orders</div>
+            <div class="card-title" id="kpiTitleOrders">Total Orders</div>
             <div class="dots-btn"><div class="dots-inner"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div>
           </div>
-          <div class="card-number">24</div>
+          <div class="card-number" id="kpiNumberOrders">24</div>
           <svg class="card-wave" viewBox="0 0 200 50" preserveAspectRatio="none"><path d="M0,18 C35,0 65,36 100,18 C135,0 165,30 200,14 L200,50 L0,50 Z"></path></svg>
         </div>
 
         <div class="card red">
           <div class="card-top">
-            <div class="card-title">Total Returns</div>
+            <div class="card-title" id="kpiTitleReturns">Total Returns</div>
             <div class="dots-btn"><div class="dots-inner"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div>
           </div>
-          <div class="card-number">6</div>
+          <div class="card-number" id="kpiNumberReturns">6</div>
           <svg class="card-wave" viewBox="0 0 200 50" preserveAspectRatio="none"><path d="M0,18 C35,0 65,36 100,18 C135,0 165,30 200,14 L200,50 L0,50 Z"></path></svg>
         </div>
       </div>
     </section>
 
-    <section class="chart-box">
+    <section class="chart-box" id="kpiChartBox">
       <div class="sec-header">
-        <div class="sec-title">Sales vs Returns</div>
+        <div class="sec-title" id="salesReturnsTitle">Sales vs Returns</div>
         <div class="sec-more" id="chartTimeLabel">This Month</div>
       </div>
 
@@ -10167,7 +10255,7 @@ body { width: 100% !important; max-width: 100% !important; }
         <div class="hbar-label-row">
           <div class="hbar-label-left sales-label">
             <span class="hbar-accent-dot" style="background:var(--sales)"></span>
-            SALES
+            <span id="salesWord">SALES</span>
             <span class="hbar-units" id="salesUnits">180 units</span>
           </div>
           <span class="hbar-value sales-value" id="salesAmount">৳584,000</span>
@@ -10182,7 +10270,7 @@ body { width: 100% !important; max-width: 100% !important; }
         <div class="hbar-label-row">
           <div class="hbar-label-left returns-label">
             <span class="hbar-accent-dot" style="background:var(--returns)"></span>
-            RETURNS
+            <span id="returnsWord">RETURNS</span>
             <span class="hbar-units" id="returnsUnits">20 units</span>
           </div>
           <span class="hbar-value returns-value" id="returnsAmount">৳89,500</span>
@@ -11185,6 +11273,7 @@ document.querySelectorAll('input[name="timeframe"]').forEach(radio => {
     positionIndicator(true);
     const svrtf = newTf === '3months' ? 'quarter' : newTf;
     if (chartData[svrtf]) {
+      svrCurrentTf = svrtf;
       updateChart(svrtf);
     } else {
       console.warn(`SuppVerse: No SVR data for timeframe "${svrtf}".`);
@@ -11265,12 +11354,76 @@ const chartData = {
   }
 };
 
+const proxyChartData = {
+  today: {
+    label: "Today",
+    sales: { amount: 3600, units: 1, displayAmount: "৳3,600" },
+    returns: { amount: 0, units: 0, displayAmount: "৳0" }
+  },
+  week: {
+    label: "This Week",
+    sales: { amount: 10800, units: 3, displayAmount: "৳10,800" },
+    returns: { amount: 650, units: 1, displayAmount: "৳650" }
+  },
+  month: {
+    label: "This Month",
+    sales: { amount: 32600, units: 9, displayAmount: "৳32,600" },
+    returns: { amount: 1450, units: 1, displayAmount: "৳1,450" }
+  },
+  quarter: {
+    label: "Last 3 Months",
+    sales: { amount: 94500, units: 26, displayAmount: "৳94,500" },
+    returns: { amount: 3900, units: 3, displayAmount: "৳3,900" }
+  },
+  all: {
+    label: "All Time",
+    sales: { amount: 268000, units: 74, displayAmount: "৳268,000" },
+    returns: { amount: 12100, units: 9, displayAmount: "৳12,100" }
+  }
+};
+
+const kpiCardData = {
+  store: { revenueTitle: "Total Revenue", revenueNum: "58,400", profitTitle: "Net Profit", profitNum: "21,300", ordersTitle: "Total Orders", ordersNum: "24", returnsTitle: "Total Returns", returnsNum: "6" },
+  proxy: { revenueTitle: "Proxy Revenue", revenueNum: "32,600", profitTitle: "Service Fee", profitNum: "4,850", ordersTitle: "Proxy Orders", ordersNum: "9", returnsTitle: "Failed Orders", returnsNum: "1" }
+};
+
+let kpiMode = 'store';
+let svrCurrentTf = 'month';
+
+function setKpiMode(mode) {
+  kpiMode = mode;
+  const storeBtn = document.getElementById('kpiModeStoreBtn');
+  const proxyBtn = document.getElementById('kpiModeProxyBtn');
+  const switchEl = document.getElementById('kpiModeSwitch');
+  const d = kpiCardData[mode];
+
+  storeBtn.classList.toggle('active', mode === 'store');
+  proxyBtn.classList.toggle('active', mode === 'proxy');
+  switchEl.classList.toggle('proxy-active', mode === 'proxy');
+
+  document.getElementById('kpiTitleRevenue').textContent = d.revenueTitle;
+  document.getElementById('kpiNumberRevenue').textContent = d.revenueNum;
+  document.getElementById('kpiTitleProfit').textContent = d.profitTitle;
+  document.getElementById('kpiNumberProfit').textContent = d.profitNum;
+  document.getElementById('kpiTitleOrders').textContent = d.ordersTitle;
+  document.getElementById('kpiNumberOrders').textContent = d.ordersNum;
+  document.getElementById('kpiTitleReturns').textContent = d.returnsTitle;
+  document.getElementById('kpiNumberReturns').textContent = d.returnsNum;
+
+  document.getElementById('salesReturnsTitle').textContent = mode === 'proxy' ? 'Proxy vs Failed' : 'Sales vs Returns';
+  document.getElementById('salesWord').textContent = mode === 'proxy' ? 'PROXY' : 'SALES';
+  document.getElementById('returnsWord').textContent = mode === 'proxy' ? 'FAILED' : 'RETURNS';
+
+  updateChart(svrCurrentTf);
+}
+
 function formatBDT(num) {
   return "৳" + num.toLocaleString("en-IN");
 }
 
 function updateChart(timeframe) {
-  const data = chartData[timeframe];
+  const source = kpiMode === 'proxy' ? proxyChartData : chartData;
+  const data = source[timeframe];
   if (!data) return;
 
   const salesBar     = document.getElementById("salesBar");
@@ -13503,13 +13656,17 @@ function showToast(message, type = 'success') {
       </div>
       <div class="section-content" id="websiteContent">
         <div class="section-inner">
-          <div style="display:flex;flex-direction:column;gap:8px">
-            <button class="voucher-create-btn" onclick="openAdminPanel()" style="background:rgba(0,157,220,0.12);color:#009ddc;border-color:rgba(0,157,220,0.25)">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="18" x2="12" y2="21"/></svg>
+          <div class="web-neu-row">
+            <button class="web-neu-badge web-neu-admin" onclick="openAdminPanel()">
+              <span class="web-neu-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="18" x2="12" y2="21"/></svg>
+              </span>
               Admin Panel
             </button>
-            <button class="voucher-create-btn" onclick="visitWebsite()" style="background:rgba(242,100,48,0.12);color:#f26430;border-color:rgba(242,100,48,0.25)">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+            <button class="web-neu-badge web-neu-site" onclick="visitWebsite()">
+              <span class="web-neu-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg>
+              </span>
               Visit Website
             </button>
           </div>
