@@ -611,48 +611,108 @@ function toggleTheme(){
 themeToggle.addEventListener('click', toggleTheme);
 applyTheme(localStorage.getItem('sv_admin_theme') === 'dark');
 
-// ===== MOCK ADMIN DATA (placeholder until Supabase wiring) =====
-const mockAdmin = {
-  name: 'Hasan',
-  email: 'hasan@suppversebd.com',
-  adminId: 'SV-ADM-001',
-  role: 'Admin', // or 'Co-Admin'
-  cryptoBalance: '0.00 USDT',
-  bdtBalance: '৳0.00',
-  googleLinked: true,
-  passkeyActive: true
-};
+// ===== REAL ADMIN DATA (Supabase) =====
+let currentAdminRow = null; // the live admin_users row for whoever is signed in
 
 function initials(name){
   return name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
 }
 
-function renderAdmin(data){
+function renderAdmin(row, authUser){
+  currentAdminRow = row;
   const idCard = document.getElementById('idCard');
-  document.getElementById('adminName').textContent = data.name;
-  document.getElementById('adminEmail').textContent = data.email;
-  document.getElementById('adminIdTag').textContent = data.adminId;
-  document.getElementById('avatarInitial').textContent = initials(data.name);
-  document.getElementById('roleBadgeText').textContent = data.role;
-  document.getElementById('cryptoBalance').textContent = data.cryptoBalance;
-  document.getElementById('bdtBalance').textContent = data.bdtBalance;
+  document.getElementById('adminName').textContent = row.full_name;
+  document.getElementById('adminEmail').textContent = row.email;
+  document.getElementById('adminIdTag').textContent = row.admin_code;
+  document.getElementById('roleBadgeText').textContent = row.role;
 
+  // Avatar: a manually-set photo always wins; otherwise fall back to the
+  // Google account photo; otherwise show initials.
+  const avatarUrl = row.avatar_url || authUser?.user_metadata?.avatar_url || authUser?.user_metadata?.picture || '';
+  const avatarInitialEl = document.getElementById('avatarInitial');
+  if(avatarUrl){
+    avatarInitialEl.innerHTML = '<img src="' + avatarUrl + '" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%">';
+  } else {
+    avatarInitialEl.textContent = initials(row.full_name);
+  }
+
+  document.getElementById('cryptoBalance').textContent = Number(row.crypto_balance || 0).toFixed(2) + ' USDT';
+  document.getElementById('bdtBalance').textContent = '৳' + Number(row.bdt_balance || 0).toFixed(2);
+
+  // Sign-in is Google-only right now, so a signed-in admin is always Google-linked.
   const gStatus = document.getElementById('googleAuthStatus');
-  gStatus.textContent = data.googleLinked ? 'Linked' : 'Not Linked';
-  gStatus.className = 'setting-status ' + (data.googleLinked ? 'linked' : 'not-linked');
+  gStatus.textContent = 'Linked';
+  gStatus.className = 'setting-status linked';
 
+  // No real passkey system exists yet — status view only, honestly reflects that.
   const pkStatus = document.getElementById('passkeyStatus');
   const pkSub = document.getElementById('passkeySub');
-  pkStatus.textContent = data.passkeyActive ? 'Active' : 'Not Set Up';
-  pkStatus.className = 'setting-status ' + (data.passkeyActive ? 'linked' : 'not-linked');
-  pkSub.textContent = data.passkeyActive ? 'Registered on this device' : 'No passkey registered';
-
-  document.getElementById('pkModalStatusTitle').textContent = data.passkeyActive ? 'Passkey Active' : 'No Passkey';
-  document.getElementById('pkModalStatusSub').textContent = data.passkeyActive ? 'Registered on this device' : 'Not registered on any device';
+  pkStatus.textContent = 'Not Set Up';
+  pkStatus.className = 'setting-status not-linked';
+  pkSub.textContent = 'No passkey registered';
+  document.getElementById('pkModalStatusTitle').textContent = 'No Passkey';
+  document.getElementById('pkModalStatusSub').textContent = 'Not registered on any device';
 
   idCard.classList.remove('is-loading');
 }
-setTimeout(()=>renderAdmin(mockAdmin), 400);
+
+function showLoadError(msg){
+  const idCard = document.getElementById('idCard');
+  idCard.classList.remove('is-loading');
+  document.getElementById('adminName').textContent = msg;
+  document.getElementById('adminEmail').textContent = '';
+}
+
+async function loadAdminProfile(){
+  const { data: { session } } = await sb.auth.getSession();
+  if(!session){
+    window.location.href = '/admin-login';
+    return;
+  }
+  const authUser = session.user;
+
+  // 1) Already-linked admins: fetch by their login id.
+  let { data: rows, error } = await sb.from('admin_users').select('*').eq('auth_id', authUser.id);
+  let row = rows && rows[0];
+
+  // 2) First-time sign-in: this login isn't linked to an admin row yet.
+  //    Check for a pre-created, unclaimed row matching this exact verified email.
+  if(!row){
+    const { data: unclaimedRows } = await sb.from('admin_users').select('*').eq('email', authUser.email).is('auth_id', null);
+    const unclaimed = unclaimedRows && unclaimedRows[0];
+    if(unclaimed){
+      const { data: claimedRows, error: claimErr } = await sb.from('admin_users')
+        .update({ auth_id: authUser.id, last_login_at: new Date().toISOString() })
+        .eq('id', unclaimed.id)
+        .select();
+      if(!claimErr && claimedRows && claimedRows[0]){
+        row = claimedRows[0];
+      }
+    }
+  } else {
+    // Returning admin — just stamp the login time.
+    sb.from('admin_users').update({ last_login_at: new Date().toISOString() }).eq('id', row.id).then(()=>{});
+  }
+
+  if(!row){
+    // This Google account isn't a registered admin — Google login alone
+    // never grants access on its own.
+    showLoadError('This account is not registered as an admin.');
+    await sb.auth.signOut();
+    setTimeout(()=>{ window.location.href = '/admin-login'; }, 1800);
+    return;
+  }
+
+  if(row.is_active === false){
+    showLoadError('This admin account has been deactivated.');
+    await sb.auth.signOut();
+    setTimeout(()=>{ window.location.href = '/admin-login'; }, 1800);
+    return;
+  }
+
+  renderAdmin(row, authUser);
+}
+loadAdminProfile();
 
 // ===== COPY ADMIN ID =====
 function copyAdminId(){
@@ -670,12 +730,35 @@ function openEditProfile(){
   document.getElementById('avatarEditor').classList.add('open');
 }
 function closeEditProfile(){ document.getElementById('avatarEditor').classList.remove('open'); }
-function saveProfileChanges(){
+async function saveProfileChanges(){
   const newName = document.getElementById('editNameInput').value.trim();
-  if(newName){
-    document.getElementById('adminName').textContent = newName;
-    document.getElementById('avatarInitial').textContent = initials(newName);
+  const btn = document.getElementById('saveProfileBtn');
+  const errEl = document.getElementById('editProfileErr');
+  errEl.classList.remove('show');
+  if(!newName || !currentAdminRow){ closeEditProfile(); return; }
+
+  btn.disabled = true;
+  btn.querySelector('.btn-label').style.opacity = '0';
+  btn.querySelector('.btn-spin').style.display = 'inline-block';
+
+  const { data, error } = await sb.from('admin_users')
+    .update({ full_name: newName })
+    .eq('id', currentAdminRow.id)
+    .select();
+
+  btn.disabled = false;
+  btn.querySelector('.btn-label').style.opacity = '1';
+  btn.querySelector('.btn-spin').style.display = 'none';
+
+  if(error || !data || !data[0]){
+    errEl.textContent = 'Could not save changes. Please try again.';
+    errEl.classList.add('show');
+    return;
   }
+
+  currentAdminRow = data[0];
+  document.getElementById('adminName').textContent = newName;
+  document.getElementById('avatarInitial').textContent = initials(newName);
   closeEditProfile();
 }
 function closeCropModal(){ document.getElementById('cropModal').classList.remove('open'); }
@@ -694,8 +777,9 @@ function openPasskeyInfo(){ document.getElementById('passkeyInfoModal').classLis
 function closePasskeyInfo(){ document.getElementById('passkeyInfoModal').classList.remove('open'); }
 
 // ===== LOGOUT =====
-function handleLogout(){
-  window.location.href = 'login.html';
+async function handleLogout(){
+  await sb.auth.signOut();
+  window.location.href = '/admin-login';
 }
 </script>
 </body>
