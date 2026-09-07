@@ -719,11 +719,14 @@ async function loadAdminProfile(){
   }
 
   if(!row){
-    // This Google account isn't a registered admin — Google login alone
-    // never grants access on its own.
-    showLoadError('This account is not registered as an admin.');
+    // TEMP DIAGNOSTIC — will be removed once the real cause is found.
+    console.log('DIAGNOSTIC: authUser.email =', JSON.stringify(authUser.email));
+    console.log('DIAGNOSTIC: authUser.id =', authUser.id);
+    const { data: diagRows, error: diagErr } = await sb.from('admin_users').select('id,email,auth_id').eq('email', authUser.email);
+    console.log('DIAGNOSTIC: rows matching this email =', JSON.stringify(diagRows), 'error =', JSON.stringify(diagErr));
+    showLoadError('This account is not registered as an admin. [debug: ' + (authUser.email || 'no-email') + ' | rows found: ' + (diagRows ? diagRows.length : 'query-blocked') + ']');
     await sb.auth.signOut();
-    setTimeout(()=>{ window.location.href = '/admin-login'; }, 1800);
+    setTimeout(()=>{ window.location.href = '/admin-login'; }, 4000);
     return;
   }
 
