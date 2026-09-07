@@ -541,7 +541,7 @@ function wireEvents(){
     showGlobalAlert('');
     const { error } = await sb.auth.signInWithOAuth({
       provider: 'google',
-      options: { redirectTo: window.location.origin + '/admin-profile' }
+      options: { redirectTo: window.location.origin + '/' }
     });
     if(error){
       S.els.btnGoogle.disabled = false;
@@ -560,7 +560,7 @@ wireEvents();
 (async function checkExistingSession(){
   const { data: { session } } = await sb.auth.getSession();
   if(session){
-    window.location.href = '/admin-profile';
+    window.location.href = '/';
   }
 })();
 
