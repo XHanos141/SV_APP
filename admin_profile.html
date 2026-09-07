@@ -384,8 +384,17 @@ body.dark-mode .icon-moon{opacity:1;transform:scale(1) rotate(0)}
   </div>
 </div>
 
+<!-- ERROR STATE: shown only when login/claim genuinely fails, replaces the whole profile -->
+<div id="authErrorScreen" style="display:none; padding:60px 24px; text-align:center;">
+  <div style="width:64px;height:64px;border-radius:50%;background:rgba(217,83,83,0.12);display:flex;align-items:center;justify-content:center;margin:0 auto 20px;">
+    <svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="#d95353" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+  </div>
+  <div style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:18px;color:#1a1a2e;margin-bottom:8px;" id="authErrorTitle">Access Denied</div>
+  <div style="font-family:'DM Sans',sans-serif;font-size:14px;color:#6b6b80;" id="authErrorSub">Redirecting to login…</div>
+</div>
+
 <!-- ID CARD -->
-<div class="id-card-wrap">
+<div class="id-card-wrap" id="profileContent">
   <div class="id-card is-loading" id="idCard">
     <div class="id-top">
       <div class="id-avatar-wrap">
@@ -485,6 +494,7 @@ body.dark-mode .icon-moon{opacity:1;transform:scale(1) rotate(0)}
   Log Out
 </button>
 <div class="version-tag">SuppVerse BD Admin · v1.0</div>
+</div><!-- /profileContent -->
 
 <!-- EDIT PROFILE MODAL -->
 <div class="modal-overlay center-popup" id="avatarEditor">
@@ -657,14 +667,28 @@ function renderAdmin(row, authUser){
 }
 
 function showLoadError(msg){
-  const idCard = document.getElementById('idCard');
-  idCard.classList.remove('is-loading');
-  document.getElementById('adminName').textContent = msg;
-  document.getElementById('adminEmail').textContent = '';
+  document.getElementById('profileContent').style.display = 'none';
+  const errScreen = document.getElementById('authErrorScreen');
+  errScreen.style.display = 'block';
+  document.getElementById('authErrorTitle').textContent = 'Access Denied';
+  document.getElementById('authErrorSub').textContent = msg + ' Redirecting to login…';
 }
 
 async function loadAdminProfile(){
-  const { data: { session } } = await sb.auth.getSession();
+  // Right after Google sends the browser back here, Supabase needs a brief
+  // moment to read and store the login token from the URL. Checking too
+  // early can catch a session that looks signed-in but isn't fully synced,
+  // which was causing the claim step below to silently miss. Waiting for
+  // the real "signed in" event (or a short grace period) avoids that.
+  let session = (await sb.auth.getSession()).data.session;
+  if(!session){
+    session = await new Promise((resolve) => {
+      const { data: sub } = sb.auth.onAuthStateChange((event, s) => {
+        if(s){ sub.subscription.unsubscribe(); resolve(s); }
+      });
+      setTimeout(() => { sub.subscription.unsubscribe(); resolve(null); }, 2500);
+    });
+  }
   if(!session){
     window.location.href = '/admin-login';
     return;
