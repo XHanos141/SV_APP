@@ -541,7 +541,7 @@ function wireEvents(){
     showGlobalAlert('');
     const { error } = await sb.auth.signInWithOAuth({
       provider: 'google',
-      options: { redirectTo: window.location.origin + '/' }
+      options: { redirectTo: window.location.origin + '/admin-profile' }
     });
     if(error){
       S.els.btnGoogle.disabled = false;
