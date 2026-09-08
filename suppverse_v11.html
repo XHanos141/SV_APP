@@ -7325,6 +7325,9 @@ html[data-theme="dark"] #alertsTabContent .tone-proxy   .al-actions-row { border
 }
 #alertsTabContent .al-card-time { font-size: 10.5px; font-weight: 600; color: var(--al-muted-2); margin-top: 1px; }
 
+#alertsTabContent .al-bell-chip { width: 30px; height: 30px; border-radius: 50%; background: rgba(255,255,255,0.6); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+html[data-theme="dark"] #alertsTabContent .al-bell-chip { background: rgba(255,255,255,0.08); }
+
 #alertsTabContent .al-pulse-dot {
   width: 6px; height: 6px; border-radius: 50%; background: var(--al-danger); flex-shrink: 0;
   box-shadow: 0 0 0 0 rgba(217,83,83,0.6);
@@ -10010,6 +10013,7 @@ html[data-theme="dark"] .return-sku { color: #22d3ee; text-shadow: 0 0 6px rgba(
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bodymovin/5.12.2/lottie.min.js"></script>
 
 <style id="embed-overrides">
 /* When embedded in main dashboard */
@@ -24860,6 +24864,7 @@ const AL_ICONS = {
   card:     `<rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/>`,
   sun:      `<circle cx="12" cy="12" r="4"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>`,
   moon:     `<path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/>`,
+  message:  `<path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z"/>`,
 };
 function al_icon(name, sz, c, w) {
   return `<svg width="${sz||14}" height="${sz||14}" viewBox="0 0 24 24" fill="none" stroke="${c||'currentColor'}" stroke-width="${w||2}" stroke-linecap="round" stroke-linejoin="round">${AL_ICONS[name]||''}</svg>`;
@@ -24907,6 +24912,40 @@ function openOrderDetailsModal() {
 function closeOrderDetailsModal() {
   const overlay = document.getElementById("orderDetailsModal");
   if (overlay) overlay.classList.remove("active");
+}
+
+/* ---- Bell animation data (uploaded asset, used by the Customer Inbox card) ---- */
+const AL_BELL_LOTTIE = {"v":"5.6.5","fr":29.9700012207031,"ip":0,"op":60.0000024438501,"w":32,"h":32,"nm":"bell","ddd":0,"assets":[],"layers":[{"ddd":0,"ind":1,"ty":4,"nm":"notification point","sr":1,"ks":{"o":{"a":1,"k":[{"i":{"x":[0.833],"y":[0.833]},"o":{"x":[0.167],"y":[0.167]},"t":34,"s":[0]},{"t":43.0000017514259,"s":[100]}],"ix":11},"r":{"a":0,"k":0,"ix":10},"p":{"a":0,"k":[23,7.125,0],"ix":2},"a":{"a":0,"k":[23,7.125,0],"ix":1},"s":{"a":1,"k":[{"i":{"x":[0.7,0.7,0.833],"y":[1,1,1]},"o":{"x":[0.7,0.7,0.167],"y":[0,0,0]},"t":34,"s":[0,0,100]},{"t":43.0000017514259,"s":[100,100,100]}],"ix":6}},"ao":0,"shapes":[{"ty":"gr","it":[{"ind":0,"ty":"sh","ix":1,"ks":{"a":0,"k":{"i":[[0,-2.761],[2.761,0],[0,2.761],[-2.761,0]],"o":[[0,2.761],[-2.761,0],[0,-2.761],[2.761,0]],"v":[[5,0],[0,5],[-5,0],[0,-5]],"c":true},"ix":2},"nm":"Path 1","mn":"ADBE Vector Shape - Group","hd":false},{"ty":"fl","c":{"a":0,"k":[0.937254961799,0.215686289469,0.215686289469,1],"ix":4},"o":{"a":0,"k":100,"ix":5},"r":1,"bm":0,"nm":"Fill 1","mn":"ADBE Vector Graphic - Fill","hd":false},{"ty":"tr","p":{"a":0,"k":[23,7],"ix":2},"a":{"a":0,"k":[0,0],"ix":1},"s":{"a":0,"k":[100,100],"ix":3},"r":{"a":0,"k":0,"ix":6},"o":{"a":0,"k":100,"ix":7},"sk":{"a":0,"k":0,"ix":4},"sa":{"a":0,"k":0,"ix":5},"nm":"Transform"}],"nm":"point","np":2,"cix":2,"bm":0,"ix":1,"mn":"ADBE Vector Group","hd":false},{"ty":"gr","it":[{"ind":0,"ty":"sh","ix":1,"ks":{"a":0,"k":{"i":[[0,-3.314],[3.314,0],[0,3.314],[-3.314,0]],"o":[[0,3.314],[-3.314,0],[0,-3.314],[3.314,0]],"v":[[6,0],[0,6],[-6,0],[0,-6]],"c":true},"ix":2},"nm":"Path 1","mn":"ADBE Vector Shape - Group","hd":false},{"ty":"fl","c":{"a":0,"k":[1,1,1,1],"ix":4},"o":{"a":0,"k":100,"ix":5},"r":1,"bm":0,"nm":"Fill 1","mn":"ADBE Vector Graphic - Fill","hd":false},{"ty":"tr","p":{"a":0,"k":[23,7],"ix":2},"a":{"a":0,"k":[0,0],"ix":1},"s":{"a":0,"k":[100,100],"ix":3},"r":{"a":0,"k":0,"ix":6},"o":{"a":0,"k":100,"ix":7},"sk":{"a":0,"k":0,"ix":4},"sa":{"a":0,"k":0,"ix":5},"nm":"Transform"}],"nm":"point border","np":2,"cix":2,"bm":0,"ix":2,"mn":"ADBE Vector Group","hd":false}],"ip":0,"op":60.0000024438501,"st":0,"bm":0},{"ddd":0,"ind":2,"ty":4,"nm":"bell","sr":1,"ks":{"o":{"a":0,"k":100,"ix":11},"r":{"a":1,"k":[{"i":{"x":[0.455],"y":[1]},"o":{"x":[0.7],"y":[0]},"t":0,"s":[0]},{"i":{"x":[0.279],"y":[1]},"o":{"x":[0.7],"y":[0]},"t":7,"s":[18]},{"i":{"x":[0.334],"y":[0.997]},"o":{"x":[0.7],"y":[0]},"t":14,"s":[-18]},{"i":{"x":[0.335],"y":[1]},"o":{"x":[0.7],"y":[0]},"t":23,"s":[18]},{"i":{"x":[0.7],"y":[1]},"o":{"x":[0.7],"y":[0]},"t":31,"s":[-9]},{"i":{"x":[0.194],"y":[1.949]},"o":{"x":[0.3],"y":[0]},"t":38,"s":[5]},{"t":50.0000020365418,"s":[0]}],"ix":10},"p":{"a":0,"k":[15.312,7.625,0],"ix":2},"a":{"a":0,"k":[15.312,7.625,0],"ix":1},"s":{"a":0,"k":[100,100,100],"ix":6}},"ao":0,"shapes":[{"ty":"gr","it":[{"ind":0,"ty":"sh","ix":1,"ks":{"a":0,"k":{"i":[[-1.657,0],[0,0],[0,1.657],[0,0],[-3.866,0],[0,-3.866],[0,0]],"o":[[0,0],[1.657,0],[0,0],[0,-3.866],[3.866,0],[0,0],[0,1.657]],"v":[[10,7.5],[-10,7.5],[-7,4.5],[-7,-0.5],[0,-7.5],[7,-0.5],[7,4.5]],"c":true},"ix":2},"nm":"Path 1","mn":"ADBE Vector Shape - Group","hd":false},{"ty":"st","c":{"a":0,"k":[0,0,0,1],"ix":3},"o":{"a":0,"k":100,"ix":4},"w":{"a":0,"k":2,"ix":5},"lc":2,"lj":2,"bm":0,"nm":"Stroke 1","mn":"ADBE Vector Graphic - Stroke","hd":false},{"ty":"tr","p":{"a":0,"k":[15.241,14.145],"ix":2},"a":{"a":0,"k":[0,0],"ix":1},"s":{"a":0,"k":[100,100],"ix":3},"r":{"a":0,"k":0,"ix":6},"o":{"a":0,"k":100,"ix":7},"sk":{"a":0,"k":0,"ix":4},"sa":{"a":0,"k":0,"ix":5},"nm":"Transform"}],"nm":"bell","np":2,"cix":2,"bm":0,"ix":1,"mn":"ADBE Vector Group","hd":false}],"ip":0,"op":60.0000024438501,"st":0,"bm":0},{"ddd":0,"ind":3,"ty":4,"nm":"bell ball","parent":2,"sr":1,"ks":{"o":{"a":0,"k":100,"ix":11},"r":{"a":0,"k":0,"ix":10},"p":{"a":0,"k":[15.5,9.75,0],"ix":2},"a":{"a":0,"k":[15.5,9.75,0],"ix":1},"s":{"a":0,"k":[100,100,100],"ix":6}},"ao":0,"shapes":[{"ty":"gr","it":[{"ind":0,"ty":"sh","ix":1,"ks":{"a":0,"k":{"i":[[0,0],[0.956,0.555],[0.175,0.301]],"o":[[-0.554,0.955],[-0.301,-0.174],[0,0]],"v":[[1.73,-0.641],[-1.004,0.085],[-1.73,-0.641]],"c":false},"ix":2},"nm":"Path 1","mn":"ADBE Vector Shape - Group","hd":false},{"ty":"st","c":{"a":0,"k":[0,0,0,1],"ix":3},"o":{"a":0,"k":100,"ix":4},"w":{"a":0,"k":2,"ix":5},"lc":2,"lj":2,"bm":0,"nm":"Stroke 1","mn":"ADBE Vector Graphic - Stroke","hd":false},{"ty":"tr","p":{"a":0,"k":[15.395,8.228],"ix":2},"a":{"a":0,"k":[0.154,-18.057],"ix":1},"s":{"a":0,"k":[100,100],"ix":3},"r":{"a":1,"k":[{"i":{"x":[0.3],"y":[1]},"o":{"x":[0.3],"y":[0]},"t":0,"s":[0]},{"i":{"x":[0.3],"y":[1]},"o":{"x":[0.3],"y":[0]},"t":6.944,"s":[-20]},{"i":{"x":[0.3],"y":[1]},"o":{"x":[0.3],"y":[0]},"t":13.89,"s":[20]},{"i":{"x":[0.579],"y":[1]},"o":{"x":[0.3],"y":[0]},"t":20.834,"s":[-20]},{"i":{"x":[0.3],"y":[1]},"o":{"x":[0.3],"y":[0]},"t":26,"s":[9.717]},{"i":{"x":[0.357],"y":[1.262]},"o":{"x":[0.35],"y":[0]},"t":37,"s":[-10]},{"t":45.0000018328876,"s":[0]}],"ix":6},"o":{"a":0,"k":100,"ix":7},"sk":{"a":0,"k":0,"ix":4},"sa":{"a":0,"k":0,"ix":5},"nm":"Transform"}],"nm":"bell ball","np":2,"cix":2,"bm":0,"ix":1,"mn":"ADBE Vector Group","hd":false}],"ip":0,"op":60.0000024438501,"st":0,"bm":0}],"markers":[]};
+
+let _alInboxBellInstance = null;
+function al_initInboxBell() {
+  if (_alInboxBellInstance) { _alInboxBellInstance.destroy(); _alInboxBellInstance = null; }
+  const el = document.getElementById('alInboxBell');
+  if (!el || typeof lottie === 'undefined') return;
+  _alInboxBellInstance = lottie.loadAnimation({
+    container: el, renderer: 'svg', loop: true, autoplay: true, animationData: AL_BELL_LOTTIE
+  });
+}
+
+/* Placeholder until the standalone Inbox file is built and wired in */
+function openCustomerInboxPlaceholder() {
+  console.log('Customer Inbox tapped — not wired to a destination yet.');
+}
+
+/* ---- Card 0: Customer Inbox (pinned shortcut, not a stock alert) ---- */
+function al_customerInboxCard() {
+  const sv = AL_SEVERITY.order;
+  return `
+  <div class="al-card glass-shadow al-card-pinned ${sv.tone}" data-group="inbox" onclick="openCustomerInboxPlaceholder()" style="cursor:pointer">
+    <div class="al-card-top" style="margin-bottom:0">
+      <div class="al-icon-chip" style="background:${sv.accent};box-shadow:0 3px 10px rgba(124,111,247,0.4)">${al_icon('message',16,'#fff',2.2)}</div>
+      <div class="al-card-label-col">
+        <div class="al-card-label" style="color:${sv.labelColor}">Customer Inbox</div>
+        <div class="al-card-time">2 Messenger &middot; 1 Instagram &middot; 2 WhatsApp</div>
+      </div>
+      <div class="al-bell-chip"><div id="alInboxBell" style="width:20px;height:20px"></div></div>
+    </div>
+  </div>`;
 }
 
 /* ---- Card 1: Low Stock ---- */
@@ -25297,6 +25336,7 @@ function renderAlertsTab() {
   const container = document.getElementById('alertsTabContent');
   if (!container) return;
   container.innerHTML = '<div class="al-cards-wrap">' +
+    al_customerInboxCard() +
     al_lowStockCard() + al_outOfStockCard() + al_expiryCard() +
     al_newOrderCard() + al_buyForMeCard() +
     al_paymentLocalCard() + al_paymentProxyCard() +
@@ -25306,6 +25346,7 @@ function renderAlertsTab() {
   document.querySelectorAll('#alertsTabContent .al-card:not([data-group])').forEach(c => c.setAttribute('data-group', 'stock'));
   al_equalizeCardHeights();
   al_initSwipeToDismiss();
+  al_initInboxBell();
 }
 
 /* ---- Swipe a card away to dismiss, with confirmation ---- */
@@ -25313,7 +25354,7 @@ let _alSwipeState = null;
 let _alPendingDismissCard = null;
 
 function al_initSwipeToDismiss() {
-  document.querySelectorAll('#alertsTabContent .al-card').forEach(card => {
+  document.querySelectorAll('#alertsTabContent .al-card:not(.al-card-pinned)').forEach(card => {
     card.addEventListener('touchstart', al_onSwipeStart, { passive: true });
     card.addEventListener('touchmove', al_onSwipeMove, { passive: false });
     card.addEventListener('touchend', al_onSwipeEnd);
