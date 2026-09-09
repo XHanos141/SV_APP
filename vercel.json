@@ -1,8 +1,0 @@
-{
-  "rewrites": [
-    { "source": "/", "destination": "/suppverse_v11.html" },
-    { "source": "/admin", "destination": "/admin_panel.html" },
-    { "source": "/admin-login", "destination": "/admin_login.html" },
-    { "source": "/admin-profile", "destination": "/admin_profile.html" }
-  ]
-}
