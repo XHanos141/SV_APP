@@ -1528,6 +1528,76 @@ html[data-theme="dark"] .st-hint { color: rgba(255,255,255,0.25); }
 .st-save-btn:active { transform: scale(0.96); }
 .st-save-btn.saved { background: #2f9b68; }
 
+/* SETTINGS ROW — compact collapsed row that expands into its own editor */
+.st-row { border-radius: 10px; overflow: hidden; margin-bottom: 8px; }
+.st-row:last-child { margin-bottom: 0; }
+.st-row-header {
+  height: 44px; padding: 0 10px 0 4px;
+  display: flex; align-items: center; gap: 10px;
+  cursor: pointer; user-select: none;
+  border-radius: 10px;
+  transition: background 0.2s ease;
+}
+.st-row-header:hover { background: rgba(0,31,60,0.03); }
+html[data-theme="dark"] .st-row-header:hover { background: rgba(255,255,255,0.04); }
+.st-row-header:active { background: rgba(0,31,60,0.06); }
+html[data-theme="dark"] .st-row-header:active { background: rgba(255,255,255,0.08); }
+.st-row-icon {
+  width: 28px; height: 28px; border-radius: 7px;
+  background: rgba(124,111,247,0.1);
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  color: #7C6FF7;
+  transition: background 0.35s ease;
+}
+html[data-theme="dark"] .st-row-icon { background: rgba(124,111,247,0.18); }
+.st-row-icon svg { width: 14px; height: 14px; }
+.st-row-label { flex: 1; font-size: 12.5px; font-weight: 600; color: #001f3c; transition: color 0.35s ease; }
+html[data-theme="dark"] .st-row-label { color: #ffffff; }
+.st-row-value {
+  font-family: "Roboto Mono", monospace;
+  font-size: 12px; font-weight: 700;
+  color: #7C6FF7;
+  transition: color 0.35s ease;
+}
+.st-row-chevron { font-size: 14px; color: #c5c9d4; font-weight: 400; transition: transform 0.35s cubic-bezier(0.4,0,0.2,1), color 0.25s ease; }
+html[data-theme="dark"] .st-row-chevron { color: rgba(255,255,255,0.25); }
+.st-row-header.expanded .st-row-chevron { transform: rotate(90deg); color: #8c92a1; }
+html[data-theme="dark"] .st-row-header.expanded .st-row-chevron { color: rgba(255,255,255,0.5); }
+
+.st-row-content {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.34s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: grid-template-rows;
+}
+.st-row-content.expanded { grid-template-rows: 1fr; }
+.st-row-inner {
+  overflow: hidden;
+  min-height: 0;
+  padding: 0 6px;
+  opacity: 0;
+  transform: translateY(-6px);
+  transition: opacity 0.24s ease, transform 0.24s cubic-bezier(0.25,0.46,0.45,0.94), padding 0.34s cubic-bezier(0.4,0,0.2,1);
+}
+.st-row-content.expanded .st-row-inner {
+  opacity: 1;
+  transform: translateY(0);
+  padding: 8px 6px 12px;
+  transition: opacity 0.26s ease 0.06s, transform 0.26s cubic-bezier(0.25,0.46,0.45,0.94) 0.06s, padding 0.34s cubic-bezier(0.4,0,0.2,1);
+}
+.st-row-actions { display: flex; gap: 8px; margin-top: 10px; }
+.st-row-actions .st-save-btn { margin-top: 0; flex: 1; }
+.st-row-cancel-btn {
+  flex: 1; height: 32px; border-radius: 8px;
+  background: #f1f2f5; color: #5a6072;
+  font-family: "Plus Jakarta Sans", sans-serif;
+  font-size: 11px; font-weight: 700;
+  border: none; cursor: pointer;
+  transition: background 0.2s ease, transform 0.15s ease, color 0.35s ease;
+}
+html[data-theme="dark"] .st-row-cancel-btn { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.6); }
+.st-row-cancel-btn:active { transform: scale(0.96); }
+
 /* BOTTOM NAV LINKS */
 .drawer-nav { border-top: 1px solid #ececec; padding-top: 8px; flex-shrink: 0; transition: border-color 0.35s ease; }
 html[data-theme="dark"] .drawer-nav { border-top-color: rgba(255,255,255,0.06); }
@@ -13209,33 +13279,91 @@ function showToast(message, type = 'success') {
         <div class="section-inner">
           <div class="settings-panel">
 
-            <div class="st-field">
-              <label class="st-label">Exchange Rate <span class="st-unit-tag">BDT / USD</span></label>
-              <div class="st-input-wrap">
-                <span class="mc-prefix">&#2547;</span>
-                <input type="number" class="st-input" id="stRateInput" value="130" step="0.1" oninput="onRateInput()">
+            <!-- EXCHANGE RATE ROW -->
+            <div class="st-row">
+              <div class="st-row-header" id="stRateRowHeader" onclick="toggleSettingRow('stRate')">
+                <div class="st-row-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg></div>
+                <span class="st-row-label">Exchange Rate</span>
+                <span class="st-row-value" id="stRateRowValue">৳130</span>
+                <span class="st-row-chevron" id="stRateRowChevron">&#8250;</span>
               </div>
-              <div class="st-hint">Used in the Quick Margin calculator. Tap Save to apply.</div>
+              <div class="st-row-content" id="stRateRowContent">
+                <div class="st-row-inner">
+                  <div class="st-field">
+                    <label class="st-label">Exchange Rate <span class="st-unit-tag">BDT / USD</span></label>
+                    <div class="st-input-wrap">
+                      <span class="mc-prefix">&#2547;</span>
+                      <input type="number" class="st-input" id="stRateInput" value="130" step="0.1" oninput="onRateInput()">
+                    </div>
+                    <div class="st-hint">Used in the Quick Margin calculator. Tap Save to apply.</div>
+                  </div>
+                  <div class="st-row-actions">
+                    <button class="st-row-cancel-btn" onclick="cancelSettingRow('stRate')">Cancel</button>
+                    <button class="st-save-btn" id="stSaveBtn" onclick="confirmSaveRate()">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-checkmark"/></svg>
+                      <span id="stSaveLabel">Save Rate</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
             </div>
 
-            <button class="st-save-btn" id="stSaveBtn" onclick="confirmSaveRate()">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-checkmark"/></svg>
-              <span id="stSaveLabel">Save Rate</span>
-            </button>
-
-            <div class="st-field" style="margin-top:16px;padding-top:16px;border-top:1px solid rgba(140,146,161,0.15)">
-              <label class="st-label">Weight Cost <span class="st-unit-tag">TK / KG</span></label>
-              <div class="st-input-wrap">
-                <span class="mc-prefix">&#2547;</span>
-                <input type="number" class="st-input" id="stWeightRateInput" value="2100" step="0.1" oninput="onWeightRateInput()">
+            <!-- WEIGHT COST ROW -->
+            <div class="st-row">
+              <div class="st-row-header" id="stWeightRateRowHeader" onclick="toggleSettingRow('stWeightRate')">
+                <div class="st-row-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12l4 6-10 12L2 9Z"></path><path d="M11 3 8 9l4 12 4-12-3-6"></path><path d="M2 9h20"></path></svg></div>
+                <span class="st-row-label">Weight Cost</span>
+                <span class="st-row-value" id="stWeightRateRowValue">৳2100</span>
+                <span class="st-row-chevron" id="stWeightRateRowChevron">&#8250;</span>
               </div>
-              <div class="st-hint">Used when a product's Costing Method is set to Weight Based.</div>
+              <div class="st-row-content" id="stWeightRateRowContent">
+                <div class="st-row-inner">
+                  <div class="st-field">
+                    <label class="st-label">Weight Cost <span class="st-unit-tag">TK / KG</span></label>
+                    <div class="st-input-wrap">
+                      <span class="mc-prefix">&#2547;</span>
+                      <input type="number" class="st-input" id="stWeightRateInput" value="2100" step="0.1" oninput="onWeightRateInput()">
+                    </div>
+                    <div class="st-hint">Used when a product's Costing Method is set to Weight Based.</div>
+                  </div>
+                  <div class="st-row-actions">
+                    <button class="st-row-cancel-btn" onclick="cancelSettingRow('stWeightRate')">Cancel</button>
+                    <button class="st-save-btn" id="stWeightSaveBtn" onclick="confirmSaveWeightRate()">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-checkmark"/></svg>
+                      <span id="stWeightSaveLabel">Save Weight Rate</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
             </div>
 
-            <button class="st-save-btn" id="stWeightSaveBtn" onclick="confirmSaveWeightRate()">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-checkmark"/></svg>
-              <span id="stWeightSaveLabel">Save Weight Rate</span>
-            </button>
+            <!-- LOW STOCK THRESHOLD ROW -->
+            <div class="st-row">
+              <div class="st-row-header" id="stLowStockRowHeader" onclick="toggleSettingRow('stLowStock')">
+                <div class="st-row-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="21" x2="4" y2="14"></line><line x1="4" y1="10" x2="4" y2="3"></line><line x1="12" y1="21" x2="12" y2="12"></line><line x1="12" y1="8" x2="12" y2="3"></line><line x1="20" y1="21" x2="20" y2="16"></line><line x1="20" y1="12" x2="20" y2="3"></line><line x1="1" y1="14" x2="7" y2="14"></line><line x1="9" y1="8" x2="15" y2="8"></line><line x1="17" y1="16" x2="23" y2="16"></line></svg></div>
+                <span class="st-row-label">Low Stock Threshold</span>
+                <span class="st-row-value" id="stLowStockRowValue">10 units</span>
+                <span class="st-row-chevron" id="stLowStockRowChevron">&#8250;</span>
+              </div>
+              <div class="st-row-content" id="stLowStockRowContent">
+                <div class="st-row-inner">
+                  <div class="st-field">
+                    <label class="st-label">Low Stock Threshold <span class="st-unit-tag">UNITS</span></label>
+                    <div class="st-input-wrap">
+                      <input type="number" class="st-input" id="stLowStockInput" value="10" step="1" min="1" oninput="onLowStockInput()">
+                    </div>
+                    <div class="st-hint">Any SKU at or below this number shows as Low Stock. 0 units always shows as Out of Stock.</div>
+                  </div>
+                  <div class="st-row-actions">
+                    <button class="st-row-cancel-btn" onclick="cancelSettingRow('stLowStock')">Cancel</button>
+                    <button class="st-save-btn" id="stLowStockSaveBtn" onclick="confirmSaveLowStockThreshold()">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-checkmark"/></svg>
+                      <span id="stLowStockSaveLabel">Save Threshold</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
 
           </div>
         </div>
@@ -18416,6 +18544,35 @@ loadShipping();
   </div>
 </div>
 
+<!-- ====== LOW STOCK THRESHOLD WARNING MODAL ====== -->
+<div class="modal-overlay" id="lowStockThresholdModal">
+  <div class="modal-panel" style="max-width:380px">
+    <div class="rate-warning-body">
+      <div class="rate-warning-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"></path>
+          <line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line>
+        </svg>
+      </div>
+      <div class="rate-warning-title">Change Low Stock Threshold?</div>
+      <div class="rate-warning-text" id="lowStockAffectedText">This will change which SKUs show as Low Stock across Products, Alerts, and every picker in the app.</div>
+      <div class="rate-warning-rate-preview">
+        <span class="rate-old" id="lowStockOldDisplay">10</span>
+        <span class="rate-arrow">→</span>
+        <span class="rate-new" id="lowStockNewDisplay">10</span>
+        <span style="font-size:10px;color:#8c92a1;margin-left:4px">units</span>
+      </div>
+    </div>
+    <div class="save-modal-footer">
+      <button class="modal-btn modal-btn-cancel" onclick="cancelLowStockThresholdChange()">Cancel</button>
+      <button class="modal-btn modal-btn-warning" onclick="applyLowStockThresholdChange()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-checkmark"/></svg>
+        Confirm Change
+      </button>
+    </div>
+  </div>
+</div>
+
 <!-- ====== WEIGHT RATE WARNING MODAL ====== -->
 <div class="modal-overlay" id="weightRateWarningModal">
   <div class="modal-panel" style="max-width:380px">
@@ -18492,6 +18649,32 @@ loadShipping();
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
         Dismiss
       </button>
+    </div>
+  </div>
+</div>
+
+<!-- ====== EDIT MIN (REORDER POINT) MODAL ====== -->
+<div class="modal-overlay" id="editMinModal">
+  <div class="modal-panel" style="max-width:360px">
+    <div class="rate-warning-body">
+      <div class="rate-warning-icon" style="background:rgba(124,111,247,0.12)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#7C6FF7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="4" y1="21" x2="4" y2="14"></line><line x1="4" y1="10" x2="4" y2="3"></line>
+          <line x1="12" y1="21" x2="12" y2="12"></line><line x1="12" y1="8" x2="12" y2="3"></line>
+          <line x1="20" y1="21" x2="20" y2="16"></line><line x1="20" y1="12" x2="20" y2="3"></line>
+          <line x1="1" y1="14" x2="7" y2="14"></line><line x1="9" y1="8" x2="15" y2="8"></line><line x1="17" y1="16" x2="23" y2="16"></line>
+        </svg>
+      </div>
+      <div class="rate-warning-title">Edit Reorder Point</div>
+      <div class="rate-warning-text" id="editMinProductName">Product name</div>
+      <div class="fs-field" style="margin-top:14px;text-align:left">
+        <label class="fs-label" for="editMinInput">Reorder at (units)</label>
+        <input type="number" id="editMinInput" class="fs-input" min="1" step="1" inputmode="numeric" placeholder="e.g. 15">
+      </div>
+    </div>
+    <div class="save-modal-footer">
+      <button class="modal-btn modal-btn-cancel" onclick="closeEditMinModal()">Cancel</button>
+      <button class="modal-btn skeu-restock-btn" onclick="confirmEditMin()">Save</button>
     </div>
   </div>
 </div>
@@ -18818,6 +19001,43 @@ function toggleSection(name) {
   document.getElementById(name + "Content").classList.toggle("expanded", sectionState[name]);
 }
 
+/* SETTINGS ROWS — accordion behaviour, one open at a time */
+const STOMER_SETTING_ROWS = ['stRate', 'stWeightRate', 'stLowStock'];
+function toggleSettingRow(name) {
+  const header = document.getElementById(name + "RowHeader");
+  const content = document.getElementById(name + "RowContent");
+  const isOpening = !content.classList.contains("expanded");
+  STOMER_SETTING_ROWS.forEach(n => {
+    if (n === name) return;
+    document.getElementById(n + "RowHeader").classList.remove("expanded");
+    document.getElementById(n + "RowContent").classList.remove("expanded");
+  });
+  header.classList.toggle("expanded", isOpening);
+  content.classList.toggle("expanded", isOpening);
+}
+function closeSettingRow(name) {
+  const header = document.getElementById(name + "RowHeader");
+  const content = document.getElementById(name + "RowContent");
+  if (header) header.classList.remove("expanded");
+  if (content) content.classList.remove("expanded");
+}
+function cancelSettingRow(name) {
+  if (name === 'stRate') {
+    document.getElementById("stRateInput").value = EXCHANGE_RATE;
+    rateDirty = false;
+    document.getElementById("stSaveLabel").textContent = "Save Rate";
+  } else if (name === 'stWeightRate') {
+    document.getElementById("stWeightRateInput").value = WEIGHT_RATE;
+    weightRateDirty = false;
+    document.getElementById("stWeightSaveLabel").textContent = "Save Weight Rate";
+  } else if (name === 'stLowStock') {
+    document.getElementById("stLowStockInput").value = LOW_STOCK_THRESHOLD;
+    lowStockThresholdDirty = false;
+    document.getElementById("stLowStockSaveLabel").textContent = "Save Threshold";
+  }
+  closeSettingRow(name);
+}
+
 /* DRAFTS -- SMOOTH EXPAND/COLLAPSE */
 function toggleDraft(index) {
   const card = document.getElementById("draft-" + index);
@@ -19022,6 +19242,8 @@ document.addEventListener('click', function(e) {
 
 /* MARGIN CALCULATOR -- SINGLE + MULTI */
 let EXCHANGE_RATE = 130;
+let LOW_STOCK_THRESHOLD = 10;
+let lowStockThresholdDirty = false;
 let rateDirty = false;
 let calcMode = "single";
 let multiItemCount = 0;
@@ -19067,6 +19289,7 @@ function applyRateChange() {
     EXCHANGE_RATE = val;
     localStorage.setItem("svbd-exchange-rate", EXCHANGE_RATE);
     document.getElementById("mcRateDisplay").innerHTML = EXCHANGE_RATE + '<span>BDT/USD</span>';
+    document.getElementById("stRateRowValue").textContent = "৳" + EXCHANGE_RATE;
     if (calcMode === "single") calcMargin();
     else calcMultiMargin();
     const btn = document.getElementById("stSaveBtn");
@@ -19076,12 +19299,60 @@ function applyRateChange() {
     rateDirty = false;
     setTimeout(() => {
       if (!rateDirty) { lbl.textContent = "Save Rate"; btn.classList.remove("saved"); }
-    }, 2000);
+      closeSettingRow('stRate');
+    }, 900);
   }
   document.getElementById("rateWarningModal").classList.remove("active");
 }
 
 function saveRate() { confirmSaveRate(); }
+
+function onLowStockInput() {
+  lowStockThresholdDirty = true;
+  const btn = document.getElementById("stLowStockSaveBtn");
+  const lbl = document.getElementById("stLowStockSaveLabel");
+  btn.classList.remove("saved");
+  lbl.textContent = "Save Threshold";
+}
+
+function confirmSaveLowStockThreshold() {
+  const input = document.getElementById("stLowStockInput");
+  const val = parseInt(input.value, 10);
+  if (isNaN(val) || val < 1) return;
+  document.getElementById("lowStockOldDisplay").textContent = LOW_STOCK_THRESHOLD;
+  document.getElementById("lowStockNewDisplay").textContent = val;
+  document.getElementById("lowStockThresholdModal").classList.add("active");
+}
+
+function cancelLowStockThresholdChange() {
+  document.getElementById("lowStockThresholdModal").classList.remove("active");
+  document.getElementById("stLowStockInput").value = LOW_STOCK_THRESHOLD;
+  lowStockThresholdDirty = false;
+  document.getElementById("stLowStockSaveLabel").textContent = "Save Threshold";
+}
+
+function applyLowStockThresholdChange() {
+  const input = document.getElementById("stLowStockInput");
+  const val = parseInt(input.value, 10);
+  if (!isNaN(val) && val >= 1) {
+    LOW_STOCK_THRESHOLD = val;
+    localStorage.setItem("svbd-low-stock-threshold", LOW_STOCK_THRESHOLD);
+    document.getElementById("stLowStockRowValue").textContent = LOW_STOCK_THRESHOLD + " units";
+    if (typeof invalidateProductCatalogCache === 'function') invalidateProductCatalogCache();
+    if (typeof renderProductsTab === 'function') renderProductsTab();
+    const btn = document.getElementById("stLowStockSaveBtn");
+    const lbl = document.getElementById("stLowStockSaveLabel");
+    btn.classList.add("saved");
+    lbl.textContent = "Saved!";
+    lowStockThresholdDirty = false;
+    setTimeout(() => {
+      if (!lowStockThresholdDirty) { lbl.textContent = "Save Threshold"; btn.classList.remove("saved"); }
+      closeSettingRow('stLowStock');
+    }, 900);
+    showToast("✓ Low stock threshold updated to " + val + " units");
+  }
+  document.getElementById("lowStockThresholdModal").classList.remove("active");
+}
 
 function onWeightRateInput() {
   weightRateDirty = true;
@@ -19121,6 +19392,7 @@ function applyWeightRateChange(updateExisting) {
     WEIGHT_RATE = val;
     localStorage.setItem("svbd-weight-rate", WEIGHT_RATE);
     document.getElementById("mcWeightRateDisplay").innerHTML = WEIGHT_RATE + '<span>TK/KG</span>';
+    document.getElementById("stWeightRateRowValue").textContent = "৳" + WEIGHT_RATE;
 
     PRODUCTS_DATA.forEach(p => {
       if (p.meta && p.meta.costingMethod !== "manual" && p.meta.weight > 0) {
@@ -19146,7 +19418,8 @@ function applyWeightRateChange(updateExisting) {
     weightRateDirty = false;
     setTimeout(() => {
       if (!weightRateDirty) { lbl.textContent = "Save Weight Rate"; btn.classList.remove("saved"); }
-    }, 2000);
+      closeSettingRow('stWeightRate');
+    }, 900);
 
     showToast(updateExisting ? "✓ Weight rate updated — linked product costs refreshed" : "✓ Weight rate saved — existing product costs kept as-is");
   }
@@ -20447,14 +20720,23 @@ if (!isNaN(savedRate) && savedRate > 0) {
   EXCHANGE_RATE = savedRate;
   document.getElementById("stRateInput").value = savedRate;
   document.getElementById("mcRateDisplay").innerHTML = EXCHANGE_RATE + '<span>BDT/USD</span>';
+  document.getElementById("stRateRowValue").textContent = "৳" + EXCHANGE_RATE;
 }
 // Load saved weight cost rate
 const savedWeightRate = parseFloat(localStorage.getItem("svbd-weight-rate"));
 if (!isNaN(savedWeightRate) && savedWeightRate > 0) {
   WEIGHT_RATE = savedWeightRate;
   document.getElementById("stWeightRateInput").value = savedWeightRate;
+  document.getElementById("stWeightRateRowValue").textContent = "৳" + WEIGHT_RATE;
 }
 document.getElementById("mcWeightRateDisplay").innerHTML = WEIGHT_RATE + '<span>TK/KG</span>';
+// Load saved low stock threshold
+const savedLowStockThreshold = parseInt(localStorage.getItem("svbd-low-stock-threshold"), 10);
+if (!isNaN(savedLowStockThreshold) && savedLowStockThreshold >= 1) {
+  LOW_STOCK_THRESHOLD = savedLowStockThreshold;
+  document.getElementById("stLowStockInput").value = savedLowStockThreshold;
+  document.getElementById("stLowStockRowValue").textContent = LOW_STOCK_THRESHOLD + " units";
+}
 
 /* Modal overlay close handlers */
 document.getElementById("rateWarningModal").addEventListener("click", function(e) {
@@ -20462,6 +20744,9 @@ document.getElementById("rateWarningModal").addEventListener("click", function(e
 });
 document.getElementById("weightRateWarningModal").addEventListener("click", function(e) {
   if (e.target === this) cancelWeightRateChange();
+});
+document.getElementById("lowStockThresholdModal").addEventListener("click", function(e) {
+  if (e.target === this) cancelLowStockThresholdChange();
 });
 document.getElementById("pdfSizeModal").addEventListener("click", function(e) {
   if (e.target === this) closePdfSizePicker();
@@ -20504,7 +20789,7 @@ function invalidateProductCatalogCache() {
 
 function getStockInfo(stock) {
   if (stock === 0)   return { label: 'Out of Stock',   cls: 'stock-out',  disabled: true  };
-  if (stock <= 10)   return { label: `Low · ${stock}`, cls: 'stock-low',  disabled: false };
+  if (stock <= LOW_STOCK_THRESHOLD)   return { label: `Low · ${stock}`, cls: 'stock-low',  disabled: false };
   return               { label: `In Stock · ${stock}`, cls: 'stock-good', disabled: false };
 }
 
@@ -22242,6 +22527,18 @@ function clearRestockProduct() {
   document.getElementById('rsSizeField').style.display = 'none';
   resetRsColor();
   resetRsSize();
+}
+
+function selectRestockProductBySku(sku) {
+  const p = PRODUCTS_DATA.find(x => x.sku === sku);
+  if (!p) return;
+  selectRestockProduct(p.name);
+}
+
+function openRestockModalForSku(sku) {
+  openRestockModal();
+  switchRestockTab('existing');
+  selectRestockProductBySku(sku);
 }
 
 function selectRestockProduct(name) {
@@ -24359,7 +24656,7 @@ function toggleVariantDropdown(productId, event) {
   list.classList.toggle('expanded', !!_variantExpanded[productId]);
 }
 
-function stockClass(s) { return s === 0 ? 'out' : s <= 10 ? 'low' : 'ok'; }
+function stockClass(s) { return s === 0 ? 'out' : s <= LOW_STOCK_THRESHOLD ? 'low' : 'ok'; }
 function marginPct(p, c) { return p > 0 ? ((p - c) / p * 100).toFixed(1) : '0.0'; }
 function marginClass(p, c) {
   const m = p > 0 ? (p - c) / p * 100 : 0;
@@ -24414,7 +24711,7 @@ function renderProductsTab(searchDisplayVal) {
   }
   let filtered = PRODUCTS_DATA.filter(p => {
     const matchFilter = productFilter === 'all' ||
-      (productFilter === 'low' && p.stock > 0 && p.stock <= 10) ||
+      (productFilter === 'low' && p.stock > 0 && p.stock <= LOW_STOCK_THRESHOLD) ||
       (productFilter === 'out' && p.stock === 0) ||
       (productFilter === 'ok' && p.stock > 10);
     const matchSearch = !productSearch ||
@@ -24436,7 +24733,7 @@ function renderProductsTab(searchDisplayVal) {
 
   const totalSKUs  = PRODUCTS_DATA.length;
   const outCount   = PRODUCTS_DATA.filter(p => p.stock === 0).length;
-  const lowCount   = PRODUCTS_DATA.filter(p => p.stock > 0 && p.stock <= 10).length;
+  const lowCount   = PRODUCTS_DATA.filter(p => p.stock > 0 && p.stock <= LOW_STOCK_THRESHOLD).length;
   const totalUnits = PRODUCTS_DATA.reduce((s, p) => s + p.stock, 0);
 
   const cards = filtered.map((p, idx) => {
@@ -24972,8 +25269,8 @@ function al_lowStockCard() {
       ${al_chip('barChart','Margin','32.4%','var(--al-success)')}
     </div>
     <div class="al-actions-row">
-      ${al_actionBtn('primary','box','Restock')}
-      ${al_actionBtn('ghost','sliders','Edit Min')}
+      ${al_actionBtn('primary','box','Restock','openRestockModalForSku(\'DB-MAG-GLY-120\')')}
+      ${al_actionBtn('ghost','sliders','Edit Min','openEditMinModal(this,\'DB-MAG-GLY-120\',\'Magnesium Glycinate 120ct\',15)')}
     </div>
   </div>`;
 }
@@ -25003,7 +25300,7 @@ function al_outOfStockCard() {
       ${al_chip('barChart','Margin','29.1%','var(--al-warning-txt)')}
     </div>
     <div class="al-actions-row">
-      ${al_actionBtn('primary','box','Restock')}
+      ${al_actionBtn('primary','box','Restock','openRestockModalForSku(\'NW-OMG3-UTA-180\')')}
       ${al_actionBtn('ghost','archive','Archive')}
     </div>
   </div>`;
@@ -25439,6 +25736,41 @@ function al_confirmDismiss() {
 }
 document.getElementById("alDismissModal").addEventListener("click", function(e) {
   if (e.target === this) al_cancelDismiss();
+});
+
+/* ---- Edit Min (reorder threshold) popup ---- */
+let _alEditMinCard = null;
+let _alEditMinSku = null;
+
+function openEditMinModal(btnEl, sku, productName, currentMin) {
+  _alEditMinCard = btnEl ? btnEl.closest('.al-card') : null;
+  _alEditMinSku = sku;
+  document.getElementById('editMinProductName').textContent = productName;
+  document.getElementById('editMinInput').value = currentMin;
+  document.getElementById('editMinModal').classList.add('active');
+}
+
+function closeEditMinModal() {
+  document.getElementById('editMinModal').classList.remove('active');
+  _alEditMinCard = null;
+  _alEditMinSku = null;
+}
+
+function confirmEditMin() {
+  const val = parseInt(document.getElementById('editMinInput').value, 10);
+  if (!val || val < 1) { showToast('Enter a valid number'); return; }
+  if (_alEditMinCard) {
+    _alEditMinCard.querySelectorAll('.meter-labels strong').forEach(el => {
+      if (el.previousSibling && /Reorder at/i.test(el.parentElement.textContent)) {
+        el.textContent = val + ' units';
+      }
+    });
+  }
+  closeEditMinModal();
+  showToast('Reorder point updated to ' + val + ' units');
+}
+document.getElementById("editMinModal").addEventListener("click", function(e) {
+  if (e.target === this) closeEditMinModal();
 });
 
 /* ---- Equal card heights, regardless of content length (grouped by card type) ---- */
