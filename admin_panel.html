@@ -887,9 +887,37 @@ body.dark-mode .pay-badge-bank svg path[style*="fill:#66cde7"]{fill:#fff!importa
   display:flex;align-items:center;gap:8px;box-shadow:0 4px 24px rgba(0,0,0,.4);
 }
 #apToast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+#svAdminGate2{position:fixed;inset:0;z-index:999999;background:#0a1628;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:14px;transition:opacity .25s ease;font-family:'DM Sans',sans-serif}
+#svAdminGate2 .sv-gate-spin{width:34px;height:34px;border-radius:50%;border:3px solid rgba(255,255,255,0.18);border-top-color:#009ddc;animation:svGate2Spin .8s linear infinite}
+#svAdminGate2 .sv-gate-txt{color:rgba(255,255,255,0.65);font-size:13px;font-weight:600}
+@keyframes svGate2Spin{to{transform:rotate(360deg)}}
 </style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="assets/js/supabase-config.js"></script>
 </head>
 <body>
+<div id="svAdminGate2"><div class="sv-gate-spin"></div><div class="sv-gate-txt">Verifying access&hellip;</div></div>
+<script>
+(async function svAdminGate2(){
+  function show(msg){
+    var g = document.getElementById('svAdminGate2');
+    if(g) g.innerHTML = '<div class="sv-gate-txt">' + msg + '</div>';
+  }
+  function hide(){
+    var g = document.getElementById('svAdminGate2');
+    if(g){ g.style.opacity = '0'; setTimeout(function(){ g.remove(); }, 250); }
+  }
+  try{
+    var session = (await sb.auth.getSession()).data.session;
+    if(!session){ show('Not signed in. Open this from the main app.'); return; }
+    var check = await sb.rpc('is_active_admin', { uid: session.user.id });
+    if(check.error || !check.data){ show('This account is not an active admin.'); return; }
+    hide();
+  } catch(e){
+    show('Could not verify admin access.');
+  }
+})();
+</script>
 <svg style="display:none">
   <symbol id="cat-icon-supplement" viewBox="0 0 512 512">
     <g transform="translate(-1,-1)">
