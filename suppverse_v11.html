@@ -7696,6 +7696,18 @@ html[data-theme="dark"] .odm-card { background: rgba(124,111,247,0.08); border-c
 <body>
 <div id="svAdminGate"><div class="sv-gate-spin"></div><div class="sv-gate-txt">Verifying access&hellip;</div></div>
 <script>
+window.addEventListener('error', function(ev){
+  try{
+    var box = document.createElement('div');
+    box.style.cssText = 'position:fixed;left:12px;right:12px;bottom:80px;z-index:999999;background:#2a0d0d;border:1px solid #ff6b6b;border-radius:12px;padding:14px 16px;font-family:monospace;font-size:11px;color:#ffb3b3;max-height:40vh;overflow:auto;box-shadow:0 8px 24px rgba(0,0,0,0.5)';
+    var msg = ev.message || (ev.error && ev.error.message) || 'unknown error';
+    var loc = (ev.filename ? ev.filename.split('/').pop() : '') + ':' + ev.lineno + ':' + ev.colno;
+    box.innerHTML = '<div style="font-weight:700;color:#ff6b6b;margin-bottom:6px;font-family:DM Sans,sans-serif;font-size:13px">Page script error</div>'
+      + '<div style="white-space:pre-wrap;word-break:break-word">' + msg + '\n' + loc + '</div>'
+      + '<button onclick="this.parentElement.remove()" style="margin-top:8px;background:#ff6b6b;color:#2a0d0d;border:none;border-radius:8px;padding:6px 12px;font-weight:700;font-family:DM Sans,sans-serif">Dismiss</button>';
+    document.body.appendChild(box);
+  } catch(_){}
+});
 (async function svAdminGate(){
   function showGateError(reason, detail){
     var g = document.getElementById('svAdminGate');
@@ -25173,22 +25185,36 @@ function setProductFilter(f) {
    ====== TAB SWITCHING ======
    ============================================================ */
 
+function svShowDebugError(where, e){
+  var msg = (e && e.message) || String(e);
+  var stack = (e && e.stack) ? e.stack.split('\n').slice(0,3).join('\n') : '';
+  var box = document.createElement('div');
+  box.style.cssText = 'position:fixed;left:12px;right:12px;bottom:80px;z-index:999998;background:#2a0d0d;border:1px solid #ff6b6b;border-radius:12px;padding:14px 16px;font-family:monospace;font-size:11px;color:#ffb3b3;max-height:40vh;overflow:auto;box-shadow:0 8px 24px rgba(0,0,0,0.5)';
+  box.innerHTML = '<div style="font-weight:700;color:#ff6b6b;margin-bottom:6px;font-family:DM Sans,sans-serif;font-size:13px">Error in ' + where + '</div>'
+    + '<div style="white-space:pre-wrap;word-break:break-word">' + msg + (stack ? ('\n' + stack) : '') + '</div>'
+    + '<button onclick="this.parentElement.remove()" style="margin-top:8px;background:#ff6b6b;color:#2a0d0d;border:none;border-radius:8px;padding:6px 12px;font-weight:700;font-family:DM Sans,sans-serif">Dismiss</button>';
+  document.body.appendChild(box);
+}
 function switchTab(tab) {
-  ALL_TABS.forEach(t => {
-    const panel = document.getElementById('tab-' + t);
-    const icon  = document.getElementById('nav-icon-' + t);
-    const lbl   = document.getElementById('nav-lbl-' + t);
-    if (!panel) return;
-    const isActive = t === tab;
-    panel.style.display = isActive ? 'flex' : 'none';
-    panel.classList.toggle('active-panel', isActive);
-    if (icon) icon.classList.toggle('active', isActive);
-    if (lbl)  { lbl.classList.toggle('active', isActive); }
-  });
+  try{
+    ALL_TABS.forEach(t => {
+      const panel = document.getElementById('tab-' + t);
+      const icon  = document.getElementById('nav-icon-' + t);
+      const lbl   = document.getElementById('nav-lbl-' + t);
+      if (!panel) return;
+      const isActive = t === tab;
+      panel.style.display = isActive ? 'flex' : 'none';
+      panel.classList.toggle('active-panel', isActive);
+      if (icon) icon.classList.toggle('active', isActive);
+      if (lbl)  { lbl.classList.toggle('active', isActive); }
+    });
+  } catch(e){ svShowDebugError('switchTab (panel toggle)', e); }
   // Main header always visible across all tabs
-  if (tab === 'products') renderProductsTab();
-  if (tab === 'sales') renderSalesTab();
-  if (tab === 'alerts') renderAlertsTab();
+  try{
+    if (tab === 'products') renderProductsTab();
+    if (tab === 'sales') renderSalesTab();
+    if (tab === 'alerts') renderAlertsTab();
+  } catch(e){ svShowDebugError('switchTab (render ' + tab + ')', e); }
 }
 
 
