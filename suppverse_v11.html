@@ -7697,12 +7697,28 @@ html[data-theme="dark"] .odm-card { background: rgba(124,111,247,0.08); border-c
 <div id="svAdminGate"><div class="sv-gate-spin"></div><div class="sv-gate-txt">Verifying access&hellip;</div></div>
 <script>
 window.addEventListener('error', function(ev){
-  console.error('[page error]', ev.message, ev.filename, ev.lineno + ':' + ev.colno);
+  try{
+    var box = document.createElement('div');
+    box.style.cssText = 'position:fixed;left:12px;right:12px;bottom:80px;z-index:999999;background:#2a0d0d;border:1px solid #ff6b6b;border-radius:12px;padding:14px 16px;font-family:monospace;font-size:11px;color:#ffb3b3;max-height:40vh;overflow:auto;box-shadow:0 8px 24px rgba(0,0,0,0.5)';
+    var msg = ev.message || (ev.error && ev.error.message) || 'unknown error';
+    var loc = (ev.filename ? ev.filename.split('/').pop() : '') + ':' + ev.lineno + ':' + ev.colno;
+    box.innerHTML = '<div style="font-weight:700;color:#ff6b6b;margin-bottom:6px;font-family:DM Sans,sans-serif;font-size:13px">Page script error</div>'
+      + '<div style="white-space:pre-wrap;word-break:break-word">' + msg + '\n' + loc + '</div>'
+      + '<button onclick="this.parentElement.remove()" style="margin-top:8px;background:#ff6b6b;color:#2a0d0d;border:none;border-radius:8px;padding:6px 12px;font-weight:700;font-family:DM Sans,sans-serif">Dismiss</button>';
+    document.body.appendChild(box);
+  } catch(_){}
 });
 (async function svAdminGate(){
   function showGateError(reason, detail){
-    console.error('[admin gate]', reason, detail);
-    window.location.replace('/admin-login');
+    var g = document.getElementById('svAdminGate');
+    if(!g) return;
+    g.innerHTML = '<div style="max-width:320px;text-align:center;padding:0 20px">'
+      + '<div style="color:#ff6b6b;font-weight:700;font-size:15px;margin-bottom:8px">Gate error: ' + reason + '</div>'
+      + '<div style="color:rgba(255,255,255,0.6);font-size:12px;word-break:break-word;margin-bottom:20px;font-family:monospace">' + (detail || 'no detail') + '</div>'
+      + '<button id="svGateContinueLogin" style="background:#009ddc;color:#fff;border:none;border-radius:10px;padding:10px 20px;font-family:DM Sans,sans-serif;font-weight:600;font-size:13px">Continue to login</button>'
+      + '</div>';
+    var btn = document.getElementById('svGateContinueLogin');
+    if(btn) btn.onclick = function(){ window.location.replace('/admin-login'); };
   }
   function grantAccess(){
     var g = document.getElementById('svAdminGate');
@@ -18878,6 +18894,8 @@ loadShipping();
 <div class="invoice-preview-container" id="invoicePreviewContainer"></div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <script>
+window.__script6Started = true;
+try {
 
 
 /* ============================================================
@@ -25171,7 +25189,14 @@ function setProductFilter(f) {
    ============================================================ */
 
 function svShowDebugError(where, e){
-  console.error('[' + where + ']', (e && e.message) || String(e), e && e.stack);
+  var msg = (e && e.message) || String(e);
+  var stack = (e && e.stack) ? e.stack.split('\n').slice(0,3).join('\n') : '';
+  var box = document.createElement('div');
+  box.style.cssText = 'position:fixed;left:12px;right:12px;bottom:80px;z-index:999998;background:#2a0d0d;border:1px solid #ff6b6b;border-radius:12px;padding:14px 16px;font-family:monospace;font-size:11px;color:#ffb3b3;max-height:40vh;overflow:auto;box-shadow:0 8px 24px rgba(0,0,0,0.5)';
+  box.innerHTML = '<div style="font-weight:700;color:#ff6b6b;margin-bottom:6px;font-family:DM Sans,sans-serif;font-size:13px">Error in ' + where + '</div>'
+    + '<div style="white-space:pre-wrap;word-break:break-word">' + msg + (stack ? ('\n' + stack) : '') + '</div>'
+    + '<button onclick="this.parentElement.remove()" style="margin-top:8px;background:#ff6b6b;color:#2a0d0d;border:none;border-radius:8px;padding:6px 12px;font-weight:700;font-family:DM Sans,sans-serif">Dismiss</button>';
+  document.body.appendChild(box);
 }
 function switchTab(tab) {
   try{
@@ -26654,6 +26679,11 @@ function closeAnalytics() {
   setTimeout(() => overlay.classList.remove('open', 'closing'), 420);
 }
 
+window.__script6Finished = true;
+} catch(__e6) {
+  window.__script6Error = (__e6 && __e6.message) || String(__e6);
+  window.__script6ErrorStack = (__e6 && __e6.stack) || '';
+}
 </script>
 
 
@@ -26661,5 +26691,31 @@ function closeAnalytics() {
   <iframe id="voucherHubFrame3" title="Voucher Hub" style="width:100%;height:100%;border:none;display:block;background:#0f1621;"></iframe>
 </div><!-- end voucherHubPanel -->
 
+<script>
+(function(){
+  function showDiag(){
+    var box = document.createElement('div');
+    box.style.cssText = 'position:fixed;left:12px;right:12px;top:70px;z-index:999999;background:#0d1a2a;border:1px solid #009ddc;border-radius:12px;padding:14px 16px;font-family:monospace;font-size:11px;color:#9fd8f2;max-height:50vh;overflow:auto;box-shadow:0 8px 24px rgba(0,0,0,0.5)';
+    var lines = [];
+    lines.push('typeof switchTab: ' + typeof window.switchTab);
+    lines.push('typeof renderProductsTab: ' + typeof window.renderProductsTab);
+    lines.push('typeof renderSalesTab: ' + typeof window.renderSalesTab);
+    lines.push('typeof openActionSheet: ' + typeof window.openActionSheet);
+    lines.push('script6 started: ' + window.__script6Started);
+    lines.push('script6 finished: ' + window.__script6Finished);
+    lines.push('script6 error: ' + (window.__script6Error || '(none)'));
+    lines.push('script6 stack: ' + (window.__script6ErrorStack || '(none)'));
+    lines.push('document.scripts.length: ' + document.scripts.length);
+    lines.push('textareas in DOM: ' + document.querySelectorAll('textarea').length);
+    lines.push('body children count: ' + document.body.children.length);
+    box.innerHTML = '<div style="font-weight:700;color:#009ddc;margin-bottom:6px;font-family:DM Sans,sans-serif;font-size:13px">Load diagnostic</div>'
+      + '<div style="white-space:pre-wrap">' + lines.join('\n') + '</div>'
+      + '<button onclick="this.parentElement.remove()" style="margin-top:8px;background:#009ddc;color:#0d1a2a;border:none;border-radius:8px;padding:6px 12px;font-weight:700;font-family:DM Sans,sans-serif">Dismiss</button>';
+    document.body.appendChild(box);
+  }
+  if(document.readyState === 'complete') showDiag();
+  else window.addEventListener('load', showDiag);
+})();
+</script>
 </body>
 </html>
