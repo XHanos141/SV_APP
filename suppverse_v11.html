@@ -23090,8 +23090,8 @@ function resetRsSize() {
 function updateRestockBdt() {}
 
 /* ====== SUPABASE CONFIG ====== */
-const SB_URL  = 'YOUR_SUPABASE_URL';   // e.g. https://xxxx.supabase.co
-const SB_KEY  = 'YOUR_SUPABASE_ANON_KEY';
+const SB_URL  = 'https://tlkoxltugvfwxmnrthvr.supabase.co';
+const SB_KEY  = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRsa294bHR1Z3Zmd3htbnJ0aHZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODgwOTIxNTIsImV4cCI6MjEwMzY2ODE1Mn0.UMFWCIPoNJn5kAX5v9OXVkH3wmxp_dtDG7dgNQ3BK7E';
 const SB_HDR  = { 'Content-Type': 'application/json', 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY, 'Prefer': 'return=representation' };
 
 async function sbFetch(path, method='GET', body=null) {
