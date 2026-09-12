@@ -746,12 +746,272 @@ function copyAdminId(){
 }
 
 // ===== EDIT PROFILE MODAL =====
+let pendingAvatarDataUrl = null;
+let pendingAvatarBlob = null;
+const aeAvatarImg = document.getElementById('aeAvatarImg');
+const aeAvatarInitial = document.getElementById('aeAvatarInitial');
+
+function renderAeAvatarPreview(){
+  const name = document.getElementById('editNameInput').value || (currentAdminRow && currentAdminRow.full_name) || '';
+  const initial = initials(name);
+  const src = pendingAvatarDataUrl || (currentAdminRow && currentAdminRow.avatar_url) || '';
+  if(src){
+    aeAvatarImg.src = src;
+    aeAvatarImg.style.display = 'block';
+    aeAvatarInitial.style.display = 'none';
+  } else {
+    aeAvatarImg.style.display = 'none';
+    aeAvatarInitial.style.display = 'block';
+    aeAvatarInitial.textContent = initial;
+  }
+}
+
 function openEditProfile(){
   document.getElementById('editNameInput').value = document.getElementById('adminName').textContent;
-  document.getElementById('aeAvatarInitial').textContent = document.getElementById('avatarInitial').textContent;
+  pendingAvatarDataUrl = null;
+  pendingAvatarBlob = null;
+  renderAeAvatarPreview();
   document.getElementById('avatarEditor').classList.add('open');
 }
 function closeEditProfile(){ document.getElementById('avatarEditor').classList.remove('open'); }
+
+document.getElementById('avatarFileInput').addEventListener('change', (e) => {
+  const file = e.target.files[0];
+  e.target.value = '';
+  if(!file) return;
+  if(file.size > 5 * 1024 * 1024){
+    showEditErr('Image must be under 5MB.');
+    return;
+  }
+  const reader = new FileReader();
+  reader.onload = (ev) => {
+    const img = new Image();
+    img.onload = () => openCropModal(img);
+    img.onerror = () => showEditErr('Could not load that image.');
+    img.src = ev.target.result;
+  };
+  reader.readAsDataURL(file);
+});
+
+// ===== AVATAR CROP MODAL: pan (drag) + zoom (slider/buttons/pinch) + rotate (90° snap + fine straighten) =====
+const cropModal = document.getElementById('cropModal');
+const cropStage = document.getElementById('cropStage');
+const cropCanvas = document.getElementById('cropCanvas');
+const cropCtx = cropCanvas.getContext('2d');
+const cropZoomSlider = document.getElementById('cropZoomSlider');
+const cropRotateSlider = document.getElementById('cropRotateSlider');
+const zoomOutBtn = document.getElementById('zoomOutBtn');
+const zoomInBtn = document.getElementById('zoomInBtn');
+const rotateLeftBtn = document.getElementById('rotateLeftBtn');
+const rotateRightBtn = document.getElementById('rotateRightBtn');
+const cropResetBtn = document.getElementById('cropResetBtn');
+
+let cropImg = null;
+let cropScale = 1;
+let cropMinScale = 1;
+let cropOffsetX = 0;
+let cropOffsetY = 0;
+let cropStageSize = 300;
+let cropBaseRotation = 0;
+let cropFineRotation = 0;
+let cropRotation = 0;
+let adjustTimer = null;
+
+function coverScaleForRotation(w, h, stageSize, angleDeg){
+  const theta = angleDeg * Math.PI / 180;
+  const span = stageSize * (Math.abs(Math.cos(theta)) + Math.abs(Math.sin(theta)));
+  return Math.max(span / w, span / h);
+}
+
+function flashGrid(){
+  cropStage.classList.add('adjusting');
+  clearTimeout(adjustTimer);
+  adjustTimer = setTimeout(() => cropStage.classList.remove('adjusting'), 500);
+}
+
+function openCropModal(img){
+  cropImg = img;
+  cropScale = 1;
+  cropOffsetX = 0;
+  cropOffsetY = 0;
+  cropBaseRotation = 0;
+  cropFineRotation = 0;
+  cropRotation = 0;
+  cropZoomSlider.value = 1;
+  cropRotateSlider.value = 0;
+
+  cropModal.classList.add('open');
+
+  requestAnimationFrame(() => {
+    cropStageSize = cropStage.clientWidth || 300;
+    cropCanvas.width = cropStageSize;
+    cropCanvas.height = cropStageSize;
+    cropMinScale = coverScaleForRotation(img.width, img.height, cropStageSize, cropRotation);
+    drawCrop();
+  });
+}
+
+function closeCropModal(){
+  cropModal.classList.remove('open');
+  cropImg = null;
+}
+
+function clampCropOffsets(){
+  const scale = cropMinScale * cropScale;
+  const theta = cropRotation * Math.PI / 180;
+  const effW = cropImg.width * scale * Math.abs(Math.cos(theta)) + cropImg.height * scale * Math.abs(Math.sin(theta));
+  const effH = cropImg.width * scale * Math.abs(Math.sin(theta)) + cropImg.height * scale * Math.abs(Math.cos(theta));
+  const maxX = Math.max(0, (effW - cropStageSize) / 2);
+  const maxY = Math.max(0, (effH - cropStageSize) / 2);
+  cropOffsetX = Math.max(-maxX, Math.min(maxX, cropOffsetX));
+  cropOffsetY = Math.max(-maxY, Math.min(maxY, cropOffsetY));
+}
+
+function drawCrop(){
+  if(!cropImg) return;
+  clampCropOffsets();
+  const scale = cropMinScale * cropScale;
+  const angle = cropRotation * Math.PI / 180;
+  cropCtx.clearRect(0, 0, cropStageSize, cropStageSize);
+  cropCtx.save();
+  cropCtx.translate(cropStageSize / 2 + cropOffsetX, cropStageSize / 2 + cropOffsetY);
+  cropCtx.rotate(angle);
+  cropCtx.drawImage(cropImg, -cropImg.width * scale / 2, -cropImg.height * scale / 2, cropImg.width * scale, cropImg.height * scale);
+  cropCtx.restore();
+}
+
+function applyRotation(){
+  cropRotation = cropBaseRotation + cropFineRotation;
+  cropMinScale = coverScaleForRotation(cropImg.width, cropImg.height, cropStageSize, cropRotation);
+  flashGrid();
+  drawCrop();
+}
+
+function setZoom(next){
+  cropScale = Math.max(1, Math.min(3, next));
+  cropZoomSlider.value = cropScale;
+  flashGrid();
+  drawCrop();
+}
+
+function resetCrop(){
+  cropBaseRotation = 0;
+  cropFineRotation = 0;
+  cropRotateSlider.value = 0;
+  cropScale = 1;
+  cropZoomSlider.value = 1;
+  cropOffsetX = 0;
+  cropOffsetY = 0;
+  applyRotation();
+}
+
+zoomOutBtn.addEventListener('click', () => setZoom(cropScale - 0.15));
+zoomInBtn.addEventListener('click', () => setZoom(cropScale + 0.15));
+rotateLeftBtn.addEventListener('click', () => { cropBaseRotation = (cropBaseRotation - 90 + 360) % 360; applyRotation(); });
+rotateRightBtn.addEventListener('click', () => { cropBaseRotation = (cropBaseRotation + 90) % 360; applyRotation(); });
+cropRotateSlider.addEventListener('input', () => { cropFineRotation = parseFloat(cropRotateSlider.value); applyRotation(); });
+cropResetBtn.addEventListener('click', resetCrop);
+
+let dragActive = false;
+let dragStartX = 0, dragStartY = 0, dragStartOffX = 0, dragStartOffY = 0;
+
+function cropDragStart(x, y){
+  dragActive = true;
+  cropStage.classList.add('dragging');
+  clearTimeout(adjustTimer);
+  dragStartX = x; dragStartY = y;
+  dragStartOffX = cropOffsetX; dragStartOffY = cropOffsetY;
+}
+function cropDragMove(x, y){
+  if(!dragActive) return;
+  cropOffsetX = dragStartOffX + (x - dragStartX);
+  cropOffsetY = dragStartOffY + (y - dragStartY);
+  drawCrop();
+}
+function cropDragEnd(){
+  dragActive = false;
+  cropStage.classList.remove('dragging');
+}
+
+cropStage.addEventListener('mousedown', (e) => cropDragStart(e.clientX, e.clientY));
+window.addEventListener('mousemove', (e) => cropDragMove(e.clientX, e.clientY));
+window.addEventListener('mouseup', cropDragEnd);
+
+let pinchStartDist = 0;
+let pinchStartScale = 1;
+
+function touchDist(t0, t1){
+  const dx = t0.clientX - t1.clientX;
+  const dy = t0.clientY - t1.clientY;
+  return Math.sqrt(dx * dx + dy * dy);
+}
+
+cropStage.addEventListener('touchstart', (e) => {
+  if(e.touches.length === 1){
+    cropDragStart(e.touches[0].clientX, e.touches[0].clientY);
+  } else if(e.touches.length === 2){
+    dragActive = false;
+    pinchStartDist = touchDist(e.touches[0], e.touches[1]);
+    pinchStartScale = cropScale;
+  }
+}, { passive: true });
+
+cropStage.addEventListener('touchmove', (e) => {
+  if(e.touches.length === 1 && dragActive){
+    cropDragMove(e.touches[0].clientX, e.touches[0].clientY);
+  } else if(e.touches.length === 2){
+    const dist = touchDist(e.touches[0], e.touches[1]);
+    const ratio = dist / (pinchStartDist || dist);
+    cropScale = Math.max(1, Math.min(3, pinchStartScale * ratio));
+    cropZoomSlider.value = cropScale;
+    flashGrid();
+    drawCrop();
+  }
+}, { passive: true });
+
+cropStage.addEventListener('touchend', () => { dragActive = false; cropStage.classList.remove('dragging'); });
+
+cropStage.addEventListener('wheel', (e) => {
+  e.preventDefault();
+  cropScale = Math.max(1, Math.min(3, cropScale - e.deltaY * 0.001));
+  cropZoomSlider.value = cropScale;
+  flashGrid();
+  drawCrop();
+}, { passive: false });
+
+cropZoomSlider.addEventListener('input', () => {
+  cropScale = parseFloat(cropZoomSlider.value);
+  flashGrid();
+  drawCrop();
+});
+
+function confirmCrop(){
+  const outSize = 512;
+  const out = document.createElement('canvas');
+  out.width = outSize; out.height = outSize;
+  const outCtx = out.getContext('2d');
+  const ratio = outSize / cropStageSize;
+  const scale = cropMinScale * cropScale * ratio;
+  const angle = cropRotation * Math.PI / 180;
+
+  outCtx.save();
+  outCtx.translate(outSize / 2 + cropOffsetX * ratio, outSize / 2 + cropOffsetY * ratio);
+  outCtx.rotate(angle);
+  outCtx.drawImage(cropImg, -cropImg.width * scale / 2, -cropImg.height * scale / 2, cropImg.width * scale, cropImg.height * scale);
+  outCtx.restore();
+
+  pendingAvatarDataUrl = out.toDataURL('image/png');
+  out.toBlob((blob) => { pendingAvatarBlob = blob; }, 'image/png', 0.92);
+  renderAeAvatarPreview();
+  closeCropModal();
+}
+
+function showEditErr(msg){
+  const el = document.getElementById('editProfileErr');
+  el.textContent = msg;
+  el.classList.add('show');
+}
+
 async function saveProfileChanges(){
   const newName = document.getElementById('editNameInput').value.trim();
   const btn = document.getElementById('saveProfileBtn');
@@ -763,28 +1023,53 @@ async function saveProfileChanges(){
   btn.querySelector('.btn-label').style.opacity = '0';
   btn.querySelector('.btn-spin').style.display = 'inline-block';
 
-  const { data, error } = await sb.from('admin_users')
-    .update({ full_name: newName })
-    .eq('id', currentAdminRow.id)
-    .select();
+  try{
+    let avatarUrl = currentAdminRow.avatar_url || null;
 
-  btn.disabled = false;
-  btn.querySelector('.btn-label').style.opacity = '1';
-  btn.querySelector('.btn-spin').style.display = 'none';
+    if(pendingAvatarBlob){
+      const { data: { user: authUser } } = await sb.auth.getUser();
+      if(!authUser) throw new Error('Not signed in');
+      const path = `${authUser.id}/avatar.png`;
+      // Admin avatars live in their own storage bucket, kept fully separate
+      // from customer-facing storage (admin data must never mix with user data).
+      const { error: uploadErr } = await sb.storage
+        .from('admin-avatars')
+        .upload(path, pendingAvatarBlob, { upsert: true, contentType: 'image/png' });
+      if(uploadErr) throw uploadErr;
 
-  if(error || !data || !data[0]){
+      const { data: signedData, error: signErr } = await sb.storage
+        .from('admin-avatars')
+        .createSignedUrl(path, 60 * 60 * 24 * 365);
+      if(signErr) throw signErr;
+      avatarUrl = signedData.signedUrl;
+    }
+
+    const { data, error } = await sb.from('admin_users')
+      .update({ full_name: newName, avatar_url: avatarUrl })
+      .eq('id', currentAdminRow.id)
+      .select();
+    if(error || !data || !data[0]) throw error || new Error('Update failed');
+
+    currentAdminRow = data[0];
+    document.getElementById('adminName').textContent = newName;
+    const avatarInitialEl = document.getElementById('avatarInitial');
+    if(currentAdminRow.avatar_url){
+      avatarInitialEl.innerHTML = '<img src="' + currentAdminRow.avatar_url + '" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%">';
+    } else {
+      avatarInitialEl.textContent = initials(newName);
+    }
+    pendingAvatarDataUrl = null;
+    pendingAvatarBlob = null;
+    closeEditProfile();
+  }catch(err){
     errEl.textContent = 'Could not save changes. Please try again.';
     errEl.classList.add('show');
-    return;
+  }finally{
+    btn.disabled = false;
+    btn.querySelector('.btn-label').style.opacity = '1';
+    btn.querySelector('.btn-spin').style.display = 'none';
   }
-
-  currentAdminRow = data[0];
-  document.getElementById('adminName').textContent = newName;
-  document.getElementById('avatarInitial').textContent = initials(newName);
-  closeEditProfile();
 }
-function closeCropModal(){ document.getElementById('cropModal').classList.remove('open'); }
-function confirmCrop(){ closeCropModal(); }
 
 // ===== PASSWORD MODAL =====
 function openPasswordModal(){
