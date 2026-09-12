@@ -18894,6 +18894,9 @@ loadShipping();
 <div class="invoice-preview-container" id="invoicePreviewContainer"></div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <script>
+window.__script6Started = true;
+try {
+
 
 /* ============================================================
    ====== SAFE DOM STUB (for fields removed during UI swap) ======
@@ -26675,6 +26678,12 @@ function closeAnalytics() {
   overlay.classList.add('closing');
   setTimeout(() => overlay.classList.remove('open', 'closing'), 420);
 }
+
+window.__script6Finished = true;
+} catch(__e6) {
+  window.__script6Error = (__e6 && __e6.message) || String(__e6);
+  window.__script6ErrorStack = (__e6 && __e6.stack) || '';
+}
 </script>
 
 
@@ -26692,6 +26701,10 @@ function closeAnalytics() {
     lines.push('typeof renderProductsTab: ' + typeof window.renderProductsTab);
     lines.push('typeof renderSalesTab: ' + typeof window.renderSalesTab);
     lines.push('typeof openActionSheet: ' + typeof window.openActionSheet);
+    lines.push('script6 started: ' + window.__script6Started);
+    lines.push('script6 finished: ' + window.__script6Finished);
+    lines.push('script6 error: ' + (window.__script6Error || '(none)'));
+    lines.push('script6 stack: ' + (window.__script6ErrorStack || '(none)'));
     lines.push('document.scripts.length: ' + document.scripts.length);
     lines.push('textareas in DOM: ' + document.querySelectorAll('textarea').length);
     lines.push('body children count: ' + document.body.children.length);
