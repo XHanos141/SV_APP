@@ -231,13 +231,16 @@ html[data-theme="dark"] .drawer-title { color: #ffffff; }
 /* ZONE 2 -- PROFILE */
 .drawer-profile { padding: 20px 20px 22px; border-bottom: 1px solid #ececec; display: flex; align-items: center; gap: 14px; flex-shrink: 0; transition: border-color 0.35s ease; }
 html[data-theme="dark"] .drawer-profile { border-bottom-color: rgba(255,255,255,0.06); }
-.profile-avatar { width: 44px; height: 44px; border-radius: 50%; background: linear-gradient(135deg, #7C6FF7, #4535c4); display: flex; align-items: center; justify-content: center; font-family: "Plus Jakarta Sans", sans-serif; font-size: 15px; font-weight: 800; color: #ffffff; flex-shrink: 0; }
+.profile-avatar { width: 50px; height: 50px; border-radius: 50%; background: linear-gradient(135deg, #7C6FF7, #4535c4); display: flex; align-items: center; justify-content: center; font-family: "Plus Jakarta Sans", sans-serif; font-size: 17px; font-weight: 800; color: #ffffff; flex-shrink: 0; }
 .profile-info { display: flex; flex-direction: column; gap: 3px; flex: 1; }
+.profile-name-row { display: flex; align-items: center; gap: 5px; }
 .profile-name { font-size: 15px; font-weight: 700; color: #001f3c; transition: color 0.35s ease; }
 html[data-theme="dark"] .profile-name { color: #ffffff; }
+.profile-verified-badge { width: 14px; height: 14px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+.profile-verified-badge svg { width: 100%; height: 100%; }
+.profile-role-row { display: flex; align-items: center; gap: 6px; }
 .profile-role { font-size: 12px; color: #8c92a1; transition: color 0.35s ease; }
 html[data-theme="dark"] .profile-role { color: rgba(255,255,255,0.4); }
-.profile-status { display: flex; align-items: center; gap: 6px; margin-top: 2px; }
 .status-dot {
   width: 8px; height: 8px; border-radius: 50%;
   background: #2f9b68;
@@ -251,12 +254,12 @@ html[data-theme="dark"] .profile-role { color: rgba(255,255,255,0.4); }
   position: relative;
 }
 .status-dot.online::after {
-  content: ''; position: absolute; inset: -4px; border-radius: 50%;
+  content: ''; position: absolute; inset: -2px; border-radius: 50%;
   border: 1.5px solid rgba(47,155,104,0.55);
   animation: dotPulseRing 2s infinite ease-out;
   pointer-events: none;
 }
-@keyframes dotPulseRing { 0% { transform: scale(0.6); opacity: 0.7; } 100% { transform: scale(2.2); opacity: 0; } }
+@keyframes dotPulseRing { 0% { transform: scale(0.6); opacity: 0.7; } 100% { transform: scale(1.6); opacity: 0; } }
 .status-dot.offline {
   background: #9ca3af;
   box-shadow: none;
@@ -267,12 +270,6 @@ html[data-theme="dark"] .profile-role { color: rgba(255,255,255,0.4); }
   60%  { box-shadow: 0 0 0 5px rgba(47,155,104,0); }
   100% { box-shadow: 0 0 0 0   rgba(47,155,104,0); }
 }
-.status-text {
-  font-size: 10px; color: #8c92a1; font-weight: 500;
-  transition: color 0.35s ease;
-}
-html[data-theme="dark"] .status-text { color: rgba(255,255,255,0.4); }
-.status-text.offline { color: #9ca3af !important; }
 
 /* COLLAPSIBLE SECTION SHARED */
 .collapsible-section { flex-shrink: 0; }
@@ -12920,9 +12917,14 @@ function showToast(message, type = 'success') {
     <a class="drawer-profile" href="/admin-profile" id="drawerProfileLink" style="text-decoration:none;color:inherit;cursor:pointer">
       <div class="profile-avatar" id="drawerProfileAvatar">XH</div>
       <div class="profile-info">
-        <div class="profile-name" id="drawerProfileName">XHanos141</div>
-        <div class="profile-role" id="drawerProfileRole">SuppVerse BD</div>
-        <div class="profile-status"><span class="status-dot online" id="statusDot"></span><span class="status-text" id="statusText">Online</span></div>
+        <div class="profile-name-row">
+          <span class="profile-verified-badge" title="Verified admin"><svg viewBox="0 0 24 24" fill="none"><path d="M12 2l2.39 1.38 2.76-.02 1.38 2.39 2.39 1.38-.02 2.76 1.38 2.39-1.38 2.39.02 2.76-2.39 1.38-1.38 2.39-2.76-.02L12 22l-2.39-1.38-2.76.02-1.38-2.39-2.39-1.38.02-2.76L2 12l1.38-2.39-.02-2.76 2.39-1.38L7.15 3.36l2.76.02L12 2z" fill="#2fd88a"/><path d="M8.5 12.2l2.4 2.4 4.6-4.8" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+          <span class="profile-name" id="drawerProfileName">XHanos141</span>
+        </div>
+        <div class="profile-role-row">
+          <span class="profile-role" id="drawerProfileRole">SuppVerse BD</span>
+          <span class="status-dot online" id="statusDot"></span>
+        </div>
       </div>
     </a>
 
@@ -20757,18 +20759,9 @@ document.getElementById("saveDescriptionInput").addEventListener("keydown", func
    ====== ONLINE / OFFLINE STATUS ======
    ============================================================ */
 function updateOnlineStatus() {
-  const dot  = document.getElementById('statusDot');
-  const text = document.getElementById('statusText');
-  if (!dot || !text) return;
-  if (navigator.onLine) {
-    dot.className  = 'status-dot online';
-    text.className = 'status-text';
-    text.textContent = 'Online';
-  } else {
-    dot.className  = 'status-dot offline';
-    text.className = 'status-text offline';
-    text.textContent = 'Offline';
-  }
+  const dot = document.getElementById('statusDot');
+  if (!dot) return;
+  dot.className = navigator.onLine ? 'status-dot online' : 'status-dot offline';
 }
 
 window.addEventListener('online',  updateOnlineStatus);
