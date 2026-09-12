@@ -7697,32 +7697,39 @@ html[data-theme="dark"] .odm-card { background: rgba(124,111,247,0.08); border-c
 <div id="svAdminGate"><div class="sv-gate-spin"></div><div class="sv-gate-txt">Verifying access&hellip;</div></div>
 <script>
 (async function svAdminGate(){
-  function denyAccess(){ window.location.replace('/admin-login'); }
+  function showGateError(reason, detail){
+    var g = document.getElementById('svAdminGate');
+    if(!g) return;
+    g.innerHTML = '<div style="max-width:320px;text-align:center;padding:0 20px">'
+      + '<div style="color:#ff6b6b;font-weight:700;font-size:15px;margin-bottom:8px">Gate error: ' + reason + '</div>'
+      + '<div style="color:rgba(255,255,255,0.6);font-size:12px;word-break:break-word;margin-bottom:20px;font-family:monospace">' + (detail || 'no detail') + '</div>'
+      + '<button id="svGateContinueLogin" style="background:#009ddc;color:#fff;border:none;border-radius:10px;padding:10px 20px;font-family:DM Sans,sans-serif;font-weight:600;font-size:13px">Continue to login</button>'
+      + '</div>';
+    var btn = document.getElementById('svGateContinueLogin');
+    if(btn) btn.onclick = function(){ window.location.replace('/admin-login'); };
+  }
   function grantAccess(){
     var g = document.getElementById('svAdminGate');
     if(g){ g.style.opacity = '0'; setTimeout(function(){ g.remove(); }, 250); }
   }
   try{
-    var session = (await sb.auth.getSession()).data.session;
+    var sessionResult = await sb.auth.getSession();
+    if(sessionResult.error){ showGateError('getSession failed', sessionResult.error.message); return; }
+    var session = sessionResult.data.session;
     if(!session){
       session = await new Promise(function(resolve){
         var sub = sb.auth.onAuthStateChange(function(event, s){ if(s){ sub.data.subscription.unsubscribe(); resolve(s); } }).data;
         setTimeout(function(){ sub.subscription.unsubscribe(); resolve(null); }, 2500);
       });
     }
-    if(!session){ denyAccess(); return; }
+    if(!session){ showGateError('No session found', 'origin: ' + window.location.origin); return; }
     var check = await sb.rpc('is_active_admin', { uid: session.user.id });
-    if(check.error || !check.data){
-      // Not yet an active, claimed admin — send them to the profile page,
-      // which owns the first-login claim flow (or will reject them cleanly
-      // if this Google account was never approved as an admin).
-      window.location.replace('/admin-profile');
-      return;
-    }
+    if(check.error){ showGateError('is_active_admin RPC error', check.error.message); return; }
+    if(!check.data){ window.location.replace('/admin-profile'); return; }
     populateDrawerProfile(session.user);
     grantAccess();
   } catch(e){
-    denyAccess();
+    showGateError('Unhandled exception', (e && e.message) || String(e));
   }
 })();
 
