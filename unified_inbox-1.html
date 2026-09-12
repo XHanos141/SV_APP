@@ -28,6 +28,16 @@
     --font-body:'DM Sans', system-ui, sans-serif;
   }
 
+  html[data-theme="light"]{
+    --body-bg:#f4f6f9;
+    --surface:#ffffff;
+    --surface-2:#eef1f6;
+    --hairline:rgba(15,22,33,0.08);
+    --text-1:#101722;
+    --text-2:#57657a;
+    --text-3:#8a96a8;
+  }
+
   *{ box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
   html,body{ margin:0; padding:0; height:100%; background:var(--body-bg); }
   body{
@@ -81,7 +91,12 @@
     letter-spacing:-0.01em;
     margin:0;
   }
-  .bell-btn{
+  .header-actions{
+    display:flex;
+    align-items:center;
+    gap:6px;
+  }
+  .bell-btn, .theme-btn{
     position:relative;
     width:38px;
     height:38px;
@@ -91,8 +106,16 @@
     border-radius:10px;
     color:var(--text-2);
   }
-  .bell-btn:hover{ background:var(--surface); color:var(--text-1); }
-  .bell-btn svg{ width:20px; height:20px; }
+  .bell-btn:hover, .theme-btn:hover{ background:var(--surface); color:var(--text-1); }
+  .bell-btn svg, .theme-btn svg{ width:20px; height:20px; }
+  .theme-btn svg{ transition:transform 0.35s ease, opacity 0.35s ease; }
+  .theme-btn .icon-sun, .theme-btn .icon-moon{
+    position:absolute;
+  }
+  .theme-btn .icon-sun{ opacity:0; transform:rotate(-90deg) scale(0.5); }
+  .theme-btn .icon-moon{ opacity:1; transform:rotate(0deg) scale(1); }
+  html[data-theme="light"] .theme-btn .icon-sun{ opacity:1; transform:rotate(0deg) scale(1); }
+  html[data-theme="light"] .theme-btn .icon-moon{ opacity:0; transform:rotate(90deg) scale(0.5); }
   .bell-dot{
     position:absolute;
     top:8px;
@@ -141,13 +164,35 @@
   .filter-tabs::-webkit-scrollbar{ display:none; }
   .filter-tab{
     flex:0 0 auto;
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
     font-size:13.5px;
     font-weight:600;
     color:var(--text-3);
-    padding:0 2px 12px;
+    padding:0 2px 10px;
     border-bottom:2px solid transparent;
     white-space:nowrap;
   }
+  .filter-tab-icon{
+    width:18px;
+    height:18px;
+    border-radius:6px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    flex:0 0 auto;
+  }
+  .filter-tab-icon svg{ width:10.5px; height:10.5px; }
+  .filter-tab-icon.fb{ background:var(--fb); }
+  .filter-tab-icon.wa{ background:var(--wa); }
+  .filter-tab-icon.ig{ background:linear-gradient(135deg, var(--ig-a), var(--ig-b) 55%, var(--ig-c)); }
+  .filter-tab-icon.all{
+    background:var(--surface-2);
+    color:var(--text-2);
+  }
+  .filter-tab-icon.all svg{ width:12px; height:12px; }
+  .filter-tab[aria-selected="true"] .filter-tab-icon.all{ background:var(--cyan); color:#fff; }
   .filter-tab[aria-selected="true"]{
     color:var(--text-1);
     border-bottom-color:var(--cyan);
@@ -283,7 +328,7 @@
     width:calc(100% - 32px);
     margin:0 auto;
     left:0; right:0;
-    bottom:78px;
+    bottom:94px;
     display:flex;
     justify-content:flex-end;
     pointer-events:none;
@@ -305,6 +350,182 @@
   }
   .fab button:active{ transform:scale(0.96); }
   .fab svg{ width:16px; height:16px; }
+
+  /* ---------- FAB menu (customer type filter) ---------- */
+  .fab-menu-backdrop{
+    position:fixed;
+    inset:0;
+    z-index:29;
+    opacity:0;
+    pointer-events:none;
+    transition:opacity 0.15s ease;
+  }
+  .fab-menu-backdrop.open{ opacity:1; pointer-events:auto; }
+  .fab-menu{
+    position:fixed;
+    max-width:448px;
+    width:calc(100% - 32px);
+    left:0; right:0;
+    margin:0 auto;
+    bottom:150px;
+    z-index:30;
+    display:flex;
+    flex-direction:column;
+    align-items:flex-end;
+    gap:8px;
+    pointer-events:none;
+  }
+  .fab-menu-item{
+    pointer-events:auto;
+    display:flex;
+    align-items:center;
+    gap:9px;
+    background:var(--surface);
+    border:1px solid var(--hairline);
+    color:var(--text-1);
+    font-size:13px;
+    font-weight:600;
+    padding:10px 14px;
+    border-radius:12px;
+    box-shadow:0 6px 18px rgba(0,0,0,0.3);
+    opacity:0;
+    transform:translateY(8px) scale(0.96);
+    transition:opacity 0.16s ease, transform 0.16s ease;
+  }
+  .fab-menu.open .fab-menu-item{ opacity:1; transform:translateY(0) scale(1); }
+  .fab-menu.open .fab-menu-item:nth-child(1){ transition-delay:0.02s; }
+  .fab-menu.open .fab-menu-item:nth-child(2){ transition-delay:0.06s; }
+  .fab-menu.open .fab-menu-item:nth-child(3){ transition-delay:0.1s; }
+  .fab-menu-item[aria-pressed="true"]{
+    background:rgba(0,157,220,0.12);
+    border-color:var(--cyan);
+    color:var(--cyan);
+  }
+  .fab-menu-item .dot{
+    width:8px; height:8px; border-radius:50%;
+    flex:0 0 auto;
+  }
+  .fab-menu-item .dot.registered{ background:#2fd88a; }
+  .fab-menu-item .dot.guest{ background:var(--orange); }
+  .fab-menu-item .dot.all{ background:var(--text-3); }
+  .fab-main-btn.open svg{ transform:rotate(45deg); }
+  .fab-main-btn svg{ transition:transform 0.2s ease; }
+  .fab-filter-dot{
+    width:8px; height:8px; border-radius:50%;
+    background:var(--orange);
+    position:absolute;
+    top:9px; right:14px;
+    border:2px solid var(--cyan);
+    display:none;
+  }
+  .fab-filter-dot.show{ display:block; }
+
+  /* ---------- Customers screen ---------- */
+  #customersView{
+    display:none;
+    flex-direction:column;
+    background:var(--body-bg);
+    z-index:50;
+  }
+  #customersView:not([hidden]){
+    display:flex;
+    position:absolute;
+    top:0; left:0; right:0; bottom:0;
+    height:auto;
+  }
+  .cust-list-header{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    padding:14px 16px;
+    border-bottom:1px solid var(--hairline);
+    flex:0 0 auto;
+  }
+  .cust-list-header h1{
+    font-family:var(--font-head);
+    font-size:17px;
+    font-weight:700;
+    color:var(--text-1);
+    flex:1;
+  }
+  .cust-list-back{
+    width:34px; height:34px;
+    display:flex; align-items:center; justify-content:center;
+    color:var(--text-2);
+    border-radius:10px;
+    flex:0 0 auto;
+  }
+  .cust-list-back svg{ width:20px; height:20px; }
+  .cust-list-count{
+    font-size:12px;
+    font-weight:600;
+    color:var(--text-3);
+  }
+  .cust-list-scroll{
+    flex:1;
+    overflow-y:auto;
+    padding:10px 14px 24px;
+  }
+  .cust-list-row{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    padding:12px 8px;
+    border-bottom:1px solid var(--hairline);
+  }
+  .cust-list-row__avatar{
+    width:42px; height:42px;
+    border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    font-family:var(--font-head);
+    font-weight:700;
+    font-size:14px;
+    color:#fff;
+    flex:0 0 auto;
+  }
+  .cust-list-row__main{ flex:1; min-width:0; }
+  .cust-list-row__name{
+    display:flex;
+    align-items:center;
+    gap:5px;
+    font-size:14px;
+    font-weight:700;
+    color:var(--text-1);
+  }
+  .cust-list-row__name svg{ width:13px; height:13px; color:#2fd88a; flex:0 0 auto; }
+  .cust-list-row__id{
+    font-family:var(--font-head);
+    font-size:11px;
+    font-weight:800;
+    color:#c4bdfd;
+    background:rgba(124,111,247,0.18);
+    border:1px solid rgba(124,111,247,0.4);
+    border-radius:7px;
+    padding:1px 7px;
+    display:inline-block;
+    margin-top:3px;
+  }
+  .cust-list-row__platforms{
+    display:flex;
+    align-items:center;
+    gap:4px;
+    flex:0 0 auto;
+  }
+  .cust-list-row__platforms span{
+    width:18px; height:18px;
+    border-radius:6px;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .cust-list-row__platforms svg{ width:10px; height:10px; }
+  .cust-list-row__platforms .fb{ background:var(--fb); }
+  .cust-list-row__platforms .wa{ background:var(--wa); }
+  .cust-list-row__platforms .ig{ background:linear-gradient(135deg, var(--ig-a), var(--ig-b) 55%, var(--ig-c)); }
+  .cust-list-empty{
+    text-align:center;
+    color:var(--text-3);
+    font-size:13px;
+    padding:60px 20px;
+  }
 
   /* ---------- Bottom nav ---------- */
   .bottom-nav{
@@ -416,6 +637,288 @@
     color:transparent;
   }
 
+  /* ---------- Identity row (multi-platform indicator, opens customer panel) ---------- */
+  .identity-row{
+    display:flex;
+    align-items:center;
+    gap:5px;
+    margin-top:2px;
+  }
+  .identity-chip{
+    display:inline-flex;
+    align-items:center;
+    gap:4px;
+    font-size:11px;
+    font-weight:700;
+    color:var(--text-2);
+    background:var(--surface-2);
+    border:1px solid var(--hairline);
+    border-radius:100px;
+    padding:2px 8px 2px 4px;
+  }
+  .identity-chip .mini-badges{
+    display:flex;
+    align-items:center;
+  }
+  .identity-chip .mini-badges span{
+    width:13px;
+    height:13px;
+    border-radius:50%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    border:1.5px solid var(--surface-2);
+    margin-left:-4px;
+  }
+  .identity-chip .mini-badges span:first-child{ margin-left:0; }
+  .identity-chip .mini-badges svg{ width:7px; height:7px; }
+  .identity-chip .mini-badges .fb{ background:var(--fb); }
+  .identity-chip .mini-badges .wa{ background:var(--wa); }
+  .identity-chip .mini-badges .ig{ background:linear-gradient(135deg, var(--ig-a), var(--ig-b) 55%, var(--ig-c)); }
+  .identity-chip.guest{ color:var(--text-3); }
+
+  /* ---------- Customer panel (bottom sheet on mobile) ---------- */
+  .cust-sheet-backdrop{
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,0.55);
+    z-index:60;
+    opacity:0;
+    pointer-events:none;
+    transition:opacity 0.2s ease;
+  }
+  .cust-sheet-backdrop.open{ opacity:1; pointer-events:auto; }
+  .cust-sheet{
+    position:fixed;
+    left:0; right:0; bottom:0;
+    max-height:86vh;
+    background:var(--surface);
+    border-radius:20px 20px 0 0;
+    z-index:61;
+    display:flex;
+    flex-direction:column;
+    transform:translateY(100%);
+    transition:transform 0.28s cubic-bezier(.2,.8,.25,1);
+    box-shadow:0 -8px 30px rgba(0,0,0,0.35);
+  }
+  .cust-sheet.open{ transform:translateY(0); }
+  .cust-sheet__handle{
+    width:36px;
+    height:4px;
+    border-radius:100px;
+    background:var(--hairline);
+    margin:10px auto 4px;
+  }
+  .cust-sheet__scroll{
+    overflow-y:auto;
+    padding:8px 18px 24px;
+  }
+  .cust-sheet__head{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    padding:10px 0 16px;
+    border-bottom:1px solid var(--hairline);
+    margin-bottom:16px;
+  }
+  .cust-sheet__avatar{
+    width:52px;
+    height:52px;
+    border-radius:50%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-family:var(--font-head);
+    font-weight:700;
+    font-size:18px;
+    color:#fff;
+    flex:0 0 auto;
+  }
+  .cust-sheet__name{
+    font-family:var(--font-head);
+    font-weight:700;
+    font-size:17px;
+    color:var(--text-1);
+  }
+  .cust-sheet__id{
+    font-family:'Courier Prime','Courier New',monospace;
+    font-size:12px;
+    color:var(--text-3);
+    margin-top:2px;
+  }
+  .status-pill{
+    display:inline-flex;
+    align-items:center;
+    gap:5px;
+    font-size:11px;
+    font-weight:700;
+    padding:3px 9px;
+    border-radius:100px;
+    margin-top:6px;
+  }
+  .status-pill.guest{ background:rgba(244,169,34,0.15); color:var(--orange); }
+  .status-pill svg{ width:11px; height:11px; }
+
+  /* ---------- Verified badge (icon-only, next to name) — copied from SV-Web profile.html ---------- */
+  .name-verified-badge{
+    width:15px;
+    height:15px;
+    color:#2fd88a;
+    flex:0 0 auto;
+  }
+
+  /* ---------- Customer ID pill — copied exactly from SV-Web profile.html (.cid-row / .cid-value) ---------- */
+  .cust-sheet__id-row{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    padding:4px 9px;
+    border-radius:9px;
+    width:fit-content;
+    background:rgba(124,111,247,0.18);
+    border:1.5px solid rgba(124,111,247,0.4);
+    margin-top:4px;
+  }
+  .cust-sheet__id-value{
+    font-family:var(--font-head);
+    font-size:12px;
+    font-weight:800;
+    color:#c4bdfd;
+    letter-spacing:0.2px;
+  }
+
+  .cust-sheet__section-label{
+    font-size:11px;
+    font-weight:700;
+    text-transform:uppercase;
+    letter-spacing:0.04em;
+    color:var(--text-3);
+    margin:18px 0 8px;
+  }
+  .cust-sheet__section-label:first-of-type{ margin-top:0; }
+
+  .platform-list{
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+  }
+  .platform-row{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    background:var(--surface-2);
+    border:1px solid var(--hairline);
+    border-radius:12px;
+    padding:10px 12px;
+  }
+  .platform-row.active{ border-color:var(--cyan); }
+  .platform-row__icon{
+    width:26px;
+    height:26px;
+    border-radius:8px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    flex:0 0 auto;
+  }
+  .platform-row__icon svg{ width:14px; height:14px; }
+  .platform-row__icon.fb{ background:var(--fb); }
+  .platform-row__icon.wa{ background:var(--wa); }
+  .platform-row__icon.ig{ background:linear-gradient(135deg, var(--ig-a), var(--ig-b) 55%, var(--ig-c)); }
+  .platform-row__label{
+    flex:1;
+    font-size:13px;
+    font-weight:600;
+    color:var(--text-1);
+  }
+  .platform-row__tag{
+    font-size:10.5px;
+    font-weight:700;
+    color:var(--cyan);
+    background:rgba(0,157,220,0.12);
+    padding:2px 8px;
+    border-radius:100px;
+  }
+
+  .contact-list{
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+  }
+  .contact-row{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    font-size:13.5px;
+    color:var(--text-1);
+  }
+  .contact-row svg{ width:16px; height:16px; color:var(--text-3); flex:0 0 auto; }
+
+  .order-card{
+    background:var(--surface-2);
+    border:1px solid var(--hairline);
+    border-radius:14px;
+    padding:14px;
+    margin-bottom:10px;
+  }
+  .order-card__top{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-bottom:6px;
+  }
+  .order-id-badge{
+    font-family:var(--font-head);
+    font-weight:700;
+    font-size:12px;
+    color:var(--purple);
+    background:rgba(124,111,247,0.1);
+    border:1px solid rgba(124,111,247,0.25);
+    border-radius:7px;
+    padding:3px 8px;
+    letter-spacing:-0.01em;
+    line-height:1;
+  }
+  .order-status-tag{
+    font-size:11px;
+    font-weight:700;
+    padding:3px 9px;
+    border-radius:100px;
+  }
+  .order-status-tag.pending{ background:rgba(244,169,34,0.15); color:var(--orange); }
+  .order-status-tag.delivered{ background:rgba(47,155,104,0.15); color:var(--green); }
+  .order-card__items{ font-size:13px; color:var(--text-2); margin-bottom:4px; }
+  .order-card__meta{
+    display:flex;
+    justify-content:space-between;
+    font-size:12px;
+    color:var(--text-3);
+  }
+  .order-card__amount{ font-weight:700; color:var(--text-1); }
+
+  .empty-note{
+    font-size:13px;
+    color:var(--text-3);
+    background:var(--surface-2);
+    border:1px dashed var(--hairline);
+    border-radius:12px;
+    padding:14px;
+    text-align:center;
+  }
+
+  .guest-callout{
+    display:flex;
+    gap:10px;
+    background:rgba(244,169,34,0.08);
+    border:1px solid rgba(244,169,34,0.25);
+    border-radius:12px;
+    padding:12px;
+    margin-bottom:18px;
+  }
+  .guest-callout svg{ width:17px; height:17px; color:var(--orange); flex:0 0 auto; margin-top:1px; }
+  .guest-callout p{ font-size:12.5px; color:var(--text-2); line-height:1.5; }
+  .guest-callout strong{ color:var(--text-1); }
+
   .thread-messages{
     flex:1;
     overflow-y:auto;
@@ -467,6 +970,74 @@
     padding:0 3px;
   }
   .from-admin .msg-bubble__time{ text-align:right; }
+
+  /* ---------- Internal note ---------- */
+  .note-row{
+    align-self:stretch;
+    max-width:100%;
+    width:100%;
+    margin-top:10px;
+  }
+  .note-card{
+    display:flex;
+    gap:10px;
+    background:rgba(244,169,34,0.08);
+    border:1.5px dashed rgba(244,169,34,0.45);
+    border-radius:14px;
+    padding:12px 14px;
+  }
+  .note-card__icon{
+    flex:0 0 auto;
+    width:18px;
+    height:18px;
+    color:var(--orange);
+    margin-top:1px;
+  }
+  .note-card__icon svg{ width:100%; height:100%; }
+  .note-card__body{ flex:1; min-width:0; }
+  .note-card__label{
+    font-size:11px;
+    font-weight:700;
+    letter-spacing:0.04em;
+    color:var(--orange);
+    text-transform:uppercase;
+    margin-bottom:4px;
+  }
+  .note-card__text{
+    font-size:13.5px;
+    line-height:1.45;
+    color:var(--text-1);
+    white-space:pre-wrap;
+    word-break:break-word;
+  }
+  .note-card__meta{
+    font-size:11.5px;
+    color:var(--text-3);
+    margin-top:6px;
+  }
+
+  .composer-lock{
+    flex:0 0 auto;
+    width:38px;
+    height:38px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    border-radius:10px;
+    color:var(--text-2);
+  }
+  .composer-lock svg{ width:18px; height:18px; }
+  .composer-lock:hover{ background:var(--surface-2); color:var(--text-1); }
+  .composer-lock.active{
+    background:rgba(244,169,34,0.16);
+    color:var(--orange);
+  }
+  .thread-composer.note-mode #composerInput{
+    border-color:var(--orange);
+  }
+  .thread-composer.note-mode .composer-send{
+    background:var(--orange);
+  }
 
   .thread-composer{
     display:flex;
@@ -531,10 +1102,16 @@
   <header class="inbox-header">
     <div class="inbox-header__top">
       <h1 class="inbox-header__title">Unified Inbox</h1>
-      <button class="bell-btn" aria-label="Notifications">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
-        <span class="bell-dot"></span>
-      </button>
+      <div class="header-actions">
+        <button class="theme-btn" id="themeToggleBtn" aria-label="Toggle day/night mode">
+          <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2.4M12 19.1v2.4M4.6 4.6l1.7 1.7M17.7 17.7l1.7 1.7M2.5 12h2.4M19.1 12h2.4M4.6 19.4l1.7-1.7M17.7 6.3l1.7-1.7"/></svg>
+          <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5Z"/></svg>
+        </button>
+        <button class="bell-btn" aria-label="Notifications">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+          <span class="bell-dot"></span>
+        </button>
+      </div>
     </div>
 
     <div class="search-wrap">
@@ -543,10 +1120,10 @@
     </div>
 
     <div class="filter-tabs" id="filterTabs" role="tablist" aria-label="Filter by channel">
-      <button class="filter-tab" role="tab" data-channel="all" aria-selected="true">All Channels <span class="count" data-count="all"></span></button>
-      <button class="filter-tab" role="tab" data-channel="messenger" aria-selected="false">Messenger <span class="count" data-count="messenger"></span></button>
-      <button class="filter-tab" role="tab" data-channel="instagram" aria-selected="false">Instagram <span class="count" data-count="instagram"></span></button>
-      <button class="filter-tab" role="tab" data-channel="whatsapp" aria-selected="false">WhatsApp <span class="count" data-count="whatsapp"></span></button>
+      <button class="filter-tab" role="tab" data-channel="all" aria-selected="true"><span class="filter-tab-icon all"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/></svg></span>All <span class="count" data-count="all"></span></button>
+      <button class="filter-tab" role="tab" data-channel="messenger" aria-selected="false"><span class="filter-tab-icon fb"><svg viewBox="0 0 24 24" fill="#fff"><path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z"/></svg></span>Facebook <span class="count" data-count="messenger"></span></button>
+      <button class="filter-tab" role="tab" data-channel="instagram" aria-selected="false"><span class="filter-tab-icon ig"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="3.6"/><circle cx="17.2" cy="6.8" r="1"/></svg></span>Instagram <span class="count" data-count="instagram"></span></button>
+      <button class="filter-tab" role="tab" data-channel="whatsapp" aria-selected="false"><span class="filter-tab-icon wa"><svg viewBox="0 0 24 24" fill="#fff"><path d="M12 2a10 10 0 0 0-8.6 15L2 22l5.2-1.4A10 10 0 1 0 12 2zm5.6 14.1c-.2.6-1.3 1.2-1.8 1.2-.5.1-1 .1-3.2-.7-2.7-1.1-4.4-3.8-4.6-4-.1-.2-1.1-1.5-1.1-2.8 0-1.3.7-2 1-2.2.2-.3.5-.3.7-.3h.5c.2 0 .4 0 .6.5.2.6.7 1.9.8 2 .1.2.1.4 0 .6-.1.2-.2.3-.3.5-.2.2-.3.3-.1.6.2.3.9 1.5 1.9 2.4 1.3 1.2 2.4 1.5 2.7 1.7.3.1.5.1.6-.1.2-.2.7-.8.9-1.1.2-.3.4-.2.6-.1.2.1 1.5.7 1.8.8.3.1.5.2.5.3.1.3.1.7-.1 1.2z"/></svg></span>WhatsApp <span class="count" data-count="whatsapp"></span></button>
     </div>
   </header>
 
@@ -554,10 +1131,19 @@
   <main class="conv-list" id="convList" aria-live="polite"></main>
 
   <!-- FAB -->
+  <div class="fab-menu-backdrop" id="fabMenuBackdrop"></div>
+  <div class="fab-menu" id="fabMenu">
+    <button class="fab-menu-item" type="button" id="viewCustomersMenuItem"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>View all registered customers</button>
+    <button class="fab-menu-item" type="button" data-cust-filter="guest" aria-pressed="false"><span class="dot guest"></span>Guests only</button>
+    <button class="fab-menu-item" type="button" data-cust-filter="registered" aria-pressed="false"><span class="dot registered"></span>Registered only</button>
+    <button class="fab-menu-item" type="button" data-cust-filter="all" aria-pressed="true"><span class="dot all"></span>All customers</button>
+    <button class="fab-menu-item" type="button" id="newMessageMenuItem"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" width="14" height="14"><path d="M12 5v14M5 12h14"/></svg>New Message</button>
+  </div>
   <div class="fab">
-    <button id="newMessageBtn" type="button">
+    <button id="fabMainBtn" type="button" class="fab-main-btn" style="position:relative;">
+      <span class="fab-filter-dot" id="fabFilterDot"></span>
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
-      New Message
+      Menu
     </button>
   </div>
 
@@ -568,7 +1154,7 @@
       <span>Home</span>
     </button>
     <button class="nav-item" data-nav="inbox" aria-current="page">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16v11a2 2 0 0 1-2 2H9l-5 4V5Z"/></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h4l1.8 3.5h4.4L16 12h4"/><path d="M6.2 5h11.6a2 2 0 0 1 1.96 1.6L21 12v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-6l1.24-5.4A2 2 0 0 1 6.2 5Z"/></svg>
       <span>Inbox</span>
     </button>
     <button class="nav-item" data-nav="orders">
@@ -596,7 +1182,10 @@
     <span class="thread-avatar-wrap" id="threadAvatarWrap"></span>
     <span class="thread-identity">
       <span class="thread-name" id="threadName"></span>
-      <span class="thread-channel" id="threadChannel"></span>
+      <span class="identity-row">
+        <span class="thread-channel" id="threadChannel"></span>
+        <button class="identity-chip" id="identityChipBtn" hidden></button>
+      </span>
     </span>
     <button class="thread-more" id="threadMoreBtn" aria-label="More options">
       <svg viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="19" cy="12" r="1.8"/></svg>
@@ -609,6 +1198,9 @@
     <button type="button" class="composer-attach" id="attachBtn" aria-label="Attach file">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.5 12.5 21a5 5 0 0 1-7-7L14 5.5a3.5 3.5 0 0 1 5 5L10.5 19a2 2 0 0 1-3-3L15 8.5"/></svg>
     </button>
+    <button type="button" class="composer-lock" id="noteToggleBtn" aria-label="Toggle internal note mode" aria-pressed="false">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
+    </button>
     <textarea id="composerInput" rows="1" placeholder="Message..."></textarea>
     <button type="submit" class="composer-send" id="sendBtn" aria-label="Send message" disabled>
       <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 20l18-8L3 4v6l12 2-12 2z"/></svg>
@@ -616,6 +1208,23 @@
   </form>
 
 </div><!-- /threadView -->
+
+<div class="cust-sheet-backdrop" id="custSheetBackdrop"></div>
+<div class="cust-sheet" id="custSheet" aria-hidden="true">
+  <div class="cust-sheet__handle"></div>
+  <div class="cust-sheet__scroll" id="custSheetScroll"></div>
+</div>
+
+<div id="customersView" hidden>
+  <div class="cust-list-header">
+    <button class="cust-list-back" id="customersBackBtn" aria-label="Back to inbox">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+    </button>
+    <h1>Registered Customers</h1>
+    <span class="cust-list-count" id="customersCount"></span>
+  </div>
+  <div class="cust-list-scroll" id="customersListScroll"></div>
+</div>
 
 </div>
 
@@ -645,8 +1254,10 @@
   const state = {
     conversations: [],
     activeFilter: "all",
+    custTypeFilter: "all",  // all | registered | guest — set via FAB menu
     searchQuery: "",
-    activeConversationId: null
+    activeConversationId: null,
+    noteMode: false
   };
 
   const els = {
@@ -659,21 +1270,85 @@
     threadName: document.getElementById("threadName"),
     threadChannel: document.getElementById("threadChannel"),
     threadAvatarWrap: document.getElementById("threadAvatarWrap"),
+    identityChipBtn: document.getElementById("identityChipBtn"),
+    custSheetBackdrop: document.getElementById("custSheetBackdrop"),
+    custSheet: document.getElementById("custSheet"),
+    custSheetScroll: document.getElementById("custSheetScroll"),
     composerForm: document.getElementById("composerForm"),
     composerInput: document.getElementById("composerInput"),
-    sendBtn: document.getElementById("sendBtn")
+    sendBtn: document.getElementById("sendBtn"),
+    noteToggleBtn: document.getElementById("noteToggleBtn"),
+    customersView: document.getElementById("customersView"),
+    customersListScroll: document.getElementById("customersListScroll"),
+    customersCount: document.getElementById("customersCount")
   };
 
   /* ---------- Mock data (used only when Supabase isn't configured) ---------- */
+  // ---------- Mock customer identity records (backend: `customers` + `customer_channels` tables) ----------
+  // A customer_id links multiple conversations across different platforms to ONE real person.
+  // "registered" customers have a SuppVerse account (Customer ID, orders on file).
+  // "guest" customers have only chatted with us — no account, so no order history to show.
+  const MOCK_CUSTOMERS = {
+    cu1042: {
+      customer_id: "CU-1042",
+      name: "Tanvir Ahmed",
+      status: "registered",
+      match_confidence: "strong",   // matched by phone number across channels
+      phone: "01712-345678",
+      email: "tanvir.ahmed@gmail.com",
+      channels: ["messenger", "whatsapp"],
+      current_order: { id:"SV-2214", amount:1800, status:"Pending", items:"Magnesium Glycinate", placed_at:new Date(Date.now()-6*86400000).toISOString() },
+      past_orders: [
+        { id:"SV-2198", amount:2400, status:"Delivered", placed_at:new Date(Date.now()-32*86400000).toISOString() },
+        { id:"SV-2071", amount:1200, status:"Delivered", placed_at:new Date(Date.now()-68*86400000).toISOString() }
+      ]
+    },
+    cu1103: {
+      customer_id: "CU-1103",
+      name: "Rakibul Islam",
+      status: "registered",
+      match_confidence: "strong",
+      phone: "01818-902233",
+      email: "rakibul.islam@yahoo.com",
+      channels: ["whatsapp"],
+      current_order: null,
+      past_orders: [
+        { id:"SV-2150", amount:3200, status:"Delivered", placed_at:new Date(Date.now()-14*86400000).toISOString() }
+      ]
+    },
+    guest_farzana: {
+      customer_id: null,
+      name: "Farzana Akter",
+      status: "guest",           // no SuppVerse account found — chat-only identity
+      match_confidence: "weak",  // matched by name similarity only — needs staff confirmation
+      phone: null,
+      email: null,
+      channels: ["instagram", "messenger"],
+      current_order: null,
+      past_orders: []
+    }
+  };
+
   const MOCK_CONVERSATIONS = [
-    { id:"m1", customer_name:"Nusrat Jahan", customer_avatar:"", channel:"whatsapp", last_message:"Is the whey protein back in stock?", updated_at:new Date(Date.now()-2*60000).toISOString(), unread_count:2 },
-    { id:"m2", customer_name:"Tanvir Ahmed", customer_avatar:"", channel:"messenger", last_message:"Order #SV-2214 hasn't arrived yet", updated_at:new Date(Date.now()-58*60000).toISOString(), unread_count:1 },
-    { id:"m3", customer_name:"Farzana Akter", customer_avatar:"", channel:"instagram", last_message:"Can I get a discount on bulk order?", updated_at:new Date(Date.now()-3*3600000).toISOString(), unread_count:0 },
-    { id:"m4", customer_name:"Rakibul Islam", customer_avatar:"", channel:"whatsapp", last_message:"Thanks, received it in good condition!", updated_at:new Date(Date.now()-26*3600000).toISOString(), unread_count:0 },
-    { id:"m5", customer_name:"Sadia Islam", customer_avatar:"", channel:"messenger", last_message:"Do you ship to Chattogram?", updated_at:new Date(Date.now()-3*86400000).toISOString(), unread_count:3 }
+    { id:"m1", customer_name:"Nusrat Jahan", customer_avatar:"", customer_key:null, channel:"whatsapp", last_message:"Is the whey protein back in stock?", updated_at:new Date(Date.now()-2*60000).toISOString(), unread_count:2 },
+    { id:"m2", customer_name:"Tanvir Ahmed", customer_avatar:"", customer_key:"cu1042", channel:"messenger", last_message:"Order #SV-2214 hasn't arrived yet", updated_at:new Date(Date.now()-58*60000).toISOString(), unread_count:1 },
+    { id:"m3", customer_name:"Farzana Akter", customer_avatar:"", customer_key:"guest_farzana", channel:"instagram", last_message:"Can I get a discount on bulk order?", updated_at:new Date(Date.now()-3*3600000).toISOString(), unread_count:0 },
+    { id:"m4", customer_name:"Rakibul Islam", customer_avatar:"", customer_key:"cu1103", channel:"whatsapp", last_message:"Thanks, received it in good condition!", updated_at:new Date(Date.now()-26*3600000).toISOString(), unread_count:0 },
+    { id:"m5", customer_name:"Sadia Islam", customer_avatar:"", customer_key:null, channel:"messenger", last_message:"Do you ship to Chattogram?", updated_at:new Date(Date.now()-3*86400000).toISOString(), unread_count:3 },
+    { id:"m6", customer_name:"Tanvir Ahmed", customer_avatar:"", customer_key:"cu1042", channel:"whatsapp", last_message:"Also is COD available?", updated_at:new Date(Date.now()-40*3600000).toISOString(), unread_count:0 },
+    { id:"m7", customer_name:"Farzana Akter", customer_avatar:"", customer_key:"guest_farzana", channel:"messenger", last_message:"Hi, is this the same SuppVerse from Instagram?", updated_at:new Date(Date.now()-5*3600000).toISOString(), unread_count:1 }
   ];
 
   const MOCK_MESSAGES = {
+    // NOTE FOR BACKEND WIRING (Phase 4 — Meta/WhatsApp sync):
+    // Every row saved here can carry is_internal:true (internal notes) or false (real replies).
+    // The outbound sync Edge Function that pushes admin replies to Messenger/Instagram/WhatsApp
+    // MUST filter "where is_internal = false" before calling any Meta/WhatsApp API — never sync
+    // sender_type = 'note' rows. Also enforce this with a Postgres check/RLS policy, since
+    // frontend flags alone are not a security boundary — a compromised or buggy client must not
+    // be able to leak an internal note to a customer.
+    // Access to internal notes (reading them at all) should be restricted server-side to
+    // admin/co-admin roles only — never exposed to any customer-facing API or storefront query.
     m1: [
       { sender_type:"admin", content:"Hi Nusrat! Thanks for reaching out 😊", created_at:new Date(Date.now()-2*86400000).toISOString() },
       { sender_type:"customer", content:"Hi, I wanted to ask about the whey protein", created_at:new Date(Date.now()-2*86400000+5*60000).toISOString() },
@@ -702,6 +1377,13 @@
       { sender_type:"admin", content:"Yes we do! Which city are you in?", created_at:new Date(Date.now()-3*86400000-3600000).toISOString() },
       { sender_type:"customer", content:"Chattogram", created_at:new Date(Date.now()-3*86400000-1800000).toISOString() },
       { sender_type:"customer", content:"Do you ship to Chattogram?", created_at:new Date(Date.now()-3*86400000).toISOString() }
+    ],
+    m6: [
+      { sender_type:"customer", content:"Hi it's Tanvir again, messaging from WhatsApp this time", created_at:new Date(Date.now()-41*3600000).toISOString() },
+      { sender_type:"customer", content:"Also is COD available?", created_at:new Date(Date.now()-40*3600000).toISOString() }
+    ],
+    m7: [
+      { sender_type:"customer", content:"Hi, is this the same SuppVerse from Instagram?", created_at:new Date(Date.now()-5*3600000).toISOString() }
     ]
   };
 
@@ -778,7 +1460,7 @@
 
   function channelBadgeSvg(channel){
     if(channel === "messenger"){
-      return '<svg viewBox="0 0 24 24" fill="#fff"><path d="M12 2C6.5 2 2 6.1 2 11.3c0 2.9 1.4 5.5 3.7 7.2V22l3.4-1.9c.9.25 1.9.4 2.9.4 5.5 0 10-4.1 10-9.2S17.5 2 12 2zm1 12.4-2.6-2.7-5 2.7 5.5-5.8 2.6 2.7 5-2.7-5.5 5.8z"/></svg>';
+      return '<svg viewBox="0 0 24 24" fill="#fff"><path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z"/></svg>';
     }
     if(channel === "instagram"){
       return '<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="3.6"/><circle cx="17.2" cy="6.8" r="1"/></svg>';
@@ -792,6 +1474,11 @@
     return state.conversations.filter(c => {
       const matchesChannel = state.activeFilter === "all" || c.channel === state.activeFilter;
       if(!matchesChannel) return false;
+      if(state.custTypeFilter !== "all"){
+        const cust = c.customer_key ? MOCK_CUSTOMERS[c.customer_key] : null;
+        const custStatus = cust ? cust.status : "guest";  // no linked record = guest
+        if(custStatus !== state.custTypeFilter) return false;
+      }
       if(!q) return true;
       return (c.customer_name || "").toLowerCase().includes(q) ||
              (c.last_message || "").toLowerCase().includes(q);
@@ -909,6 +1596,153 @@
     els.threadChannel.textContent = (CHANNEL_META[conv.channel] && CHANNEL_META[conv.channel].label) || conv.channel;
     els.threadChannel.className = "thread-channel " + conv.channel;
     els.composerInput.placeholder = `Message via ${(CHANNEL_META[conv.channel] && CHANNEL_META[conv.channel].label) || "chat"}...`;
+    renderIdentityChip(conv);
+  }
+
+  const CHANNEL_ICON_CLASS = { messenger:"fb", instagram:"ig", whatsapp:"wa" };
+
+  function getCustomerRecord(conv){
+    return conv.customer_key ? MOCK_CUSTOMERS[conv.customer_key] : null;
+  }
+
+  function renderIdentityChip(conv){
+    const cust = getCustomerRecord(conv);
+    if(!cust || !cust.channels || cust.channels.length < 2){
+      els.identityChipBtn.hidden = true;
+      els.identityChipBtn.onclick = null;
+      return;
+    }
+    const miniBadges = cust.channels.map(ch =>
+      `<span class="${CHANNEL_ICON_CLASS[ch]}">${channelBadgeSvg(ch)}</span>`
+    ).join("");
+    els.identityChipBtn.hidden = false;
+    els.identityChipBtn.className = "identity-chip" + (cust.status === "guest" ? " guest" : "");
+    els.identityChipBtn.innerHTML = `<span class="mini-badges">${miniBadges}</span>Also on ${cust.channels.length - 1} more`;
+    els.identityChipBtn.onclick = () => openCustomerPanel(conv);
+  }
+
+  function openCustomerPanel(conv){
+    els.custSheetScroll.innerHTML = buildCustomerPanelHtml(conv);
+    els.custSheetBackdrop.classList.add("open");
+    els.custSheet.classList.add("open");
+    els.custSheet.setAttribute("aria-hidden", "false");
+  }
+
+  function closeCustomerPanel(){
+    els.custSheetBackdrop.classList.remove("open");
+    els.custSheet.classList.remove("open");
+    els.custSheet.setAttribute("aria-hidden", "true");
+  }
+
+  els.custSheetBackdrop.addEventListener("click", closeCustomerPanel);
+
+  function formatOrderDate(iso){
+    return new Date(iso).toLocaleDateString(undefined, { month:"short", day:"numeric", year:"numeric" });
+  }
+
+  function buildCustomerPanelHtml(conv){
+    const cust = getCustomerRecord(conv) || {
+      customer_id:null, name:conv.customer_name, status:"guest",
+      phone:null, email:null, channels:[conv.channel], current_order:null, past_orders:[]
+    };
+    const isRegistered = cust.status === "registered";
+    const avatarBg = hashColor(cust.name || "?");
+
+    const verifiedIconSvg = `<svg class="name-verified-badge" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><path fill="currentColor" d="m21.5609 10.7386-1.36-1.58001c-.26-.3-.47-.86-.47-1.26v-1.7c0-1.06-.87-1.93-1.93-1.93h-1.7c-.39 0-.96-.21-1.26-.47l-1.58-1.36c-.69-.59-1.82-.59-2.52 0l-1.57004 1.37c-.3.25-.87.46-1.26.46h-1.73c-1.06 0-1.93.87-1.93 1.93v1.71c0 .39-.21.95-.46 1.25l-1.35 1.59001c-.58.69-.58 1.81 0 2.5l1.35 1.59c.25.3.46.86.46 1.25v1.71c0 1.06.87 1.93 1.93 1.93h1.73c.39 0 .96.21 1.26.47l1.58004 1.36c.69.59 1.82.59 2.52 0l1.58-1.36c.3-.26.86-.47 1.26-.47h1.7c1.06 0 1.93-.87 1.93-1.93v-1.7c0-.39.21-.96.47-1.26l1.36-1.58c.58-.69.58-1.83-.01-2.52m-5.4-.63-4.83 4.83c-.14.14-.33.22-.53.22s-.39-.08-.53-.22l-2.42004-2.42c-.29-.29-.29-.77 0-1.06s.77-.29 1.06 0l1.89004 1.89 4.3-4.30001c.29-.29.77-.29 1.06 0s.29.77 0 1.06001"/></svg>`;
+
+    const statusPillHtml = isRegistered
+      ? ""
+      : `<span class="status-pill guest"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>Guest — no account</span>`;
+
+    const custIdHtml = cust.customer_id
+      ? `<div class="cust-sheet__id-row"><span class="cust-sheet__id-value">${escapeHtml(cust.customer_id)}</span></div>`
+      : "";
+
+    const platformsHtml = cust.channels.map(ch => {
+      const isActive = ch === conv.channel;
+      return `<div class="platform-row${isActive ? " active" : ""}">
+        <span class="platform-row__icon ${CHANNEL_ICON_CLASS[ch]}">${channelBadgeSvg(ch)}</span>
+        <span class="platform-row__label">${(CHANNEL_META[ch] && CHANNEL_META[ch].label) || ch}</span>
+        ${isActive ? `<span class="platform-row__tag">Viewing now</span>` : ""}
+      </div>`;
+    }).join("");
+
+    let bodyHtml = "";
+
+    if(!isRegistered){
+      const weakMatchHtml = cust.match_confidence === "weak"
+        ? `<div class="guest-callout" style="border-color:rgba(0,157,220,0.3); background:rgba(0,157,220,0.08);">
+            <svg viewBox="0 0 24 24" fill="none" stroke="var(--cyan)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4M12 8h.01"/></svg>
+            <p><strong>Possible match only</strong> — these platforms are linked by name alone, not confirmed. Verify with the customer before treating them as the same person.</p>
+          </div>`
+        : "";
+      bodyHtml = `
+        ${weakMatchHtml}
+        <div class="guest-callout">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4M12 17h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/></svg>
+          <p><strong>No SuppVerse account found</strong> for this person yet — order history isn't available. If they've ordered before under a different contact, use "Link to existing customer" to connect them.</p>
+        </div>
+        <div class="cust-sheet__section-label">Chatting from</div>
+        <div class="platform-list">${platformsHtml}</div>
+      `;
+    }else{
+      const currentOrderHtml = cust.current_order
+        ? `<div class="order-card">
+            <div class="order-card__top">
+              <span class="order-id-badge">${escapeHtml(cust.current_order.id)}</span>
+              <span class="order-status-tag ${cust.current_order.status.toLowerCase()}">${cust.current_order.status}</span>
+            </div>
+            <div class="order-card__items">${escapeHtml(cust.current_order.items)}</div>
+            <div class="order-card__meta">
+              <span>${formatOrderDate(cust.current_order.placed_at)}</span>
+              <span class="order-card__amount">৳${cust.current_order.amount.toLocaleString()}</span>
+            </div>
+          </div>`
+        : `<div class="empty-note">No order currently in progress.</div>`;
+
+      const pastOrdersHtml = cust.past_orders.length
+        ? cust.past_orders.map(o => `
+            <div class="order-card">
+              <div class="order-card__top">
+                <span class="order-id-badge">${escapeHtml(o.id)}</span>
+                <span class="order-status-tag ${o.status.toLowerCase()}">${o.status}</span>
+              </div>
+              <div class="order-card__meta">
+                <span>${formatOrderDate(o.placed_at)}</span>
+                <span class="order-card__amount">৳${o.amount.toLocaleString()}</span>
+              </div>
+            </div>`).join("")
+        : `<div class="empty-note">No previous orders.</div>`;
+
+      bodyHtml = `
+        <div class="cust-sheet__section-label">Contact</div>
+        <div class="contact-list">
+          <div class="contact-row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6 19.8 19.8 0 0 1-3.1-8.7A2 2 0 0 1 4 2h3a2 2 0 0 1 2 1.7c.1.9.3 1.8.6 2.7a2 2 0 0 1-.5 2.1L8 9.6a16 16 0 0 0 6 6l1.1-1.1a2 2 0 0 1 2.1-.5c.9.3 1.8.5 2.7.6a2 2 0 0 1 1.7 2Z"/></svg>${cust.phone || "—"}</div>
+          <div class="contact-row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 6L2 7"/></svg>${cust.email || "—"}</div>
+        </div>
+
+        <div class="cust-sheet__section-label">Chatting from</div>
+        <div class="platform-list">${platformsHtml}</div>
+
+        <div class="cust-sheet__section-label">Current order</div>
+        ${currentOrderHtml}
+
+        <div class="cust-sheet__section-label">Previous orders</div>
+        ${pastOrdersHtml}
+      `;
+    }
+
+    return `
+      <div class="cust-sheet__head">
+        <div class="cust-sheet__avatar" style="background:${avatarBg}">${initials(cust.name)}</div>
+        <div>
+          <div class="cust-sheet__name" style="display:flex;align-items:center;gap:5px;">${escapeHtml(cust.name || "Unknown")}${isRegistered ? verifiedIconSvg : ""}</div>
+          ${custIdHtml}
+          ${statusPillHtml}
+        </div>
+      </div>
+      ${bodyHtml}
+    `;
   }
 
   async function loadMessages(conv){
@@ -963,7 +1797,29 @@
     return el;
   }
 
+  function buildNoteRow(m){
+    const row = document.createElement("div");
+    row.className = "note-row";
+    const card = document.createElement("div");
+    card.className = "note-card";
+    const time = new Date(m.created_at).toLocaleTimeString(undefined, { hour:"numeric", minute:"2-digit", hour12:true });
+    const author = m.author_name || "You";
+    card.innerHTML = `
+      <div class="note-card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg></div>
+      <div class="note-card__body">
+        <div class="note-card__label">Internal Note</div>
+        <div class="note-card__text"></div>
+        <div class="note-card__meta">${author} · ${time}</div>
+      </div>`;
+    card.querySelector(".note-card__text").textContent = m.content;
+    row.appendChild(card);
+    return row;
+  }
+
   function buildMessageRow(m, tight){
+    if(m.sender_type === "note" || m.is_internal === true){
+      return buildNoteRow(m);
+    }
     const row = document.createElement("div");
     row.className = `msg-row from-${m.sender_type}` + (tight ? " tight" : "");
     const bubble = document.createElement("div");
@@ -973,7 +1829,7 @@
     text.textContent = m.content;
     const time = document.createElement("div");
     time.className = "msg-bubble__time";
-    time.textContent = new Date(m.created_at).toLocaleTimeString(undefined, { hour:"numeric", minute:"2-digit" });
+    time.textContent = new Date(m.created_at).toLocaleTimeString(undefined, { hour:"numeric", minute:"2-digit", hour12:true });
     bubble.appendChild(text);
     bubble.appendChild(time);
     row.appendChild(bubble);
@@ -997,7 +1853,8 @@
     els.threadMessages.scrollTop = els.threadMessages.scrollHeight;
   }
 
-  function appendMessage(m){
+  function appendMessage(m, opts){
+    opts = opts || {};
     const dividers = els.threadMessages.querySelectorAll(".day-divider");
     const lastDivider = dividers[dividers.length - 1];
     const label = formatDayLabel(m.created_at);
@@ -1007,6 +1864,7 @@
     els.threadMessages.appendChild(buildMessageRow(m, false));
     els.threadMessages.scrollTop = els.threadMessages.scrollHeight;
 
+    if(opts.skipLastMessage) return;
     const conv = state.conversations.find(c => c.id === m.conversation_id);
     if(conv){
       conv.last_message = m.content;
@@ -1041,9 +1899,35 @@
     if(!content || !state.activeConversationId) return;
 
     const conv = state.conversations.find(c => c.id === state.activeConversationId);
+
+    if(state.noteMode){
+      const note = {
+        conversation_id: state.activeConversationId,
+        sender_type: "note",
+        is_internal: true,      // hard flag: never synced to a customer channel, staff/admin-only
+        channel: null,          // notes are not tied to any external channel — nothing to send out
+        content,
+        created_at: new Date().toISOString(),
+        author_name: "You"
+      };
+      appendMessage(note, { skipLastMessage:true });
+      els.composerInput.value = "";
+      autoResizeComposer();
+      updateSendState();
+      if(supabase){
+        const { error } = await supabase.from("messages").insert(note);
+        if(error) console.error("sendNote error:", error);
+      }else if(conv){
+        MOCK_MESSAGES[conv.id] = MOCK_MESSAGES[conv.id] || [];
+        MOCK_MESSAGES[conv.id].push(note);
+      }
+      return;
+    }
+
     const message = {
       conversation_id: state.activeConversationId,
       sender_type: "admin",
+      is_internal: false,     // customer-facing reply — safe to sync out to Messenger/Instagram/WhatsApp
       content,
       created_at: new Date().toISOString(),
       channel: conv ? conv.channel : null
@@ -1073,22 +1957,154 @@
     console.log("Attach tapped");
   });
 
+  els.noteToggleBtn.addEventListener("click", () => {
+    state.noteMode = !state.noteMode;
+    els.noteToggleBtn.classList.toggle("active", state.noteMode);
+    els.noteToggleBtn.setAttribute("aria-pressed", String(state.noteMode));
+    els.composerForm.classList.toggle("note-mode", state.noteMode);
+    els.composerInput.placeholder = state.noteMode ? "Add an internal note..." : `Message via ${(CHANNEL_META[state.activeChannel] && CHANNEL_META[state.activeChannel].label) || "chat"}...`;
+    els.composerInput.focus();
+  });
+
   document.getElementById("threadMoreBtn").addEventListener("click", () => {
     // TODO: surface conversation actions (view customer profile, mark unread, block, etc.)
     console.log("Thread options tapped");
   });
 
-  document.getElementById("newMessageBtn").addEventListener("click", () => {
+  document.getElementById("newMessageMenuItem").addEventListener("click", () => {
     // TODO: open the "start new conversation" flow.
     console.log("New message tapped");
+    closeFabMenu();
+  });
+
+  document.getElementById("viewCustomersMenuItem").addEventListener("click", () => {
+    closeFabMenu();
+    openCustomersView();
+  });
+
+  /* ---------- FAB menu (customer type filter) ---------- */
+  const fabMenu = document.getElementById("fabMenu");
+  const fabMenuBackdrop = document.getElementById("fabMenuBackdrop");
+  const fabMainBtn = document.getElementById("fabMainBtn");
+  const fabFilterDot = document.getElementById("fabFilterDot");
+
+  function openFabMenu(){
+    fabMenu.classList.add("open");
+    fabMenuBackdrop.classList.add("open");
+    fabMainBtn.classList.add("open");
+  }
+  function closeFabMenu(){
+    fabMenu.classList.remove("open");
+    fabMenuBackdrop.classList.remove("open");
+    fabMainBtn.classList.remove("open");
+  }
+  fabMainBtn.addEventListener("click", () => {
+    fabMenu.classList.contains("open") ? closeFabMenu() : openFabMenu();
+  });
+  fabMenuBackdrop.addEventListener("click", closeFabMenu);
+
+  fabMenu.querySelectorAll("[data-cust-filter]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      state.custTypeFilter = btn.dataset.custFilter;
+      fabMenu.querySelectorAll("[data-cust-filter]").forEach(b =>
+        b.setAttribute("aria-pressed", b === btn ? "true" : "false")
+      );
+      fabFilterDot.classList.toggle("show", state.custTypeFilter !== "all");
+      closeFabMenu();
+      render();
+    });
   });
 
   document.querySelectorAll(".nav-item").forEach(btn => {
     btn.addEventListener("click", () => {
+      if(btn.dataset.nav === "customers"){
+        console.log("Opening Customers view...");
+        openCustomersView();
+        return;
+      }
       // TODO: wire to real navigation between admin panel sections.
       console.log("Navigate to:", btn.dataset.nav);
     });
   });
+
+  /* ---------- Customers screen (all registered customers) ---------- */
+  function openCustomersView(){
+    try{
+      renderCustomersList();
+    }catch(err){
+      console.error("renderCustomersList failed:", err);
+      els.customersListScroll.innerHTML = `<div class="cust-list-empty">Couldn't load customers (${escapeHtml(err.message || "unknown error")}). Check console.</div>`;
+    }
+    els.customersView.hidden = false;
+  }
+  function closeCustomersView(){
+    els.customersView.hidden = true;
+  }
+  document.getElementById("customersBackBtn").addEventListener("click", closeCustomersView);
+
+  function findConversationForCustomerKey(key){
+    // Prefer the most recently updated conversation for this customer across their platforms.
+    const matches = state.conversations.filter(c => c.customer_key === key);
+    if(!matches.length) return null;
+    return matches.sort((a,b) => new Date(b.updated_at) - new Date(a.updated_at))[0];
+  }
+
+  function renderCustomersList(){
+    const registered = Object.entries(MOCK_CUSTOMERS)
+      .filter(([, cust]) => cust.status === "registered")
+      .map(([key, cust]) => ({ key, ...cust }))
+      .sort((a, b) => a.name.localeCompare(b.name));
+
+    els.customersCount.textContent = registered.length
+      ? `${registered.length} customer${registered.length === 1 ? "" : "s"}`
+      : "";
+
+    if(!registered.length){
+      els.customersListScroll.innerHTML = `<div class="cust-list-empty">No registered customers have messaged in yet.</div>`;
+      return;
+    }
+
+    els.customersListScroll.innerHTML = registered.map(cust => {
+      const platformsHtml = cust.channels.map(ch =>
+        `<span class="${CHANNEL_ICON_CLASS[ch]}">${channelBadgeSvg(ch)}</span>`
+      ).join("");
+      return `
+        <div class="cust-list-row" data-cust-key="${cust.key}" role="button" tabindex="0">
+          <div class="cust-list-row__avatar" style="background:${hashColor(cust.name)}">${initials(cust.name)}</div>
+          <div class="cust-list-row__main">
+            <div class="cust-list-row__name">${escapeHtml(cust.name)}<svg viewBox="0 0 24 24" fill="none"><path fill="currentColor" d="m21.5609 10.7386-1.36-1.58001c-.26-.3-.47-.86-.47-1.26v-1.7c0-1.06-.87-1.93-1.93-1.93h-1.7c-.39 0-.96-.21-1.26-.47l-1.58-1.36c-.69-.59-1.82-.59-2.52 0l-1.57004 1.37c-.3.25-.87.46-1.26.46h-1.73c-1.06 0-1.93.87-1.93 1.93v1.71c0 .39-.21.95-.46 1.25l-1.35 1.59001c-.58.69-.58 1.81 0 2.5l1.35 1.59c.25.3.46.86.46 1.25v1.71c0 1.06.87 1.93 1.93 1.93h1.73c.39 0 .96.21 1.26.47l1.58004 1.36c.69.59 1.82.59 2.52 0l1.58-1.36c.3-.26.86-.47 1.26-.47h1.7c1.06 0 1.93-.87 1.93-1.93v-1.7c0-.39.21-.96.47-1.26l1.36-1.58c.58-.69.58-1.83-.01-2.52m-5.4-.63-4.83 4.83c-.14.14-.33.22-.53.22s-.39-.08-.53-.22l-2.42004-2.42c-.29-.29-.29-.77 0-1.06s.77-.29 1.06 0l1.89004 1.89 4.3-4.30001c.29-.29.77-.29 1.06 0s.29.77 0 1.06001"/></svg></div>
+            <span class="cust-list-row__id">${escapeHtml(cust.customer_id)}</span>
+          </div>
+          <div class="cust-list-row__platforms">${platformsHtml}</div>
+        </div>
+      `;
+    }).join("");
+
+    els.customersListScroll.querySelectorAll("[data-cust-key]").forEach(row => {
+      row.addEventListener("click", () => {
+        const conv = findConversationForCustomerKey(row.dataset.custKey);
+        closeCustomersView();
+        if(conv) openConversation(conv.id);
+      });
+    });
+  }
+
+  /* ---------- Theme toggle ---------- */
+  (function initTheme(){
+    const root = document.documentElement;
+    let stored = null;
+    try{ stored = localStorage.getItem("sv_inbox_theme"); }catch(e){ /* localStorage unavailable on this file/context — fall back to system preference */ }
+    const initial = stored === "light" || stored === "dark"
+      ? stored
+      : (window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark");
+    root.setAttribute("data-theme", initial);
+
+    document.getElementById("themeToggleBtn").addEventListener("click", () => {
+      const next = root.getAttribute("data-theme") === "light" ? "dark" : "light";
+      root.setAttribute("data-theme", next);
+      try{ localStorage.setItem("sv_inbox_theme", next); }catch(e){ /* ignore — theme just won't persist across reloads */ }
+    });
+  })();
 
   /* ---------- Boot ---------- */
   initSupabase();
