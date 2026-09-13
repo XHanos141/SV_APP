@@ -1026,6 +1026,8 @@ async function saveProfileChanges(){
   btn.querySelector('.btn-spin').style.display = 'inline-block';
 
   try{
+    await requireFingerprint();
+
     let avatarUrl = currentAdminRow.avatar_url || null;
 
     if(pendingAvatarBlob){
@@ -1064,7 +1066,7 @@ async function saveProfileChanges(){
     pendingAvatarBlob = null;
     closeEditProfile();
   }catch(err){
-    errEl.textContent = 'Could not save changes. Please try again.';
+    errEl.textContent = err.message || 'Could not save changes. Please try again.';
     errEl.classList.add('show');
   }finally{
     btn.disabled = false;
@@ -1099,6 +1101,65 @@ function bufferToBase64Url(buf){
   let str = '';
   for(let i = 0; i < bytes.length; i++) str += String.fromCharCode(bytes[i]);
   return btoa(str).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+}
+
+// Asks this device to confirm with a fingerprint before a change is saved.
+// If no fingerprint has been registered yet, changes go through as before —
+// enforcement only starts once at least one device is set up.
+async function requireFingerprint(){
+  if(!currentAdminRow) return;
+
+  const { count } = await sb.from('admin_passkeys')
+    .select('id', { count: 'exact', head: true })
+    .eq('admin_id', currentAdminRow.id);
+
+  if(!count) return; // nothing registered yet — nothing to confirm
+
+  if(!window.PublicKeyCredential){
+    throw new Error('This device doesn\u2019t support fingerprint confirmation.');
+  }
+
+  const { data: { session } } = await sb.auth.getSession();
+  if(!session) throw new Error('Not signed in');
+
+  const optionsRes = await fetch(SB_URL + '/functions/v1/passkey-verify-options', {
+    method: 'POST',
+    headers: { 'Authorization': 'Bearer ' + session.access_token, 'Content-Type': 'application/json' },
+  });
+  const options = await optionsRes.json();
+  if(!optionsRes.ok) throw new Error(options.error || 'Could not start fingerprint check');
+
+  const publicKey = {
+    ...options,
+    challenge: base64UrlToBuffer(options.challenge),
+    allowCredentials: (options.allowCredentials || []).map(c => ({
+      ...c, id: base64UrlToBuffer(c.id),
+    })),
+  };
+
+  const assertion = await navigator.credentials.get({ publicKey });
+  if(!assertion) throw new Error('Fingerprint confirmation was cancelled');
+
+  const assertionResponse = {
+    id: assertion.id,
+    rawId: bufferToBase64Url(assertion.rawId),
+    type: assertion.type,
+    response: {
+      clientDataJSON: bufferToBase64Url(assertion.response.clientDataJSON),
+      authenticatorData: bufferToBase64Url(assertion.response.authenticatorData),
+      signature: bufferToBase64Url(assertion.response.signature),
+      userHandle: assertion.response.userHandle ? bufferToBase64Url(assertion.response.userHandle) : null,
+    },
+    clientExtensionResults: assertion.getClientExtensionResults ? assertion.getClientExtensionResults() : {},
+  };
+
+  const verifyRes = await fetch(SB_URL + '/functions/v1/passkey-verify-assert', {
+    method: 'POST',
+    headers: { 'Authorization': 'Bearer ' + session.access_token, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ assertionResponse }),
+  });
+  const verifyData = await verifyRes.json();
+  if(!verifyRes.ok || !verifyData.verified) throw new Error(verifyData.error || 'Fingerprint did not match');
 }
 
 async function refreshPasskeyStatus(){
