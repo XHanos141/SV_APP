@@ -5414,17 +5414,14 @@ html[data-theme="dark"] .brand-sheet-close { background: rgba(255,255,255,0.08);
 .brand-sheet-chip {
   font-family: "Plus Jakarta Sans", sans-serif; font-size: 14px; font-weight: 800;
   color: #2f3a4a; background: #f8f9fb; border: 1px solid #ececec; border-radius: 10px;
-  padding: 12px 14px; cursor: pointer; user-select: none;
-  display: flex; align-items: center; justify-content: space-between; gap: 8px;
-  white-space: nowrap; overflow: hidden;
+  padding: 12px 16px; cursor: pointer; user-select: none;
+  display: flex; align-items: center;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
   transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
 }
-.brand-sheet-chip span { overflow: hidden; text-overflow: ellipsis; }
 html[data-theme="dark"] .brand-sheet-chip { color: rgba(255,255,255,0.85); background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.1); }
 .brand-sheet-chip.active { background: rgba(124,111,247,0.12); border-color: #7C6FF7; color: #7C6FF7; }
 html[data-theme="dark"] .brand-sheet-chip.active { background: rgba(124,111,247,0.18); border-color: #9d94ff; color: #9d94ff; }
-.brand-sheet-chip .pcm-check { opacity: 0; }
-.brand-sheet-chip.active .pcm-check { opacity: 1; }
 .brand-sheet-actions { display: flex; gap: 10px; flex-shrink: 0; }
 .brand-sheet-clear, .brand-sheet-apply {
   flex: 1; height: 44px; border-radius: 10px; border: none;
@@ -24613,6 +24610,7 @@ function changeNpStock(delta) {
 const PRODUCTS_DATA = [
   {
     name:"Omega-3 Ultra", sku:"NW-OMG3-UTA-180", price:5950, cost:4200, weightCost:220, stock:4, color:"g", supplier:"Nature's Way", category:"supplement", subcategory:"Omega-3",
+    meta:{ brandName:"NutriWell" },
     batches:[
       { id:"BTH-001", expiryDate:"2025-09-15", qty:2, costPerUnit:4200 },
       { id:"BTH-002", expiryDate:"2026-04-20", qty:1, costPerUnit:4050 },
@@ -24621,6 +24619,7 @@ const PRODUCTS_DATA = [
   },
   {
     name:"Magnesium Glycinate", sku:"DB-MAG-GLY-120", price:3250, cost:1690, weightCost:95, stock:6, color:"p", supplier:"Designs for Health", category:"supplement",
+    meta:{ brandName:"VitaCore" },
     batches:[
       { id:"BTH-004", expiryDate:"2026-02-10", qty:3, costPerUnit:1690 },
       { id:"BTH-005", expiryDate:"2028-05-22", qty:3, costPerUnit:1600 },
@@ -24628,12 +24627,14 @@ const PRODUCTS_DATA = [
   },
   {
     name:"Betaine HCL & Pepsin", sku:"DB-HCI-PEP-120", price:3000, cost:1950, weightCost:110, stock:0, color:"r", supplier:"Designs for Health", category:"supplement",
+    meta:{ brandName:"VitaCore" },
     batches:[
       { id:"BTH-006", expiryDate:"2027-09-01", qty:0, costPerUnit:1950 },
     ]
   },
   {
     name:"Vitamin D3 + K2", sku:"DB-VD3-K2-90", price:6150, cost:3800, weightCost:200, stock:8, color:"p", supplier:"Designs for Health", category:"supplement",
+    meta:{ brandName:"VitaCore" },
     batches:[
       { id:"BTH-007", expiryDate:"2026-08-15", qty:2, costPerUnit:3800 },
       { id:"BTH-008", expiryDate:"2027-11-30", qty:3, costPerUnit:3750 },
@@ -24642,6 +24643,7 @@ const PRODUCTS_DATA = [
   },
   {
     name:"Zinc Complex", sku:"DB-ZNC-CMP-60", price:2400, cost:1200, weightCost:65, stock:2, color:"g", supplier:"Nature's Best", category:"supplement",
+    meta:{ brandName:"Deltabio" },
     batches:[
       { id:"BTH-010", expiryDate:"2026-03-05", qty:1, costPerUnit:1200 },
       { id:"BTH-011", expiryDate:"2028-03-20", qty:1, costPerUnit:1150 },
@@ -24649,20 +24651,24 @@ const PRODUCTS_DATA = [
   },
   {
     name:"Digital Kitchen Scale", sku:"GN-DKS-BLK-01", price:1800, cost:900, weightCost:60, stock:11, color:"p", supplier:"Generic Import", category:"gadget",
+    meta:{ brandName:"HomeTech" },
     variant:"Black", batches:null
   },
   {
     name:"Compression T-Shirt", sku:"AP-CTS-BLK-L", price:1200, cost:550, weightCost:40, stock:14, color:"g", supplier:"Local Apparel Co.", category:"clothing",
+    meta:{ brandName:"ActiveFit" },
     variant:"Black, L", batches:null
   },
   {
     name:"Hydrating Face Serum (DEMO)", sku:"CO-HFS-30ML-01", price:1800, cost:900, weightCost:55, stock:5, color:"p", supplier:"Demo Supplier", category:"cosmetic",
+    meta:{ brandName:"GlowLab" },
     batches:[
       { id:"BTH-DEMO-01", expiryDate:"2027-01-10", qty:5, costPerUnit:900 },
     ]
   },
   {
     name:"Reusable Water Bottle (DEMO)", sku:"GN-RWB-BLU-01", price:900, cost:450, weightCost:30, stock:11, color:"g", supplier:"Demo Supplier", category:"general",
+    meta:{ brandName:"EcoDaily" },
     variant:"Blue", batches:null
   },
 ];
@@ -25085,10 +25091,7 @@ function renderProductsTab(searchDisplayVal) {
       </div>
       <div class="brand-sheet-chips" id="brandSheetChips">
         ${allUsedBrands.length ? allUsedBrands.map(b => `
-        <div class="brand-sheet-chip ${_pendingBrandFilter.includes(b)?'active':''}" data-brand="${escapeHtml(b)}" onclick="toggleBrandChip('${b.replace(/'/g,"\\'")}', this)">
-          <span>${escapeHtml(b)}</span>
-          <svg class="pcm-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-checkmark"/></svg>
-        </div>`).join('') : `<div style="padding:20px 8px;text-align:center;font-family:'Plus Jakarta Sans',sans-serif;font-size:12.5px;font-weight:600;color:#8c92a1">No brands yet — add one from the product form</div>`}
+        <div class="brand-sheet-chip ${_pendingBrandFilter.includes(b)?'active':''}" data-brand="${escapeHtml(b)}" onclick="toggleBrandChip('${b.replace(/'/g,"\\'")}', this)">${escapeHtml(b)}</div>`).join('') : `<div style="padding:20px 8px;text-align:center;font-family:'Plus Jakarta Sans',sans-serif;font-size:12.5px;font-weight:600;color:#8c92a1">No brands yet — add one from the product form</div>`}
       </div>
       <div class="brand-sheet-actions">
         <button type="button" class="brand-sheet-clear" onclick="clearBrandFilterSheet()">Clear</button>
