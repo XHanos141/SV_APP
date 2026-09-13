@@ -585,7 +585,7 @@ body.dark-mode .icon-moon{opacity:1;transform:scale(1) rotate(0)}
 <!-- PASSKEY INFO MODAL (view-only status) -->
 <div class="modal-overlay center-popup" id="passkeyInfoModal">
   <div class="modal-sheet">
-    <div class="modal-title">Passkey</div>
+    <div class="modal-title">Fingerprint</div>
     <div class="pk-status-row">
       <div class="pk-status-icon">
         <svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>
@@ -595,9 +595,17 @@ body.dark-mode .icon-moon{opacity:1;transform:scale(1) rotate(0)}
         <div class="pk-status-sub" id="pkModalStatusSub">Registered on this device</div>
       </div>
     </div>
-    <p class="pk-note">Passkey management isn't available yet — this is a status view only. You'll be able to add or remove passkeys from here in a future update.</p>
+    <p class="pk-note" id="pkModalNote">Registering ties this device's fingerprint or face unlock to your account. Once set up, this device will be asked to confirm changes you make.</p>
+    <div class="edit-profile-err" id="passkeyErr"></div>
+    <div id="pkDeviceList" style="margin-top:10px"></div>
     <div class="ae-btn-row">
-      <button class="modal-save-btn" style="margin-top:14px" onclick="closePasskeyInfo()">Close</button>
+      <button class="modal-save-btn" id="passkeySetupBtn" style="margin-top:14px" onclick="setUpPasskey()">
+        <span class="btn-label">Set Up Fingerprint</span>
+        <span class="btn-spin" style="display:none"></span>
+      </button>
+    </div>
+    <div class="ae-btn-row">
+      <button class="ae-cancel-btn" onclick="closePasskeyInfo()">Close</button>
     </div>
   </div>
 </div>
@@ -654,14 +662,8 @@ function renderAdmin(row, authUser){
   gStatus.textContent = 'Linked';
   gStatus.className = 'setting-status linked';
 
-  // No real passkey system exists yet — status view only, honestly reflects that.
-  const pkStatus = document.getElementById('passkeyStatus');
-  const pkSub = document.getElementById('passkeySub');
-  pkStatus.textContent = 'Not Set Up';
-  pkStatus.className = 'setting-status not-linked';
-  pkSub.textContent = 'No passkey registered';
-  document.getElementById('pkModalStatusTitle').textContent = 'No Passkey';
-  document.getElementById('pkModalStatusSub').textContent = 'Not registered on any device';
+  // Reflect whatever passkeys are actually on file for this admin.
+  refreshPasskeyStatus();
 
   idCard.classList.remove('is-loading');
 }
@@ -1082,6 +1084,131 @@ function confirmPasswordReset(){ closePasswordConfirm(); }
 // ===== PASSKEY INFO MODAL =====
 function openPasskeyInfo(){ document.getElementById('passkeyInfoModal').classList.add('open'); }
 function closePasskeyInfo(){ document.getElementById('passkeyInfoModal').classList.remove('open'); }
+
+// ===== FINGERPRINT / PASSKEY REGISTRATION =====
+function base64UrlToBuffer(b64url){
+  const b64 = b64url.replace(/-/g, '+').replace(/_/g, '/');
+  const pad = b64.length % 4 === 0 ? '' : '='.repeat(4 - (b64.length % 4));
+  const raw = atob(b64 + pad);
+  const buf = new Uint8Array(raw.length);
+  for(let i = 0; i < raw.length; i++) buf[i] = raw.charCodeAt(i);
+  return buf.buffer;
+}
+function bufferToBase64Url(buf){
+  const bytes = new Uint8Array(buf);
+  let str = '';
+  for(let i = 0; i < bytes.length; i++) str += String.fromCharCode(bytes[i]);
+  return btoa(str).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+}
+
+async function refreshPasskeyStatus(){
+  if(!currentAdminRow) return;
+  const { data: passkeys } = await sb.from('admin_passkeys')
+    .select('id, device_label, created_at')
+    .eq('admin_id', currentAdminRow.id)
+    .order('created_at', { ascending: false });
+
+  const pkStatus = document.getElementById('passkeyStatus');
+  const pkSub = document.getElementById('passkeySub');
+  const listEl = document.getElementById('pkDeviceList');
+  const setupBtn = document.getElementById('passkeySetupBtn');
+
+  if(passkeys && passkeys.length){
+    pkStatus.textContent = 'Active';
+    pkStatus.className = 'setting-status linked';
+    pkSub.textContent = passkeys.length + (passkeys.length === 1 ? ' device registered' : ' devices registered');
+    document.getElementById('pkModalStatusTitle').textContent = 'Fingerprint Active';
+    document.getElementById('pkModalStatusSub').textContent = passkeys.length + (passkeys.length === 1 ? ' device registered' : ' devices registered');
+    document.getElementById('pkModalNote').textContent = 'Every save on the admin app and panel will ask this device to confirm with your fingerprint.';
+    listEl.innerHTML = passkeys.map(p =>
+      '<div style="display:flex;justify-content:space-between;padding:8px 0;border-top:1px solid rgba(0,0,0,0.06);font-size:13px">' +
+        '<span>' + (p.device_label || 'Device') + '</span>' +
+        '<span style="opacity:0.55">' + new Date(p.created_at).toLocaleDateString() + '</span>' +
+      '</div>'
+    ).join('');
+    setupBtn.querySelector('.btn-label').textContent = 'Add Another Device';
+  } else {
+    pkStatus.textContent = 'Not Set Up';
+    pkStatus.className = 'setting-status not-linked';
+    pkSub.textContent = 'No fingerprint registered';
+    document.getElementById('pkModalStatusTitle').textContent = 'No Fingerprint Set Up';
+    document.getElementById('pkModalStatusSub').textContent = 'Not registered on any device';
+    document.getElementById('pkModalNote').textContent = "Registering ties this device's fingerprint or face unlock to your account. Once set up, this device will be asked to confirm changes you make.";
+    listEl.innerHTML = '';
+    setupBtn.querySelector('.btn-label').textContent = 'Set Up Fingerprint';
+  }
+}
+
+async function setUpPasskey(){
+  const btn = document.getElementById('passkeySetupBtn');
+  const errEl = document.getElementById('passkeyErr');
+  errEl.classList.remove('show');
+
+  if(!window.PublicKeyCredential){
+    errEl.textContent = "This device/browser doesn't support fingerprint sign-in.";
+    errEl.classList.add('show');
+    return;
+  }
+
+  btn.disabled = true;
+  btn.querySelector('.btn-label').style.opacity = '0';
+  btn.querySelector('.btn-spin').style.display = 'inline-block';
+
+  try{
+    const { data: { session } } = await sb.auth.getSession();
+    if(!session) throw new Error('Not signed in');
+
+    const optionsRes = await fetch(SB_URL + '/functions/v1/passkey-register-options', {
+      method: 'POST',
+      headers: { 'Authorization': 'Bearer ' + session.access_token, 'Content-Type': 'application/json' },
+    });
+    const options = await optionsRes.json();
+    if(!optionsRes.ok) throw new Error(options.error || 'Could not start registration');
+
+    // Turn the server's base64url fields into the binary form the browser needs.
+    const publicKey = {
+      ...options,
+      challenge: base64UrlToBuffer(options.challenge),
+      user: { ...options.user, id: base64UrlToBuffer(options.user.id) },
+      excludeCredentials: (options.excludeCredentials || []).map(c => ({
+        ...c, id: base64UrlToBuffer(c.id),
+      })),
+    };
+
+    const credential = await navigator.credentials.create({ publicKey });
+    if(!credential) throw new Error('Fingerprint setup was cancelled');
+
+    const attestationResponse = {
+      id: credential.id,
+      rawId: bufferToBase64Url(credential.rawId),
+      type: credential.type,
+      response: {
+        clientDataJSON: bufferToBase64Url(credential.response.clientDataJSON),
+        attestationObject: bufferToBase64Url(credential.response.attestationObject),
+      },
+      clientExtensionResults: credential.getClientExtensionResults ? credential.getClientExtensionResults() : {},
+    };
+
+    const deviceLabel = (navigator.userAgentData && navigator.userAgentData.platform) || navigator.platform || 'This device';
+
+    const verifyRes = await fetch(SB_URL + '/functions/v1/passkey-register-verify', {
+      method: 'POST',
+      headers: { 'Authorization': 'Bearer ' + session.access_token, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ attestationResponse, deviceLabel }),
+    });
+    const verifyData = await verifyRes.json();
+    if(!verifyRes.ok || !verifyData.verified) throw new Error(verifyData.error || 'Verification failed');
+
+    await refreshPasskeyStatus();
+  }catch(err){
+    errEl.textContent = err.message || 'Could not set up fingerprint. Please try again.';
+    errEl.classList.add('show');
+  }finally{
+    btn.disabled = false;
+    btn.querySelector('.btn-label').style.opacity = '1';
+    btn.querySelector('.btn-spin').style.display = 'none';
+  }
+}
 
 // ===== LOGOUT =====
 async function handleLogout(){
