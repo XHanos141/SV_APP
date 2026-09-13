@@ -308,6 +308,7 @@ body.dark-mode .icon-moon{opacity:1;transform:scale(1) rotate(0)}
   width:100%;padding:14px;border:none;border-radius:var(--radius-sm);
   background:var(--accent);color:#fff;font-family:var(--font-body);font-size:14.5px;font-weight:800;
   margin-top:6px;cursor:pointer;box-shadow:0 6px 18px var(--accent-glow);
+  position:relative;
 }
 
 /* Edit Profile modal — compact GitHub/Vercel-style avatar picker */
@@ -346,7 +347,8 @@ body.dark-mode .icon-moon{opacity:1;transform:scale(1) rotate(0)}
 .modal-save-btn:disabled{opacity:0.6;pointer-events:none}
 .btn-spin{
   display:inline-block;width:15px;height:15px;border:2px solid rgba(255,255,255,0.35);
-  border-top-color:#fff;border-radius:50%;animation:avSpin2 .7s linear infinite;vertical-align:middle;
+  border-top-color:#fff;border-radius:50%;animation:avSpin2 .7s linear infinite;
+  position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
 }
 @keyframes avSpin2{to{transform:rotate(360deg)}}
 
