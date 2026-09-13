@@ -1121,9 +1121,12 @@ async function refreshPasskeyStatus(){
     document.getElementById('pkModalStatusSub').textContent = passkeys.length + (passkeys.length === 1 ? ' device registered' : ' devices registered');
     document.getElementById('pkModalNote').textContent = 'Every save on the admin app and panel will ask this device to confirm with your fingerprint.';
     listEl.innerHTML = passkeys.map(p =>
-      '<div style="display:flex;justify-content:space-between;padding:8px 0;border-top:1px solid rgba(0,0,0,0.06);font-size:13px">' +
+      '<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-top:1px solid rgba(0,0,0,0.06);font-size:13px">' +
         '<span>' + (p.device_label || 'Device') + '</span>' +
-        '<span style="opacity:0.55">' + new Date(p.created_at).toLocaleDateString() + '</span>' +
+        '<span style="display:flex;align-items:center;gap:10px">' +
+          '<span style="opacity:0.55">' + new Date(p.created_at).toLocaleDateString() + '</span>' +
+          '<button onclick="removePasskey(\'' + p.id + '\')" style="background:none;border:none;color:#d95353;font-size:12px;font-weight:700;cursor:pointer;padding:2px 4px">Remove</button>' +
+        '</span>' +
       '</div>'
     ).join('');
     setupBtn.querySelector('.btn-label').textContent = 'Add Another Device';
@@ -1208,6 +1211,18 @@ async function setUpPasskey(){
     btn.querySelector('.btn-label').style.opacity = '1';
     btn.querySelector('.btn-spin').style.display = 'none';
   }
+}
+
+async function removePasskey(passkeyId){
+  if(!confirm('Remove this device? It will no longer be able to confirm changes with a fingerprint.')) return;
+  const { error } = await sb.from('admin_passkeys').delete().eq('id', passkeyId);
+  if(error){
+    const errEl = document.getElementById('passkeyErr');
+    errEl.textContent = 'Could not remove that device. Please try again.';
+    errEl.classList.add('show');
+    return;
+  }
+  await refreshPasskeyStatus();
 }
 
 // ===== LOGOUT =====
