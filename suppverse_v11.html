@@ -5433,6 +5433,53 @@ html[data-theme="dark"] .brand-sheet-clear { background: rgba(255,255,255,0.08);
 .brand-sheet-apply { background: #7C6FF7; color: #fff; }
 .brand-sheet-clear:active, .brand-sheet-apply:active { opacity: 0.8; }
 
+/* ─── PRODUCT INFO POPUP (full saved product form details) ─── */
+.pinfo-backdrop {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 10000;
+  opacity: 0; pointer-events: none; transition: opacity 0.2s ease;
+}
+.pinfo-backdrop.show { opacity: 1; pointer-events: auto; }
+.pinfo-modal {
+  position: fixed; left: 50%; top: 50%; z-index: 10001;
+  width: min(92vw, 380px); max-height: 78vh;
+  background: #ffffff; border-radius: 18px;
+  box-shadow: 0 24px 64px rgba(0,0,0,0.25);
+  transform: translate(-50%, -50%) scale(0.94); opacity: 0; pointer-events: none;
+  transition: transform 0.22s cubic-bezier(0.4,0,0.2,1), opacity 0.18s ease;
+  display: flex; flex-direction: column; overflow: hidden;
+}
+.pinfo-modal.show { transform: translate(-50%, -50%) scale(1); opacity: 1; pointer-events: auto; }
+html[data-theme="dark"] .pinfo-modal { background: #1e2330; }
+.pinfo-header { display: flex; align-items: center; gap: 10px; padding: 16px 16px 12px; flex-shrink: 0; border-bottom: 1px solid #ececec; }
+html[data-theme="dark"] .pinfo-header { border-color: rgba(255,255,255,0.08); }
+.pinfo-title-icon { width: 30px; height: 30px; border-radius: 9px; background: linear-gradient(135deg,#0EA5E9,#0284C7); color: #fff; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.pinfo-title-icon svg { width: 16px; height: 16px; }
+.pinfo-title { font-family: "Plus Jakarta Sans", sans-serif; font-size: 15px; font-weight: 800; color: #001f3c; flex: 1; }
+html[data-theme="dark"] .pinfo-title { color: #ffffff; }
+.pinfo-close { width: 28px; height: 28px; border-radius: 8px; border: none; background: #f4f5f9; color: #556070; display: flex; align-items: center; justify-content: center; cursor: pointer; padding: 0; flex-shrink: 0; }
+.pinfo-close svg { width: 14px; height: 14px; }
+html[data-theme="dark"] .pinfo-close { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.7); }
+.pinfo-body { overflow-y: auto; padding-bottom: 8px; }
+.pinfo-section-head {
+  font-family: "Plus Jakarta Sans", sans-serif; font-size: 10px; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase;
+  color: #7C6FF7; background: rgba(124,111,247,0.08); padding: 9px 16px; margin-top: 2px;
+}
+.pinfo-section-boundary { border-top: 3px solid #d8dbe3; }
+html[data-theme="dark"] .pinfo-section-boundary { border-top-color: rgba(255,255,255,0.12); }
+html[data-theme="dark"] .pinfo-section-head { background: rgba(124,111,247,0.14); color: #9d94ff; }
+.pinfo-row { display: flex; width: 100%; border-bottom: 1px solid #ececec; }
+html[data-theme="dark"] .pinfo-row { border-color: rgba(255,255,255,0.07); }
+.pinfo-cell { padding: 10px 16px; box-sizing: border-box; display: flex; align-items: center; }
+.pinfo-label { width: 44%; flex: 0 0 44%; font-size: 12px; font-weight: 600; color: #5E6B7D; }
+html[data-theme="dark"] .pinfo-label { color: #A0AAB8; }
+.pinfo-val { width: 56%; flex: 0 0 56%; font-family: "Plus Jakarta Sans", sans-serif; font-size: 12.5px; font-weight: 800; color: #0B1220; justify-content: flex-end; text-align: right; word-break: break-word; }
+html[data-theme="dark"] .pinfo-val { color: #F0F4FA; }
+.pinfo-val.empty { color: #9AA3B2; font-weight: 600; }
+.pinfo-val.green { color: #2f9b68; }
+.pinfo-val.amber { color: #d48c0a; }
+html[data-theme="dark"] .pinfo-val.amber { color: #F4A922; }
+.pinfo-val.red { color: #d95353; }
+
 /* Product Card */
 .prod-card {
   background: #ffffff; border: 1.5px solid #ececec; border-radius: 16px;
@@ -25083,7 +25130,7 @@ function renderProductsTab(searchDisplayVal) {
         <div class="expiry-right">
           <span class="expiry-val">${loDateStr}</span>
           ${hasBatches ? `<span class="expiry-bar-chevron">${chevronSVG}</span>` : ''}
-          <span class="expiry-info-icon" onclick="event.stopPropagation();" id="expiry-info-${pid}">${infoIconSVG}</span>
+          <span class="expiry-info-icon" onclick="openProductInfoModal('${p.sku.replace(/'/g,"\\'")}', event)" id="expiry-info-${pid}">${infoIconSVG}</span>
         </div>
       </div>
       ${hasBatches ? buildBatchDropdown(pid, p.batches) : ''}
@@ -25186,6 +25233,17 @@ function renderProductsTab(searchDisplayVal) {
         <button type="button" class="brand-sheet-apply" onclick="applyBrandFilter()">Apply</button>
       </div>
     </div>
+    <div class="pinfo-backdrop" id="productInfoBackdrop" onclick="closeProductInfoModal()"></div>
+    <div class="pinfo-modal" id="productInfoModal" onclick="event.stopPropagation()">
+      <div class="pinfo-header">
+        <span class="pinfo-title-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></span>
+        <span class="pinfo-title">Product Summary</span>
+        <button type="button" class="pinfo-close" onclick="closeProductInfoModal()" aria-label="Close">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-close-x"/></svg>
+        </button>
+      </div>
+      <div class="pinfo-body" id="productInfoBody"></div>
+    </div>
   `;
   requestAnimationFrame(() => {
     const activeBtn = document.querySelector('#productsFilterRow .filter-chip.active');
@@ -25272,6 +25330,75 @@ function applyBrandFilter() {
   productBrandFilter = _pendingBrandFilter.slice();
   closeBrandFilterSheet();
   animateProductsRepaint();
+}
+function _pinfoRow(label, value, cls) {
+  const isEmpty = value === null || value === undefined || value === '';
+  return `<div class="pinfo-row">
+    <div class="pinfo-cell pinfo-label">${label}</div>
+    <div class="pinfo-cell pinfo-val ${isEmpty ? 'empty' : (cls||'')}">${isEmpty ? '—' : value}</div>
+  </div>`;
+}
+function openProductInfoModal(sku, event) {
+  if (event) event.stopPropagation();
+  const p = PRODUCTS_DATA.find(pr => pr.sku === sku);
+  const body = document.getElementById('productInfoBody');
+  if (!p || !body) return;
+  const meta = p.meta || {};
+  const cat = CATEGORY_META[p.category] || CATEGORY_META.general;
+  const needsExpiry = p.category === 'supplement' || p.category === 'cosmetic';
+  const hasVariants = (Array.isArray(p.variants) && p.variants.length > 0) || !!p.variant;
+
+  const formCount = [meta.form, meta.capsuleCount ? (meta.capsuleCount + ' ct') : null].filter(Boolean).join(' · ');
+  const potencyFlavor = [
+    (meta.potencyAmount && meta.potencyType) ? (meta.potencyAmount + ' ' + meta.potencyType) : null,
+    meta.flavor
+  ].filter(Boolean).join(' · ');
+  const lowestBatch = getLowestBatch(p.batches);
+  const expiryStr = lowestBatch ? formatExpiryDate(lowestBatch.expiryDate) : (p.expiry || null);
+  const originExpiry = [meta.countryOfOrigin, expiryStr].filter(Boolean).join(' · ');
+  const weightG = meta.weight || 0;
+  const weightStr = weightG > 0 ? (weightG >= 1000 ? (weightG/1000).toFixed(2) + ' kg' : Math.round(weightG) + ' g') : null;
+  const usdStr = meta.usdCost ? ('$' + meta.usdCost.toFixed(2)) : null;
+  const mPct = marginPct(p.price, p.cost);
+  const mCls = marginClass(p.price, p.cost);
+  let variantStr = null;
+  if (hasVariants) {
+    const vs = Array.isArray(p.variants) && p.variants.length > 0 ? p.variants : null;
+    if (vs && vs.length > 1) variantStr = vs.length + ' variants';
+    else if (vs && vs.length === 1) variantStr = [vs[0].colorName || vs[0].color, vs[0].size].filter(Boolean).join(', ');
+    else variantStr = p.variant;
+  }
+
+  body.innerHTML = `
+    <div class="pinfo-section-head">Product Details</div>
+    <div class="pinfo-table">
+      ${_pinfoRow('Category', cat.label)}
+      ${_pinfoRow('Sub-category', p.subcategory)}
+      ${_pinfoRow('Brand', meta.brandName)}
+      ${_pinfoRow('Product Name', escapeHtml(p.name))}
+      ${_pinfoRow('SKU', '<span style="font-family:\'Courier Prime\',monospace">' + p.sku + '</span>')}
+      ${needsExpiry ? _pinfoRow('Form / Count', formCount) : ''}
+      ${needsExpiry ? _pinfoRow('Potency / Flavor', potencyFlavor) : ''}
+      ${needsExpiry ? _pinfoRow('Origin / Expiry', originExpiry) : ''}
+      ${hasVariants ? _pinfoRow('Colour / Size', escapeHtml(variantStr||'')) : ''}
+    </div>
+    <div class="pinfo-section-head pinfo-section-boundary">Payment Details</div>
+    <div class="pinfo-table">
+      ${_pinfoRow('Buying Cost (USD)', usdStr)}
+      ${_pinfoRow('Buying Cost (BDT)', '৳' + p.cost.toLocaleString('en-IN'))}
+      ${_pinfoRow('Weight', weightStr)}
+      ${_pinfoRow('Selling Price (BDT)', '৳' + p.price.toLocaleString('en-IN'))}
+      ${_pinfoRow('Margin', mPct + '%', mCls)}
+    </div>
+  `;
+  document.getElementById('productInfoBackdrop').classList.add('show');
+  document.getElementById('productInfoModal').classList.add('show');
+}
+function closeProductInfoModal() {
+  const backdrop = document.getElementById('productInfoBackdrop');
+  const modal = document.getElementById('productInfoModal');
+  if (backdrop) backdrop.classList.remove('show');
+  if (modal) modal.classList.remove('show');
 }
 document.addEventListener('click', function(e) {
   const catMenu = document.getElementById('productCategoryMenu');
