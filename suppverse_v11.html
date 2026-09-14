@@ -7173,6 +7173,15 @@ html[data-theme="dark"] .expiry-val { color: #ffffff; }
 }
 html[data-theme="dark"] .expiry-bar-chevron { color: rgba(255,255,255,0.25); }
 .expiry-bar.expanded .expiry-bar-chevron { transform: rotate(180deg); color: #8c92a1; }
+.expiry-info-icon {
+  display: flex; align-items: center; justify-content: center;
+  width: 15px; height: 15px; flex-shrink: 0;
+  color: #c5c9d4; cursor: pointer;
+  transition: color 0.2s ease;
+}
+.expiry-info-icon svg { width: 100%; height: 100%; }
+.expiry-info-icon:active { color: #7C6FF7; }
+html[data-theme="dark"] .expiry-info-icon { color: rgba(255,255,255,0.25); }
 
 /* ── VARIANT BAR (Colour/Size) — mirrors expiry-bar exactly ── */
 .variant-bar {
@@ -7814,9 +7823,10 @@ window.addEventListener('error', function(ev){
 
 async function populateDrawerProfile(authUser){
   try{
-    var rows = (await sb.from('admin_users').select('full_name,role,avatar_url').eq('auth_id', authUser.id)).data;
+    var rows = (await sb.from('admin_users').select('id,full_name,role,avatar_url').eq('auth_id', authUser.id)).data;
     var row = rows && rows[0];
     if(!row) return;
+    window.currentAdminRowId = row.id;
     var nameEl = document.getElementById('drawerProfileName');
     var roleEl = document.getElementById('drawerProfileRole');
     var avatarEl = document.getElementById('drawerProfileAvatar');
@@ -23199,6 +23209,81 @@ async function sbFetch(path, method='GET', body=null) {
   return res.status === 204 ? null : res.json();
 }
 
+/* ===== FINGERPRINT CONFIRMATION FOR IMPORTANT SAVES =====
+   Same gate used on the profile page: any save that changes price,
+   stock, orders, vouchers, or other admin-panel data asks this device
+   to confirm with a fingerprint first, once a device has been set up.
+   Before a fingerprint is registered, saves go through as before. */
+function base64UrlToBuffer(b64url){
+  const b64 = b64url.replace(/-/g, '+').replace(/_/g, '/');
+  const pad = b64.length % 4 === 0 ? '' : '='.repeat(4 - (b64.length % 4));
+  const raw = atob(b64 + pad);
+  const buf = new Uint8Array(raw.length);
+  for(let i = 0; i < raw.length; i++) buf[i] = raw.charCodeAt(i);
+  return buf.buffer;
+}
+function bufferToBase64Url(buf){
+  const bytes = new Uint8Array(buf);
+  let str = '';
+  for(let i = 0; i < bytes.length; i++) str += String.fromCharCode(bytes[i]);
+  return btoa(str).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+}
+async function requireFingerprint(){
+  if(!window.currentAdminRowId) return;
+
+  const { count } = await sb.from('admin_passkeys')
+    .select('id', { count: 'exact', head: true })
+    .eq('admin_id', window.currentAdminRowId);
+
+  if(!count) return; // nothing registered yet — nothing to confirm
+
+  if(!window.PublicKeyCredential){
+    throw new Error('This device doesn\u2019t support fingerprint confirmation.');
+  }
+
+  const { data: { session } } = await sb.auth.getSession();
+  if(!session) throw new Error('Not signed in');
+
+  const optionsRes = await fetch(SB_URL + '/functions/v1/passkey-verify-options', {
+    method: 'POST',
+    headers: { 'Authorization': 'Bearer ' + session.access_token, 'Content-Type': 'application/json' },
+  });
+  const options = await optionsRes.json();
+  if(!optionsRes.ok) throw new Error(options.error || 'Could not start fingerprint check');
+
+  const publicKey = {
+    ...options,
+    challenge: base64UrlToBuffer(options.challenge),
+    allowCredentials: (options.allowCredentials || []).map(c => ({
+      ...c, id: base64UrlToBuffer(c.id),
+    })),
+  };
+
+  const assertion = await navigator.credentials.get({ publicKey });
+  if(!assertion) throw new Error('Fingerprint confirmation was cancelled');
+
+  const assertionResponse = {
+    id: assertion.id,
+    rawId: bufferToBase64Url(assertion.rawId),
+    type: assertion.type,
+    response: {
+      clientDataJSON: bufferToBase64Url(assertion.response.clientDataJSON),
+      authenticatorData: bufferToBase64Url(assertion.response.authenticatorData),
+      signature: bufferToBase64Url(assertion.response.signature),
+      userHandle: assertion.response.userHandle ? bufferToBase64Url(assertion.response.userHandle) : null,
+    },
+    clientExtensionResults: assertion.getClientExtensionResults ? assertion.getClientExtensionResults() : {},
+  };
+
+  const verifyRes = await fetch(SB_URL + '/functions/v1/passkey-verify-assert', {
+    method: 'POST',
+    headers: { 'Authorization': 'Bearer ' + session.access_token, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ assertionResponse }),
+  });
+  const verifyData = await verifyRes.json();
+  if(!verifyRes.ok || !verifyData.verified) throw new Error(verifyData.error || 'Fingerprint did not match');
+}
+
 async function confirmRestock() {
   const isNew = document.getElementById('restockTab2').classList.contains('active');
   if (isNew) {
@@ -24925,6 +25010,7 @@ function renderProductsTab(searchDisplayVal) {
     const isVariantExpanded = !!_variantExpanded[pid];
 
     const chevronSVG = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-chevron-down"/></svg>`;
+    const infoIconSVG = `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 22C6.477 22 2 17.523 2 12S6.477 2 12 2s10 4.477 10 10-4.477 10-10 10zm-.696-3.534c.63 0 1.332-.288 2.196-1.458l.911-1.22a.334.334 0 0 0-.074-.472.38.38 0 0 0-.505.06l-1.475 1.679a.241.241 0 0 1-.279.061.211.211 0 0 1-.12-.244l1.858-7.446a.499.499 0 0 0-.575-.613l-3.35.613a.35.35 0 0 0-.276.258l-.086.334a.25.25 0 0 0 .243.312h1.73l-1.476 5.922c-.054.234-.144.63-.144.918 0 .666.396 1.296 1.422 1.296zm1.83-10.536c.702 0 1.242-.414 1.386-1.044.036-.144.054-.306.054-.414 0-.504-.396-.972-1.134-.972-.702 0-1.242.414-1.386 1.044a1.868 1.868 0 0 0-.054.414c0 .504.396.972 1.134.972z"/></svg>`;
     const variantIconSVG = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4l4 4-4 12H8L4 8l4-4"/></svg>`;
     const cat = CATEGORY_META[p.category] || CATEGORY_META.general;
     const expires = p.category === 'supplement' || p.category === 'cosmetic';
@@ -24996,6 +25082,7 @@ function renderProductsTab(searchDisplayVal) {
         <div class="expiry-right">
           <span class="expiry-val">${loDateStr}</span>
           ${hasBatches ? `<span class="expiry-bar-chevron">${chevronSVG}</span>` : ''}
+          <span class="expiry-info-icon" onclick="event.stopPropagation();" id="expiry-info-${pid}">${infoIconSVG}</span>
         </div>
       </div>
       ${hasBatches ? buildBatchDropdown(pid, p.batches) : ''}
