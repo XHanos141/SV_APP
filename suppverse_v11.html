@@ -5459,7 +5459,7 @@ html[data-theme="dark"] .pinfo-title { color: #ffffff; }
 .pinfo-close { width: 28px; height: 28px; border-radius: 8px; border: none; background: #f4f5f9; color: #556070; display: flex; align-items: center; justify-content: center; cursor: pointer; padding: 0; flex-shrink: 0; }
 .pinfo-close svg { width: 14px; height: 14px; }
 html[data-theme="dark"] .pinfo-close { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.7); }
-.pinfo-body { overflow-y: auto; padding-bottom: 8px; }
+.pinfo-body { overflow-y: auto; padding-bottom: 8px; flex: 1 1 auto; min-height: 0; }
 .pinfo-section-head {
   font-family: "Plus Jakarta Sans", sans-serif; font-size: 10px; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase;
   color: #7C6FF7; background: rgba(124,111,247,0.08); padding: 9px 16px; margin-top: 2px;
@@ -5479,6 +5479,12 @@ html[data-theme="dark"] .pinfo-val { color: #F0F4FA; }
 .pinfo-val.amber { color: #d48c0a; }
 html[data-theme="dark"] .pinfo-val.amber { color: #F4A922; }
 .pinfo-val.red { color: #d95353; }
+.pinfo-val.sku { font-family: "Courier Prime", monospace; letter-spacing: 0.1em; color: #0891b2; -webkit-text-stroke: 0.25px #0891b2; }
+html[data-theme="dark"] .pinfo-val.sku { color: #22d3ee; text-shadow: 0 0 6px rgba(34,211,238,0.3); -webkit-text-stroke: 0.25px #22d3ee; }
+.pinfo-val.purple { color: #7C6FF7; }
+html[data-theme="dark"] .pinfo-val.purple { color: #a095f5; }
+.pinfo-val.grey { color: #8c92a1; }
+html[data-theme="dark"] .pinfo-val.grey { color: rgba(255,255,255,0.5); }
 
 /* Product Card */
 .prod-card {
@@ -25372,11 +25378,14 @@ function openProductInfoModal(sku, event) {
   body.innerHTML = `
     <div class="pinfo-section-head">Product Details</div>
     <div class="pinfo-table">
-      ${_pinfoRow('Category', cat.label)}
+      <div class="pinfo-row">
+        <div class="pinfo-cell pinfo-label">Category</div>
+        <div class="pinfo-cell pinfo-val" style="color:${cat.color}">${cat.label}</div>
+      </div>
       ${_pinfoRow('Sub-category', p.subcategory)}
       ${_pinfoRow('Brand', meta.brandName)}
       ${_pinfoRow('Product Name', escapeHtml(p.name))}
-      ${_pinfoRow('SKU', '<span style="font-family:\'Courier Prime\',monospace">' + p.sku + '</span>')}
+      ${_pinfoRow('SKU', p.sku, 'sku')}
       ${needsExpiry ? _pinfoRow('Form / Count', formCount) : ''}
       ${needsExpiry ? _pinfoRow('Potency / Flavor', potencyFlavor) : ''}
       ${needsExpiry ? _pinfoRow('Origin / Expiry', originExpiry) : ''}
@@ -25386,8 +25395,8 @@ function openProductInfoModal(sku, event) {
     <div class="pinfo-table">
       ${_pinfoRow('Buying Cost (USD)', usdStr)}
       ${_pinfoRow('Buying Cost (BDT)', '৳' + p.cost.toLocaleString('en-IN'))}
-      ${_pinfoRow('Weight', weightStr)}
-      ${_pinfoRow('Selling Price (BDT)', '৳' + p.price.toLocaleString('en-IN'))}
+      ${_pinfoRow('Weight', weightStr, 'grey')}
+      ${_pinfoRow('Selling Price (BDT)', '৳' + p.price.toLocaleString('en-IN'), 'purple')}
       ${_pinfoRow('Margin', mPct + '%', mCls)}
     </div>
   `;
