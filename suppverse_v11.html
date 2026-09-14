@@ -5441,7 +5441,7 @@ html[data-theme="dark"] .brand-sheet-clear { background: rgba(255,255,255,0.08);
 .pinfo-backdrop.show { opacity: 1; pointer-events: auto; }
 .pinfo-modal {
   position: fixed; left: 50%; top: 50%; z-index: 10001;
-  width: min(92vw, 380px); max-height: 78vh;
+  width: min(92vw, 380px); max-height: min(68vh, 560px);
   background: #ffffff; border-radius: 18px;
   box-shadow: 0 24px 64px rgba(0,0,0,0.25);
   transform: translate(-50%, -50%) scale(0.94); opacity: 0; pointer-events: none;
@@ -5459,7 +5459,7 @@ html[data-theme="dark"] .pinfo-title { color: #ffffff; }
 .pinfo-close { width: 28px; height: 28px; border-radius: 8px; border: none; background: #f4f5f9; color: #556070; display: flex; align-items: center; justify-content: center; cursor: pointer; padding: 0; flex-shrink: 0; }
 .pinfo-close svg { width: 14px; height: 14px; }
 html[data-theme="dark"] .pinfo-close { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.7); }
-.pinfo-body { overflow-y: auto; padding-bottom: 8px; flex: 1 1 auto; min-height: 0; }
+.pinfo-body { overflow-y: auto; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; padding-bottom: 8px; flex: 1 1 auto; min-height: 0; }
 .pinfo-section-head {
   font-family: "Plus Jakarta Sans", sans-serif; font-size: 10px; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase;
   color: #7C6FF7; background: rgba(124,111,247,0.08); padding: 9px 16px; margin-top: 2px;
