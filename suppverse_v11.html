@@ -25239,17 +25239,6 @@ function renderProductsTab(searchDisplayVal) {
         <button type="button" class="brand-sheet-apply" onclick="applyBrandFilter()">Apply</button>
       </div>
     </div>
-    <div class="pinfo-backdrop" id="productInfoBackdrop" onclick="closeProductInfoModal()"></div>
-    <div class="pinfo-modal" id="productInfoModal" onclick="event.stopPropagation()">
-      <div class="pinfo-header">
-        <span class="pinfo-title-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></span>
-        <span class="pinfo-title">Product Summary</span>
-        <button type="button" class="pinfo-close" onclick="closeProductInfoModal()" aria-label="Close">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-close-x"/></svg>
-        </button>
-      </div>
-      <div class="pinfo-body" id="productInfoBody"></div>
-    </div>
   `;
   requestAnimationFrame(() => {
     const activeBtn = document.querySelector('#productsFilterRow .filter-chip.active');
@@ -25344,11 +25333,39 @@ function _pinfoRow(label, value, cls) {
     <div class="pinfo-cell pinfo-val ${isEmpty ? 'empty' : (cls||'')}">${isEmpty ? '—' : value}</div>
   </div>`;
 }
+function _ensureProductInfoModal() {
+  let backdrop = document.getElementById('productInfoBackdrop');
+  if (backdrop) return;
+  backdrop = document.createElement('div');
+  backdrop.className = 'pinfo-backdrop';
+  backdrop.id = 'productInfoBackdrop';
+  backdrop.onclick = closeProductInfoModal;
+  const modal = document.createElement('div');
+  modal.className = 'pinfo-modal';
+  modal.id = 'productInfoModal';
+  modal.onclick = (e) => e.stopPropagation();
+  modal.innerHTML = `
+    <div class="pinfo-header">
+      <span class="pinfo-title-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></span>
+      <span class="pinfo-title">Product Summary</span>
+      <button type="button" class="pinfo-close" onclick="closeProductInfoModal()" aria-label="Close">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-close-x"/></svg>
+      </button>
+    </div>
+    <div class="pinfo-body" id="productInfoBody"></div>
+  `;
+  document.body.appendChild(backdrop);
+  document.body.appendChild(modal);
+}
 function openProductInfoModal(sku, event) {
   if (event) event.stopPropagation();
   const p = PRODUCTS_DATA.find(pr => pr.sku === sku);
+  if (!p) return;
+  _ensureProductInfoModal();
+  const backdrop = document.getElementById('productInfoBackdrop');
+  const modal = document.getElementById('productInfoModal');
   const body = document.getElementById('productInfoBody');
-  if (!p || !body) return;
+  if (!body || !backdrop || !modal) return;
   const meta = p.meta || {};
   const cat = CATEGORY_META[p.category] || CATEGORY_META.general;
   const needsExpiry = p.category === 'supplement' || p.category === 'cosmetic';
@@ -25400,8 +25417,8 @@ function openProductInfoModal(sku, event) {
       ${_pinfoRow('Margin', mPct + '%', mCls)}
     </div>
   `;
-  document.getElementById('productInfoBackdrop').classList.add('show');
-  document.getElementById('productInfoModal').classList.add('show');
+  backdrop.classList.add('show');
+  modal.classList.add('show');
 }
 function closeProductInfoModal() {
   const backdrop = document.getElementById('productInfoBackdrop');
