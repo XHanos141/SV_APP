@@ -622,14 +622,17 @@ html[data-theme="dark"] .draft-total-amt { color: #ffffff; }
   pointer-events: auto;
 }
 
-.btn-paid { flex: 1; height: 32px; border-radius: 10px; background: #2f9b68; color: #ffffff; font-family: "Plus Jakarta Sans", sans-serif; font-size: 11px; font-weight: 700; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; transition: background 0.2s ease, transform 0.15s ease; }
-.btn-paid:hover { background: #26854f; }
+.btn-paid { flex: 1; height: 32px; border-radius: 10px; background: #2f9b68; color: #ffffff; font-family: "Plus Jakarta Sans", sans-serif; font-size: 11px; font-weight: 700; border: 1px solid rgba(0,0,0,0.12); cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; transition: background 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease; }
+.btn-paid:hover { background: #26854f; transform: translateY(-1px); box-shadow: 0 3px 8px rgba(47,155,104,0.28); }
 .btn-paid:active { transform: scale(0.96); }
 .btn-paid svg { width: 14px; height: 14px; }
-.btn-delete { height: 32px; padding: 0 12px; border-radius: 10px; background: #ff0000; color: #ffffff; border: none; display: flex; align-items: center; justify-content: center; gap: 5px; cursor: pointer; font-family: "Plus Jakarta Sans", sans-serif; font-size: 10px; font-weight: 700; transition: background 0.2s ease, transform 0.15s ease; }
-.btn-delete:hover { background: #cc0000; }
+html[data-theme="dark"] .btn-paid { border-color: rgba(255,255,255,0.14); }
+
+.btn-delete { height: 32px; padding: 0 12px; border-radius: 10px; background: #ff0000; color: #ffffff; border: 1px solid rgba(0,0,0,0.12); display: flex; align-items: center; justify-content: center; gap: 5px; cursor: pointer; font-family: "Plus Jakarta Sans", sans-serif; font-size: 10px; font-weight: 700; transition: background 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease; }
+.btn-delete:hover { background: #cc0000; transform: translateY(-1px); box-shadow: 0 3px 8px rgba(217,53,53,0.3); }
 .btn-delete:active { transform: scale(0.96); }
 .btn-delete svg { width: 14px; height: 14px; color: #ffffff; }
+html[data-theme="dark"] .btn-delete { border-color: rgba(255,255,255,0.14); }
 
 .draft-card.paid-out {
   animation: draftPaidOut 0.45s ease forwards;
@@ -2085,24 +2088,28 @@ html[data-theme="dark"] .invoice-grand { color: #ffffff; }
 /* Create Invoice button in draft actions */
 .btn-invoice {
   flex: 1;
-  height: 32px;
+  min-height: 32px;
+  padding: 6px 10px;
   border-radius: 10px;
   background: #7C6FF7;
   color: #ffffff;
   font-family: "Plus Jakarta Sans", sans-serif;
   font-size: 11px;
   font-weight: 700;
-  border: none;
+  line-height: 1.25;
+  border: 1px solid rgba(0,0,0,0.12);
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
+  text-align: center;
   gap: 6px;
-  transition: background 0.2s ease, transform 0.15s ease;
+  transition: background 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
 }
-.btn-invoice:hover { background: #6b5fd9; }
+.btn-invoice:hover { background: #6b5fd9; transform: translateY(-1px); box-shadow: 0 3px 8px rgba(124,111,247,0.3); }
 .btn-invoice:active { transform: scale(0.96); }
-.btn-invoice svg { width: 14px; height: 14px; }
+.btn-invoice svg { width: 14px; height: 14px; flex-shrink: 0; }
+html[data-theme="dark"] .btn-invoice { border-color: rgba(255,255,255,0.14); }
 
 /* ====== INVOICE MODAL HEADER REDESIGN ====== */
 .invoice-modal-brand-header {
