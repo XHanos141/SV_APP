@@ -24748,7 +24748,7 @@ function changeNpStock(delta) {
    ============================================================ */
 const PRODUCTS_DATA = [
   {
-    name:"Omega-3 Ultra", sku:"NW-OMG3-UTA-180", price:5950, cost:4200, weightCost:220, stock:4, color:"g", supplier:"Nature's Way", category:"supplement", subcategory:"Omega-3",
+    name:"Omega-3 Ultra", sku:"NW-OMG3-UTA-180", price:5950, cost:4200, weightCost:220, stock:4, color:"g", supplier:"Nature's Way", category:"supplement", subcategory:"Omega-3", demo:true,
     meta:{ brandName:"NutriWell" },
     batches:[
       { id:"BTH-001", expiryDate:"2025-09-15", qty:2, costPerUnit:4200 },
@@ -24757,7 +24757,7 @@ const PRODUCTS_DATA = [
     ]
   },
   {
-    name:"Magnesium Glycinate", sku:"DB-MAG-GLY-120", price:3250, cost:1690, weightCost:95, stock:6, color:"p", supplier:"Designs for Health", category:"supplement",
+    name:"Magnesium Glycinate", sku:"DB-MAG-GLY-120", price:3250, cost:1690, weightCost:95, stock:6, color:"p", supplier:"Designs for Health", category:"supplement", demo:true,
     meta:{ brandName:"VitaCore" },
     batches:[
       { id:"BTH-004", expiryDate:"2026-02-10", qty:3, costPerUnit:1690 },
@@ -24765,14 +24765,14 @@ const PRODUCTS_DATA = [
     ]
   },
   {
-    name:"Betaine HCL & Pepsin", sku:"DB-HCI-PEP-120", price:3000, cost:1950, weightCost:110, stock:0, color:"r", supplier:"Designs for Health", category:"supplement",
+    name:"Betaine HCL & Pepsin", sku:"DB-HCI-PEP-120", price:3000, cost:1950, weightCost:110, stock:0, color:"r", supplier:"Designs for Health", category:"supplement", demo:true,
     meta:{ brandName:"VitaCore" },
     batches:[
       { id:"BTH-006", expiryDate:"2027-09-01", qty:0, costPerUnit:1950 },
     ]
   },
   {
-    name:"Vitamin D3 + K2", sku:"DB-VD3-K2-90", price:6150, cost:3800, weightCost:200, stock:8, color:"p", supplier:"Designs for Health", category:"supplement",
+    name:"Vitamin D3 + K2", sku:"DB-VD3-K2-90", price:6150, cost:3800, weightCost:200, stock:8, color:"p", supplier:"Designs for Health", category:"supplement", demo:true,
     meta:{ brandName:"VitaCore" },
     batches:[
       { id:"BTH-007", expiryDate:"2026-08-15", qty:2, costPerUnit:3800 },
@@ -24781,7 +24781,7 @@ const PRODUCTS_DATA = [
     ]
   },
   {
-    name:"Zinc Complex", sku:"DB-ZNC-CMP-60", price:2400, cost:1200, weightCost:65, stock:2, color:"g", supplier:"Nature's Best", category:"supplement",
+    name:"Zinc Complex", sku:"DB-ZNC-CMP-60", price:2400, cost:1200, weightCost:65, stock:2, color:"g", supplier:"Nature's Best", category:"supplement", demo:true,
     meta:{ brandName:"Deltabio" },
     batches:[
       { id:"BTH-010", expiryDate:"2026-03-05", qty:1, costPerUnit:1200 },
@@ -24789,28 +24789,28 @@ const PRODUCTS_DATA = [
     ]
   },
   {
-    name:"Digital Kitchen Scale", sku:"GN-DKS-BLK-01", price:1800, cost:900, weightCost:60, stock:11, color:"p", supplier:"Generic Import", category:"gadget",
+    name:"Digital Kitchen Scale", sku:"GN-DKS-BLK-01", price:1800, cost:900, weightCost:60, stock:11, color:"p", supplier:"Generic Import", category:"gadget", demo:true,
     meta:{ brandName:"HomeTech" },
     variant:"Black", batches:null
   },
   {
-    name:"Compression T-Shirt", sku:"AP-CTS-BLK-L", price:1200, cost:550, weightCost:40, stock:14, color:"g", supplier:"Local Apparel Co.", category:"clothing",
+    name:"Compression T-Shirt", sku:"AP-CTS-BLK-L", price:1200, cost:550, weightCost:40, stock:14, color:"g", supplier:"Local Apparel Co.", category:"clothing", demo:true,
     meta:{ brandName:"ActiveFit" },
     variant:"Black, L", batches:null
   },
   {
-    name:"Hydrating Face Serum (DEMO)", sku:"CO-HFS-30ML-01", price:1800, cost:900, weightCost:55, stock:5, color:"p", supplier:"Demo Supplier", category:"cosmetic",
+    name:"Hydrating Face Serum (DEMO)", sku:"CO-HFS-30ML-01", price:1800, cost:900, weightCost:55, stock:5, color:"p", supplier:"Demo Supplier", category:"cosmetic", demo:true,
     meta:{ brandName:"GlowLab" },
     batches:[
       { id:"BTH-DEMO-01", expiryDate:"2027-01-10", qty:5, costPerUnit:900 },
     ]
   },
   {
-    name:"Reusable Water Bottle (DEMO)", sku:"GN-RWB-BLU-01", price:900, cost:450, weightCost:30, stock:11, color:"g", supplier:"Demo Supplier", category:"general",
+    name:"Reusable Water Bottle (DEMO)", sku:"GN-RWB-BLU-01", price:900, cost:450, weightCost:30, stock:11, color:"g", supplier:"Demo Supplier", category:"general", demo:true,
     meta:{ brandName:"EcoDaily" },
     variant:"Blue", batches:null
   },
-];
+].filter(p => !p.demo);
 
 let productFilter = 'all';
 let productSearch = '';
