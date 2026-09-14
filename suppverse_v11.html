@@ -5311,13 +5311,13 @@ html[data-theme="dark"] .pcm-item.active { color: #9d94ff; }
 .subcat-delete-btn {
   display: flex; align-items: center; justify-content: center;
   width: 24px; height: 24px; border-radius: 6px; border: none; padding: 0;
-  background: transparent; color: #b8bec9; cursor: pointer; flex-shrink: 0;
+  background: transparent; color: #d95353; cursor: pointer; flex-shrink: 0;
   transition: background 0.15s ease, color 0.15s ease;
 }
 .subcat-delete-btn svg { width: 14px; height: 14px; }
-.subcat-delete-btn:hover { background: rgba(217,83,83,0.12); color: #d95353; }
-html[data-theme="dark"] .subcat-delete-btn { color: rgba(255,255,255,0.35); }
-html[data-theme="dark"] .subcat-delete-btn:hover { background: rgba(217,83,83,0.18); color: #ff6b6b; }
+.subcat-delete-btn:hover { background: rgba(217,83,83,0.12); color: #c23e3e; }
+html[data-theme="dark"] .subcat-delete-btn { color: #ff6b6b; }
+html[data-theme="dark"] .subcat-delete-btn:hover { background: rgba(217,83,83,0.18); color: #ff8585; }
 .prod-category-tag {
   display: inline-flex; align-items: center; gap: 4px; font-size: 9.5px; font-weight: 700; letter-spacing: 0.03em;
   text-transform: uppercase; color: #7C6FF7; background: rgba(124,111,247,0.1);
@@ -21808,9 +21808,15 @@ function cancelDeleteSubcategory() {
   const modal = document.getElementById('subcatDeleteModal');
   if (modal) modal.classList.remove('active');
 }
-function confirmDeleteSubcategory() {
+async function confirmDeleteSubcategory() {
   if (!_subcatPendingDelete || !npCategory) { cancelDeleteSubcategory(); return; }
   const name = _subcatPendingDelete;
+  try {
+    await requireFingerprint();
+  } catch (err) {
+    showToast(err.message || 'Fingerprint confirmation failed — sub-category not deleted');
+    return;
+  }
   if (SUBCATEGORIES[npCategory]) {
     SUBCATEGORIES[npCategory] = SUBCATEGORIES[npCategory].filter(s => s !== name);
     saveSubcategories();
