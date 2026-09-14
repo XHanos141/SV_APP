@@ -7176,12 +7176,13 @@ html[data-theme="dark"] .expiry-bar-chevron { color: rgba(255,255,255,0.25); }
 .expiry-info-icon {
   display: flex; align-items: center; justify-content: center;
   width: 18px; height: 18px; flex-shrink: 0;
-  color: #c5c9d4; cursor: pointer;
+  border-radius: 50%; background: #ffffff;
+  color: #7C6FF7; cursor: pointer;
   transition: color 0.2s ease;
 }
 .expiry-info-icon svg { width: 100%; height: 100%; }
-.expiry-info-icon:active { color: #7C6FF7; }
-html[data-theme="dark"] .expiry-info-icon { color: rgba(255,255,255,0.25); }
+.expiry-info-icon:active { color: #5f52d6; }
+html[data-theme="dark"] .expiry-info-icon { background: #ffffff; color: #7C6FF7; }
 
 /* ── VARIANT BAR (Colour/Size) — mirrors expiry-bar exactly ── */
 .variant-bar {
