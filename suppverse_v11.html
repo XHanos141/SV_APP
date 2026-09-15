@@ -19940,6 +19940,7 @@ function renderSavedCalculations() {
   const container = document.getElementById("savedCalcsContainer");
   const empty = document.getElementById("savedEmpty");
   const badge = document.getElementById("marginBadge");
+  if (!container || !empty || !badge) return;
 
   badge.textContent = savedCalculations.length;
   badge.classList.remove("pop"); void badge.offsetWidth; badge.classList.add("pop");
@@ -20711,6 +20712,7 @@ function renderInvoices() {
   const container = document.getElementById("invoiceCardsContainer");
   const empty = document.getElementById("invoiceEmpty");
   const badge = document.getElementById("invoiceBadge");
+  if (!container || !empty || !badge) return;
 
   badge.textContent = invoices.length;
   badge.classList.remove("pop"); void badge.offsetWidth; badge.classList.add("pop");
@@ -20887,12 +20889,16 @@ function handleInvoiceModalDelete() {
 }
 
 /* Close modals on overlay click */
-document.getElementById("saveModalOverlay").addEventListener("click", function(e) {
-  if (e.target === this) closeSaveModal();
-});
-document.getElementById("invoiceModalOverlay").addEventListener("click", function(e) {
-  if (e.target === this) closeInvoiceModal();
-});
+(function(){
+  var _saveOv = document.getElementById("saveModalOverlay");
+  if (_saveOv) _saveOv.addEventListener("click", function(e) {
+    if (e.target === this) closeSaveModal();
+  });
+  var _invOv = document.getElementById("invoiceModalOverlay");
+  if (_invOv) _invOv.addEventListener("click", function(e) {
+    if (e.target === this) closeInvoiceModal();
+  });
+})();
 
 /* Close modals on Escape key */
 document.addEventListener("keydown", function(e) {
@@ -20903,9 +20909,12 @@ document.addEventListener("keydown", function(e) {
 });
 
 /* Enter key in save input */
-document.getElementById("saveDescriptionInput").addEventListener("keydown", function(e) {
-  if (e.key === "Enter") confirmSave();
-});
+(function(){
+  var _saveDescInput = document.getElementById("saveDescriptionInput");
+  if (_saveDescInput) _saveDescInput.addEventListener("keydown", function(e) {
+    if (e.key === "Enter") confirmSave();
+  });
+})();
 
 /* ============================================================
    ====== ONLINE / OFFLINE STATUS ======
@@ -20956,7 +20965,8 @@ if (!isNaN(savedWeightRate) && savedWeightRate > 0) {
   document.getElementById("stWeightRateInput").value = savedWeightRate;
   document.getElementById("stWeightRateRowValue").textContent = "৳" + WEIGHT_RATE;
 }
-document.getElementById("mcWeightRateDisplay").innerHTML = WEIGHT_RATE + '<span>TK/KG</span>';
+var _mcWeightRateDisplay = document.getElementById("mcWeightRateDisplay");
+if (_mcWeightRateDisplay) _mcWeightRateDisplay.innerHTML = WEIGHT_RATE + '<span>TK/KG</span>';
 // Load saved low stock threshold
 const savedLowStockThreshold = parseInt(localStorage.getItem("svbd-low-stock-threshold"), 10);
 if (!isNaN(savedLowStockThreshold) && savedLowStockThreshold >= 1) {
@@ -20966,18 +20976,24 @@ if (!isNaN(savedLowStockThreshold) && savedLowStockThreshold >= 1) {
 }
 
 /* Modal overlay close handlers */
-document.getElementById("rateWarningModal").addEventListener("click", function(e) {
-  if (e.target === this) cancelRateChange();
-});
-document.getElementById("weightRateWarningModal").addEventListener("click", function(e) {
-  if (e.target === this) cancelWeightRateChange();
-});
-document.getElementById("lowStockThresholdModal").addEventListener("click", function(e) {
-  if (e.target === this) cancelLowStockThresholdChange();
-});
-document.getElementById("pdfSizeModal").addEventListener("click", function(e) {
-  if (e.target === this) closePdfSizePicker();
-});
+(function(){
+  var _rateWarn = document.getElementById("rateWarningModal");
+  if (_rateWarn) _rateWarn.addEventListener("click", function(e) {
+    if (e.target === this) cancelRateChange();
+  });
+  var _weightRateWarn = document.getElementById("weightRateWarningModal");
+  if (_weightRateWarn) _weightRateWarn.addEventListener("click", function(e) {
+    if (e.target === this) cancelWeightRateChange();
+  });
+  var _lowStockModal = document.getElementById("lowStockThresholdModal");
+  if (_lowStockModal) _lowStockModal.addEventListener("click", function(e) {
+    if (e.target === this) cancelLowStockThresholdChange();
+  });
+  var _pdfSizeModal = document.getElementById("pdfSizeModal");
+  if (_pdfSizeModal) _pdfSizeModal.addEventListener("click", function(e) {
+    if (e.target === this) closePdfSizePicker();
+  });
+})();
 
 /* ============================================================
    ====== ACTION SHEET ======
@@ -26229,9 +26245,12 @@ function al_confirmDismiss() {
   al_equalizeCardHeights();
   showToast('Alert dismissed');
 }
-document.getElementById("alDismissModal").addEventListener("click", function(e) {
-  if (e.target === this) al_cancelDismiss();
-});
+(function(){
+  var _alDismissModal = document.getElementById("alDismissModal");
+  if (_alDismissModal) _alDismissModal.addEventListener("click", function(e) {
+    if (e.target === this) al_cancelDismiss();
+  });
+})();
 
 /* ---- Edit Min (reorder threshold) popup ---- */
 let _alEditMinCard = null;
@@ -26264,9 +26283,12 @@ function confirmEditMin() {
   closeEditMinModal();
   showToast('Reorder point updated to ' + val + ' units');
 }
-document.getElementById("editMinModal").addEventListener("click", function(e) {
-  if (e.target === this) closeEditMinModal();
-});
+(function(){
+  var _editMinModal = document.getElementById("editMinModal");
+  if (_editMinModal) _editMinModal.addEventListener("click", function(e) {
+    if (e.target === this) closeEditMinModal();
+  });
+})();
 
 /* ---- Equal card heights, regardless of content length (grouped by card type) ---- */
 function al_equalizeCardHeights() {
