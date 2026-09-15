@@ -6301,22 +6301,25 @@ html[data-theme="dark"] #restockExistingBody{
 #restockNewBody .field-row-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
 #restockNewBody .field-hint{font-size:10.5px;color:var(--np2-text3);margin-top:5px;font-weight:500}
 #restockNewBody .np-date-wrap, #restockExistingBody .np-date-wrap{
-  position:relative; cursor:pointer; height:34px; padding:0 12px; box-sizing:border-box;
-  background:#f8f9fb; border:1px solid #ececec; border-radius:8px;
+  position:relative; cursor:pointer; height:48px; padding:0 12px; box-sizing:border-box;
+  display:flex; align-items:center; gap:10px;
+  background:var(--np2-bg); border:1.5px solid var(--np2-border); border-radius:12px;
   transition:border-color 0.2s ease, background 0.2s ease;
 }
-html[data-theme="dark"] #restockNewBody .np-date-wrap, html[data-theme="dark"] #restockExistingBody .np-date-wrap{
-  background:rgba(255,255,255,0.06); border-color:rgba(255,255,255,0.1);
-}
+#restockNewBody .np-date-wrap:hover, #restockExistingBody .np-date-wrap:hover{ border-color:var(--np2-accent); }
 #restockNewBody .np-date-native, #restockExistingBody .np-date-native{
   position:absolute; inset:0; opacity:0; pointer-events:none; z-index:-1;
 }
 #restockNewBody .np-date-display, #restockExistingBody .np-date-display{
-  position:relative; display:flex; align-items:center; height:100%;
-  font-family:var(--np2-font-body); font-size:13.5px; font-weight:600; color:var(--np2-text);
+  position:relative; flex:1; min-width:0;
+  font-family:'Plus Jakarta Sans', sans-serif; font-size:13.5px; font-weight:700; color:var(--np2-text);
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
   pointer-events:none; z-index:1;
 }
-#restockNewBody .np-date-display.placeholder, #restockExistingBody .np-date-display.placeholder{ color:var(--np2-text3); font-weight:500; }
+#restockNewBody .np-date-display.placeholder, #restockExistingBody .np-date-display.placeholder{ color:var(--np2-text3); font-weight:600; }
+#restockNewBody .np-date-chevron, #restockExistingBody .np-date-chevron{
+  width:16px; height:16px; color:var(--np2-text3); flex-shrink:0;
+}
 #restockNewBody .np-stepper{
   display:flex; align-items:stretch; gap:8px;
 }
@@ -18072,6 +18075,7 @@ loadShipping();
         <div class="np-date-wrap" onclick="openDateWheelPicker('rsDate')">
           <input type="date" id="rsDate" class="fs-input np-date-native" tabindex="-1" onchange="updateRsExpiryPreview()">
           <span class="np-date-display placeholder" id="rsDateDisplay">Select date</span>
+          <svg class="np-date-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="3"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
         </div>
         <span class="expiry-status-pill" id="rsExpiryTag" style="display:none"></span>
       </div>
@@ -18290,6 +18294,7 @@ loadShipping();
         <div class="np-date-wrap" onclick="openDateWheelPicker('inpExpiry')">
           <input type="date" id="inpExpiry" class="np-date-native" tabindex="-1" onchange="updateNpSummary(); updateExpiryStatusPill(); updateNpExpiryDisplay();">
           <span class="np-date-display placeholder" id="inpExpiryDisplay">Select date</span>
+          <svg class="np-date-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="3"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
         </div>
         <span class="expiry-status-pill" id="inpExpiryStatusPill" style="display:none"></span>
       </div>
