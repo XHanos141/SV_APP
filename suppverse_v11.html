@@ -6300,15 +6300,21 @@ html[data-theme="dark"] #restockExistingBody{
 #restockNewBody .field-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 #restockNewBody .field-row-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
 #restockNewBody .field-hint{font-size:10.5px;color:var(--np2-text3);margin-top:5px;font-weight:500}
-#restockNewBody .np-date-wrap, #restockExistingBody .np-date-wrap{ position:relative; }
-#restockNewBody .np-date-native, #restockExistingBody .np-date-native{
-  color:transparent; -webkit-text-fill-color:transparent; position:relative; z-index:1; background:transparent;
+#restockNewBody .np-date-wrap, #restockExistingBody .np-date-wrap{
+  position:relative; cursor:pointer; height:34px; padding:0 12px; box-sizing:border-box;
+  background:#f8f9fb; border:1px solid #ececec; border-radius:8px;
+  transition:border-color 0.2s ease, background 0.2s ease;
 }
-#restockNewBody .np-date-native::-webkit-calendar-picker-indicator, #restockExistingBody .np-date-native::-webkit-calendar-picker-indicator{ position:relative; z-index:2; opacity:1; }
+html[data-theme="dark"] #restockNewBody .np-date-wrap, html[data-theme="dark"] #restockExistingBody .np-date-wrap{
+  background:rgba(255,255,255,0.06); border-color:rgba(255,255,255,0.1);
+}
+#restockNewBody .np-date-native, #restockExistingBody .np-date-native{
+  position:absolute; inset:0; opacity:0; pointer-events:none; z-index:-1;
+}
 #restockNewBody .np-date-display, #restockExistingBody .np-date-display{
-  position:absolute; left:12px; top:50%; transform:translateY(-50%);
+  position:relative; display:flex; align-items:center; height:100%;
   font-family:var(--np2-font-body); font-size:13.5px; font-weight:600; color:var(--np2-text);
-  pointer-events:none; z-index:0;
+  pointer-events:none; z-index:1;
 }
 #restockNewBody .np-date-display.placeholder, #restockExistingBody .np-date-display.placeholder{ color:var(--np2-text3); font-weight:500; }
 #restockNewBody .np-stepper{
@@ -6951,6 +6957,49 @@ html[data-theme="dark"] .color-picker-footer { border-color: rgba(255,255,255,0.
   font-size: 13px; font-weight: 700; color: #ffffff; cursor: pointer;
   transition: background 0.2s ease;
 }
+
+.date-wheel-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.55);
+  z-index: 9999; display: flex; align-items: flex-end; justify-content: center;
+  opacity: 0; pointer-events: none; transition: opacity 0.25s ease;
+}
+.date-wheel-overlay.active { opacity: 1; pointer-events: all; backdrop-filter: blur(4px); }
+.date-wheel-modal {
+  background: #ffffff; border-radius: 20px 20px 0 0;
+  width: 100%; max-width: 480px; padding-bottom: env(safe-area-inset-bottom);
+  transform: translateY(100%); transition: transform 0.35s cubic-bezier(0.4,0,0.2,1);
+}
+html[data-theme="dark"] .date-wheel-modal { background: #162130; }
+.date-wheel-overlay.active .date-wheel-modal { transform: translateY(0); }
+.date-wheel-body {
+  position: relative; display: flex; padding: 4px 20px 12px; height: 215px;
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 20%, black 80%, transparent 100%);
+  mask-image: linear-gradient(to bottom, transparent 0%, black 20%, black 80%, transparent 100%);
+}
+.date-wheel-highlight {
+  position: absolute; left: 20px; right: 20px; top: 50%; transform: translateY(-50%);
+  height: 43px; border-radius: 10px; background: rgba(124,111,247,0.09);
+  border-top: 1.5px solid rgba(124,111,247,0.35); border-bottom: 1.5px solid rgba(124,111,247,0.35);
+  pointer-events: none;
+}
+html[data-theme="dark"] .date-wheel-highlight { background: rgba(124,111,247,0.14); }
+.date-wheel-col {
+  flex: 1; height: 100%; overflow-y: scroll; scroll-snap-type: y mandatory;
+  -ms-overflow-style: none; scrollbar-width: none; touch-action: pan-y;
+  padding: 86px 0;
+}
+.date-wheel-col::-webkit-scrollbar { display: none; }
+.dw-item {
+  height: 43px; display: flex; align-items: center; justify-content: center;
+  scroll-snap-align: center; font-family: "Plus Jakarta Sans", sans-serif;
+  font-size: 15px; font-weight: 600; color: #9AA3B2; user-select: none;
+  transition: color 0.15s ease, font-size 0.15s ease, font-weight 0.15s ease;
+}
+html[data-theme="dark"] .dw-item { color: #6B7585; }
+.dw-item.dw-selected {
+  color: #001f3c; font-size: 17px; font-weight: 800;
+}
+html[data-theme="dark"] .dw-item.dw-selected { color: #ffffff; }
 
 /* Brand preview badge */
 .np-brand-preview {
@@ -18020,8 +18069,8 @@ loadShipping();
       </div>
       <div class="fs-field" id="rsExpiryField">
         <label class="fs-label" id="rsExpiryLabel">Expiry Date</label>
-        <div class="np-date-wrap">
-          <input type="date" id="rsDate" class="fs-input np-date-native" onchange="updateRsExpiryPreview()">
+        <div class="np-date-wrap" onclick="openDateWheelPicker('rsDate')">
+          <input type="date" id="rsDate" class="fs-input np-date-native" tabindex="-1" onchange="updateRsExpiryPreview()">
           <span class="np-date-display placeholder" id="rsDateDisplay">Select date</span>
         </div>
         <span class="expiry-status-pill" id="rsExpiryTag" style="display:none"></span>
@@ -18238,8 +18287,8 @@ loadShipping();
       </div>
       <div class="field" id="npExpiryField">
         <label>Expiry Date *</label>
-        <div class="np-date-wrap">
-          <input type="date" id="inpExpiry" class="np-date-native" onchange="updateNpSummary(); updateExpiryStatusPill(); updateNpExpiryDisplay();">
+        <div class="np-date-wrap" onclick="openDateWheelPicker('inpExpiry')">
+          <input type="date" id="inpExpiry" class="np-date-native" tabindex="-1" onchange="updateNpSummary(); updateExpiryStatusPill(); updateNpExpiryDisplay();">
           <span class="np-date-display placeholder" id="inpExpiryDisplay">Select date</span>
         </div>
         <span class="expiry-status-pill" id="inpExpiryStatusPill" style="display:none"></span>
@@ -18522,6 +18571,28 @@ loadShipping();
     <div class="color-picker-footer">
       <button type="button" class="cp-btn-cancel" onclick="closeCustomColorPicker()">Cancel</button>
       <button type="button" class="cp-btn-apply" onclick="applyProductColor()">Apply Colour</button>
+    </div>
+  </div>
+</div>
+
+<!-- ====== EXPIRY DATE WHEEL PICKER ====== -->
+<div class="date-wheel-overlay" id="dateWheelOverlay" onclick="if(event.target===this) closeDateWheelPicker()">
+  <div class="date-wheel-modal">
+    <div class="color-picker-header">
+      <div class="color-picker-title">Select Expiry Date</div>
+      <button type="button" class="color-picker-close" onclick="closeDateWheelPicker()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="date-wheel-body">
+      <div class="date-wheel-highlight"></div>
+      <div class="date-wheel-col" id="dwDayCol"></div>
+      <div class="date-wheel-col" id="dwMonthCol"></div>
+      <div class="date-wheel-col" id="dwYearCol"></div>
+    </div>
+    <div class="color-picker-footer">
+      <button type="button" class="cp-btn-cancel" onclick="closeDateWheelPicker()">Cancel</button>
+      <button type="button" class="cp-btn-apply" onclick="applyDateWheelPicker()">Set Date</button>
     </div>
   </div>
 </div>
@@ -22870,6 +22941,109 @@ function updateRsExpiryPreview() {
   pill.classList.remove('red', 'orange', 'green');
   pill.classList.add(st.days < 0 ? 'red' : st.tagClass);
   pill.style.display = 'inline-flex';
+}
+
+/* ====== EXPIRY DATE WHEEL PICKER ENGINE ====== */
+const DW = { targetInputId: null, day: 15, month: 9, year: 2029 };
+const DW_MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+function dwDaysInMonth(month, year) {
+  return new Date(year, month, 0).getDate();
+}
+
+function dwBuildColumn(colEl, count, startAt, formatFn, selectedIndex) {
+  colEl.innerHTML = '';
+  for (let i = 0; i < count; i++) {
+    const val = startAt + i;
+    const item = document.createElement('div');
+    item.className = 'dw-item';
+    item.dataset.value = val;
+    item.textContent = formatFn(val);
+    colEl.appendChild(item);
+  }
+  requestAnimationFrame(() => {
+    const items = colEl.children;
+    if (items[selectedIndex]) {
+      colEl.scrollTop = items[selectedIndex].offsetTop - (colEl.clientHeight / 2 - 21.5);
+    }
+    dwUpdateSelectedVisual(colEl);
+  });
+}
+
+function dwUpdateSelectedVisual(colEl) {
+  const items = Array.from(colEl.children);
+  if (!items.length) return;
+  const center = colEl.scrollTop + colEl.clientHeight / 2;
+  let closest = items[0], closestDist = Infinity;
+  items.forEach(item => {
+    const itemCenter = item.offsetTop + item.offsetHeight / 2;
+    const dist = Math.abs(itemCenter - center);
+    if (dist < closestDist) { closestDist = dist; closest = item; }
+  });
+  items.forEach(item => item.classList.toggle('dw-selected', item === closest));
+  return closest.dataset.value;
+}
+
+function dwAttachScrollHandler(colEl, onSettle) {
+  let scrollTimeout = null;
+  colEl.addEventListener('scroll', () => {
+    dwUpdateSelectedVisual(colEl);
+    clearTimeout(scrollTimeout);
+    scrollTimeout = setTimeout(() => {
+      const val = dwUpdateSelectedVisual(colEl);
+      if (val != null) onSettle(parseInt(val, 10));
+    }, 120);
+  });
+}
+
+function dwRenderDayColumn() {
+  const dayCol = document.getElementById('dwDayCol');
+  const maxDay = dwDaysInMonth(DW.month, DW.year);
+  if (DW.day > maxDay) DW.day = maxDay;
+  dwBuildColumn(dayCol, maxDay, 1, v => String(v).padStart(2, '0'), DW.day - 1);
+}
+
+function openDateWheelPicker(inputId) {
+  DW.targetInputId = inputId;
+  const input = document.getElementById(inputId);
+  const existing = input ? input.value : '';
+  const today = new Date();
+  if (existing) {
+    const [y, m, d] = existing.split('-').map(n => parseInt(n, 10));
+    DW.year = y; DW.month = m; DW.day = d;
+  } else {
+    DW.year = today.getFullYear(); DW.month = today.getMonth() + 1; DW.day = today.getDate();
+  }
+
+  const dayCol = document.getElementById('dwDayCol');
+  const monthCol = document.getElementById('dwMonthCol');
+  const yearCol = document.getElementById('dwYearCol');
+
+  dwRenderDayColumn();
+  dwBuildColumn(monthCol, 12, 1, v => DW_MONTHS[v - 1], DW.month - 1);
+  const yearStart = today.getFullYear() - 2;
+  dwBuildColumn(yearCol, 16, yearStart, v => String(v), DW.year - yearStart);
+
+  dwAttachScrollHandler(dayCol, v => { DW.day = v; });
+  dwAttachScrollHandler(monthCol, v => { DW.month = v; dwRenderDayColumn(); dwAttachScrollHandler(document.getElementById('dwDayCol'), vv => { DW.day = vv; }); });
+  dwAttachScrollHandler(yearCol, v => { DW.year = v; dwRenderDayColumn(); dwAttachScrollHandler(document.getElementById('dwDayCol'), vv => { DW.day = vv; }); });
+
+  document.getElementById('dateWheelOverlay').classList.add('active');
+}
+
+function closeDateWheelPicker() {
+  document.getElementById('dateWheelOverlay').classList.remove('active');
+  DW.targetInputId = null;
+}
+
+function applyDateWheelPicker() {
+  if (!DW.targetInputId) return;
+  const input = document.getElementById(DW.targetInputId);
+  if (!input) return;
+  const iso = DW.year + '-' + String(DW.month).padStart(2, '0') + '-' + String(DW.day).padStart(2, '0');
+  input.value = iso;
+  input.dispatchEvent(new Event('change', { bubbles: true }));
+  closeDateWheelPicker();
 }
 
 /* ====== CUSTOM COLOR PICKER ENGINE ====== */
