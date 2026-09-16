@@ -19125,6 +19125,19 @@ loadShipping();
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <script>
 window.__script6Started = true;
+
+/* Defined immediately, before any other startup code runs, so the
+   Add Product / Restock button always has something to call — even
+   if a later, unrelated startup step throws and stops the rest of
+   this script from finishing. Looks up the real save functions by
+   name at click-time rather than relying on them being defined yet. */
+window.confirmRestock = async function() {
+  if (typeof window.__confirmRestockReal === 'function') {
+    return window.__confirmRestockReal();
+  }
+  alert('The app is still starting up — please wait a moment and try again. If this keeps happening, reload the page.');
+};
+
 try {
 
 
@@ -23545,7 +23558,7 @@ async function requireFingerprint(){
   if(!verifyRes.ok || !verifyData.verified) throw new Error(verifyData.error || 'Fingerprint did not match');
 }
 
-async function confirmRestock() {
+window.__confirmRestockReal = async function confirmRestock() {
   const isNew = document.getElementById('restockTab2').classList.contains('active');
   if (isNew) {
     await saveNewProduct();
