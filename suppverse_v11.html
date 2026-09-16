@@ -23593,6 +23593,13 @@ async function restockExistingProduct() {
     return;
   }
 
+  try {
+    await requireFingerprint();
+  } catch (err) {
+    showToast(err.message || 'Fingerprint confirmation failed — stock not updated');
+    return;
+  }
+
   showToast('Saving…');
 
   // Local inventory is the source of truth — update it first so the app always
@@ -23703,6 +23710,13 @@ async function saveNewProduct() {
       return labels[f.hint] || f.hint;
     });
     showToast('⚠ Missing: ' + missing.join(', '));
+    return;
+  }
+
+  try {
+    await requireFingerprint();
+  } catch (err) {
+    showToast(err.message || 'Fingerprint confirmation failed — product not added');
     return;
   }
 
