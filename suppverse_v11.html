@@ -21979,11 +21979,17 @@ function setNpSubcategory(sub) {
   (document.getElementById('npSubcatSelectBtn')||_npSafeEl()).classList.remove('open');
   updateNpSummary();
 }
-function addNewSubcategory(e) {
+async function addNewSubcategory(e) {
   if (e) e.stopPropagation();
   const input = document.getElementById('npSubcatNewInput') || _npSafeEl();
   const name = input.value.trim();
   if (!name || !npCategory) return;
+  try {
+    await requireFingerprint();
+  } catch (err) {
+    showToast(err.message || 'Fingerprint confirmation failed — sub-category not added');
+    return;
+  }
   if (!SUBCATEGORIES[npCategory]) SUBCATEGORIES[npCategory] = [];
   if (!SUBCATEGORIES[npCategory].some(s => s.toLowerCase() === name.toLowerCase())) {
     SUBCATEGORIES[npCategory].push(name);
