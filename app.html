@@ -19699,7 +19699,7 @@ function cancelDeleteSubcategory() {
   const modal = document.getElementById('subcatDeleteModal');
   if (modal) modal.classList.remove('active');
 }
-async function confirmDeleteSubcategory() {
+window.confirmDeleteSubcategory = async function confirmDeleteSubcategory() {
   if (!_subcatPendingDelete || !npCategory) { cancelDeleteSubcategory(); return; }
   const name = _subcatPendingDelete;
   try {
