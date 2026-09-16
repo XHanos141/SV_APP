@@ -5466,6 +5466,51 @@ html[data-theme="dark"] .pinfo-title { color: #ffffff; }
 .pinfo-close svg { width: 14px; height: 14px; }
 html[data-theme="dark"] .pinfo-close { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.7); }
 .pinfo-body { overflow-y: auto; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; padding-bottom: 8px; flex: 1 1 auto; min-height: 0; }
+.pinfo-footer {
+  display: flex; gap: 10px; padding: 12px 16px; flex-shrink: 0;
+  border-top: 1px solid #ececec;
+}
+html[data-theme="dark"] .pinfo-footer { border-color: rgba(255,255,255,0.08); }
+.pinfo-action-btn {
+  flex: 1; height: 38px; border-radius: 10px; border: 1.5px solid;
+  display: flex; align-items: center; justify-content: center; gap: 7px;
+  font-family: "Plus Jakarta Sans", sans-serif; font-size: 13px; font-weight: 700;
+  cursor: pointer; transition: background 0.15s ease, border-color 0.15s ease;
+}
+.pinfo-action-btn svg { width: 15px; height: 15px; flex-shrink: 0; }
+.pinfo-archive-btn { background: rgba(124,111,247,0.08); border-color: rgba(124,111,247,0.3); color: #7c6ff7; }
+.pinfo-archive-btn:active { background: rgba(124,111,247,0.16); }
+.pinfo-delete-btn { background: rgba(217,83,83,0.08); border-color: rgba(217,83,83,0.3); color: #d95353; }
+.pinfo-delete-btn:active { background: rgba(217,83,83,0.16); }
+
+/* Archived Products drawer sub-panel */
+.archived-panel-header {
+  display: flex; align-items: center; gap: 12px; padding: 16px 20px;
+  border-bottom: 1px solid rgba(255,255,255,0.08); flex-shrink: 0;
+}
+.archived-panel-back {
+  width: 32px; height: 32px; border-radius: 9px; border: none;
+  background: rgba(255,255,255,0.08); color: #fff;
+  display: flex; align-items: center; justify-content: center; cursor: pointer; padding: 0; flex-shrink: 0;
+}
+.archived-panel-back svg { width: 16px; height: 16px; }
+.archived-panel-title { font-family: "Plus Jakarta Sans", sans-serif; font-size: 15px; font-weight: 800; color: #fff; }
+.archived-panel-body { padding: 14px 16px; overflow-y: auto; flex: 1; }
+.archived-prod-card {
+  display: flex; align-items: center; gap: 12px; padding: 12px;
+  background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 14px; margin-bottom: 10px;
+}
+.archived-prod-info { flex: 1; min-width: 0; }
+.archived-prod-name { font-family: "Plus Jakarta Sans", sans-serif; font-size: 13.5px; font-weight: 700; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.archived-prod-sku { font-family: "Courier Prime", "Courier New", monospace; font-size: 11px; color: rgba(255,255,255,0.5); margin-top: 2px; }
+.archived-prod-restore-btn {
+  height: 32px; padding: 0 14px; border-radius: 8px; border: 1.5px solid rgba(124,111,247,0.35);
+  background: rgba(124,111,247,0.12); color: #7c6ff7;
+  font-family: "Plus Jakarta Sans", sans-serif; font-size: 12px; font-weight: 700;
+  cursor: pointer; flex-shrink: 0;
+}
+.archived-prod-restore-btn:active { background: rgba(124,111,247,0.22); }
 .pinfo-section-head {
   font-family: "Plus Jakarta Sans", sans-serif; font-size: 10px; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase;
   color: #7C6FF7; background: rgba(124,111,247,0.08); padding: 9px 16px; margin-top: 2px;
@@ -13708,6 +13753,12 @@ function showToast(message, type = 'success') {
 
     <!-- BOTTOM NAV LINKS -->
     <div class="drawer-nav">
+      <div class="drawer-nav-item" onclick="openArchivedProductsPanel()">
+        <div class="drawer-nav-icon" style="background:rgba(124,111,247,0.12)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#7c6ff7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/></svg>
+        </div>
+        <span class="drawer-nav-label">Archived Products</span><span class="drawer-nav-chevron">&#8250;</span>
+      </div>
       <div class="drawer-nav-item">
         <div class="drawer-nav-icon" style="background:rgba(217,83,83,0.12)">
           <svg viewBox="0 0 24 24" fill="none" stroke="#d95353" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 01-3.46 0"></path></svg>
@@ -13727,6 +13778,26 @@ function showToast(message, type = 'success') {
   <!-- VOUCHER HUB SUB-PANEL -->
   <div class="hub-subpanel" id="hubSubPanel">
     <iframe id="voucherHubFrame2" style="width:100%;height:100%;border:none;display:block;background:#060f1e;"></iframe>
+  </div>
+
+  <!-- ARCHIVED PRODUCTS SUB-PANEL -->
+  <div class="hub-subpanel" id="archivedProductsPanel">
+    <div class="archived-panel-header">
+      <button type="button" class="archived-panel-back" onclick="closeArchivedProductsPanel()" aria-label="Back">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+      </button>
+      <span class="archived-panel-title">Archived Products</span>
+    </div>
+    <div class="archived-panel-body">
+      <div id="archivedProductsList"></div>
+      <div class="saved-empty" id="archivedProductsEmpty" style="display:none">
+        <div class="saved-empty-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/></svg>
+        </div>
+        <div class="saved-empty-title">No archived products</div>
+        <div class="saved-empty-subtitle">Products you archive will show up here</div>
+      </div>
+    </div>
   </div>
 
   </aside>
@@ -18938,6 +19009,30 @@ loadShipping();
   </div>
 </div>
 
+<!-- ====== DELETE PRODUCT CONFIRM MODAL ====== -->
+<div class="modal-overlay" id="pdaDeleteModal">
+  <div class="modal-panel" style="max-width:360px">
+    <div class="rate-warning-body">
+      <div class="rate-warning-icon" style="background:rgba(217,83,83,0.12)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#d95353" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="3 6 5 6 21 6"></polyline>
+          <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+          <line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line>
+        </svg>
+      </div>
+      <div class="rate-warning-title">Delete Product?</div>
+      <div class="rate-warning-text">This will permanently remove <strong id="pdaDeleteProductName">this product</strong> and its stock record. This can't be undone — consider Archive instead if you might need it again.</div>
+    </div>
+    <div class="save-modal-footer">
+      <button class="modal-btn modal-btn-cancel" onclick="cancelDeleteProduct()">Cancel</button>
+      <button class="modal-btn modal-btn-danger" onclick="confirmDeleteProduct()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+        Delete
+      </button>
+    </div>
+  </div>
+</div>
+
 <!-- ====== ALERT DISMISS CONFIRM MODAL ====== -->
 <div class="modal-overlay" id="alDismissModal">
   <div class="modal-panel" style="max-width:360px">
@@ -19136,6 +19231,29 @@ window.confirmRestock = async function() {
     return window.__confirmRestockReal();
   }
   alert('The app is still starting up — please wait a moment and try again. If this keeps happening, reload the page.');
+};
+
+/* Same early-dispatcher pattern as confirmRestock above — these three
+   are also called directly from onclick attributes, so they need to
+   exist the instant the page loads, before the rest of this script
+   (which defines the real versions) has necessarily finished running. */
+window.archiveProduct = async function(sku) {
+  if (typeof window.__archiveProductReal === 'function') {
+    return window.__archiveProductReal(sku);
+  }
+  alert('The app is still starting up — please wait a moment and try again.');
+};
+window.confirmDeleteProduct = async function() {
+  if (typeof window.__confirmDeleteProductReal === 'function') {
+    return window.__confirmDeleteProductReal();
+  }
+  alert('The app is still starting up — please wait a moment and try again.');
+};
+window.restoreArchivedProduct = async function(sku) {
+  if (typeof window.__restoreArchivedProductReal === 'function') {
+    return window.__restoreArchivedProductReal(sku);
+  }
+  alert('The app is still starting up — please wait a moment and try again.');
 };
 
 try {
@@ -21444,7 +21562,7 @@ function filterOrderPicker(cat) {
 
 function renderOrderPickerList(cat, rowId) {
   const list = document.getElementById('prodPickerList');
-  let filtered = cat === 'all' ? PRODUCTS_DATA : PRODUCTS_DATA.filter(p => p.category === cat);
+  let filtered = cat === 'all' ? PRODUCTS_DATA.filter(p => !p.archived) : PRODUCTS_DATA.filter(p => p.category === cat && !p.archived);
   if (_pickerSearchTerm) {
     filtered = filtered.filter(p =>
       p.name.toLowerCase().includes(_pickerSearchTerm) ||
@@ -21497,7 +21615,7 @@ function filterRestockPicker(cat) {
 
 function renderRestockPickerList(cat) {
   const list = document.getElementById('prodPickerList');
-  let filtered = cat === 'all' ? PRODUCTS_DATA : PRODUCTS_DATA.filter(p => p.category === cat);
+  let filtered = cat === 'all' ? PRODUCTS_DATA.filter(p => !p.archived) : PRODUCTS_DATA.filter(p => p.category === cat && !p.archived);
   if (_pickerSearchTerm) {
     filtered = filtered.filter(p =>
       p.name.toLowerCase().includes(_pickerSearchTerm) ||
@@ -24882,7 +25000,7 @@ function filterReturnPicker(cat) {
 
 function renderReturnPickerList(cat, rowId) {
   const list = document.getElementById('prodPickerList');
-  let filtered = cat === 'all' ? PRODUCTS_DATA : PRODUCTS_DATA.filter(p => p.category === cat);
+  let filtered = cat === 'all' ? PRODUCTS_DATA.filter(p => !p.archived) : PRODUCTS_DATA.filter(p => p.category === cat && !p.archived);
   if (_pickerSearchTerm) {
     filtered = filtered.filter(p =>
       p.name.toLowerCase().includes(_pickerSearchTerm) ||
@@ -25251,7 +25369,8 @@ function renderProductsTab(searchDisplayVal) {
   const _prevFilterInd = _captureIndicatorRect('productsFilterSlide');
   const _prevProductsFilterScroll = document.getElementById('productsFilterRow') ? document.getElementById('productsFilterRow').scrollLeft : 0;
   const inputVal = searchDisplayVal !== undefined ? searchDisplayVal : productSearch;
-  const subcatSourceProducts = productCategory === 'all' ? PRODUCTS_DATA : PRODUCTS_DATA.filter(p => p.category === productCategory);
+  const ACTIVE_PRODUCTS = PRODUCTS_DATA.filter(p => !p.archived);
+  const subcatSourceProducts = productCategory === 'all' ? ACTIVE_PRODUCTS : ACTIVE_PRODUCTS.filter(p => p.category === productCategory);
   const allUsedSubcats = [...new Set(subcatSourceProducts.filter(p => p.subcategory).map(p => p.subcategory))].sort();
   if (productSubcatFilter !== 'all' && !allUsedSubcats.includes(productSubcatFilter)) {
     productSubcatFilter = 'all';
@@ -25260,7 +25379,7 @@ function renderProductsTab(searchDisplayVal) {
   if (productBrandFilter.length) {
     productBrandFilter = productBrandFilter.filter(b => allUsedBrands.includes(b));
   }
-  let filtered = PRODUCTS_DATA.filter(p => {
+  let filtered = ACTIVE_PRODUCTS.filter(p => {
     const matchFilter = productFilter === 'all' ||
       (productFilter === 'low' && p.stock > 0 && p.stock <= LOW_STOCK_THRESHOLD) ||
       (productFilter === 'out' && p.stock === 0) ||
@@ -25284,10 +25403,10 @@ function renderProductsTab(searchDisplayVal) {
     }
   });
 
-  const totalSKUs  = PRODUCTS_DATA.length;
-  const outCount   = PRODUCTS_DATA.filter(p => p.stock === 0).length;
-  const lowCount   = PRODUCTS_DATA.filter(p => p.stock > 0 && p.stock <= LOW_STOCK_THRESHOLD).length;
-  const totalUnits = PRODUCTS_DATA.reduce((s, p) => s + p.stock, 0);
+  const totalSKUs  = ACTIVE_PRODUCTS.length;
+  const outCount   = ACTIVE_PRODUCTS.filter(p => p.stock === 0).length;
+  const lowCount   = ACTIVE_PRODUCTS.filter(p => p.stock > 0 && p.stock <= LOW_STOCK_THRESHOLD).length;
+  const totalUnits = ACTIVE_PRODUCTS.reduce((s, p) => s + p.stock, 0);
 
   const cards = filtered.map((p, idx) => {
     const sc   = stockClass(p.stock);
@@ -25573,6 +25692,7 @@ function _pinfoRow(label, value, cls) {
     <div class="pinfo-cell pinfo-val ${isEmpty ? 'empty' : (cls||'')}">${isEmpty ? '—' : value}</div>
   </div>`;
 }
+let _pinfoCurrentSku = null;
 function _ensureProductInfoModal() {
   let backdrop = document.getElementById('productInfoBackdrop');
   if (backdrop) return;
@@ -25593,6 +25713,16 @@ function _ensureProductInfoModal() {
       </button>
     </div>
     <div class="pinfo-body" id="productInfoBody"></div>
+    <div class="pinfo-footer">
+      <button type="button" class="pinfo-action-btn pinfo-archive-btn" id="pinfoArchiveBtn" onclick="archiveProduct(_pinfoCurrentSku)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/></svg>
+        Archive
+      </button>
+      <button type="button" class="pinfo-action-btn pinfo-delete-btn" id="pinfoDeleteBtn" onclick="openDeleteProductConfirm(_pinfoCurrentSku)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a2 2 0 012-2h2a2 2 0 012 2v2"/></svg>
+        Delete
+      </button>
+    </div>
   `;
   document.body.appendChild(backdrop);
   document.body.appendChild(modal);
@@ -25601,6 +25731,7 @@ function openProductInfoModal(sku, event) {
   if (event) event.stopPropagation();
   const p = PRODUCTS_DATA.find(pr => pr.sku === sku);
   if (!p) return;
+  _pinfoCurrentSku = sku;
   _ensureProductInfoModal();
   const backdrop = document.getElementById('productInfoBackdrop');
   const modal = document.getElementById('productInfoModal');
@@ -25666,6 +25797,154 @@ function closeProductInfoModal() {
   if (backdrop) backdrop.classList.remove('show');
   if (modal) modal.classList.remove('show');
 }
+
+/* ============================================================
+   ====== PRODUCT DELETE / ARCHIVE / RESTORE ======
+   Archived products stay in PRODUCTS_DATA (so their history and
+   any existing order/sale records still resolve) but are hidden
+   from every normal list, search, and stock count via the
+   p.archived flag. Deleted products are removed outright.
+   Both actions require fingerprint confirmation; both attempt a
+   best-effort Supabase sync the same way the rest of the app does.
+   ============================================================ */
+function openDeleteProductConfirm(sku) {
+  const p = PRODUCTS_DATA.find(pr => pr.sku === sku);
+  if (!p) return;
+  _pdaPendingSku = sku;
+  const modal = document.getElementById('pdaDeleteModal');
+  const nameEl = document.getElementById('pdaDeleteProductName');
+  if (nameEl) nameEl.textContent = p.name;
+  if (modal) modal.classList.add('active');
+}
+function cancelDeleteProduct() {
+  _pdaPendingSku = null;
+  const modal = document.getElementById('pdaDeleteModal');
+  if (modal) modal.classList.remove('active');
+}
+async function confirmDeleteProduct() {
+  if (!_pdaPendingSku) { cancelDeleteProduct(); return; }
+  const sku = _pdaPendingSku;
+  try {
+    await requireFingerprint();
+  } catch (err) {
+    showToast(err.message || 'Fingerprint confirmation failed — product not deleted');
+    return;
+  }
+  const idx = PRODUCTS_DATA.findIndex(pr => pr.sku === sku);
+  if (idx === -1) { cancelDeleteProduct(); return; }
+  const removed = PRODUCTS_DATA[idx];
+  PRODUCTS_DATA.splice(idx, 1);
+  invalidateProductCatalogCache();
+
+  (async () => {
+    try {
+      const found = await sbFetch(`products?sku=eq.${encodeURIComponent(sku)}&select=id`);
+      if (found && found.length > 0) {
+        await sbFetch(`products?id=eq.${found[0].id}`, 'DELETE');
+      }
+    } catch (err) { console.warn('Supabase sync skipped (not configured):', err.message); }
+  })();
+
+  cancelDeleteProduct();
+  closeProductInfoModal();
+  renderProductsTab();
+  showToast('✓ ' + removed.name + ' deleted');
+}
+window.__confirmDeleteProductReal = confirmDeleteProduct;
+
+async function archiveProduct(sku) {
+  const p = PRODUCTS_DATA.find(pr => pr.sku === sku);
+  if (!p) return;
+  try {
+    await requireFingerprint();
+  } catch (err) {
+    showToast(err.message || 'Fingerprint confirmation failed — product not archived');
+    return;
+  }
+  p.archived = true;
+  p.archivedAt = new Date().toISOString();
+  invalidateProductCatalogCache();
+
+  (async () => {
+    try {
+      const found = await sbFetch(`products?sku=eq.${encodeURIComponent(sku)}&select=id`);
+      if (found && found.length > 0) {
+        await sbFetch(`products?id=eq.${found[0].id}`, 'PATCH', { archived: true, archived_at: p.archivedAt });
+      }
+    } catch (err) { console.warn('Supabase sync skipped (not configured):', err.message); }
+  })();
+
+  closeProductInfoModal();
+  renderProductsTab();
+  showToast('✓ ' + p.name + ' archived');
+}
+window.__archiveProductReal = archiveProduct;
+
+async function restoreArchivedProduct(sku) {
+  const p = PRODUCTS_DATA.find(pr => pr.sku === sku);
+  if (!p) return;
+  try {
+    await requireFingerprint();
+  } catch (err) {
+    showToast(err.message || 'Fingerprint confirmation failed — product not restored');
+    return;
+  }
+  p.archived = false;
+  p.archivedAt = null;
+  invalidateProductCatalogCache();
+
+  (async () => {
+    try {
+      const found = await sbFetch(`products?sku=eq.${encodeURIComponent(sku)}&select=id`);
+      if (found && found.length > 0) {
+        await sbFetch(`products?id=eq.${found[0].id}`, 'PATCH', { archived: false, archived_at: null });
+      }
+    } catch (err) { console.warn('Supabase sync skipped (not configured):', err.message); }
+  })();
+
+  renderArchivedProductsPanel();
+  renderProductsTab();
+  showToast('✓ ' + p.name + ' restored to stock');
+}
+window.__restoreArchivedProductReal = restoreArchivedProduct;
+
+function openArchivedProductsPanel() {
+  const menuCb = document.getElementById('menuState');
+  if (menuCb) menuCb.checked = true;
+  const panel = document.getElementById('archivedProductsPanel');
+  if (panel) panel.classList.add('open');
+  renderArchivedProductsPanel();
+}
+function closeArchivedProductsPanel() {
+  const panel = document.getElementById('archivedProductsPanel');
+  if (panel) panel.classList.remove('open');
+}
+function renderArchivedProductsPanel() {
+  const list = document.getElementById('archivedProductsList');
+  const empty = document.getElementById('archivedProductsEmpty');
+  if (!list || !empty) return;
+  const archived = PRODUCTS_DATA.filter(p => p.archived);
+  if (archived.length === 0) {
+    list.innerHTML = '';
+    empty.style.display = 'flex';
+    return;
+  }
+  empty.style.display = 'none';
+  list.innerHTML = archived.map(p => {
+    const cat = CATEGORY_META[p.category] || CATEGORY_META.general;
+    return `
+    <div class="archived-prod-card">
+      <div class="prod-avatar-badge" style="background:linear-gradient(135deg,${cat.color},${cat.color2});box-shadow:0 4px 12px ${cat.color}4d"><svg class="cat-icon cat-icon-${cat.icon}"><use href="#cat-icon-${cat.icon}"/></svg></div>
+      <div class="archived-prod-info">
+        <div class="archived-prod-name">${escapeHtml(p.name)}</div>
+        <div class="archived-prod-sku">${p.sku}</div>
+      </div>
+      <button type="button" class="archived-prod-restore-btn" onclick="restoreArchivedProduct('${p.sku.replace(/'/g,"\\'")}')">Restore</button>
+    </div>`;
+  }).join('');
+}
+let _pdaPendingSku = null;
+
 document.addEventListener('click', function(e) {
   const catMenu = document.getElementById('productCategoryMenu');
   const catBtn  = document.getElementById('productCategoryBtn');
