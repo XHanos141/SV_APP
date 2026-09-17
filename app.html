@@ -19753,14 +19753,15 @@ function toggleNpSubcatMenu(e) {
   menu.classList.toggle('open', opening);
   btn.classList.toggle('open', opening);
   if (opening) {
+    const _npClickScope = btn.closest('.fs-modal') || document;
     const closeOnOutside = (ev) => {
       if (!menu.contains(ev.target) && !btn.contains(ev.target)) {
         menu.classList.remove('open');
         btn.classList.remove('open');
-        document.removeEventListener('click', closeOnOutside);
+        _npClickScope.removeEventListener('click', closeOnOutside);
       }
     };
-    setTimeout(() => document.addEventListener('click', closeOnOutside), 0);
+    setTimeout(() => _npClickScope.addEventListener('click', closeOnOutside), 0);
   }
 }
 function setNpSubcategory(sub) {
@@ -19915,16 +19916,17 @@ function toggleNpCategoryMenu(e) {
   btn.classList.toggle('open', opening);
   if (opening) {
     const reposition = positionMenu;
+    const _npClickScope = btn.closest('.fs-modal') || document;
     const closeOnOutside = (ev) => {
       if (!menu.contains(ev.target) && !btn.contains(ev.target)) {
         menu.classList.remove('open');
         btn.classList.remove('open');
-        document.removeEventListener('click', closeOnOutside);
+        _npClickScope.removeEventListener('click', closeOnOutside);
         document.querySelector('.fs-modal-body')?.removeEventListener('scroll', reposition);
         window.removeEventListener('resize', reposition);
       }
     };
-    setTimeout(() => document.addEventListener('click', closeOnOutside), 0);
+    setTimeout(() => _npClickScope.addEventListener('click', closeOnOutside), 0);
     document.querySelector('.fs-modal-body')?.addEventListener('scroll', reposition);
     window.addEventListener('resize', reposition);
   }
@@ -19950,16 +19952,17 @@ function toggleNpFormMenu(e) {
   btn.classList.toggle('open', opening);
   if (opening) {
     const reposition = positionMenu;
+    const _npClickScope = btn.closest('.fs-modal') || document;
     const closeOnOutside = (ev) => {
       if (!menu.contains(ev.target) && !btn.contains(ev.target)) {
         menu.classList.remove('open');
         btn.classList.remove('open');
-        document.removeEventListener('click', closeOnOutside);
+        _npClickScope.removeEventListener('click', closeOnOutside);
         document.querySelector('.fs-modal-body')?.removeEventListener('scroll', reposition);
         window.removeEventListener('resize', reposition);
       }
     };
-    setTimeout(() => document.addEventListener('click', closeOnOutside), 0);
+    setTimeout(() => _npClickScope.addEventListener('click', closeOnOutside), 0);
     document.querySelector('.fs-modal-body')?.addEventListener('scroll', reposition);
     window.addEventListener('resize', reposition);
   }
@@ -19997,16 +20000,17 @@ function toggleNpPotencyUnitMenu(e) {
   btn.classList.toggle('open', opening);
   if (opening) {
     const reposition = positionMenu;
+    const _npClickScope = btn.closest('.fs-modal') || document;
     const closeOnOutside = (ev) => {
       if (!menu.contains(ev.target) && !btn.contains(ev.target)) {
         menu.classList.remove('open');
         btn.classList.remove('open');
-        document.removeEventListener('click', closeOnOutside);
+        _npClickScope.removeEventListener('click', closeOnOutside);
         document.querySelector('.fs-modal-body')?.removeEventListener('scroll', reposition);
         window.removeEventListener('resize', reposition);
       }
     };
-    setTimeout(() => document.addEventListener('click', closeOnOutside), 0);
+    setTimeout(() => _npClickScope.addEventListener('click', closeOnOutside), 0);
     document.querySelector('.fs-modal-body')?.addEventListener('scroll', reposition);
     window.addEventListener('resize', reposition);
   }
@@ -20046,16 +20050,17 @@ function toggleNpOriginMenu(e) {
   btn.classList.toggle('open', opening);
   if (opening) {
     const reposition = positionMenu;
+    const _npClickScope = btn.closest('.fs-modal') || document;
     const closeOnOutside = (ev) => {
       if (!menu.contains(ev.target) && !btn.contains(ev.target)) {
         menu.classList.remove('open');
         btn.classList.remove('open');
-        document.removeEventListener('click', closeOnOutside);
+        _npClickScope.removeEventListener('click', closeOnOutside);
         document.querySelector('.fs-modal-body')?.removeEventListener('scroll', reposition);
         window.removeEventListener('resize', reposition);
       }
     };
-    setTimeout(() => document.addEventListener('click', closeOnOutside), 0);
+    setTimeout(() => _npClickScope.addEventListener('click', closeOnOutside), 0);
     document.querySelector('.fs-modal-body')?.addEventListener('scroll', reposition);
     window.addEventListener('resize', reposition);
   }
