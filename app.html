@@ -22874,7 +22874,7 @@ function mapSupabaseProductToLocal(row) {
     variant: null,
     batches: null,
     variants: Array.isArray(row.variants) ? row.variants : [],
-    meta: Object.assign({ brandName: row.brand, usdCost: row.usd_cost }, row.meta || {})
+    meta: Object.assign({ brandName: row.brand, usdCost: row.usd_cost, weight: row.weight_cost || null }, row.meta || {})
   };
 }
 
@@ -22904,6 +22904,33 @@ async function loadProductsFromSupabase() {
         }
       } catch (err) {
         console.warn('Batch load skipped:', err.message);
+      }
+    }
+
+    // Category-specific fields (form, potency, flavor, origin) live in their
+    // own detail table per category — supplement_details for now — not on the
+    // products row itself. Same class of gap as batches/expiry: fetch and merge.
+    const supplementIds = rows.filter(r => r.category === 'supplement').map(r => r.id).filter(Boolean);
+    if (supplementIds.length > 0) {
+      try {
+        const detailRows = await sbFetch(`supplement_details?select=*&product_id=in.(${supplementIds.join(',')})`);
+        if (Array.isArray(detailRows) && detailRows.length > 0) {
+          const detailsByProduct = {};
+          detailRows.forEach(d => { detailsByProduct[d.product_id] = d; });
+          mapped.forEach(p => {
+            const d = detailsByProduct[p.id];
+            if (!d) return;
+            p.meta.form = d.form_type || null;
+            p.meta.capsuleCount = d.capsule_count || null;
+            p.meta.potencyType = d.potency_unit || null;
+            p.meta.potencyAmount = d.potency_amount || null;
+            p.meta.flavor = d.flavor || null;
+            p.meta.countryOfOrigin = d.country_of_origin || null;
+            if (d.custom_fields) p.meta.customSpecs = d.custom_fields;
+          });
+        }
+      } catch (err) {
+        console.warn('Supplement details load skipped:', err.message);
       }
     }
 
