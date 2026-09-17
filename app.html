@@ -10197,6 +10197,7 @@ html[data-theme="dark"] .profit-sku { color: #22d3ee; text-shadow: 0 0 6px rgba(
 .toast.show { opacity: 1; transform: translateY(0); }
 .toast-success { background: var(--ludba-green); }
 .toast-error { background: var(--ludba-red); }
+.toast-warning { background: #F4A922; }
 
 /* ===== RETURNS CARD SYSTEM ===== */
 .return-detail-overlay {
@@ -18504,18 +18505,19 @@ function _retObjFromInv(inv) {
   };
 }
 
-function showToast(msg, isError) {
+function showToast(msg, type) {
   const container = document.getElementById('toastContainer');
   if (!container) return;
   const toast = document.createElement('div');
-  toast.className = 'toast ' + (isError ? 'toast-error' : 'toast-success');
+  const cls = type === 'warning' ? 'toast-warning' : type ? 'toast-error' : 'toast-success';
+  toast.className = 'toast ' + cls;
   toast.textContent = msg;
   container.appendChild(toast);
   requestAnimationFrame(() => requestAnimationFrame(() => toast.classList.add('show')));
   setTimeout(() => {
     toast.classList.remove('show');
     setTimeout(() => toast.remove(), 400);
-  }, isError ? 3500 : 2800);
+  }, type ? 3500 : 2800);
 }
 
 /* ====== CREATE INVOICE FROM DRAFT ====== */
@@ -21392,7 +21394,7 @@ window.__confirmRestockReal = async function confirmRestock() {
 
 async function restockExistingProduct() {
   const productName = document.getElementById('rsProduct').value.trim();
-  const sku         = document.getElementById('rsProductSku').value.trim();
+  const sku         = normalizeSku(document.getElementById('rsProductSku').value);
   const cost        = parseFloat(document.getElementById('rsProductCost').value) || 0;
   const category    = document.getElementById('rsProductCategory').value.trim();
   const qty         = parseInt(document.getElementById('rsQty').value) || 1;
@@ -21427,7 +21429,7 @@ async function restockExistingProduct() {
 
   // Local inventory is the source of truth — update it first so the app always
   // works even though Supabase isn't configured yet.
-  const localProd = PRODUCTS_DATA.find(p => p.sku === sku);
+  const localProd = PRODUCTS_DATA.find(p => normalizeSku(p.sku) === sku);
   if (!localProd) { showToast('Product not found'); return; }
 
   const newQty = (localProd.stock || 0) + qty;
@@ -21485,8 +21487,12 @@ async function restockExistingProduct() {
   showToast(`✓ ${productName} restocked · ${newQty} units total`);
 }
 
+function normalizeSku(raw) {
+  return (raw || '').trim().toUpperCase();
+}
+
 async function saveNewProduct() {
-  const sku         = (document.getElementById('inpSku')||_npSafeEl()).value.trim();
+  const sku         = normalizeSku((document.getElementById('inpSku')||_npSafeEl()).value);
   const brandName   = (document.getElementById('inpBrand')||_npSafeEl()).value.trim();
   const productName = (document.getElementById('inpName')||_npSafeEl()).value.trim();
   const usd         = parseFloat((document.getElementById('inpUsdCost')||_npSafeEl()).value) || 0;
@@ -21593,7 +21599,9 @@ async function saveNewProduct() {
 
   // Local inventory is the source of truth — the app works fully even though
   // Supabase isn't configured yet. Check for an existing SKU locally first.
-  const existingLocal = PRODUCTS_DATA.find(p => p.sku === sku);
+  // Case-insensitive: sku is already normalized to uppercase above, but older
+  // rows saved before normalization may still be stored in mixed case.
+  const existingLocal = PRODUCTS_DATA.find(p => normalizeSku(p.sku) === sku);
 
   if (existingLocal) {
     // SKU already exists → treat as a restock instead of a duplicate product
@@ -21616,7 +21624,7 @@ async function saveNewProduct() {
     })();
 
     closeRestockModal(); switchTab('products');
-    showToast(`✓ ${productName} already exists — stock updated to ${newQty} units`);
+    showToast(`⚠ SKU "${sku}" already exists — merged into restock (${newQty} units total)`, 'warning');
   } else {
     // Update local state immediately — PRODUCTS_DATA is the single source of truth;
     // getProductCatalog() will automatically pick this up on next read.
@@ -21636,7 +21644,7 @@ async function saveNewProduct() {
           brand: brandName, price: sell, old_price: null,
           cost: bdtCost, weight_cost: weightGrams > 0 ? weightGrams : null, usd_cost: usd,
           stock_qty: stock, supplier: supplier || null,
-          variants: initialVariants,
+          variants: initialVariants || [],
           is_active: true,
           meta: { brandCode, brandColor: color, productCode: prodCode, costingMethod: npCostingMethod },
           created_at: new Date().toISOString(), updated_at: new Date().toISOString()
