@@ -22883,6 +22883,30 @@ async function loadProductsFromSupabase() {
     const rows = await sbFetch('products?select=*&is_active=eq.true&order=created_at.desc');
     if (!Array.isArray(rows) || rows.length === 0) return;
     const mapped = rows.map(mapSupabaseProductToLocal);
+
+    // Expiry lives in product_batches, not on the product row itself.
+    const ids = rows.map(r => r.id).filter(Boolean);
+    if (ids.length > 0) {
+      try {
+        const batchRows = await sbFetch(`product_batches?select=*&product_id=in.(${ids.join(',')})`);
+        if (Array.isArray(batchRows) && batchRows.length > 0) {
+          const batchesByProduct = {};
+          batchRows.forEach(b => {
+            if (!batchesByProduct[b.product_id]) batchesByProduct[b.product_id] = [];
+            batchesByProduct[b.product_id].push({
+              id: b.id,
+              expiryDate: b.expiry_date,
+              qty: b.qty,
+              costPerUnit: b.cost_per_unit
+            });
+          });
+          mapped.forEach(p => { p.batches = batchesByProduct[p.id] || null; });
+        }
+      } catch (err) {
+        console.warn('Batch load skipped:', err.message);
+      }
+    }
+
     const liveSkus = new Set(mapped.map(p => normalizeSku(p.sku)));
     const keepLocal = PRODUCTS_DATA.filter(p => !liveSkus.has(normalizeSku(p.sku)));
     PRODUCTS_DATA.length = 0;
