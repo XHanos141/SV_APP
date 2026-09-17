@@ -5534,6 +5534,8 @@ html[data-theme="dark"] .pinfo-val.amber { color: #F4A922; }
 html[data-theme="dark"] .pinfo-val.sku { color: #22d3ee; text-shadow: 0 0 6px rgba(34,211,238,0.3); -webkit-text-stroke: 0.25px #22d3ee; }
 .pinfo-val.purple { color: #7C6FF7; }
 html[data-theme="dark"] .pinfo-val.purple { color: #a095f5; }
+.pinfo-val.blue { color: #0A9BDC; }
+html[data-theme="dark"] .pinfo-val.blue { color: #38bdf8; }
 .pinfo-val.grey { color: #8c92a1; }
 html[data-theme="dark"] .pinfo-val.grey { color: rgba(255,255,255,0.5); }
 
@@ -23431,15 +23433,15 @@ function openProductInfoModal(sku, event) {
       ${_pinfoRow('Brand', meta.brandName)}
       ${_pinfoRow('Product Name', escapeHtml(p.name))}
       ${_pinfoRow('SKU', p.sku, 'sku')}
-      ${needsExpiry ? _pinfoRow('Form / Count', formCount) : ''}
-      ${needsExpiry ? _pinfoRow('Potency / Flavor', potencyFlavor) : ''}
-      ${needsExpiry ? _pinfoRow('Origin / Expiry', originExpiry) : ''}
+      ${needsExpiry ? _pinfoRow('Form / Count', formCount, 'grey') : ''}
+      ${needsExpiry ? _pinfoRow('Potency / Flavor', potencyFlavor, 'grey') : ''}
+      ${needsExpiry ? _pinfoRow('Origin / Expiry', originExpiry, 'grey') : ''}
       ${hasVariants ? _pinfoRow('Colour / Size', escapeHtml(variantStr||'')) : ''}
     </div>
     <div class="pinfo-section-head pinfo-section-boundary">Payment Details</div>
     <div class="pinfo-table">
-      ${_pinfoRow('Buying Cost (USD)', usdStr)}
-      ${_pinfoRow('Buying Cost (BDT)', '৳' + p.cost.toLocaleString('en-IN'))}
+      ${_pinfoRow('Buying Cost (USD)', usdStr, 'blue')}
+      ${_pinfoRow('Buying Cost (BDT)', '৳' + p.cost.toLocaleString('en-IN'), 'purple')}
       ${_pinfoRow('Weight', weightStr, 'grey')}
       ${_pinfoRow('Selling Price (BDT)', '৳' + p.price.toLocaleString('en-IN'), 'purple')}
       ${_pinfoRow('Margin', mPct + '%', mCls)}
