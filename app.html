@@ -21269,7 +21269,18 @@ const SB_KEY  = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsIn
 const SB_HDR  = { 'Content-Type': 'application/json', 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY, 'Prefer': 'return=representation' };
 
 async function sbFetch(path, method='GET', body=null) {
-  const opts = { method, headers: SB_HDR };
+  // Writes need the signed-in admin's session token, not the anon key —
+  // RLS write policies on products/supplement_details/etc. are scoped to
+  // `authenticated` + is_active_admin(auth.uid()), which the anon key can
+  // never satisfy. Reads still fall back to the anon key when there's no
+  // session (e.g. storefront pages), matching each table's public SELECT policy.
+  let token = SB_KEY;
+  try {
+    const { data: { session } } = await sb.auth.getSession();
+    if (session && session.access_token) token = session.access_token;
+  } catch (err) { /* no session available — fall back to anon key */ }
+  const headers = { 'Content-Type': 'application/json', 'apikey': SB_KEY, 'Authorization': 'Bearer ' + token, 'Prefer': 'return=representation' };
+  const opts = { method, headers };
   if (body) opts.body = JSON.stringify(body);
   const res = await fetch(SB_URL + '/rest/v1/' + path, opts);
   if (!res.ok) throw new Error(await res.text());
@@ -21593,24 +21604,42 @@ async function saveNewProduct() {
     PRODUCTS_DATA.unshift(newProduct);
     invalidateProductCatalogCache();
 
-    // Best-effort Supabase sync — won't block or fail the local save
+    // Best-effort Supabase sync — won't block or fail the local save.
+    // Columns here must match the real `products` schema (price/cost/brand/meta),
+    // not the old made-up names (price_bdt/cost_bdt/brand_name/...) that silently
+    // failed every insert before. Category-specific fields go to their own
+    // detail table (supplement_details for now — cosmetic/clothing/gadget land
+    // in their own tables once those are designed).
     (async () => {
       try {
         const row = {
-          name: productName, sku, price_bdt: sell, cost_bdt: bdtCost, stock_qty: stock,
-          brand_name: brandName, brand_code: brandCode, brand_color: color,
-          product_code: prodCode, form_type: form,
-          capsule_count: caps ? parseInt(caps) : null,
-          potency_type: potency || null,
-          weight_g: weightGrams > 0 ? weightGrams : null,
-          costing_method: npCostingMethod,
-          usd_cost: usd, supplier: supplier || null,
-          expiry_date: needsExpiry ? expiry : null,
+          sku, name: productName, category: npCategory, subcategory: npSubcategory || null,
+          brand: brandName, price: sell, old_price: null,
+          cost: bdtCost, weight_cost: weightGrams > 0 ? weightGrams : null,
+          stock_qty: stock, supplier: supplier || null,
+          variants: initialVariants,
+          is_active: true,
+          meta: { brandCode, brandColor: color, productCode: prodCode, costingMethod: npCostingMethod, usdCost: usd },
           created_at: new Date().toISOString(), updated_at: new Date().toISOString()
         };
         const inserted = await sbFetch('products', 'POST', row);
-        if (inserted && inserted[0]) {
-          await sbFetch('restock_entries', 'POST', { product_id: inserted[0].id, qty: stock, supplier: supplier || null, expiry_date: row.expiry_date, created_at: new Date().toISOString() });
+        const insertedId = inserted && inserted[0] && inserted[0].id;
+        if (insertedId && needsExpiry) {
+          await sbFetch('product_batches', 'POST', {
+            product_id: insertedId, qty: stock, cost_per_unit: bdtCost,
+            expiry_date: expiry || null, supplier: supplier || null,
+            created_at: new Date().toISOString()
+          });
+        }
+        if (insertedId && npCategory === 'supplement') {
+          await sbFetch('supplement_details', 'POST', {
+            product_id: insertedId, form_type: form || null,
+            capsule_count: caps ? parseInt(caps) : null,
+            potency_unit: potency || null,
+            potency_amount: potencyAmt ? parseFloat(potencyAmt) : null,
+            flavor: flavor || null, country_of_origin: origin || null,
+            custom_fields: collectNpCustomSpecs()
+          });
         }
       } catch (err) { console.warn('Supabase sync skipped (not configured):', err.message); }
     })();
