@@ -15934,7 +15934,8 @@ window.addEventListener('message',function(e){
     <div class="field">
       <label>SKU *</label>
       <input type="text" id="inpSku" placeholder="e.g. NW-OMG3-UTA-180" style="font-family:'Courier Prime','Courier New',monospace;font-weight:700;letter-spacing:0.13em;text-transform:uppercase;color:var(--sku-color) !important;-webkit-text-fill-color:var(--sku-color) !important;text-shadow:0 0 10px var(--sku-color),0 0 18px var(--sku-color)" oninput="updateNpSummary()">
-      <div class="field-hint">Also used for future barcode / label printing</div>
+      <div class="field-hint" id="npSkuHint">Also used for future barcode / label printing</div>
+      <div class="field-hint" id="npSkuDupWarning" style="display:none;color:#F4A922;font-weight:700;">⚠ SKU already exists — saving will merge as a restock instead of a new product</div>
     </div>
 
     <div class="field">
@@ -20559,6 +20560,12 @@ function renderNpCustomSpecsSummary() {
 
 function updateNpSummary() {
   renderNpCustomSpecsSummary();
+  const dupWarnEl = document.getElementById('npSkuDupWarning');
+  if (dupWarnEl) {
+    const typedSku = normalizeSku((document.getElementById('inpSku')||{}).value || '');
+    const isDup = typedSku && PRODUCTS_DATA.some(p => normalizeSku(p.sku) === typedSku);
+    dupWarnEl.style.display = isDup ? 'block' : 'none';
+  }
   const colorVal = (document.getElementById('inpProductColor')||{}).value || '';
   const sumColorRow = document.getElementById('sumColorRow');
   const sumColorDot = document.getElementById('sumColorDot');
@@ -21288,6 +21295,13 @@ function updateRestockBdt() {}
 const SB_URL  = 'https://tlkoxltugvfwxmnrthvr.supabase.co';
 const SB_KEY  = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRsa294bHR1Z3Zmd3htbnJ0aHZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODgwOTIxNTIsImV4cCI6MjEwMzY2ODE1Mn0.UMFWCIPoNJn5kAX5v9OXVkH3wmxp_dtDG7dgNQ3BK7E';
 const SB_HDR  = { 'Content-Type': 'application/json', 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY, 'Prefer': 'return=representation' };
+// The Supabase client — requireFingerprint() and sbFetch()'s session lookup both
+// call sb.auth.getSession() / sb.from(...), but nothing ever created this client.
+// sbFetch caught that ReferenceError silently and fell back to the anon key, which
+// masked it everywhere except requireFingerprint(), which had no such fallback and
+// aborted every save once a passkey was registered (killing the fingerprint gate
+// entirely, not just the duplicate-SKU check downstream of it).
+const sb = window.supabase.createClient(SB_URL, SB_KEY);
 
 async function sbFetch(path, method='GET', body=null) {
   // Writes need the signed-in admin's session token, not the anon key —
