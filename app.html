@@ -18504,11 +18504,18 @@ function _retObjFromInv(inv) {
   };
 }
 
-function showToast(msg) {
-  const toast = document.getElementById("exportToast");
+function showToast(msg, isError) {
+  const container = document.getElementById('toastContainer');
+  if (!container) return;
+  const toast = document.createElement('div');
+  toast.className = 'toast ' + (isError ? 'toast-error' : 'toast-success');
   toast.textContent = msg;
-  toast.classList.add("visible");
-  setTimeout(() => { toast.classList.remove("visible"); toast.textContent = "Done!"; }, 2500);
+  container.appendChild(toast);
+  requestAnimationFrame(() => requestAnimationFrame(() => toast.classList.add('show')));
+  setTimeout(() => {
+    toast.classList.remove('show');
+    setTimeout(() => toast.remove(), 400);
+  }, isError ? 3500 : 2800);
 }
 
 /* ====== CREATE INVOICE FROM DRAFT ====== */
