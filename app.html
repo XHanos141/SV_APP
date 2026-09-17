@@ -15935,7 +15935,7 @@ window.addEventListener('message',function(e){
       <label>SKU *</label>
       <input type="text" id="inpSku" placeholder="e.g. NW-OMG3-UTA-180" style="font-family:'Courier Prime','Courier New',monospace;font-weight:700;letter-spacing:0.13em;text-transform:uppercase;color:var(--sku-color) !important;-webkit-text-fill-color:var(--sku-color) !important;text-shadow:0 0 10px var(--sku-color),0 0 18px var(--sku-color)" oninput="updateNpSummary()">
       <div class="field-hint" id="npSkuHint">Also used for future barcode / label printing</div>
-      <div class="field-hint" id="npSkuDupWarning" style="display:none;color:#F4A922;font-weight:700;">⚠ SKU already exists — saving will merge as a restock instead of a new product</div>
+      <div class="field-hint" id="npSkuDupWarning" style="display:none;color:#d95353;font-weight:700;">⚠ SKU already exists — use Restock Existing instead. Cannot save as a new product.</div>
     </div>
 
     <div class="field">
@@ -21556,6 +21556,21 @@ async function saveNewProduct() {
     return;
   }
 
+  // Hard stop on duplicate SKU — this product already exists in inventory.
+  // Previously this silently merged as a restock; now it blocks entirely and
+  // sends the user to the correct flow (Restock Existing tab) instead.
+  const dupCheck = PRODUCTS_DATA.find(p => normalizeSku(p.sku) === sku);
+  if (dupCheck) {
+    const hintEl = document.getElementById('npSkuHint');
+    if (hintEl) hintEl.classList.add('visible');
+    const dupWarnEl = document.getElementById('npSkuDupWarning');
+    if (dupWarnEl) dupWarnEl.style.display = 'block';
+    const inp = document.getElementById('inpSku');
+    if (inp) { inp.classList.add('shake'); setTimeout(() => inp.classList.remove('shake'), 400); }
+    showToast(`⚠ SKU "${sku}" already exists (${dupCheck.name}) — use Restock Existing instead`, 'warning');
+    return;
+  }
+
   try {
     await requireFingerprint();
   } catch (err) {
@@ -21611,83 +21626,53 @@ async function saveNewProduct() {
 
   showToast('Saving…');
 
-  // Local inventory is the source of truth — the app works fully even though
-  // Supabase isn't configured yet. Check for an existing SKU locally first.
-  // Case-insensitive: sku is already normalized to uppercase above, but older
-  // rows saved before normalization may still be stored in mixed case.
-  const existingLocal = PRODUCTS_DATA.find(p => normalizeSku(p.sku) === sku);
+  // Update local state immediately — PRODUCTS_DATA is the single source of truth;
+  // getProductCatalog() will automatically pick this up on next read.
+  PRODUCTS_DATA.unshift(newProduct);
+  invalidateProductCatalogCache();
 
-  if (existingLocal) {
-    // SKU already exists → treat as a restock instead of a duplicate product
-    const newQty = (existingLocal.stock || 0) + stock;
-    existingLocal.stock = newQty;
-    invalidateProductCatalogCache();
-    if (needsExpiry && expiry) {
-      if (!Array.isArray(existingLocal.batches)) existingLocal.batches = [];
-      existingLocal.batches.push({ id: 'BTH-' + Date.now().toString().slice(-6), expiryDate: expiry, qty: stock, costPerUnit: bdtCost });
-    }
-    // No manual catalog sync needed — getProductCatalog() always reads live from PRODUCTS_DATA.
-
-    (async () => {
-      try {
-        const found = await sbFetch(`products?sku=eq.${encodeURIComponent(sku)}&select=id,stock_qty`);
-        if (found && found.length > 0) {
-          await sbFetch(`products?id=eq.${found[0].id}`, 'PATCH', { stock_qty: newQty, updated_at: new Date().toISOString() });
-        }
-      } catch (err) { console.warn('Supabase sync skipped (not configured):', err.message); }
-    })();
-
-    closeRestockModal(); switchTab('products');
-    showToast(`⚠ SKU "${sku}" already exists — merged into restock (${newQty} units total)`, 'warning');
-  } else {
-    // Update local state immediately — PRODUCTS_DATA is the single source of truth;
-    // getProductCatalog() will automatically pick this up on next read.
-    PRODUCTS_DATA.unshift(newProduct);
-    invalidateProductCatalogCache();
-
-    // Best-effort Supabase sync — won't block or fail the local save.
-    // Columns here must match the real `products` schema (price/cost/brand/meta),
-    // not the old made-up names (price_bdt/cost_bdt/brand_name/...) that silently
-    // failed every insert before. Category-specific fields go to their own
-    // detail table (supplement_details for now — cosmetic/clothing/gadget land
-    // in their own tables once those are designed).
-    (async () => {
-      try {
-        const row = {
-          sku, name: productName, category: npCategory, subcategory: npSubcategory || null,
-          brand: brandName, price: sell, old_price: null,
-          cost: bdtCost, weight_cost: weightGrams > 0 ? weightGrams : null, usd_cost: usd,
-          stock_qty: stock, supplier: supplier || null,
-          variants: initialVariants || [],
-          is_active: true,
-          meta: { brandCode, brandColor: color, productCode: prodCode, costingMethod: npCostingMethod },
-          created_at: new Date().toISOString(), updated_at: new Date().toISOString()
-        };
-        const inserted = await sbFetch('products', 'POST', row);
-        const insertedId = inserted && inserted[0] && inserted[0].id;
-        if (insertedId && needsExpiry) {
-          await sbFetch('product_batches', 'POST', {
-            product_id: insertedId, qty: stock, cost_per_unit: bdtCost,
-            expiry_date: expiry || null, supplier: supplier || null,
-            created_at: new Date().toISOString()
-          });
-        }
-        if (insertedId && npCategory === 'supplement') {
-          await sbFetch('supplement_details', 'POST', {
-            product_id: insertedId, form_type: form || null,
-            capsule_count: caps ? parseInt(caps) : null,
-            potency_unit: potency || null,
-            potency_amount: potencyAmt ? parseFloat(potencyAmt) : null,
-            flavor: flavor || null, country_of_origin: origin || null,
-            custom_fields: collectNpCustomSpecs()
-          });
-        }
-      } catch (err) { console.warn('Supabase sync skipped (not configured):', err.message); }
+  // Best-effort Supabase sync — won't block or fail the local save.
+  // Columns here must match the real `products` schema (price/cost/brand/meta),
+  // not the old made-up names (price_bdt/cost_bdt/brand_name/...) that silently
+  // failed every insert before. Category-specific fields go to their own
+  // detail table (supplement_details for now — cosmetic/clothing/gadget land
+  // in their own tables once those are designed).
+  (async () => {
+    try {
+      const row = {
+        sku, name: productName, category: npCategory, subcategory: npSubcategory || null,
+        brand: brandName, price: sell, old_price: null,
+        cost: bdtCost, weight_cost: weightGrams > 0 ? weightGrams : null, usd_cost: usd,
+        stock_qty: stock, supplier: supplier || null,
+        variants: initialVariants || [],
+        is_active: true,
+        meta: { brandCode, brandColor: color, productCode: prodCode, costingMethod: npCostingMethod },
+        created_at: new Date().toISOString(), updated_at: new Date().toISOString()
+      };
+      const inserted = await sbFetch('products', 'POST', row);
+      const insertedId = inserted && inserted[0] && inserted[0].id;
+      if (insertedId && needsExpiry) {
+        await sbFetch('product_batches', 'POST', {
+          product_id: insertedId, qty: stock, cost_per_unit: bdtCost,
+          expiry_date: expiry || null, supplier: supplier || null,
+          created_at: new Date().toISOString()
+        });
+      }
+      if (insertedId && npCategory === 'supplement') {
+        await sbFetch('supplement_details', 'POST', {
+          product_id: insertedId, form_type: form || null,
+          capsule_count: caps ? parseInt(caps) : null,
+          potency_unit: potency || null,
+          potency_amount: potencyAmt ? parseFloat(potencyAmt) : null,
+          flavor: flavor || null, country_of_origin: origin || null,
+          custom_fields: collectNpCustomSpecs()
+        });
+      }
+    } catch (err) { console.warn('Supabase sync skipped (not configured):', err.message); }
     })();
 
     closeRestockModal(); switchTab('products');
     showToast('✓ ' + productName + ' added to inventory!');
-  }
 }
 
 /* ============================================================
