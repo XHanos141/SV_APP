@@ -16917,6 +16917,18 @@ window.restoreArchivedProduct = async function(sku) {
   }
   alert('The app is still starting up — please wait a moment and try again.');
 };
+window.confirmDeleteSubcategory = async function() {
+  if (typeof window.__confirmDeleteSubcategoryReal === 'function') {
+    return window.__confirmDeleteSubcategoryReal();
+  }
+  alert('The app is still starting up — please wait a moment and try again.');
+};
+window.addNewSubcategory = async function(e) {
+  if (typeof window.__addNewSubcategoryReal === 'function') {
+    return window.__addNewSubcategoryReal(e);
+  }
+  alert('The app is still starting up — please wait a moment and try again.');
+};
 
 try {
 
@@ -19713,6 +19725,7 @@ async function confirmDeleteSubcategory() {
   showToast('✓ "' + name + '" sub-category deleted');
   cancelDeleteSubcategory();
 }
+window.__confirmDeleteSubcategoryReal = confirmDeleteSubcategory;
 function toggleNpSubcatMenu(e) {
   if (e) e.stopPropagation();
   if (!npCategory) return;
@@ -19772,6 +19785,7 @@ async function addNewSubcategory(e) {
   setNpSubcategory(name);
   renderSubcatMenu();
 }
+window.__addNewSubcategoryReal = addNewSubcategory;
 function resetNpSubcategory() {
   npSubcategory = '';
   const labelEl = document.getElementById('npSubcatSelectLabel') || _npSafeEl();
