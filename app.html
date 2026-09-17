@@ -11995,7 +11995,7 @@ function top5Render() {
           <span class="top5-product-units top5-text-${rank}">${data.units} u</span>
         </div>
         <div class="top5-product-bar-line">
-          <div class="top5-product-dot" style="background:${TOP5_CATEGORY_COLORS[p.category] || TOP5_CATEGORY_COLORS.general}"></div>
+          <div class="top5-product-dot" style="background:${top5CurrentMode === 'returns' ? '#d95353' : (TOP5_CATEGORY_COLORS[p.category] || TOP5_CATEGORY_COLORS.general)}"></div>
           <div class="top5-product-bar-track">
             <div class="top5-product-bar-fill top5-sentiment-${rank}" id="top5bar-${i}" style="width: 0%"></div>
           </div>
