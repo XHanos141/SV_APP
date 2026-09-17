@@ -21615,11 +21615,11 @@ async function saveNewProduct() {
         const row = {
           sku, name: productName, category: npCategory, subcategory: npSubcategory || null,
           brand: brandName, price: sell, old_price: null,
-          cost: bdtCost, weight_cost: weightGrams > 0 ? weightGrams : null,
+          cost: bdtCost, weight_cost: weightGrams > 0 ? weightGrams : null, usd_cost: usd,
           stock_qty: stock, supplier: supplier || null,
           variants: initialVariants,
           is_active: true,
-          meta: { brandCode, brandColor: color, productCode: prodCode, costingMethod: npCostingMethod, usdCost: usd },
+          meta: { brandCode, brandColor: color, productCode: prodCode, costingMethod: npCostingMethod },
           created_at: new Date().toISOString(), updated_at: new Date().toISOString()
         };
         const inserted = await sbFetch('products', 'POST', row);
