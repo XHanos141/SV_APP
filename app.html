@@ -5538,6 +5538,11 @@ html[data-theme="dark"] .pinfo-val.purple { color: #a095f5; }
 html[data-theme="dark"] .pinfo-val.blue { color: #38bdf8; }
 .pinfo-val.grey { color: #8c92a1; }
 html[data-theme="dark"] .pinfo-val.grey { color: rgba(255,255,255,0.5); }
+.pinfo-total-row { display: flex; width: 100%; }
+.pinfo-total-label { width: 44%; flex: 0 0 44%; box-sizing: border-box; padding: 12px 16px; font-family: "Plus Jakarta Sans", sans-serif; font-size: 13px; font-weight: 800; color: #0B1220; display: flex; align-items: center; }
+html[data-theme="dark"] .pinfo-total-label { color: #F0F4FA; }
+.pinfo-total-val { width: 56%; flex: 0 0 56%; box-sizing: border-box; padding: 12px 16px; font-family: "Plus Jakarta Sans", sans-serif; font-size: 15px; font-weight: 800; color: #2f9b68; display: flex; align-items: center; justify-content: flex-end; text-align: right; }
+.pinfo-total-val.red { color: #d95353; }
 
 /* Product Card */
 .prod-card {
@@ -23414,6 +23419,7 @@ function openProductInfoModal(sku, event) {
   const usdStr = meta.usdCost ? ('$' + meta.usdCost.toFixed(2)) : null;
   const mPct = marginPct(p.price, p.cost);
   const mCls = marginClass(p.price, p.cost);
+  const profitVal = p.price - p.cost;
   let variantStr = null;
   if (hasVariants) {
     const vs = Array.isArray(p.variants) && p.variants.length > 0 ? p.variants : null;
@@ -23445,6 +23451,10 @@ function openProductInfoModal(sku, event) {
       ${_pinfoRow('Weight', weightStr, 'grey')}
       ${_pinfoRow('Selling Price (BDT)', '৳' + p.price.toLocaleString('en-IN'), 'purple')}
       ${_pinfoRow('Margin', mPct + '%', mCls)}
+    </div>
+    <div class="pinfo-total-row pinfo-section-boundary">
+      <div class="pinfo-total-label">Profit</div>
+      <div class="pinfo-total-val ${profitVal < 0 ? 'red' : ''}">${profitVal >= 0 ? '+' : ''}৳${Math.round(profitVal).toLocaleString('en-IN')}</div>
     </div>
   `;
   backdrop.classList.add('show');
