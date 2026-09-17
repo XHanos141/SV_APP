@@ -6547,7 +6547,7 @@ html[data-theme="dark"] #restockNewBody input#inpMargin.amber{color:#F4A922}
   width:50%;flex:0 0 50%;font-family:var(--np2-font-display);font-size:13px;font-weight:800;color:var(--np2-text);
   justify-content:flex-end;text-align:right;
 }
-#restockNewBody .sg-val.empty{color:var(--np2-text3);font-weight:600}
+#restockNewBody .sg-val.empty{color:var(--np2-text3) !important;font-weight:600 !important}
 #restockNewBody .sg-val.green{color:#2f9b68}
 #restockNewBody .sg-val.amber{color:#d48c0a}
 html[data-theme="dark"] #restockNewBody .sg-val.amber{color:#F4A922}
@@ -16212,15 +16212,15 @@ window.addEventListener('message',function(e){
       </div>
       <div class="sg-row">
         <div class="sg-cell sg-label">Form / Count</div>
-        <div class="sg-cell sg-val empty" id="sumForm">—</div>
+        <div class="sg-cell sg-val empty" id="sumForm" style="font-weight:600;color:var(--np2-text2)">—</div>
       </div>
       <div class="sg-row">
         <div class="sg-cell sg-label">Potency / Flavor</div>
-        <div class="sg-cell sg-val empty" id="sumPotency">—</div>
+        <div class="sg-cell sg-val empty" id="sumPotency" style="font-weight:600;color:var(--np2-text2)">—</div>
       </div>
       <div class="sg-row">
         <div class="sg-cell sg-label">Origin / Expiry</div>
-        <div class="sg-cell sg-val empty" id="sumOrigin">—</div>
+        <div class="sg-cell sg-val empty" id="sumOrigin" style="font-weight:600;color:var(--np2-text2)">—</div>
       </div>
       <div class="sg-row" id="sumColorRow" style="display:none">
         <div class="sg-cell sg-label">Colour</div>
@@ -16240,19 +16240,19 @@ window.addEventListener('message',function(e){
 
       <div class="sg-row">
         <div class="sg-cell sg-label">Buying Cost (USD)</div>
-        <div class="sg-cell sg-val empty" id="sumUsdCost">—</div>
+        <div class="sg-cell sg-val empty" id="sumUsdCost" style="font-weight:800;color:#0A9BDC">—</div>
       </div>
       <div class="sg-row">
         <div class="sg-cell sg-label">Buying Cost (BDT)</div>
-        <div class="sg-cell sg-val empty" id="sumBuyCost">—</div>
+        <div class="sg-cell sg-val empty" id="sumBuyCost" style="font-weight:800;color:var(--np2-accent)">—</div>
       </div>
       <div class="sg-row">
         <div class="sg-cell sg-label">Weight</div>
-        <div class="sg-cell sg-val empty" id="sumWeightQty">—</div>
+        <div class="sg-cell sg-val empty" id="sumWeightQty" style="font-family:'Courier Prime','Courier New',monospace;font-weight:700;letter-spacing:0.04em">—</div>
       </div>
       <div class="sg-row">
         <div class="sg-cell sg-label">Selling Price (BDT)</div>
-        <div class="sg-cell sg-val empty" id="sumSellPriceRow">—</div>
+        <div class="sg-cell sg-val empty" id="sumSellPriceRow" style="font-weight:800;color:var(--np2-accent)">—</div>
       </div>
       <div class="sg-row">
         <div class="sg-cell sg-label">Margin</div>
