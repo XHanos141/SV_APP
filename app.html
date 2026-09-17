@@ -23557,6 +23557,9 @@ function openProductInfoModal(sku, event) {
       ${needsExpiry ? _pinfoRow('Potency / Flavor', potencyFlavor, 'grey') : ''}
       ${needsExpiry ? _pinfoRow('Origin / Expiry', originExpiry, 'grey') : ''}
       ${hasVariants ? _pinfoRow('Colour / Size', escapeHtml(variantStr||'')) : ''}
+      ${(Array.isArray(meta.customSpecs) && meta.customSpecs.length > 0)
+          ? meta.customSpecs.map(s => _pinfoRow(escapeHtml(s.label || 'Spec'), escapeHtml(s.value || '—'), 'grey')).join('')
+          : ''}
     </div>
     <div class="pinfo-section-head pinfo-section-boundary">Payment Details</div>
     <div class="pinfo-table">
