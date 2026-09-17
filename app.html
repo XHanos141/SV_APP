@@ -22854,6 +22854,50 @@ const PRODUCTS_DATA = [
   },
 ].filter(p => !p.demo);
 
+// PRODUCTS_DATA starts empty every page load (demo seed rows are filtered out
+// above). Without this, everything created/restocked only lived in memory for
+// that session — Supabase was write-only, never read back. This populates real
+// inventory from Supabase on boot so products survive a refresh/reopen.
+function mapSupabaseProductToLocal(row) {
+  return {
+    id: row.id,
+    name: row.name,
+    sku: row.sku,
+    price: row.price,
+    cost: row.cost,
+    weightCost: row.weight_cost || 0,
+    stock: row.stock_qty || 0,
+    color: (row.meta && row.meta.brandColor) || 'p',
+    supplier: row.supplier || '',
+    category: row.category,
+    subcategory: row.subcategory || null,
+    variant: null,
+    batches: null,
+    variants: Array.isArray(row.variants) ? row.variants : [],
+    meta: Object.assign({ brandName: row.brand, usdCost: row.usd_cost }, row.meta || {})
+  };
+}
+
+async function loadProductsFromSupabase() {
+  try {
+    const rows = await sbFetch('products?select=*&is_active=eq.true&order=created_at.desc');
+    if (!Array.isArray(rows) || rows.length === 0) return;
+    const mapped = rows.map(mapSupabaseProductToLocal);
+    const liveSkus = new Set(mapped.map(p => normalizeSku(p.sku)));
+    const keepLocal = PRODUCTS_DATA.filter(p => !liveSkus.has(normalizeSku(p.sku)));
+    PRODUCTS_DATA.length = 0;
+    PRODUCTS_DATA.push(...mapped, ...keepLocal);
+    invalidateProductCatalogCache();
+    const panel = document.getElementById('tab-products');
+    if (panel && panel.classList.contains('active-panel') && typeof renderProductsTab === 'function') {
+      renderProductsTab();
+    }
+  } catch (err) {
+    console.warn('Products load from Supabase skipped:', err.message);
+  }
+}
+document.addEventListener('DOMContentLoaded', loadProductsFromSupabase);
+
 let productFilter = 'all';
 let productSearch = '';
 let productCategory = 'all';
