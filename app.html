@@ -16128,8 +16128,8 @@ window.addEventListener('message',function(e){
           <span class="weight-suffix" id="inpWeightSuffix">kg</span>
         </div>
         <select id="inpWeightUnit" onchange="calcAddProductForm()">
-          <option value="gm">Gm</option>
-          <option value="kg" selected>Kg</option>
+          <option value="gm" selected>Gm</option>
+          <option value="kg">Kg</option>
           <option value="lb">Lb</option>
         </select>
       </div>
@@ -19822,8 +19822,8 @@ function openRestockModal() {
   if (_npEl('npExpiryField')) _npEl('npExpiryField').style.display = 'none';
   if (_npEl('npVariantSection')) _npEl('npVariantSection').style.display = 'none';
   if (_npEl('inpWeightQty')) _npEl('inpWeightQty').value = '';
-  if (_npEl('inpWeightUnit')) _npEl('inpWeightUnit').value = 'kg';
-  if (_npEl('inpWeightSuffix')) _npEl('inpWeightSuffix').textContent = 'kg';
+  if (_npEl('inpWeightUnit')) _npEl('inpWeightUnit').value = 'gm';
+  if (_npEl('inpWeightSuffix')) _npEl('inpWeightSuffix').textContent = 'gm';
   if (_npEl('inpUsdCost')) _npEl('inpUsdCost').value = '';
   if (_npEl('inpSellPrice')) _npEl('inpSellPrice').value = '';
   if (_npEl('inpStock')) _npEl('inpStock').value = '1';
