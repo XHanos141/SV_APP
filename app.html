@@ -5480,6 +5480,8 @@ html[data-theme="dark"] .pinfo-footer { border-color: rgba(255,255,255,0.08); }
 .pinfo-action-btn svg { width: 15px; height: 15px; flex-shrink: 0; }
 .pinfo-archive-btn { background: rgba(124,111,247,0.08); border-color: rgba(124,111,247,0.3); color: #7c6ff7; }
 .pinfo-archive-btn:active { background: rgba(124,111,247,0.16); }
+.pinfo-edit-btn { background: rgba(47,155,104,0.08); border-color: rgba(47,155,104,0.3); color: #2f9b68; }
+.pinfo-edit-btn:active { background: rgba(47,155,104,0.16); }
 .pinfo-delete-btn { background: rgba(217,83,83,0.08); border-color: rgba(217,83,83,0.3); color: #d95353; }
 .pinfo-delete-btn:active { background: rgba(217,83,83,0.16); }
 
@@ -15721,7 +15723,7 @@ window.addEventListener('message',function(e){
         </button>
       </div>
       <!-- MODE TOGGLE -->
-      <div style="display:flex;gap:0;border-top:1px solid var(--line,#ececec)">
+      <div id="restockTabRow" style="display:flex;gap:0;border-top:1px solid var(--line,#ececec)">
         <button class="restock-tab-btn active" id="restockTab1" onclick="switchRestockTab('existing')">Restock Existing</button>
         <button class="restock-tab-btn" id="restockTab2" onclick="switchRestockTab('new')">Add New Product</button>
       </div>
@@ -20647,6 +20649,12 @@ function updateNpSummary() {
 function closeRestockModal(e) {
   if (e && e.target !== e.currentTarget) return;
   document.getElementById('restockOverlay').classList.remove('active');
+  if (_npEditingProductId !== null) {
+    _npEditingProductId = null;
+    _npEditingOriginalSku = null;
+    const tabRow = document.getElementById('restockTabRow');
+    if (tabRow) tabRow.style.display = 'flex';
+  }
 }
 function _npLivePreview() {
   const code = ((document.getElementById('npBrandCode')||_npSafeEl())?.value || '').toUpperCase() || 'XX';
@@ -21505,6 +21513,82 @@ function normalizeSku(raw) {
   return (raw || '').trim().toUpperCase();
 }
 
+let _npEditingProductId = null; // null = adding new; set = editing this product's id/sku
+let _npEditingOriginalSku = null;
+
+function editProduct(sku) {
+  const p = PRODUCTS_DATA.find(x => x.sku === sku);
+  if (!p) { showToast('Product not found'); return; }
+  closeProductInfoModal();
+  openRestockModal(); // full reset, lands on the "new product" tab
+
+  _npEditingProductId = p.id || p.sku;
+  _npEditingOriginalSku = p.sku;
+
+  // Lock to a single form — switching tabs mid-edit would lose context
+  const tabRow = document.getElementById('restockTabRow');
+  if (tabRow) tabRow.style.display = 'none';
+  document.getElementById('restockModalTitle').textContent = 'Edit Product';
+  document.getElementById('restockConfirmLabel').textContent = 'Save Changes';
+
+  const set = (id, val) => { const el = document.getElementById(id); if (el) el.value = val; };
+  set('inpSku', p.sku);
+  set('inpBrand', (p.meta && p.meta.brandName) || '');
+  set('inpName', p.name);
+  set('inpSellPrice', p.price);
+  set('inpStock', p.stock);
+
+  setNpCategory(p.category, null);
+  if (p.subcategory) setNpSubcategory(p.subcategory);
+
+  const costingMethod = (p.meta && p.meta.costingMethod) || 'formula';
+  if (costingMethod === 'manual') {
+    setNpCostingMethod('manual', null);
+    set('inpBdtCost', p.cost);
+  } else {
+    set('inpUsdCost', (p.meta && p.meta.usdCost) || '');
+    const grams = (p.meta && p.meta.weight) || 0;
+    set('inpWeightQty', grams);
+    set('inpWeightUnit', 'gm');
+    if (document.getElementById('inpWeightSuffix')) document.getElementById('inpWeightSuffix').textContent = 'gm';
+  }
+
+  const needsExpiry = p.category === 'supplement' || p.category === 'cosmetic';
+  if (needsExpiry) {
+    if (p.meta) {
+      if (p.meta.form) setNpForm(p.meta.form, null);
+      if (p.meta.capsuleCount) set('inpCount', p.meta.capsuleCount);
+      if (p.meta.potencyType) setNpPotencyUnit(p.meta.potencyType, null);
+      if (p.meta.potencyAmount) set('inpPotencyQty', p.meta.potencyAmount);
+      if (p.meta.flavor) set('inpFlavor', p.meta.flavor);
+      if (p.meta.countryOfOrigin) setNpOrigin(p.meta.countryOfOrigin, null);
+    }
+    const lowestBatch = Array.isArray(p.batches) && p.batches.length > 0
+      ? p.batches.reduce((lo, b) => new Date(b.expiryDate) < new Date(lo.expiryDate) ? b : lo)
+      : null;
+    if (lowestBatch) {
+      set('inpExpiry', lowestBatch.expiryDate);
+      updateExpiryStatusPill();
+      updateNpExpiryDisplay();
+    }
+  }
+
+  const isVariant = p.category === 'gadget' || p.category === 'clothing';
+  if (isVariant && Array.isArray(p.variants) && p.variants.length > 0) {
+    const v = p.variants[0];
+    if (v.color) pickNpProductColor(v.color, v.colorName || v.color, null);
+    if (v.size) pickNpSize(v.size, null);
+  }
+
+  if (p.meta && Array.isArray(p.meta.customSpecs)) {
+    p.meta.customSpecs.forEach(s => addNpCustomSpecRow(s.label, s.value));
+  }
+
+  updatePotencyPreview();
+  updateNpSummary();
+  calcAddProductForm();
+}
+
 async function saveNewProduct() {
   const sku         = normalizeSku((document.getElementById('inpSku')||_npSafeEl()).value);
   const brandName   = (document.getElementById('inpBrand')||_npSafeEl()).value.trim();
@@ -21560,7 +21644,8 @@ async function saveNewProduct() {
   // Previously this silently merged as a restock; now it blocks entirely and
   // sends the user to the correct flow (Restock Existing tab) instead.
   const dupCheck = PRODUCTS_DATA.find(p => normalizeSku(p.sku) === sku);
-  if (dupCheck) {
+  const isEditingThisSku = _npEditingProductId !== null && dupCheck && (dupCheck.id || dupCheck.sku) === _npEditingProductId;
+  if (dupCheck && !isEditingThisSku) {
     const hintEl = document.getElementById('npSkuHint');
     if (hintEl) hintEl.classList.add('visible');
     const dupWarnEl = document.getElementById('npSkuDupWarning');
@@ -21624,8 +21709,59 @@ async function saveNewProduct() {
             productSize: newProductSize || null }
   };
 
-  showToast('Saving…');
+  showToast(_npEditingProductId !== null ? 'Saving changes…' : 'Saving…');
 
+  if (_npEditingProductId !== null) {
+    // ===== EDIT MODE: update the existing product in place =====
+    const target = PRODUCTS_DATA.find(p => (p.id || p.sku) === _npEditingProductId);
+    if (target) Object.assign(target, newProduct);
+    invalidateProductCatalogCache();
+
+    const editedSku = _npEditingOriginalSku;
+    (async () => {
+      try {
+        const found = await sbFetch(`products?sku=eq.${encodeURIComponent(editedSku)}&select=id`);
+        const rowId = found && found[0] && found[0].id;
+        if (!rowId) return; // local-only product, nothing to sync
+        await sbFetch(`products?id=eq.${rowId}`, 'PATCH', {
+          sku, name: productName, category: npCategory, subcategory: npSubcategory || null,
+          brand: brandName, price: sell, cost: bdtCost,
+          weight_cost: weightGrams > 0 ? weightGrams : null, usd_cost: usd,
+          stock_qty: stock, supplier: supplier || null, variants: initialVariants || [],
+          meta: { brandCode, brandColor: color, productCode: prodCode, costingMethod: npCostingMethod },
+          updated_at: new Date().toISOString()
+        });
+        // Full-form edit — replace batch/detail rows rather than diffing them
+        await sbFetch(`product_batches?product_id=eq.${rowId}`, 'DELETE');
+        if (needsExpiry) {
+          await sbFetch('product_batches', 'POST', {
+            product_id: rowId, qty: stock, cost_per_unit: bdtCost,
+            expiry_date: expiry || null, supplier: supplier || null,
+            created_at: new Date().toISOString()
+          });
+        }
+        if (npCategory === 'supplement') {
+          await sbFetch(`supplement_details?product_id=eq.${rowId}`, 'DELETE');
+          await sbFetch('supplement_details', 'POST', {
+            product_id: rowId, form_type: form || null,
+            capsule_count: caps ? parseInt(caps) : null,
+            potency_unit: potency || null,
+            potency_amount: potencyAmt ? parseFloat(potencyAmt) : null,
+            flavor: flavor || null, country_of_origin: origin || null,
+            custom_fields: collectNpCustomSpecs()
+          });
+        }
+      } catch (err) { console.warn('Supabase sync skipped (not configured):', err.message); }
+    })();
+
+    _npEditingProductId = null;
+    _npEditingOriginalSku = null;
+    closeRestockModal(); switchTab('products');
+    showToast('✓ ' + productName + ' updated!');
+    return;
+  }
+
+  // ===== NEW PRODUCT MODE =====
   // Update local state immediately — PRODUCTS_DATA is the single source of truth;
   // getProductCatalog() will automatically pick this up on next read.
   PRODUCTS_DATA.unshift(newProduct);
@@ -23492,6 +23628,10 @@ function _ensureProductInfoModal() {
     </div>
     <div class="pinfo-body" id="productInfoBody"></div>
     <div class="pinfo-footer">
+      <button type="button" class="pinfo-action-btn pinfo-edit-btn" id="pinfoEditBtn" onclick="editProduct(_pinfoCurrentSku)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg>
+        Edit
+      </button>
       <button type="button" class="pinfo-action-btn pinfo-archive-btn" id="pinfoArchiveBtn" onclick="archiveProduct(_pinfoCurrentSku)">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/></svg>
         Archive
