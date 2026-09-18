@@ -5277,7 +5277,9 @@ html[data-theme="dark"] .products-sort-btn:hover { background: rgba(255,255,255,
   opacity: 0; visibility: hidden; pointer-events: none;
   transform: translateY(-6px) scale(0.97); transform-origin: top right;
   transition: opacity 0.2s cubic-bezier(0.4,0,0.2,1), transform 0.2s cubic-bezier(0.4,0,0.2,1), visibility 0.2s;
+  scrollbar-width: none;
 }
+.products-sort-menu::-webkit-scrollbar { display: none; width: 0; height: 0; }
 html[data-theme="dark"] .products-sort-menu { background: #1e2330; border-color: rgba(255,255,255,0.1); }
 .products-sort-menu.open { opacity: 1; visibility: visible; pointer-events: auto; transform: translateY(0) scale(1); }
 .psm-label {
@@ -5298,7 +5300,9 @@ html[data-theme="dark"] .psm-divider { background: rgba(255,255,255,0.08); }
   opacity: 0; visibility: hidden; pointer-events: none;
   transform: translateY(-6px) scale(0.97); transform-origin: top right;
   transition: opacity 0.2s cubic-bezier(0.4,0,0.2,1), transform 0.2s cubic-bezier(0.4,0,0.2,1), visibility 0.2s;
+  scrollbar-width: none;
 }
+.products-category-menu::-webkit-scrollbar { display: none; width: 0; height: 0; }
 .products-category-menu.open { opacity: 1; visibility: visible; pointer-events: auto; transform: translateY(0) scale(1); }
 html[data-theme="dark"] .products-category-menu { background: #1b2738; border-color: rgba(255,255,255,0.1); box-shadow: 0 8px 28px rgba(0,0,0,0.4); }
 .pcm-item {
@@ -5538,36 +5542,6 @@ html[data-theme="dark"] .archived-search-input::placeholder { color: rgba(255,25
 .archived-search-icon { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: #8c92a1; pointer-events: none; }
 html[data-theme="dark"] .archived-search-icon { color: rgba(255,255,255,0.4); }
 .archived-search-icon svg { width: 15px; height: 15px; }
-.archived-cat-wrap { position: relative; margin-left: auto; flex-shrink: 0; }
-.archived-cat-btn {
-  width: 32px; height: 32px; border-radius: 9px; border: 1.5px solid #dde1ea;
-  background: #f8f9fb; color: #001f3c;
-  display: flex; align-items: center; justify-content: center; cursor: pointer; padding: 0;
-  transition: background 0.2s ease, color 0.35s ease, border-color 0.35s ease;
-}
-html[data-theme="dark"] .archived-cat-btn { border-color: rgba(255,255,255,0.14); background: rgba(255,255,255,0.08); color: #fff; }
-.archived-cat-btn svg { width: 16px; height: 16px; }
-.archived-cat-btn.active { background: #7c6ff7; border-color: #7c6ff7; color: #fff; }
-.archived-cat-menu {
-  position: absolute; top: 40px; right: 0; min-width: 190px; max-height: 280px; overflow-y: auto;
-  background: #ffffff; border: 1px solid #ececec; border-radius: 12px;
-  box-shadow: 0 8px 28px rgba(0,0,0,0.14); padding: 6px;
-  opacity: 0; visibility: hidden; transform: translateY(-6px) scale(0.97);
-  transition: opacity .15s ease, transform .15s ease, visibility .15s; z-index: 40;
-}
-html[data-theme="dark"] .archived-cat-menu { background: #1b2738; border-color: rgba(255,255,255,0.1); box-shadow: 0 8px 28px rgba(0,0,0,0.4); }
-.archived-cat-menu.open { opacity: 1; visibility: visible; transform: translateY(0) scale(1); }
-.archived-cat-item {
-  display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 9px 10px;
-  border-radius: 8px; font-family: "Plus Jakarta Sans", sans-serif; font-size: 12.5px; font-weight: 600;
-  color: #001f3c; cursor: pointer;
-}
-html[data-theme="dark"] .archived-cat-item { color: rgba(255,255,255,0.85); }
-.archived-cat-item:hover { background: rgba(124,111,247,0.08); }
-.archived-cat-item.active { color: #7c6ff7; font-weight: 800; }
-html[data-theme="dark"] .archived-cat-item.active { color: #9d94ff; }
-.archived-cat-count { font-size: 11px; font-weight: 700; color: #8c92a1; }
-html[data-theme="dark"] .archived-cat-count { color: rgba(255,255,255,0.45); }
 .archived-cat-group-head {
   font-family: "Plus Jakarta Sans", sans-serif; font-size: 10px; font-weight: 800; letter-spacing: 0.06em;
   text-transform: uppercase; color: #8c92a1; padding: 4px 4px 8px; margin-top: 14px;
@@ -13851,11 +13825,11 @@ function showToast(message, type = 'success') {
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
       </button>
       <span class="archived-panel-title">Archived Products</span>
-      <div class="archived-cat-wrap">
-        <button type="button" class="archived-cat-btn" id="archivedCategoryBtn" onclick="toggleArchivedCategoryMenu(event)" aria-label="Filter by category">
+      <div class="products-category-wrap">
+        <button type="button" class="products-category-btn" id="archivedCategoryBtn" onclick="toggleArchivedCategoryMenu(event)" aria-label="Filter by category">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-filter-lines"/></svg>
         </button>
-        <div class="archived-cat-menu" id="archivedCategoryMenu"></div>
+        <div class="products-category-menu" id="archivedCategoryMenu"></div>
       </div>
     </div>
     <div class="archived-panel-body">
@@ -23962,17 +23936,33 @@ function renderArchivedProductsPanel() {
   if (catMenu) {
     const counts = {};
     allArchived.forEach(p => { counts[p.category] = (counts[p.category] || 0) + 1; });
-    const usedCats = Object.keys(CATEGORY_META).filter(k => counts[k]);
+    const items = Object.keys(CATEGORY_META).map(key => {
+      const meta = CATEGORY_META[key];
+      const count = counts[key] || 0;
+      return `<div class="pcm-item ${archivedCategoryFilter===key?'active':''}" onclick="setArchivedCategoryFilter('${key}')" style="${archivedCategoryFilter===key?'color:'+meta.color:''}">
+        <span style="display:flex;align-items:center;gap:9px">${catIconBadgeSVG(key)} ${meta.label}</span><span class="pcm-count">${count}</span>
+      </div>`;
+    }).join('');
     catMenu.innerHTML = `
-      <div class="archived-cat-item ${archivedCategoryFilter==='all'?'active':''}" onclick="setArchivedCategoryFilter('all')">
-        <span>All Categories</span><span class="archived-cat-count">${allArchived.length}</span>
+      <div class="pcm-item ${archivedCategoryFilter==='all'?'active':''}" onclick="setArchivedCategoryFilter('all')">
+        <span style="display:flex;align-items:center;gap:7px"><svg class="cat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-filter-lines"/></svg> All Categories</span><span class="pcm-count">${allArchived.length}</span>
       </div>
-      ${usedCats.map(k => `<div class="archived-cat-item ${archivedCategoryFilter===k?'active':''}" onclick="setArchivedCategoryFilter('${k}')">
-        <span>${CATEGORY_META[k].label}</span><span class="archived-cat-count">${counts[k]}</span>
-      </div>`).join('')}
+      ${items}
     `;
   }
-  if (catBtn) catBtn.classList.toggle('active', archivedCategoryFilter !== 'all');
+  if (catBtn) {
+    catBtn.classList.toggle('active', archivedCategoryFilter !== 'all');
+    if (archivedCategoryFilter !== 'all') {
+      const m = CATEGORY_META[archivedCategoryFilter];
+      catBtn.style.background = `linear-gradient(135deg,${m.color},${m.color2})`;
+      catBtn.style.borderColor = m.color;
+      catBtn.innerHTML = `<svg class="cat-icon" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#cat-icon-${archivedCategoryFilter}"/></svg>`;
+    } else {
+      catBtn.style.background = '';
+      catBtn.style.borderColor = '';
+      catBtn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-filter-lines"/></svg>`;
+    }
+  }
 
   let archived = archivedCategoryFilter === 'all' ? allArchived : allArchived.filter(p => p.category === archivedCategoryFilter);
   const q = (archivedSearchQuery || '').trim().toLowerCase();
