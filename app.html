@@ -5505,8 +5505,26 @@ html[data-theme="dark"] .pinfo-footer { border-color: rgba(255,255,255,0.08); }
   border-radius: 14px; margin-bottom: 10px;
 }
 .archived-prod-info { flex: 1; min-width: 0; }
+.archived-prod-subcat { font-family: "DM Sans", sans-serif; font-size: 10.5px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: rgba(255,255,255,0.45); margin-bottom: 1px; }
 .archived-prod-name { font-family: "Plus Jakarta Sans", sans-serif; font-size: 13.5px; font-weight: 700; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .archived-prod-sku { font-family: "Courier Prime", "Courier New", monospace; font-size: 11px; color: rgba(255,255,255,0.5); margin-top: 2px; }
+.archived-info-btn {
+  width: 32px; height: 32px; border-radius: 9px; flex-shrink: 0; padding: 0;
+  border: 1.5px solid rgba(124,111,247,0.35); background: rgba(124,111,247,0.12); color: #7c6ff7;
+  display: flex; align-items: center; justify-content: center; cursor: pointer;
+}
+.archived-info-btn svg { width: 17px; height: 17px; }
+.archived-info-btn:active { background: rgba(124,111,247,0.22); }
+.archived-search-wrap { position: relative; margin-bottom: 12px; }
+.archived-search-input {
+  width: 100%; box-sizing: border-box; height: 38px; padding: 0 34px 0 14px;
+  border-radius: 11px; border: 1.5px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.05);
+  color: #fff; font-family: "DM Sans", sans-serif; font-size: 13px; font-weight: 600;
+}
+.archived-search-input::placeholder { color: rgba(255,255,255,0.35); }
+.archived-search-input:focus { outline: none; border-color: #7c6ff7; background: rgba(124,111,247,0.08); }
+.archived-search-icon { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: rgba(255,255,255,0.4); pointer-events: none; }
+.archived-search-icon svg { width: 15px; height: 15px; }
 .archived-prod-restore-btn {
   height: 32px; padding: 0 14px; border-radius: 8px; border: 1.5px solid rgba(124,111,247,0.35);
   background: rgba(124,111,247,0.12); color: #7c6ff7;
@@ -13828,6 +13846,10 @@ function showToast(message, type = 'success') {
       </div>
     </div>
     <div class="archived-panel-body">
+      <div class="archived-search-wrap">
+        <input type="text" class="archived-search-input" id="archivedSearchInput" placeholder="Search archived products..." oninput="setArchivedSearchQuery(this.value)">
+        <span class="archived-search-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
+      </div>
       <div id="archivedProductsList"></div>
       <div class="saved-empty" id="archivedProductsEmpty" style="display:none">
         <div class="saved-empty-icon">
@@ -23756,6 +23778,17 @@ function openProductInfoModal(sku, event) {
   `;
   backdrop.classList.add('show');
   modal.classList.add('show');
+
+  const archiveBtn = document.getElementById('pinfoArchiveBtn');
+  if (archiveBtn) {
+    if (p.archived) {
+      archiveBtn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>Restore`;
+      archiveBtn.onclick = () => restoreArchivedProduct(_pinfoCurrentSku);
+    } else {
+      archiveBtn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/></svg>Archive`;
+      archiveBtn.onclick = () => archiveProduct(_pinfoCurrentSku);
+    }
+  }
 }
 function closeProductInfoModal() {
   const backdrop = document.getElementById('productInfoBackdrop');
@@ -23889,6 +23922,7 @@ async function restoreArchivedProduct(sku) {
 
   renderArchivedProductsPanel();
   renderProductsTab();
+  closeProductInfoModal();
   showToast('✓ ' + p.name + ' restored to stock');
 }
 window.__restoreArchivedProductReal = restoreArchivedProduct;
@@ -23927,13 +23961,21 @@ function renderArchivedProductsPanel() {
   }
   if (catBtn) catBtn.classList.toggle('active', archivedCategoryFilter !== 'all');
 
-  const archived = archivedCategoryFilter === 'all' ? allArchived : allArchived.filter(p => p.category === archivedCategoryFilter);
+  let archived = archivedCategoryFilter === 'all' ? allArchived : allArchived.filter(p => p.category === archivedCategoryFilter);
+  const q = (archivedSearchQuery || '').trim().toLowerCase();
+  if (q) {
+    archived = archived.filter(p =>
+      p.name.toLowerCase().includes(q) ||
+      p.sku.toLowerCase().includes(q) ||
+      (p.subcategory || '').toLowerCase().includes(q)
+    );
+  }
 
   if (archived.length === 0) {
     list.innerHTML = '';
     empty.style.display = 'flex';
     const title = empty.querySelector('.saved-empty-title');
-    if (title) title.textContent = allArchived.length ? 'No archived products in this category' : 'No archived products';
+    if (title) title.textContent = q ? 'No matching archived products' : (allArchived.length ? 'No archived products in this category' : 'No archived products');
     return;
   }
   empty.style.display = 'none';
@@ -23944,10 +23986,13 @@ function renderArchivedProductsPanel() {
     <div class="archived-prod-card">
       <div class="prod-avatar-badge" style="background:linear-gradient(135deg,${cat.color},${cat.color2});box-shadow:0 4px 12px ${cat.color}4d"><svg class="cat-icon cat-icon-${cat.icon}"><use href="#cat-icon-${cat.icon}"/></svg></div>
       <div class="archived-prod-info">
+        ${p.subcategory ? `<div class="archived-prod-subcat">${escapeHtml(p.subcategory)}</div>` : ''}
         <div class="archived-prod-name">${escapeHtml(p.name)}</div>
         <div class="archived-prod-sku">${p.sku}</div>
       </div>
-      <button type="button" class="archived-prod-restore-btn" onclick="restoreArchivedProduct('${p.sku.replace(/'/g,"\\'")}')">Restore</button>
+      <button type="button" class="archived-info-btn" onclick="openProductInfoModal('${p.sku.replace(/'/g,"\\'")}', event)" aria-label="Product details">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="11"/><circle cx="12" cy="8" r="0.5" fill="currentColor" stroke-width="1.5"/></svg>
+      </button>
     </div>`;
   };
 
@@ -23965,6 +24010,11 @@ function renderArchivedProductsPanel() {
   }
 }
 let archivedCategoryFilter = 'all';
+let archivedSearchQuery = '';
+function setArchivedSearchQuery(val) {
+  archivedSearchQuery = val;
+  renderArchivedProductsPanel();
+}
 function toggleArchivedCategoryMenu(event) {
   if (event) event.stopPropagation();
   const menu = document.getElementById('archivedCategoryMenu');
