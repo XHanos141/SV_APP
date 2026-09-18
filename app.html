@@ -23058,6 +23058,8 @@ function mapSupabaseProductToLocal(row) {
     variant: null,
     batches: null,
     variants: Array.isArray(row.variants) ? row.variants : [],
+    archived: row.archived === true,
+    archivedAt: row.archived_at || null,
     meta: Object.assign({ brandName: row.brand, usdCost: row.usd_cost, weight: row.weight_cost || null }, row.meta || {})
   };
 }
@@ -23876,7 +23878,7 @@ async function archiveProduct(sku) {
       if (found && found.length > 0) {
         await sbFetch(`products?id=eq.${found[0].id}`, 'PATCH', { archived: true, archived_at: p.archivedAt });
       }
-    } catch (err) { console.warn('Supabase sync skipped (not configured):', err.message); }
+    } catch (err) { console.warn('Archive sync failed:', err.message); showToast('⚠ Archived locally only — sync failed'); }
   })();
 
   closeProductInfoModal();
@@ -23904,7 +23906,7 @@ async function restoreArchivedProduct(sku) {
       if (found && found.length > 0) {
         await sbFetch(`products?id=eq.${found[0].id}`, 'PATCH', { archived: false, archived_at: null });
       }
-    } catch (err) { console.warn('Supabase sync skipped (not configured):', err.message); }
+    } catch (err) { console.warn('Restore sync failed:', err.message); showToast('⚠ Restored locally only — sync failed'); }
   })();
 
   renderArchivedProductsPanel();
