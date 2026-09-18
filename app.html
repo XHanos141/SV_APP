@@ -5507,7 +5507,7 @@ html[data-theme="dark"] .archived-panel-back { background: rgba(255,255,255,0.1)
 .archived-panel-back svg { width: 16px; height: 16px; }
 .archived-panel-title { font-family: "Plus Jakarta Sans", sans-serif; font-size: 15px; font-weight: 800; color: #001f3c; transition: color 0.35s ease; }
 html[data-theme="dark"] .archived-panel-title { color: #fff; }
-.archived-panel-body { padding: 14px 16px; overflow-y: auto; flex: 1; }
+.archived-panel-body { padding: 14px 16px; overflow-y: auto; overscroll-behavior: contain; flex: 1; min-height: 0; }
 .archived-prod-card {
   display: flex; align-items: center; gap: 12px; padding: 12px;
   background: #f8f9fb; border: 1px solid #ececec;
@@ -7560,8 +7560,8 @@ html[data-theme="dark"] .batch-units { background: rgba(255,255,255,0.08); color
   z-index: 200;
   transform: translateX(100%);
   transition: transform 0.3s cubic-bezier(0.25,0.46,0.45,0.94);
-  overflow-y: auto;
-  overflow-x: hidden;
+  overflow: hidden;
+  overscroll-behavior: contain;
 }
 .hub-subpanel.open {
   transform: translateX(0);
