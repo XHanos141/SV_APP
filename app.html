@@ -23776,6 +23776,7 @@ function closeProductInfoModal() {
 function openDeleteProductConfirm(sku) {
   const p = PRODUCTS_DATA.find(pr => pr.sku === sku);
   if (!p) return;
+  closeProductInfoModal();
   _pdaPendingSku = sku;
   const modal = document.getElementById('pdaDeleteModal');
   const nameEl = document.getElementById('pdaDeleteProductName');
