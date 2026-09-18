@@ -5514,6 +5514,35 @@ html[data-theme="dark"] .pinfo-footer { border-color: rgba(255,255,255,0.08); }
   cursor: pointer; flex-shrink: 0;
 }
 .archived-prod-restore-btn:active { background: rgba(124,111,247,0.22); }
+.archived-cat-wrap { position: relative; margin-left: auto; flex-shrink: 0; }
+.archived-cat-btn {
+  width: 32px; height: 32px; border-radius: 9px; border: 1.5px solid rgba(255,255,255,0.14);
+  background: rgba(255,255,255,0.08); color: #fff;
+  display: flex; align-items: center; justify-content: center; cursor: pointer; padding: 0;
+}
+.archived-cat-btn svg { width: 16px; height: 16px; }
+.archived-cat-btn.active { background: #7c6ff7; border-color: #7c6ff7; }
+.archived-cat-menu {
+  position: absolute; top: 40px; right: 0; min-width: 190px; max-height: 280px; overflow-y: auto;
+  background: #1b2738; border: 1px solid rgba(255,255,255,0.1); border-radius: 12px;
+  box-shadow: 0 8px 28px rgba(0,0,0,0.4); padding: 6px;
+  opacity: 0; visibility: hidden; transform: translateY(-6px) scale(0.97);
+  transition: opacity .15s ease, transform .15s ease, visibility .15s; z-index: 40;
+}
+.archived-cat-menu.open { opacity: 1; visibility: visible; transform: translateY(0) scale(1); }
+.archived-cat-item {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 9px 10px;
+  border-radius: 8px; font-family: "Plus Jakarta Sans", sans-serif; font-size: 12.5px; font-weight: 600;
+  color: rgba(255,255,255,0.85); cursor: pointer;
+}
+.archived-cat-item:hover { background: rgba(255,255,255,0.07); }
+.archived-cat-item.active { color: #9d94ff; font-weight: 800; }
+.archived-cat-count { font-size: 11px; font-weight: 700; color: rgba(255,255,255,0.45); }
+.archived-cat-group-head {
+  font-family: "Plus Jakarta Sans", sans-serif; font-size: 10px; font-weight: 800; letter-spacing: 0.06em;
+  text-transform: uppercase; color: rgba(255,255,255,0.4); padding: 4px 4px 8px; margin-top: 14px;
+}
+.archived-cat-group-head:first-child { margin-top: 0; }
 .pinfo-section-head {
   font-family: "Plus Jakarta Sans", sans-serif; font-size: 10px; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase;
   color: #7C6FF7; background: rgba(124,111,247,0.08); padding: 9px 16px; margin-top: 2px;
@@ -13791,6 +13820,12 @@ function showToast(message, type = 'success') {
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
       </button>
       <span class="archived-panel-title">Archived Products</span>
+      <div class="archived-cat-wrap">
+        <button type="button" class="archived-cat-btn" id="archivedCategoryBtn" onclick="toggleArchivedCategoryMenu(event)" aria-label="Filter by category">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-filter-lines"/></svg>
+        </button>
+        <div class="archived-cat-menu" id="archivedCategoryMenu"></div>
+      </div>
     </div>
     <div class="archived-panel-body">
       <div id="archivedProductsList"></div>
@@ -23871,15 +23906,38 @@ function closeArchivedProductsPanel() {
 function renderArchivedProductsPanel() {
   const list = document.getElementById('archivedProductsList');
   const empty = document.getElementById('archivedProductsEmpty');
+  const catBtn = document.getElementById('archivedCategoryBtn');
+  const catMenu = document.getElementById('archivedCategoryMenu');
   if (!list || !empty) return;
-  const archived = PRODUCTS_DATA.filter(p => p.archived);
+  const allArchived = PRODUCTS_DATA.filter(p => p.archived);
+
+  if (catMenu) {
+    const counts = {};
+    allArchived.forEach(p => { counts[p.category] = (counts[p.category] || 0) + 1; });
+    const usedCats = Object.keys(CATEGORY_META).filter(k => counts[k]);
+    catMenu.innerHTML = `
+      <div class="archived-cat-item ${archivedCategoryFilter==='all'?'active':''}" onclick="setArchivedCategoryFilter('all')">
+        <span>All Categories</span><span class="archived-cat-count">${allArchived.length}</span>
+      </div>
+      ${usedCats.map(k => `<div class="archived-cat-item ${archivedCategoryFilter===k?'active':''}" onclick="setArchivedCategoryFilter('${k}')">
+        <span>${CATEGORY_META[k].label}</span><span class="archived-cat-count">${counts[k]}</span>
+      </div>`).join('')}
+    `;
+  }
+  if (catBtn) catBtn.classList.toggle('active', archivedCategoryFilter !== 'all');
+
+  const archived = archivedCategoryFilter === 'all' ? allArchived : allArchived.filter(p => p.category === archivedCategoryFilter);
+
   if (archived.length === 0) {
     list.innerHTML = '';
     empty.style.display = 'flex';
+    const title = empty.querySelector('.saved-empty-title');
+    if (title) title.textContent = allArchived.length ? 'No archived products in this category' : 'No archived products';
     return;
   }
   empty.style.display = 'none';
-  list.innerHTML = archived.map(p => {
+
+  const cardHtml = p => {
     const cat = CATEGORY_META[p.category] || CATEGORY_META.general;
     return `
     <div class="archived-prod-card">
@@ -23890,7 +23948,32 @@ function renderArchivedProductsPanel() {
       </div>
       <button type="button" class="archived-prod-restore-btn" onclick="restoreArchivedProduct('${p.sku.replace(/'/g,"\\'")}')">Restore</button>
     </div>`;
-  }).join('');
+  };
+
+  if (archivedCategoryFilter === 'all') {
+    const groups = {};
+    archived.forEach(p => { (groups[p.category] = groups[p.category] || []).push(p); });
+    const orderedCats = Object.keys(groups).sort((a, b) => (CATEGORY_META[a]?.label || a).localeCompare(CATEGORY_META[b]?.label || b));
+    list.innerHTML = orderedCats.map(k => {
+      const items = groups[k].slice().sort((a, b) => a.name.localeCompare(b.name));
+      const meta = CATEGORY_META[k] || CATEGORY_META.general;
+      return `<div class="archived-cat-group-head">${meta.label} · ${items.length}</div>` + items.map(cardHtml).join('');
+    }).join('');
+  } else {
+    list.innerHTML = archived.slice().sort((a, b) => a.name.localeCompare(b.name)).map(cardHtml).join('');
+  }
+}
+let archivedCategoryFilter = 'all';
+function toggleArchivedCategoryMenu(event) {
+  if (event) event.stopPropagation();
+  const menu = document.getElementById('archivedCategoryMenu');
+  if (menu) menu.classList.toggle('open');
+}
+function setArchivedCategoryFilter(cat) {
+  archivedCategoryFilter = cat;
+  const menu = document.getElementById('archivedCategoryMenu');
+  if (menu) menu.classList.remove('open');
+  renderArchivedProductsPanel();
 }
 let _pdaPendingSku = null;
 
@@ -23904,6 +23987,11 @@ document.addEventListener('click', function(e) {
   const sortBtn  = document.getElementById('productSortBtn');
   if (sortMenu && sortMenu.classList.contains('open') && !sortMenu.contains(e.target) && e.target !== sortBtn && !sortBtn?.contains(e.target)) {
     sortMenu.classList.remove('open');
+  }
+  const archCatMenu = document.getElementById('archivedCategoryMenu');
+  const archCatBtn  = document.getElementById('archivedCategoryBtn');
+  if (archCatMenu && archCatMenu.classList.contains('open') && !archCatMenu.contains(e.target) && e.target !== archCatBtn && !archCatBtn?.contains(e.target)) {
+    archCatMenu.classList.remove('open');
   }
 });
 
