@@ -5548,6 +5548,17 @@ html[data-theme="dark"] .archived-search-icon { color: rgba(255,255,255,0.4); }
 }
 html[data-theme="dark"] .archived-cat-group-head { color: rgba(255,255,255,0.4); }
 .archived-cat-group-head:first-child { margin-top: 0; }
+#archivedProductsPanel .archived-panel-body { display: flex; flex-direction: column; }
+#archivedProductsPanel #archivedProductsList:empty { display: none; }
+#archivedProductsPanel .saved-empty { flex: 1; min-height: 260px; padding: 24px 28px 96px; }
+#archivedProductsPanel .saved-empty-icon { width: 64px; height: 64px; border-radius: 18px; margin-bottom: 16px; background: rgba(124,111,247,0.08); border-color: rgba(124,111,247,0.22); }
+html[data-theme="dark"] #archivedProductsPanel .saved-empty-icon { background: rgba(124,111,247,0.14); border-color: rgba(124,111,247,0.3); }
+#archivedProductsPanel .saved-empty-icon svg { width: 28px; height: 28px; color: #7c6ff7; }
+html[data-theme="dark"] #archivedProductsPanel .saved-empty-icon svg { color: #a79dff; }
+#archivedProductsPanel .saved-empty-title { font-size: 15px; font-weight: 800; color: #001f3c; margin-bottom: 6px; }
+html[data-theme="dark"] #archivedProductsPanel .saved-empty-title { color: #fff; }
+#archivedProductsPanel .saved-empty-subtitle { font-size: 12px; line-height: 1.5; max-width: 230px; color: #8c92a1; }
+html[data-theme="dark"] #archivedProductsPanel .saved-empty-subtitle { color: rgba(255,255,255,0.45); }
 .pinfo-section-head {
   font-family: "Plus Jakarta Sans", sans-serif; font-size: 10px; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase;
   color: #7C6FF7; background: rgba(124,111,247,0.08); padding: 9px 16px; margin-top: 2px;
@@ -13838,7 +13849,7 @@ function showToast(message, type = 'success') {
         <span class="archived-search-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
       </div>
       <div id="archivedProductsList"></div>
-      <div class="saved-empty" id="archivedProductsEmpty" style="display:none">
+      <div class="saved-empty" id="archivedProductsEmpty">
         <div class="saved-empty-icon">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/></svg>
         </div>
@@ -23920,13 +23931,22 @@ function openArchivedProductsPanel() {
   const menuCb = document.getElementById('menuState');
   if (menuCb) menuCb.checked = true;
   const panel = document.getElementById('archivedProductsPanel');
+  const drawer = document.getElementById('drawerPanel');
+  if (drawer) { drawer.scrollTop = 0; drawer.style.overflowY = 'hidden'; }
   if (panel) panel.classList.add('open');
   renderArchivedProductsPanel();
 }
 function closeArchivedProductsPanel() {
   const panel = document.getElementById('archivedProductsPanel');
+  const drawer = document.getElementById('drawerPanel');
   if (panel) panel.classList.remove('open');
+  if (drawer) drawer.style.overflowY = '';
 }
+document.addEventListener('change', function (e) {
+  if (e.target && e.target.id === 'menuState' && !e.target.checked) {
+    setTimeout(closeArchivedProductsPanel, 320);
+  }
+});
 function renderArchivedProductsPanel() {
   const list = document.getElementById('archivedProductsList');
   const empty = document.getElementById('archivedProductsEmpty');
@@ -23976,14 +23996,20 @@ function renderArchivedProductsPanel() {
     );
   }
 
+  const searchWrap = document.querySelector('#archivedProductsPanel .archived-search-wrap');
+  const filterWrap = document.querySelector('#archivedProductsPanel .products-category-wrap');
+  const nothingArchived = allArchived.length === 0;
+  if (searchWrap) searchWrap.style.display = nothingArchived ? 'none' : '';
+  if (filterWrap) filterWrap.style.display = nothingArchived ? 'none' : '';
+
   if (archived.length === 0) {
     list.innerHTML = '';
-    empty.style.display = 'flex';
+    empty.classList.add('visible');
     const title = empty.querySelector('.saved-empty-title');
     if (title) title.textContent = q ? 'No matching archived products' : (allArchived.length ? 'No archived products in this category' : 'No archived products');
     return;
   }
-  empty.style.display = 'none';
+  empty.classList.remove('visible');
 
   const cardHtml = p => {
     const cat = CATEGORY_META[p.category] || CATEGORY_META.general;
