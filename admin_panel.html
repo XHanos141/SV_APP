@@ -68,12 +68,15 @@ body.dark-mode{
   --shadow-lg:0 12px 32px rgba(0,0,0,0.35),0 4px 8px rgba(0,0,0,0.20);
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-html{font-size:16px}
+html{font-size:16px;scrollbar-width:none;-ms-overflow-style:none}
+html::-webkit-scrollbar{display:none;width:0;height:0}
 body{
   font-family:var(--font-body);background:var(--bg);color:var(--text);
   min-height:100dvh;padding-bottom:60px;
   transition:background 0.3s,color 0.3s;
+  scrollbar-width:none;-ms-overflow-style:none;
 }
+body::-webkit-scrollbar{display:none;width:0;height:0}
 .admin-header{
   background:linear-gradient(180deg,#0f3258 0%,#002248 22%,#001f3c 55%,#001532 82%,#000d20 100%);
   padding:0 20px;height:58px;color:#fff;position:sticky;top:0;z-index:50;
