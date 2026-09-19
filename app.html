@@ -21564,6 +21564,14 @@ async function restockExistingProduct() {
           created_at: new Date().toISOString()
         });
       }
+      await sbFetch('restock_entries', 'POST', {
+        product_id: productId, sku, product_name: productName, qty,
+        cost_per_unit: cost || null, supplier: supplier || null,
+        expiry_date: (needsExpiry && expiryDate) ? expiryDate : null,
+        color: (hasColorCat && pickedColor) ? (pickedColorLabel.split(' · ')[0] || pickedColor) : null,
+        size: pickedSize || null,
+        stock_before: newQty - qty, stock_after: newQty
+      });
     } catch (err) {
       console.warn('Restock sync failed:', err.message);
       showToast('⚠ Restocked locally only — sync failed');
