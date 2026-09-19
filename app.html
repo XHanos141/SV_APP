@@ -19100,6 +19100,16 @@ function openNewOrderModal() {
 }
 
 /* ====== CUSTOMER PHONE LOOKUP ====== */
+function splitDistrictFromAddress(full) {
+  const distEl = document.getElementById('noDistrict');
+  if (!distEl || !full) return { district: '', address: full || '' };
+  const lower = full.toLowerCase();
+  const opts = Array.from(distEl.options).map(o => o.value).filter(Boolean);
+  const found = opts.find(d => lower.startsWith(d.toLowerCase())) || opts.find(d => lower.includes(d.toLowerCase()));
+  if (!found) return { district: '', address: full };
+  const address = lower.startsWith(found.toLowerCase()) ? full.slice(found.length).replace(/^[\s,]+/, '') : full;
+  return { district: found, address };
+}
 var _phoneLookupTimer = null;
 function debouncePhoneLookup(val) {
   clearTimeout(_phoneLookupTimer);
@@ -19131,13 +19141,10 @@ function lookupCustomerByPhone(digits) {
   var addrEl  = document.getElementById('noAddress');
   var distEl  = document.getElementById('noDistrict');
   if (nameEl && !nameEl.value.trim()) nameEl.value = name;
-  if (addrEl && !addrEl.value.trim()) addrEl.value = address;
-  // Try to match district from address string against dropdown options
-  if (distEl && !distEl.value && address) {
-    var opts = Array.from(distEl.options).map(function(o){ return o.value; });
-    var found = opts.find(function(d){ return d && address.toLowerCase().includes(d.toLowerCase()); });
-    if (found) distEl.value = found;
-  }
+  // Saved addresses already include the district — split it out so it isn't stored/shown twice
+  var sp = splitDistrictFromAddress(address);
+  if (addrEl && !addrEl.value.trim()) addrEl.value = sp.address;
+  if (distEl && !distEl.value && sp.district) distEl.value = sp.district;
   var retBadge = returns > 0
     ? '<span class="cust-badge returns">&#8617;&nbsp;' + returns + ' return' + (returns>1?'s':'') + '</span>'
     : '';
@@ -19239,7 +19246,12 @@ function openEditDraft(cardId, e) {
 
   // Pre-fill address
   const addrEl = card.querySelector('.address-row span');
-  if (addrEl) document.getElementById('noAddress').value = addrEl.textContent.trim();
+  if (addrEl) {
+    const sp = splitDistrictFromAddress(addrEl.textContent.trim());
+    document.getElementById('noAddress').value = sp.address;
+    const distEl = document.getElementById('noDistrict');
+    if (distEl && sp.district) distEl.value = sp.district;
+  }
 
   // Pre-fill order ID
   const idEl = card.querySelector('.draft-id');
