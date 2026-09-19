@@ -87,6 +87,22 @@ html[data-theme="dark"] .cust-strip.new-customer { color:#34d399; }
 html[data-theme="dark"] .cust-strip-cta { color:#a79dff; }
 .cust-strip.applied { background:rgba(16,185,129,0.07); border:1px solid rgba(16,185,129,0.25); color:#059669; }
 html[data-theme="dark"] .cust-strip.applied { color:#34d399; }
+.pledger-chips{display:flex;gap:8px;margin:0 0 6px}
+.pledger-chip{flex:1;text-align:center;padding:8px 4px;border-radius:12px;background:rgba(124,111,247,0.07);font-size:9px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:#8c92a1}
+.pledger-chip b{display:block;font-size:16px;letter-spacing:0;color:#001f3c;margin-top:2px}
+html[data-theme="dark"] .pledger-chip b{color:#fff}
+.pledger-row{display:flex;gap:10px;align-items:flex-start;padding:10px 0;border-bottom:1px solid rgba(140,146,161,0.18)}
+.pledger-row:last-child{border-bottom:none}
+.pledger-badge{flex-shrink:0;font-size:9px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;padding:3px 7px;border-radius:6px;margin-top:2px}
+.pledger-badge.green{background:rgba(47,155,104,.12);color:#2f9b68}
+.pledger-badge.purple{background:rgba(124,111,247,.12);color:#7c6ff7}
+.pledger-badge.red{background:rgba(217,83,83,.12);color:#d95353}
+.pledger-main{font-size:13px;font-weight:700;color:#001f3c}
+html[data-theme="dark"] .pledger-main{color:#fff}
+.pledger-sub{font-size:11px;color:#8c92a1;margin-top:2px;line-height:1.45}
+.pledger-date{font-size:10px;color:#a9aebb;margin-top:2px}
+.pledger-empty{padding:16px 0;text-align:center;font-size:12px;color:#8c92a1}
+.tx-exp-item-batch{display:block;font-size:10px;font-weight:700;color:#e89c0f;margin-top:2px}
 .fs-input.invalid, .prod-picker-btn.invalid { border-color:#d95353; box-shadow:0 0 0 3px rgba(217,83,83,0.15); }
 
 /* ===== ANIMATED DAY/NIGHT TOGGLE (main app) ===== */
@@ -17353,10 +17369,15 @@ async function confirmPayment() {
   if (!card) { closePaymentModal(); return; }
 
   const orderUuid = card.dataset.orderUuid || null;
+  const batchBySku = {};
   if (orderUuid) {
     _payInFlight = true;
     try {
       await sbFetch('rpc/confirm_order_payment', 'POST', { p_order_id: orderUuid, p_method: method, p_ref: ref || null });
+      try {
+        const bi = await sbFetch('order_items?order_id=eq.' + orderUuid + '&select=sku,order_item_batches(expiry_date,qty)');
+        (bi || []).forEach(r => { batchBySku[r.sku] = (r.order_item_batches || []).map(b => ({ expiry: b.expiry_date, qty: b.qty })); });
+      } catch (e) { /* display only */ }
     } catch (err) {
       showToast('⚠ Payment not saved — ' + _dbErrMsg(err));
       return;
@@ -17386,7 +17407,7 @@ async function confirmPayment() {
     const qtyEl  = el.querySelector(".draft-item-qty");
     const qty    = parseInt(qtyEl?.getAttribute("data-qty")) || 1;
     const each   = parseFloat(qtyEl?.getAttribute("data-price")) || 0;
-    items.push({ name, sku, qty, each, total: each * qty, category });
+    items.push({ name, sku, qty, each, total: each * qty, category, batches: batchBySku[sku] || [] });
   });
 
   const now    = new Date();
@@ -19927,7 +19948,8 @@ async function saveNewOrderDraft() {
 function orderRowToItems(o) {
   return (o.order_items || []).map(i => {
     const price = Number(i.unit_price) || 0;
-    return { name: i.product_name, sku: i.sku || '', qty: i.quantity, price, each: price, total: price * i.quantity, category: i.category || 'general' };
+    return { name: i.product_name, sku: i.sku || '', qty: i.quantity, price, each: price, total: price * i.quantity, category: i.category || 'general',
+             batches: (i.order_item_batches || []).map(b => ({ expiry: b.expiry_date, qty: b.qty })) };
   });
 }
 
@@ -19950,7 +19972,7 @@ function orderRowToTx(o, items) {
 
 async function loadOrdersFromSupabase() {
   try {
-    const rows = await sbFetch('orders?select=*,order_items(*)&source=eq.admin&order=created_at.asc');
+    const rows = await sbFetch('orders?select=*,order_items(*,order_item_batches(expiry_date,qty))&source=eq.admin&order=created_at.asc');
     if (!Array.isArray(rows) || rows.length === 0) return;
     const container = document.getElementById('draftCardsContainer');
     if (!container) return;
@@ -23649,7 +23671,7 @@ function chevronDownSVG() {
 
 /* ── BATCH EXPIRY HELPERS ── */
 function getBatchExpiryStatus(dateStr) {
-  if (!dateStr) return { tagClass: 'green', color: '#2f9b68', days: Infinity };
+  if (!dateStr) return { tagClass: 'orange', color: '#e89c0f', days: Infinity, missing: true };
   const today = new Date();
   today.setHours(0,0,0,0);
   const exp   = new Date(dateStr + 'T00:00:00');
@@ -23666,6 +23688,7 @@ function getBatchExpiryStatus(dateStr) {
    < 365 days → "Xd"
    1 year+ → "Xy/Zm" (e.g. "2y/1m") */
 function formatTimeLeft(days) {
+  if (!isFinite(days)) return 'No date';
   if (days < 0)    return 'EXPIRED';
   if (days < 365)  return days + 'd';
   const years  = Math.floor(days / 365);
@@ -23681,7 +23704,9 @@ function formatExpiryDate(dateStr) {
 
 function getLowestBatch(batches) {
   if (!batches || !batches.length) return null;
-  return batches.reduce((lo, b) => new Date(b.expiryDate) < new Date(lo.expiryDate) ? b : lo);
+  const dated = batches.filter(b => b.expiryDate);
+  if (!dated.length) return batches[0];
+  return dated.reduce((lo, b) => new Date(b.expiryDate) < new Date(lo.expiryDate) ? b : lo);
 }
 
 function buildBatchDropdown(productId, batches) {
@@ -23692,7 +23717,7 @@ function buildBatchDropdown(productId, batches) {
     const pillCls = st.days < 0 ? 'red' : st.tagClass;
     return `
     <div class="batch-row ${st.tagClass}-batch">
-      <div class="batch-date">${formatExpiryDate(b.expiryDate)}</div>
+      <div class="batch-date">${b.expiryDate ? formatExpiryDate(b.expiryDate) : 'No expiry date'}</div>
       <div class="batch-row-right">
         <span class="batch-time-pill ${pillCls}">${timeStr}</span>
         <span class="batch-units">${b.qty} unit${b.qty !== 1 ? 's' : ''}</span>
@@ -24221,9 +24246,12 @@ function openProductInfoModal(sku, event) {
       <div class="pinfo-total-label">Profit</div>
       <div class="pinfo-total-val ${profitVal < 0 ? 'red' : ''}">${profitVal >= 0 ? '+' : ''}৳${Math.round(profitVal).toLocaleString('en-IN')}</div>
     </div>
+    <div class="pinfo-section-head pinfo-section-boundary">Stock History</div>
+    <div id="pinfoLedger"><div class="pledger-empty">Loading…</div></div>
   `;
   backdrop.classList.add('show');
   modal.classList.add('show');
+  loadProductLedger(p);
 
   const archiveBtn = document.getElementById('pinfoArchiveBtn');
   if (archiveBtn) {
@@ -24236,6 +24264,56 @@ function openProductInfoModal(sku, event) {
     }
   }
 }
+function _fmtLedgerDate(iso) {
+  const d = new Date(iso);
+  return d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: '2-digit' }) + ' \u00b7 ' +
+         d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+}
+function renderProductLedger(ev) {
+  if (!Array.isArray(ev) || ev.length === 0) return '<div class="pledger-empty">No movements recorded yet</div>';
+  const sum = t => ev.filter(e => e.type === t).reduce((n, e) => n + (e.qty || 0), 0);
+  const expTxt = d => d ? formatExpiryDate(d) : 'no expiry date';
+  const chips = `<div class="pledger-chips">
+    <div class="pledger-chip">Restocked<b>${sum('restock')}</b></div>
+    <div class="pledger-chip">Sold<b>${sum('sale')}</b></div>
+    <div class="pledger-chip">Returned<b>${sum('return')}</b></div></div>`;
+  const rows = ev.slice(0, 50).map(e => {
+    let badge, cls, main, sub;
+    if (e.type === 'restock') {
+      badge = 'Restock'; cls = 'green';
+      main = '+' + e.qty + ' unit' + (e.qty > 1 ? 's' : '');
+      sub = [e.expiry ? 'exp ' + formatExpiryDate(e.expiry) : 'no expiry date', e.supplier ? escapeHtml(e.supplier) : null,
+             e.cost ? '\u09f3' + Number(e.cost).toLocaleString('en-IN') + '/unit' : null].filter(Boolean).join(' \u00b7 ');
+    } else if (e.type === 'sale') {
+      badge = 'Sale'; cls = 'purple';
+      main = '\u2212' + e.qty + ' \u00b7 ' + escapeHtml(e.customer || 'Customer');
+      sub = [escapeHtml(e.order || ''), e.untracked ? 'no batch record' : 'exp ' + expTxt(e.expiry),
+             e.returned > 0 ? '\u21a9 ' + e.returned + ' returned' : null, e.phone ? escapeHtml(e.phone) : null].filter(Boolean).join(' \u00b7 ');
+    } else {
+      badge = 'Return'; cls = 'red';
+      main = '+' + e.qty + ' \u00b7 ' + escapeHtml(e.customer || 'Customer');
+      const back = Array.isArray(e.restocked_to) && e.restocked_to.length
+        ? 'back to exp ' + e.restocked_to.map(r => (r.expiry ? formatExpiryDate(r.expiry) : 'no expiry') + ' \u00d7' + r.qty).join(', ') : null;
+      sub = [escapeHtml(e.return || ''), 'from ' + escapeHtml(e.order || ''), back, e.reason ? escapeHtml(e.reason) : null].filter(Boolean).join(' \u00b7 ');
+    }
+    return `<div class="pledger-row"><span class="pledger-badge ${cls}">${badge}</span>
+      <div><div class="pledger-main">${main}</div><div class="pledger-sub">${sub}</div><div class="pledger-date">${_fmtLedgerDate(e.at)}</div></div></div>`;
+  }).join('');
+  return chips + rows;
+}
+async function loadProductLedger(p) {
+  const box = document.getElementById('pinfoLedger');
+  if (!box) return;
+  if (!_isUuid(p.id)) { box.innerHTML = '<div class="pledger-empty">No history for this product</div>'; return; }
+  try {
+    const ev = await sbFetch('rpc/product_ledger', 'POST', { p_product_id: p.id });
+    if (_pinfoCurrentSku !== p.sku) return;
+    box.innerHTML = renderProductLedger(ev);
+  } catch (err) {
+    box.innerHTML = '<div class="pledger-empty">History unavailable \u2014 ' + escapeHtml(_dbErrMsg(err)) + '</div>';
+  }
+}
+
 function closeProductInfoModal() {
   const backdrop = document.getElementById('productInfoBackdrop');
   const modal = document.getElementById('productInfoModal');
@@ -25722,7 +25800,7 @@ function buildTxCard(tx) {
 
   const itemRows = tx.items.map(item => `
     <div class="tx-exp-item">
-      <div class="tx-exp-item-left"><div class="tx-exp-item-name">${escapeHtml(item.name)}${txItemCatBadge(item.category)}</div><span class="tx-exp-item-sku">${item.sku}</span></div>
+      <div class="tx-exp-item-left"><div class="tx-exp-item-name">${escapeHtml(item.name)}${txItemCatBadge(item.category)}</div><span class="tx-exp-item-sku">${item.sku}</span>${(item.batches && item.batches.length) ? `<span class="tx-exp-item-batch">${item.batches.map(b => (b.expiry ? 'Exp ' + formatExpiryDate(b.expiry) : 'No expiry') + ' \u00d7' + b.qty).join(' \u00b7 ')}</span>` : ''}</div>
       <span class="tx-exp-item-qty">${item.qty}u</span>
       <div class="tx-exp-item-amt">\u09f3${item.total.toLocaleString('en-IN')}</div>
     </div>`).join('');
