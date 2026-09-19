@@ -81,6 +81,13 @@ html[data-theme="dark"] .cust-strip.new-customer { color:#34d399; }
 .cust-badge { display:inline-flex; align-items:center; gap:3px; padding:2px 7px; border-radius:999px; font-size:11px; font-weight:700; flex-shrink:0; }
 .cust-badge.orders { background:rgba(16,185,129,0.12); color:#059669; border:1px solid rgba(16,185,129,0.3); }
 .cust-badge.returns { background:rgba(217,83,83,0.1); color:#d95353; border:1px solid rgba(217,83,83,0.25); }
+.cust-strip.tappable { cursor:pointer; }
+.cust-strip.tappable:active { transform:scale(0.98); }
+.cust-strip-cta { margin-left:auto; font-size:11px; font-weight:700; color:#7c6ff7; white-space:nowrap; flex-shrink:0; }
+html[data-theme="dark"] .cust-strip-cta { color:#a79dff; }
+.cust-strip.applied { background:rgba(16,185,129,0.07); border:1px solid rgba(16,185,129,0.25); color:#059669; }
+html[data-theme="dark"] .cust-strip.applied { color:#34d399; }
+.fs-input.invalid { border-color:#d95353; box-shadow:0 0 0 3px rgba(217,83,83,0.15); }
 
 /* ===== ANIMATED DAY/NIGHT TOGGLE (main app) ===== */
 .header-toggle { width: 77px; height: 32px; overflow: hidden; cursor: pointer; flex-shrink: 0; position: relative; }
@@ -15614,7 +15621,8 @@ window.addEventListener('message',function(e){
       </div>
       <div class="fs-field">
         <label class="fs-label">Phone Number</label>
-        <input type="tel" class="fs-input" id="noPhone" placeholder="+880 1X-XXXX-XXXX" oninput="debouncePhoneLookup(this.value)" autocomplete="tel">
+        <input type="tel" class="fs-input" id="noPhone" placeholder="+880 1X-XXXX-XXXX" oninput="onPhoneInput(this.value)" onblur="validatePhoneField()" autocomplete="tel">
+        <div class="fs-hint" id="noPhoneHint">Invalid BD mobile number (01XXXXXXXXX)</div>
         <div class="cust-strip" id="custStrip" style="display:none"></div>
       </div>
       <div class="fs-field">
@@ -19071,6 +19079,7 @@ function openNewOrderModal() {
   }).catch(() => {});
   document.getElementById('noCustomerName').value = '';
   document.getElementById('noPhone').value = '';
+  setPhoneHint(''); _custPick = null;
   if (document.getElementById('noDistrict')) document.getElementById('noDistrict').value = '';
   document.getElementById('noAddress').value = '';
   document.getElementById('noDiscount').value = '0';
@@ -19111,22 +19120,63 @@ function splitDistrictFromAddress(full) {
   return { district: found, address };
 }
 var _phoneLookupTimer = null;
-function debouncePhoneLookup(val) {
+var _custPick = null;
+function normalizeBdPhone(raw) {
+  var d = String(raw || '').replace(/\D/g, '');
+  if (d.length === 13 && d.indexOf('880') === 0) d = '0' + d.slice(3);
+  else if (d.length === 10 && d.charAt(0) === '1') d = '0' + d;
+  return /^01[3-9]\d{8}$/.test(d) ? d : null;
+}
+function setPhoneHint(msg) {
+  var input = document.getElementById('noPhone');
+  var hint = document.getElementById('noPhoneHint');
+  if (!input || !hint) return;
+  if (msg) hint.textContent = msg;
+  hint.classList.toggle('visible', !!msg);
+  input.classList.toggle('invalid', !!msg);
+}
+function validatePhoneField() {
+  var el = document.getElementById('noPhone');
+  if (!el) return true;
+  var raw = el.value.trim();
+  if (!raw || normalizeBdPhone(raw)) { setPhoneHint(''); return true; }
+  var n = raw.replace(/\D/g, '').length;
+  setPhoneHint(n < 11 ? n + ' digits \u2014 need 11 (01XXXXXXXXX)' : 'Invalid BD mobile number (01XXXXXXXXX)');
+  return false;
+}
+function onPhoneInput(val) {
   clearTimeout(_phoneLookupTimer);
   var strip = document.getElementById('custStrip');
-  var digits = val.replace(/[^0-9]/g,'');
-  if (digits.length < 10) { strip.style.display='none'; return; }
+  strip.onclick = null; strip.removeAttribute('role'); _custPick = null;
+  var phone = normalizeBdPhone(val);
+  var n = String(val || '').replace(/\D/g, '').length;
+  if (phone || n < 11) setPhoneHint(''); else validatePhoneField();
+  if (!phone) { strip.style.display = 'none'; return; }
   strip.className = 'cust-strip loading';
   strip.style.display = 'flex';
   strip.innerHTML = 'Looking up...';
-  _phoneLookupTimer = setTimeout(function(){ lookupCustomerByPhone(digits); }, 400);
+  _phoneLookupTimer = setTimeout(function(){ lookupCustomerByPhone(phone); }, 400);
 }
-function lookupCustomerByPhone(digits) {
+function applyCustomerAutofill() {
+  if (!_custPick) return;
+  var nameEl = document.getElementById('noCustomerName');
+  var addrEl = document.getElementById('noAddress');
+  var distEl = document.getElementById('noDistrict');
+  if (nameEl) nameEl.value = _custPick.name;
+  if (addrEl) addrEl.value = _custPick.address;
+  if (distEl) distEl.value = _custPick.district || '';
+  hideNewOrderHint();
   var strip = document.getElementById('custStrip');
-  var last9 = digits.slice(-9);
+  strip.className = 'cust-strip applied';
+  strip.onclick = null; strip.removeAttribute('role');
+  strip.innerHTML = '<span class="cust-strip-name">&#10003;&nbsp;Details filled from ' + escapeHtml(_custPick.name) + '</span>';
+  _custPick = null;
+}
+function lookupCustomerByPhone(phone) {
+  var strip = document.getElementById('custStrip');
   var txData = (typeof TRANSACTIONS_DATA !== 'undefined') ? TRANSACTIONS_DATA : [];
   var matches = txData.filter(function(tx){
-    return tx.phone && tx.phone.replace(/[^0-9]/g,'').slice(-9) === last9;
+    return tx.phone && normalizeBdPhone(tx.phone) === phone;
   });
   if (matches.length === 0) {
     strip.className = 'cust-strip new-customer';
@@ -19137,29 +19187,28 @@ function lookupCustomerByPhone(digits) {
   var returns = matches.filter(function(tx){ return tx.status === 'return'; }).length;
   var name    = matches[0].customer || 'Unknown';
   var address = matches[0].address  || '';
-  var nameEl  = document.getElementById('noCustomerName');
-  var addrEl  = document.getElementById('noAddress');
-  var distEl  = document.getElementById('noDistrict');
-  if (nameEl && !nameEl.value.trim()) nameEl.value = name;
   // Saved addresses already include the district — split it out so it isn't stored/shown twice
   var sp = splitDistrictFromAddress(address);
-  if (addrEl && !addrEl.value.trim()) addrEl.value = sp.address;
-  if (distEl && !distEl.value && sp.district) distEl.value = sp.district;
+  _custPick = { name: name, address: sp.address, district: sp.district };
   var retBadge = returns > 0
     ? '<span class="cust-badge returns">&#8617;&nbsp;' + returns + ' return' + (returns>1?'s':'') + '</span>'
     : '';
-  strip.className = 'cust-strip returning';
+  strip.className = 'cust-strip returning tappable';
+  strip.setAttribute('role', 'button');
+  strip.onclick = applyCustomerAutofill;
   strip.innerHTML =
-    '<div class="cust-strip-avatar">' + name.charAt(0).toUpperCase() + '</div>' +
-    '<span class="cust-strip-name">' + name + '</span>' +
+    '<div class="cust-strip-avatar">' + escapeHtml(name.charAt(0).toUpperCase()) + '</div>' +
+    '<span class="cust-strip-name">' + escapeHtml(name) + '</span>' +
     '<span class="cust-badge orders">&#10003;&nbsp;' + orders + ' order' + (orders>1?'s':'') + '</span>' +
-    retBadge;
+    retBadge +
+    '<span class="cust-strip-cta">Tap to autofill</span>';
 }
 
 function closeNewOrderModal(e) {
   if (e && e.target !== e.currentTarget) return;
   document.getElementById('newOrderOverlay').classList.remove('active');
-  const _cstrip=document.getElementById('custStrip');if(_cstrip){_cstrip.style.display='none';_cstrip.className='cust-strip';}
+  const _cstrip=document.getElementById('custStrip');if(_cstrip){_cstrip.style.display='none';_cstrip.className='cust-strip';_cstrip.onclick=null;_cstrip.removeAttribute('role');}
+  _custPick = null; setPhoneHint('');
   _editingCardId = null;
   const saveBtn = document.getElementById('noSaveBtn');
   if (saveBtn) saveBtn.childNodes.forEach(n => { if(n.nodeType===3) n.textContent=' Save as Draft'; });
@@ -19782,7 +19831,8 @@ async function saveNewOrderDraft() {
   if (_orderSaving) return;
   const nameInput = document.getElementById('noCustomerName');
   const name = nameInput.value.trim();
-  const phone = document.getElementById('noPhone')?.value.trim() || '';
+  const phoneRaw = document.getElementById('noPhone')?.value.trim() || '';
+  const phone = phoneRaw ? (normalizeBdPhone(phoneRaw) || phoneRaw) : '';
   const district = document.getElementById('noDistrict')?.value || '';
   const address = document.getElementById('noAddress')?.value.trim() || '';
   const productRows = document.querySelectorAll('#newOrderProducts .product-row');
@@ -19810,6 +19860,13 @@ async function saveNewOrderDraft() {
   }
   if (items.length === 0) {
     document.getElementById('noProductHint').classList.add('visible');
+    hasError = true;
+  }
+  if (phoneRaw && !normalizeBdPhone(phoneRaw)) {
+    validatePhoneField();
+    const phoneEl = document.getElementById('noPhone');
+    phoneEl.classList.add('shake');
+    setTimeout(() => phoneEl.classList.remove('shake'), 400);
     hasError = true;
   }
   if (hasError) return;
