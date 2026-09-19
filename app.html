@@ -8011,6 +8011,8 @@ window.addEventListener('error', function(ev){
   function grantAccess(){
     var g = document.getElementById('svAdminGate');
     if(g){ g.style.opacity = '0'; setTimeout(function(){ g.remove(); }, 250); }
+    window.__svAdminReady = true;
+    window.dispatchEvent(new Event('sv-admin-ready'));
   }
   try{
     var sessionResult = await sb.auth.getSession();
@@ -17317,8 +17319,9 @@ function selectPayMethod(method) {
   inp.dataset.required = cfg.req ? "true" : "false";
 }
 
-function confirmPayment() {
-  if (_pendingPaymentIndex === null) return;
+let _payInFlight = false;
+async function confirmPayment() {
+  if (_pendingPaymentIndex === null || _payInFlight) return;
   const method    = document.querySelector('input[name="payMethod"]:checked')?.value || "cash";
   const refInput  = document.getElementById("payRefInput");
   const ref       = refInput.value.trim();
@@ -17335,6 +17338,20 @@ function confirmPayment() {
   const card = document.getElementById("draft-" + _pendingPaymentIndex);
   if (!card) { closePaymentModal(); return; }
 
+  const orderUuid = card.dataset.orderUuid || null;
+  if (orderUuid) {
+    _payInFlight = true;
+    try {
+      await sbFetch('rpc/confirm_order_payment', 'POST', { p_order_id: orderUuid, p_method: method, p_ref: ref || null });
+    } catch (err) {
+      showToast('⚠ Payment not saved — ' + _dbErrMsg(err));
+      return;
+    } finally {
+      _payInFlight = false;
+    }
+    loadProductsFromSupabase();
+  }
+
   const draftId  = card.getAttribute("data-id") || ("SV-" + Date.now());
   const discount = parseFloat(card.getAttribute("data-discount")) || 0;
   const shipping = parseFloat(card.getAttribute("data-shipping")) || 0;
@@ -17349,12 +17366,13 @@ function confirmPayment() {
   const itemEls = card.querySelectorAll(".draft-item");
   const items = [];
   itemEls.forEach(el => {
-    const name   = el.querySelector(".draft-item-name")?.textContent.trim() || "Item";
+    const name   = (el.querySelector(".draft-item-name-text") || el.querySelector(".draft-item-name"))?.textContent.trim() || "Item";
     const sku    = el.querySelector(".draft-item-sku")?.textContent.trim() || "";
+    const category = el.getAttribute("data-category") || undefined;
     const qtyEl  = el.querySelector(".draft-item-qty");
     const qty    = parseInt(qtyEl?.getAttribute("data-qty")) || 1;
     const each   = parseFloat(qtyEl?.getAttribute("data-price")) || 0;
-    items.push({ name, sku, qty, each, total: each * qty });
+    items.push({ name, sku, qty, each, total: each * qty, category });
   });
 
   const now    = new Date();
@@ -17372,7 +17390,8 @@ function confirmPayment() {
     phone, address,
     channel: srcClass, payment: method,
     paymentRef: ref || null, paidAt,
-    status: "paid", discount, shipping, items
+    status: "paid", discount, shipping, items, uuid: orderUuid,
+    fulfillType: draftId.startsWith('PX-') ? 'proxy' : 'local'
   });
 
   closePaymentModal();
@@ -17393,10 +17412,20 @@ function confirmPayment() {
   // Show success popup
   openPaySuccess(draftId, grand);
 }
-function deleteDraft(index, event) {
+async function deleteDraft(index, event) {
   event.stopPropagation();
   const card = document.getElementById("draft-" + index);
   if (!card || card.classList.contains("paid-out") || card.classList.contains("delete-out")) return;
+  const uuid = card.dataset.orderUuid;
+  if (uuid) {
+    try {
+      const res = await sbFetch('orders?id=eq.' + uuid, 'DELETE');
+      if (!_affected(res)) throw new Error('Order not found or already paid');
+    } catch (err) {
+      showToast('⚠ Order not deleted — ' + _dbErrMsg(err));
+      return;
+    }
+  }
   card.classList.remove("expanded");
   setTimeout(() => { card.classList.add("delete-out"); updateBadge(); setTimeout(() => { if (card.parentElement) card.remove(); }, 450); }, 150);
 }
@@ -17416,10 +17445,20 @@ function setStatus(index, status, event) {
   const menu = document.getElementById('status-menu-' + index);
   const card = document.getElementById('draft-' + index);
   if (!pill || !menu || !card) return;
-  pill.textContent = status.charAt(0).toUpperCase() + status.slice(1);
-  pill.className = 'status-pill ' + status;
-  card.setAttribute('data-status', status);
+  const prevStatus = card.getAttribute('data-status') || 'pending';
+  const paint = st => {
+    pill.textContent = st.charAt(0).toUpperCase() + st.slice(1);
+    pill.className = 'status-pill ' + st;
+    card.setAttribute('data-status', st);
+  };
+  paint(status);
   menu.classList.remove('open');
+  const uuid = card.dataset.orderUuid;
+  if (uuid && status !== prevStatus) {
+    sbFetch('orders?id=eq.' + uuid, 'PATCH', { status, updated_at: new Date().toISOString() })
+      .then(res => { if (!_affected(res)) throw new Error('not updated'); })
+      .catch(err => { paint(prevStatus); showToast('⚠ Status not saved — ' + _dbErrMsg(err)); });
+  }
 }
 
 document.addEventListener('click', function(e) {
@@ -19025,6 +19064,11 @@ function openNewOrderModal() {
   closeActionSheet();
   const orderId = getNextOrderId();
   document.getElementById('newOrderDraftId').textContent = orderId;
+  sbFetch('rpc/peek_next_order_number', 'POST', { p_type: 'internal' }).then(next => {
+    if (typeof next === 'string' && next && _editingCardId === null) {
+      document.getElementById('newOrderDraftId').textContent = next;
+    }
+  }).catch(() => {});
   document.getElementById('noCustomerName').value = '';
   document.getElementById('noPhone').value = '';
   if (document.getElementById('noDistrict')) document.getElementById('noDistrict').value = '';
@@ -19569,57 +19613,26 @@ function updateNewOrderSummary() {
   document.getElementById('noSummaryGrand').textContent = '৳' + grand.toLocaleString('en-IN');
 }
 
-function saveNewOrderDraft() {
-  const nameInput = document.getElementById('noCustomerName');
-  const name = nameInput.value.trim();
-  const phone = document.getElementById('noPhone')?.value.trim() || '';
-  const district = document.getElementById('noDistrict')?.value || '';
-  const address = document.getElementById('noAddress')?.value.trim() || '';
-  const productRows = document.querySelectorAll('#newOrderProducts .product-row');
-  const items = [];
-  let totalQty = 0;
-  let subtotal = 0;
+const _SRC_TO_CHANNEL = { fb: 'facebook', wa: 'whatsapp', ig: 'instagram', web: 'website' };
+const _CHANNEL_TO_SRC = { facebook: 'fb', whatsapp: 'wa', instagram: 'ig', website: 'web' };
+let _draftSeq = Date.now();
+let _orderSaving = false;
 
-  productRows.forEach(row => {
-    const id = row.id.replace('prod-row-', '');
-    const select = document.getElementById('no-prod-' + id);
-    const qty = parseInt(document.getElementById('no-qty-' + id).value) || 0;
-    const catalog = getProductCatalog();
-    if (select && select.value && catalog[select.value] && qty > 0) {
-      const prod = catalog[select.value];
-      items.push({ name: select.value, sku: prod.sku, qty: qty, price: prod.price, total: prod.price * qty, category: prod.category });
-      totalQty += qty;
-      subtotal += prod.price * qty;
-    }
-  });
+function _isUuid(v) { return typeof v === 'string' && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(v); }
+function _dbErrMsg(err) {
+  try { const j = JSON.parse(err.message); return j.message || j.hint || err.message; } catch (e) { return err.message || 'Unknown error'; }
+}
+function _affected(res) { return Array.isArray(res) ? res.length > 0 : true; }
 
-  let hasError = false;
-  if (!name) {
-    nameInput.classList.add('shake');
-    document.getElementById('noNameHint').classList.add('visible');
-    hasError = true;
-    setTimeout(() => nameInput.classList.remove('shake'), 400);
-  }
-  if (items.length === 0) {
-    document.getElementById('noProductHint').classList.add('visible');
-    hasError = true;
-  }
-  if (hasError) return;
-
-  const orderId = document.getElementById('newOrderDraftId').textContent;
-  const source = document.getElementById('noSource')?.value || '';
+function buildDraftCardEl(d) {
+  const { orderId, name, phone, fullAddress, items, source, discount, shipping, subtotal, dateStr } = d;
+  const status = d.status || 'pending';
+  const totalQty = items.reduce((sum, i) => sum + i.qty, 0);
   const srcLabels = { fb: channelIcon('facebook'), wa: channelIcon('whatsapp'), ig: channelIcon('instagram'), web: channelIcon('website') };
-  const srcClasses = { fb: 'facebook', wa: 'whatsapp', ig: 'instagram', web: 'website' };
-  const srcBadge = source ? srcLabels[source] : '';
-  const discount = getDiscountAmount(subtotal);
-  const shipping = parseInt(document.getElementById('noShipping')?.value) || 0;
+  const srcBadge = source ? (srcLabels[source] || '') : '';
   const grandTotal = Math.max(0, subtotal - discount + shipping);
-  const dateStr = new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: '2-digit' });
-  const fullAddress = [district, address].filter(Boolean).join(', ');
   const isFreeShip = shipping === 0;
-
-  const draftIndex = Date.now();
-  const container = document.getElementById('draftCardsContainer');
+  const draftIndex = ++_draftSeq;
 
   const personIcon = `<svg fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><use href="#icon-user-profile"/></svg>`;
   const phoneIcon = `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#icon-tag-price"/></svg>`;
@@ -19628,7 +19641,7 @@ function saveNewOrderDraft() {
   const shipIcon = `<svg fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><use href="#icon-truck-delivery"/></svg>`;
 
   const itemsHtml = items.map(item => `
-    <div class="draft-item">
+    <div class="draft-item" data-category="${escapeHtml(item.category || '')}">
       <div class="draft-item-header">
         <div class="draft-item-name"><span class="draft-item-name-text">${escapeHtml(item.name)}</span>${txItemCatBadge(item.category)}</div>
         <div class="draft-item-amount draft-item-qty" data-qty="${item.qty}" data-price="${item.price}">${item.qty}× ৳${item.price.toLocaleString('en-IN')}</div>
@@ -19658,7 +19671,8 @@ function saveNewOrderDraft() {
   card.setAttribute('data-discount', discount);
   card.setAttribute('data-shipping', shipping);
   card.setAttribute('data-subtotal', subtotal);
-  card.setAttribute('data-status', 'pending');
+  card.setAttribute('data-status', status);
+  if (d.uuid) card.dataset.orderUuid = d.uuid;
   card.innerHTML = `
     <div class="draft-card-top" onclick="toggleDraft(${draftIndex})">
       <div class="dc-header">
@@ -19674,7 +19688,7 @@ function saveNewOrderDraft() {
         <div class="dc-right" onclick="event.stopPropagation()">
           <div class="dc-right-top">
             <div class="status-dropdown">
-              <button class="status-pill pending" id="status-pill-${draftIndex}" onclick="toggleStatusDropdown(event, ${draftIndex})">Pending</button>
+              <button class="status-pill ${status}" id="status-pill-${draftIndex}" onclick="toggleStatusDropdown(event, ${draftIndex})">${status.charAt(0).toUpperCase() + status.slice(1)}</button>
               <div class="status-dropdown-menu" id="status-menu-${draftIndex}">
                 <div class="status-option ordered" onclick="setStatus(${draftIndex}, 'ordered', event)">Ordered</div>
                 <div class="status-option shipped" onclick="setStatus(${draftIndex}, 'shipped', event)">Shipped</div>
@@ -19707,10 +19721,124 @@ function saveNewOrderDraft() {
       </div>
     </div>`;
 
-  container.appendChild(card);
-  _editingCardId = null;
+  return card;
+}
+
+async function persistOrderDraft(d) {
+  const bySku = {};
+  PRODUCTS_DATA.forEach(p => { bySku[normalizeSku(p.sku)] = p; });
+  const grand = Math.max(0, d.subtotal - d.discount + d.shipping);
+  const fields = {
+    customer_name: d.name, customer_phone: d.phone || null, district: d.district || null,
+    address_text: d.address || null, channel: _SRC_TO_CHANNEL[d.source] || 'direct',
+    subtotal: d.subtotal, discount: d.discount, shipping: d.shipping, total_amount: grand,
+    voucher_code: d.voucher || null, updated_at: new Date().toISOString()
+  };
+  const itemRows = orderId => d.items.map(i => {
+    const prod = bySku[normalizeSku(i.sku)];
+    return {
+      order_id: orderId, product_id: (prod && _isUuid(prod.id)) ? prod.id : null,
+      product_name: i.name, sku: i.sku, category: i.category || null,
+      quantity: i.qty, unit_price: i.price, cost_per_unit: prod ? (prod.cost || null) : null
+    };
+  });
+
+  if (!d.uuid) {
+    const ins = await sbFetch('orders', 'POST', Object.assign({ order_type: 'internal', status: 'pending', source: 'admin' }, fields));
+    const row = ins && ins[0];
+    if (!row) throw new Error('Order was not saved');
+    try {
+      await sbFetch('order_items', 'POST', itemRows(row.id));
+    } catch (err) {
+      try { await sbFetch('orders?id=eq.' + row.id, 'DELETE'); } catch (e) { /* best effort rollback */ }
+      throw err;
+    }
+    return { uuid: row.id, orderNumber: row.order_number };
+  }
+
+  const upd = await sbFetch('orders?id=eq.' + d.uuid, 'PATCH', fields);
+  if (!_affected(upd)) throw new Error('Order not found or already paid');
+  const oldItems = await sbFetch('order_items?order_id=eq.' + d.uuid + '&select=id');
+  await sbFetch('order_items', 'POST', itemRows(d.uuid));
+  if (Array.isArray(oldItems) && oldItems.length) {
+    await sbFetch('order_items?id=in.(' + oldItems.map(r => r.id).join(',') + ')', 'DELETE');
+  }
+  return { uuid: d.uuid, orderNumber: d.orderId };
+}
+
+async function saveNewOrderDraft() {
+  if (_orderSaving) return;
+  const nameInput = document.getElementById('noCustomerName');
+  const name = nameInput.value.trim();
+  const phone = document.getElementById('noPhone')?.value.trim() || '';
+  const district = document.getElementById('noDistrict')?.value || '';
+  const address = document.getElementById('noAddress')?.value.trim() || '';
+  const productRows = document.querySelectorAll('#newOrderProducts .product-row');
+  const items = [];
+  let subtotal = 0;
+
+  productRows.forEach(row => {
+    const id = row.id.replace('prod-row-', '');
+    const select = document.getElementById('no-prod-' + id);
+    const qty = parseInt(document.getElementById('no-qty-' + id).value) || 0;
+    const catalog = getProductCatalog();
+    if (select && select.value && catalog[select.value] && qty > 0) {
+      const prod = catalog[select.value];
+      items.push({ name: select.value, sku: prod.sku, qty: qty, price: prod.price, total: prod.price * qty, category: prod.category });
+      subtotal += prod.price * qty;
+    }
+  });
+
+  let hasError = false;
+  if (!name) {
+    nameInput.classList.add('shake');
+    document.getElementById('noNameHint').classList.add('visible');
+    hasError = true;
+    setTimeout(() => nameInput.classList.remove('shake'), 400);
+  }
+  if (items.length === 0) {
+    document.getElementById('noProductHint').classList.add('visible');
+    hasError = true;
+  }
+  if (hasError) return;
+
+  const source = document.getElementById('noSource')?.value || '';
+  const discount = getDiscountAmount(subtotal);
+  const shipping = parseInt(document.getElementById('noShipping')?.value) || 0;
+  const dateStr = new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: '2-digit' });
+  const fullAddress = [district, address].filter(Boolean).join(', ');
+  const voucherCode = (document.getElementById('noDiscountType')?.value === 'voucher' && _appliedVoucher) ? _appliedVoucher.code : null;
+
+  const container = document.getElementById('draftCardsContainer');
+  const oldCard = _editingCardId !== null ? document.getElementById('draft-' + _editingCardId) : null;
+  let orderId = document.getElementById('newOrderDraftId').textContent.trim();
+  let uuid = oldCard ? (oldCard.dataset.orderUuid || null) : null;
+  const status = oldCard ? (oldCard.getAttribute('data-status') || 'pending') : 'pending';
+
+  // Demo cards (no DB row) stay local; everything else must reach Supabase before it shows up.
+  const isDemoEdit = !!oldCard && !uuid;
   const saveBtn = document.getElementById('noSaveBtn');
-  if (saveBtn) saveBtn.childNodes.forEach(n => { if(n.nodeType===3) n.textContent=' Save as Draft'; });
+  if (!isDemoEdit) {
+    _orderSaving = true;
+    if (saveBtn) saveBtn.disabled = true;
+    try {
+      const res = await persistOrderDraft({ uuid, orderId, name, phone, district, address, items, source, discount, shipping, subtotal, voucher: voucherCode });
+      uuid = res.uuid; orderId = res.orderNumber;
+    } catch (err) {
+      console.warn('Order save failed:', err.message);
+      showToast('⚠ Order not saved — ' + _dbErrMsg(err));
+      return;
+    } finally {
+      _orderSaving = false;
+      if (saveBtn) saveBtn.disabled = false;
+    }
+  }
+
+  const card = buildDraftCardEl({ orderId, name, phone, fullAddress, items, source, discount, shipping, subtotal, dateStr, status, uuid });
+  if (oldCard) oldCard.replaceWith(card); else container.appendChild(card);
+
+  _editingCardId = null;
+  if (saveBtn) saveBtn.childNodes.forEach(n => { if (n.nodeType === 3) n.textContent = ' Save as Draft'; });
   updateBadge();
   closeNewOrderModal();
 
@@ -19719,6 +19847,75 @@ function saveNewOrderDraft() {
   toast.classList.add('visible');
   setTimeout(() => { toast.classList.remove('visible'); toast.textContent = 'Data exported!'; }, 2500);
 }
+
+/* ====== LOAD SAVED ORDERS FROM SUPABASE ====== */
+function orderRowToItems(o) {
+  return (o.order_items || []).map(i => {
+    const price = Number(i.unit_price) || 0;
+    return { name: i.product_name, sku: i.sku || '', qty: i.quantity, price, each: price, total: price * i.quantity, category: i.category || 'general' };
+  });
+}
+
+function orderRowToTx(o, items) {
+  const created = new Date(o.created_at);
+  const paid = o.paid_at ? new Date(o.paid_at) : created;
+  return {
+    id: o.order_number, uuid: o.id,
+    date: created.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+    dateRaw: paid.toISOString().split('T')[0],
+    customer: o.customer_name || 'Customer', phone: o.customer_phone || null,
+    address: [o.district, o.address_text].filter(Boolean).join(', ') || null,
+    channel: o.channel || 'direct', payment: o.payment_method || 'cash',
+    paymentRef: o.payment_ref || null,
+    paidAt: paid.toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit', hour12: true }),
+    status: 'paid', fulfillType: o.order_type === 'proxy' ? 'proxy' : 'local',
+    discount: Number(o.discount) || 0, shipping: Number(o.shipping) || 0, items
+  };
+}
+
+async function loadOrdersFromSupabase() {
+  try {
+    const rows = await sbFetch('orders?select=*,order_items(*)&source=eq.admin&order=created_at.asc');
+    if (!Array.isArray(rows) || rows.length === 0) return;
+    const container = document.getElementById('draftCardsContainer');
+    if (!container) return;
+    const known = new Set([...document.querySelectorAll('.draft-card')].map(c => c.dataset.orderUuid).filter(Boolean));
+    let paidAdded = false;
+    rows.forEach(o => {
+      const items = orderRowToItems(o);
+      if (o.status === 'paid') {
+        if (TRANSACTIONS_DATA.some(t => t.uuid === o.id || t.id === o.order_number)) return;
+        TRANSACTIONS_DATA.unshift(orderRowToTx(o, items));
+        paidAdded = true;
+        return;
+      }
+      if (known.has(o.id)) return;
+      container.appendChild(buildDraftCardEl({
+        orderId: o.order_number, name: o.customer_name || 'Customer', phone: o.customer_phone || '',
+        fullAddress: [o.district, o.address_text].filter(Boolean).join(', '), items,
+        source: _CHANNEL_TO_SRC[o.channel] || '', discount: Number(o.discount) || 0,
+        shipping: Number(o.shipping) || 0, subtotal: Number(o.subtotal) || 0,
+        dateStr: new Date(o.created_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: '2-digit' }),
+        status: ['pending', 'ordered', 'shipped'].includes(o.status) ? o.status : 'pending', uuid: o.id
+      }));
+    });
+    updateBadge();
+    if (paidAdded && typeof renderSalesTab === 'function') renderSalesTab();
+  } catch (err) {
+    console.warn('Orders load failed:', err.message);
+  }
+}
+(function initOrdersLoad() {
+  if (window.__svAdminReady) setTimeout(loadOrdersFromSupabase, 0); // after the whole script has initialised (SB_KEY etc.)
+  else window.addEventListener('sv-admin-ready', loadOrdersFromSupabase, { once: true });
+})();
+
+/* The main script runs inside a try-block, so async function declarations stay block-scoped.
+   Inline onclick handlers need these on window. */
+window.saveNewOrderDraft = saveNewOrderDraft;
+window.deleteDraft = deleteDraft;
+window.confirmPayment = confirmPayment;
+
 
 /* ============================================================
    ====== RESTOCK MODAL ======
