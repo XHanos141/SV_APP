@@ -23874,7 +23874,10 @@ async function confirmDeleteProduct() {
       if (found && found.length > 0) {
         await sbFetch(`products?id=eq.${found[0].id}`, 'DELETE');
       }
-    } catch (err) { console.warn('Supabase sync skipped (not configured):', err.message); }
+    } catch (err) {
+      console.warn('Delete sync failed:', err.message);
+      showToast('⚠ Removed locally only — database delete failed (product may have orders). Archive it instead.');
+    }
   })();
 
   cancelDeleteProduct();
