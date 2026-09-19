@@ -10665,7 +10665,7 @@ body { width: 100% !important; max-width: 100% !important; }
             <div class="dots-btn"><div class="dots-inner"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div>
           </div>
           <div class="card-taka">&#2547;</div>
-          <div class="card-number" id="kpiNumberRevenue">58,400</div>
+          <div class="card-number" id="kpiNumberRevenue">—</div>
           <svg class="card-wave" viewBox="0 0 200 50" preserveAspectRatio="none"><path d="M0,18 C35,0 65,36 100,18 C135,0 165,30 200,14 L200,50 L0,50 Z"></path></svg>
         </div>
 
@@ -10879,7 +10879,7 @@ body { width: 100% !important; max-width: 100% !important; }
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-close-x"/></svg>
         </button>
       </div>
-      <div class="detail-header-value" id="cardDetailHeaderValue">৳58,400</div>
+      <div class="detail-header-value" id="cardDetailHeaderValue">৳—</div>
       <div class="detail-header-meta" id="cardDetailHeaderMeta"></div>
     </div>
 
@@ -11637,6 +11637,7 @@ document.querySelectorAll('input[name="timeframe"]').forEach(radio => {
     } else {
       console.warn(`SuppVerse: No SVR data for timeframe "${svrtf}".`);
     }
+    ovSync();
   });
 });
 
@@ -11742,8 +11743,8 @@ const proxyChartData = {
 };
 
 const kpiCardData = {
-  store: { revenueTitle: "Total Revenue", revenueNum: "58,400", profitTitle: "Net Profit", profitNum: "21,300", ordersTitle: "Total Orders", ordersNum: "24", returnsTitle: "Total Returns", returnsNum: "6" },
-  proxy: { revenueTitle: "Proxy Revenue", revenueNum: "32,600", profitTitle: "Net Profit", profitNum: "4,850", ordersTitle: "Proxy Orders", ordersNum: "9", returnsTitle: "Failed Orders", returnsNum: "1" }
+  store: { revenueTitle: "Total Revenue", profitTitle: "Net Profit", profitNum: "21,300", ordersTitle: "Total Orders", ordersNum: "24", returnsTitle: "Total Returns", returnsNum: "6" },
+  proxy: { revenueTitle: "Proxy Revenue", profitTitle: "Net Profit", profitNum: "4,850", ordersTitle: "Proxy Orders", ordersNum: "9", returnsTitle: "Failed Orders", returnsNum: "1" }
 };
 
 let kpiMode = 'store';
@@ -11761,7 +11762,7 @@ function setKpiMode(mode) {
   switchEl.classList.toggle('proxy-active', mode === 'proxy');
 
   document.getElementById('kpiTitleRevenue').textContent = d.revenueTitle;
-  document.getElementById('kpiNumberRevenue').textContent = d.revenueNum;
+  ovApplyRevenueCard();
   document.getElementById('kpiTitleProfit').textContent = d.profitTitle;
   document.getElementById('kpiNumberProfit').textContent = d.profitNum;
   document.getElementById('kpiTitleOrders').textContent = d.ordersTitle;
@@ -11774,6 +11775,7 @@ function setKpiMode(mode) {
   document.getElementById('returnsWord').textContent = mode === 'proxy' ? 'FAILED' : 'RETURNS';
 
   updateChart(svrCurrentTf);
+  ovSync();
 }
 
 function formatBDT(num) {
@@ -11883,6 +11885,7 @@ document.addEventListener("DOMContentLoaded", function() {
   // ===== END NO-DATA SEEDER =====
 
   updateChart("month");
+  ovSync();
   renderChart();
 
   // Re-render chart when wrapper is resized (orientation change, etc.)
@@ -12097,148 +12100,122 @@ function top5SwitchMode(mode) {
 top5Render();
 
 // ===== CARD DETAILS SYSTEM =====
-const CARD_DETAIL_DATA = {
-  today: {
-    revenue: 58400, label: 'Today',
-    skus: [
-      { code: 'SUP-OM3-UTA-180', name: 'Omega-3 Ultra', revenue: 12400, margin: 42, category: 'supplement' },
-      { code: 'SUP-MAG-GLY-120', name: 'Magnesium Glycinate', revenue: 9800, margin: 38, category: 'supplement' },
-      { code: 'SUP-HCI-PEP-120', name: 'Betaine HCL & Pepsin', revenue: 7200, margin: 28, category: 'supplement' },
-      { code: 'SUP-VD3-K2-90', name: 'Vitamin D3 + K2', revenue: 5400, margin: 35, category: 'supplement' },
-      { code: 'SUP-ZNC-CMP-60', name: 'Zinc Complex', revenue: 3800, margin: 18, category: 'supplement' }
-    ],
-    payments: [
-      { name: 'bKash', pct: 40, color: '#e2136e' },
-      { name: 'Nagad', pct: 16, color: '#f7931e' },
-      { name: 'Cash', pct: 8, color: '#009b72' },
-      { name: 'Bank', pct: 10, color: '#0891b2' },
-      { name: 'Rocket', pct: 7, color: '#8a288f' },
-      { name: 'Upay', pct: 5, color: '#0555a4' },
-      { name: 'Cellfin', pct: 8, color: '#078343' },
-      { name: 'Islami Bank', pct: 6, color: '#11461a' }
-    ],
-    categories: [
-      { key: 'supplement', revenue: 58400 }
-    ]
-  },
-  week: {
-    revenue: 142800, label: 'This Week',
-    skus: [
-      { code: 'SUP-MAG-GLY-120', name: 'Magnesium Glycinate', revenue: 28400, margin: 38, category: 'supplement' },
-      { code: 'SUP-OM3-UTA-180', name: 'Omega-3 Ultra', revenue: 25600, margin: 42, category: 'supplement' },
-      { code: 'SUP-HCI-PEP-120', name: 'Betaine HCL & Pepsin', revenue: 19200, margin: 28, category: 'supplement' },
-      { code: 'SUP-VD3-K2-90', name: 'Vitamin D3 + K2', revenue: 16800, margin: 35, category: 'supplement' },
-      { code: 'SUP-ZNC-CMP-60', name: 'Zinc Complex', revenue: 12400, margin: 18, category: 'supplement' }
-    ],
-    payments: [
-      { name: 'bKash', pct: 36, color: '#e2136e' },
-      { name: 'Nagad', pct: 18, color: '#f7931e' },
-      { name: 'Cash', pct: 8, color: '#009b72' },
-      { name: 'Bank', pct: 12, color: '#0891b2' },
-      { name: 'Rocket', pct: 8, color: '#8a288f' },
-      { name: 'Upay', pct: 5, color: '#0555a4' },
-      { name: 'Cellfin', pct: 7, color: '#078343' },
-      { name: 'Islami Bank', pct: 6, color: '#11461a' }
-    ],
-    categories: [
-      { key: 'supplement', revenue: 122800 },
-      { key: 'general', revenue: 12600 },
-      { key: 'clothing', revenue: 7400 }
-    ]
-  },
-  month: {
-    revenue: 584000, label: 'This Month',
-    skus: [
-      { code: 'SUP-OM3-UTA-180', name: 'Omega-3 Ultra', revenue: 124000, margin: 42, category: 'supplement' },
-      { code: 'SUP-MAG-GLY-120', name: 'Magnesium Glycinate', revenue: 108000, margin: 38, category: 'supplement' },
-      { code: 'GN-DKS-BLK-01', name: 'Digital Kitchen Scale', revenue: 84000, margin: 31, category: 'general' },
-      { code: 'SUP-VD3-K2-90', name: 'Vitamin D3 + K2', revenue: 72000, margin: 35, category: 'supplement' },
-      { code: 'AP-CTS-BLK-L', name: 'Compression T-Shirt', revenue: 48000, margin: 24, category: 'clothing' }
-    ],
-    payments: [
-      { name: 'bKash', pct: 34, color: '#e2136e' },
-      { name: 'Nagad', pct: 20, color: '#f7931e' },
-      { name: 'Cash', pct: 8, color: '#009b72' },
-      { name: 'Bank', pct: 13, color: '#0891b2' },
-      { name: 'Rocket', pct: 8, color: '#8a288f' },
-      { name: 'Upay', pct: 5, color: '#0555a4' },
-      { name: 'Cellfin', pct: 7, color: '#078343' },
-      { name: 'Islami Bank', pct: 5, color: '#11461a' }
-    ],
-    categories: [
-      { key: 'supplement', revenue: 372000 },
-      { key: 'general', revenue: 84000 },
-      { key: 'clothing', revenue: 48000 },
-      { key: 'cosmetic', revenue: 52000 },
-      { key: 'gadget', revenue: 28000 }
-    ]
-  },
-  quarter: {
-    revenue: 1680000, label: 'Last 3 Months',
-    skus: [
-      { code: 'SUP-MAG-GLY-120', name: 'Magnesium Glycinate', revenue: 384000, margin: 38, category: 'supplement' },
-      { code: 'SUP-OM3-UTA-180', name: 'Omega-3 Ultra', revenue: 356000, margin: 42, category: 'supplement' },
-      { code: 'SUP-HCI-PEP-120', name: 'Betaine HCL & Pepsin', revenue: 284000, margin: 28, category: 'supplement' },
-      { code: 'SUP-VD3-K2-90', name: 'Vitamin D3 + K2', revenue: 256000, margin: 35, category: 'supplement' },
-      { code: 'SUP-ZNC-CMP-60', name: 'Zinc Complex', revenue: 192000, margin: 18, category: 'supplement' }
-    ],
-    payments: [
-      { name: 'bKash', pct: 32, color: '#e2136e' },
-      { name: 'Nagad', pct: 22, color: '#f7931e' },
-      { name: 'Cash', pct: 8, color: '#009b72' },
-      { name: 'Bank', pct: 14, color: '#0891b2' },
-      { name: 'Rocket', pct: 7, color: '#8a288f' },
-      { name: 'Upay', pct: 5, color: '#0555a4' },
-      { name: 'Cellfin', pct: 7, color: '#078343' },
-      { name: 'Islami Bank', pct: 5, color: '#11461a' }
-    ],
-    categories: [
-      { key: 'supplement', revenue: 1472000 },
-      { key: 'general', revenue: 128000 },
-      { key: 'clothing', revenue: 80000 }
-    ]
-  },
-  all: {
-    revenue: 4200000, label: 'All Time',
-    skus: [
-      { code: 'SUP-OM3-UTA-180', name: 'Omega-3 Ultra', revenue: 980000, margin: 42, category: 'supplement' },
-      { code: 'SUP-MAG-GLY-120', name: 'Magnesium Glycinate', revenue: 920000, margin: 38, category: 'supplement' },
-      { code: 'SUP-HCI-PEP-120', name: 'Betaine HCL & Pepsin', revenue: 740000, margin: 28, category: 'supplement' },
-      { code: 'SUP-VD3-K2-90', name: 'Vitamin D3 + K2', revenue: 680000, margin: 35, category: 'supplement' },
-      { code: 'SUP-ZNC-CMP-60', name: 'Zinc Complex', revenue: 480000, margin: 18, category: 'supplement' }
-    ],
-    payments: [
-      { name: 'bKash', pct: 30, color: '#e2136e' },
-      { name: 'Nagad', pct: 24, color: '#f7931e' },
-      { name: 'Cash', pct: 8, color: '#009b72' },
-      { name: 'Bank', pct: 14, color: '#0891b2' },
-      { name: 'Rocket', pct: 7, color: '#8a288f' },
-      { name: 'Upay', pct: 5, color: '#0555a4' },
-      { name: 'Cellfin', pct: 7, color: '#078343' },
-      { name: 'Islami Bank', pct: 5, color: '#11461a' }
-    ],
-    categories: [
-      { key: 'supplement', revenue: 3800000 },
-      { key: 'general', revenue: 240000 },
-      { key: 'clothing', revenue: 160000 }
-    ]
-  }
+/* ===== LIVE REVENUE DATA (Supabase RPC overview_kpis, fetched by parent app) ===== */
+const OV_TTL = 30000;
+const OV_LIVE = {};
+const OV_ERR = {};
+const OV_RETRY = {};
+const OV_PENDING = {};
+let ovReqSeq = 0;
+
+const OV_PREV_LABEL = { today: 'Yesterday', week: 'Last Week', month: 'Last Month', quarter: 'Prev 3M', all: 'Prev Period' };
+const OV_PAY = {
+  bkash: ['bKash', '#e2136e'], nagad: ['Nagad', '#f7931e'], cash: ['Cash', '#009b72'],
+  bank: ['Bank', '#0891b2'], rocket: ['Rocket', '#8a288f'], upay: ['Upay', '#0555a4'],
+  cellfin: ['Cellfin', '#078343'], islami: ['Islami Bank', '#11461a'],
+  usdt: ['USDT', '#26a17b'], usdc: ['USDC', '#3e73c4']
 };
 
-const PREV_PERIOD_DATA = {
-  today:   { revenue: 54000,   avgMargin: 30, label: 'Yesterday',
-             categories: { supplement: 54000 } },
-  week:    { revenue: 131000,  avgMargin: 30, label: 'Last Week',
-             categories: { supplement: 112600, general: 11550, clothing: 6850 } },
-  month:   { revenue: 541000,  avgMargin: 32, label: 'Last Month',
-             categories: { supplement: 344600, general: 77900, clothing: 44400, cosmetic: 48100, gadget: 26000 } },
-  quarter: { revenue: 1570000, avgMargin: 30, label: 'Prev 3M',
-             categories: { supplement: 1375300, general: 119650, clothing: 75050 } },
-  all:     { revenue: 3818000, avgMargin: 30, label: 'Prev Period',
-             categories: { supplement: 3455000, general: 218000, clothing: 145000 } }
-};
+function ovTf(tf) { return tf === '3months' ? 'quarter' : tf; }
+function ovKey(mode, tf, which) { return mode + '|' + tf + '|' + which; }
+
+function ovRequest(tf, which, force) {
+  tf = ovTf(tf);
+  const mode = kpiMode;
+  const k = ovKey(mode, tf, which);
+  const hit = OV_LIVE[k];
+  if (!force && hit && Date.now() - hit.ts < OV_TTL) return;
+  if (OV_PENDING[k]) return;
+  const reqId = ++ovReqSeq;
+  OV_PENDING[k] = reqId;
+  setTimeout(function() { if (OV_PENDING[k] === reqId) delete OV_PENDING[k]; }, 15000);
+  try {
+    window.parent.postMessage({ type: 'sv-overview-request', reqId: reqId, mode: mode, tf: tf, which: which }, '*');
+  } catch (err) { delete OV_PENDING[k]; }
+}
+
+window.addEventListener('message', function(e) {
+  const m = e.data;
+  if (!m || m.type !== 'sv-overview-data' || e.source !== window.parent) return;
+  const k = ovKey(m.mode, m.tf, m.which);
+  if (OV_PENDING[k] !== m.reqId) return;
+  delete OV_PENDING[k];
+  if (m.error || !m.data) {
+    OV_ERR[k] = true;
+    OV_RETRY[k] = (OV_RETRY[k] || 0) + 1;
+    if (OV_RETRY[k] <= 3) {
+      setTimeout(function() {
+        delete OV_ERR[k];
+        if (m.mode === kpiMode) ovRequest(m.tf, m.which, true);
+      }, 4000 * OV_RETRY[k]);
+    }
+  } else {
+    delete OV_ERR[k];
+    OV_RETRY[k] = 0;
+    OV_LIVE[k] = { data: m.data, ts: Date.now() };
+  }
+  ovApplyRevenueCard();
+  if (cardDetailOverlay.classList.contains('open')) ovRenderDetail();
+});
+
+function ovApplyRevenueCard() {
+  const el = document.getElementById('kpiNumberRevenue');
+  if (!el) return;
+  const hit = OV_LIVE[ovKey(kpiMode, ovTf(currentTf), 'cur')];
+  const txt = hit ? Math.round(Number(hit.data.revenue) || 0).toLocaleString('en-IN') : '—';
+  el.textContent = txt;
+  el.style.fontSize = txt.length > 9 ? '19px' : txt.length > 7 ? '22px' : '';
+}
+
+function ovSync() {
+  ovApplyRevenueCard();
+  ovRequest(currentTf, 'cur');
+}
+
+function ovAdapt(d) {
+  const known = function(k) { return TOP5_CATEGORY_LABELS[k] ? k : 'general'; };
+  const cats = {};
+  (d.categories || []).forEach(function(c) {
+    const k = known(c.key);
+    if (!cats[k]) cats[k] = { key: k, revenue: 0, margin: c.margin == null ? null : Number(c.margin) };
+    cats[k].revenue += Number(c.revenue) || 0;
+  });
+  const payTotal = (d.payments || []).reduce(function(s, p) { return s + (Number(p.revenue) || 0); }, 0) || 1;
+  return {
+    revenue: Number(d.revenue) || 0,
+    margin: d.margin == null ? null : Number(d.margin),
+    skus: (d.skus || []).map(function(s) {
+      return { code: s.code, name: s.name, revenue: Number(s.revenue) || 0, margin: s.margin == null ? null : Number(s.margin), category: known(s.category) };
+    }),
+    payments: (d.payments || []).map(function(p) {
+      const m = OV_PAY[p.method] || [String(p.method).charAt(0).toUpperCase() + String(p.method).slice(1), '#7c6ff7'];
+      return { name: m[0], color: m[1], pct: Math.round((Number(p.revenue) || 0) / payTotal * 100) };
+    }),
+    categories: Object.keys(cats).map(function(k) { return cats[k]; })
+  };
+}
+
+function ovRenderDetail() {
+  const curKey = ovKey(kpiMode, cardDetailCurrentFrom, 'cur');
+  const prevKey = ovKey(kpiMode, cardDetailCurrentTo, 'prev');
+  const curHit = OV_LIVE[curKey];
+  const prevHit = OV_LIVE[prevKey];
+  if (!curHit || !prevHit) {
+    const failed = OV_ERR[curKey] || OV_ERR[prevKey];
+    document.getElementById('cardDetailHeaderValue').textContent = '৳—';
+    document.getElementById('cardDetailHeaderMeta').innerHTML = '';
+    document.getElementById('cardDetailBody').innerHTML =
+      '<div class="cd-empty-cat" style="padding:28px 0;text-align:center">' + (failed ? 'Could not load data. Retrying…' : 'Loading…') + '</div>';
+    return;
+  }
+  const cur = ovAdapt(curHit.data);
+  const prev = ovAdapt(prevHit.data);
+  renderCardDetailBody(cur);
+  updateCardDetailHeadline(cur, prev);
+}
 
 function getMarginClass(margin) {
+  if (margin == null) return '';
   if (margin < 20) return 'red';
   if (margin < 30) return 'orange';
   return 'green';
@@ -12271,9 +12248,14 @@ function _ovPayBadge(name) {
 function renderCardDetailBody(data) {
   activeSheetDropdownCleanup?.();
   const body = document.getElementById('cardDetailBody');
-  const filteredSkus = cardDetailCategory === 'all'
+  const filteredSkus = (cardDetailCategory === 'all'
     ? data.skus
-    : data.skus.filter(s => s.category === cardDetailCategory);
+    : data.skus.filter(s => s.category === cardDetailCategory)).slice(0, 5);
+
+  if (!data.revenue) {
+    body.innerHTML = '<div class="cd-empty-cat" style="padding:28px 0;text-align:center">No paid orders in this period</div>';
+    return;
+  }
 
   const totalRevenue = data.categories.reduce((sum, c) => sum + c.revenue, 0);
   const catBreakdownHtml = data.categories
@@ -12324,7 +12306,7 @@ function renderCardDetailBody(data) {
           </div>
           <div class="sku-metrics">
             <span class="sku-revenue">৳${(sku.revenue / 1000).toFixed(1)}K</span>
-            <span class="sku-margin-pill ${getMarginClass(sku.margin)}">${sku.margin}%</span>
+            <span class="sku-margin-pill ${getMarginClass(sku.margin)}">${sku.margin == null ? '—' : sku.margin + '%'}</span>
           </div>
         </div>
       `).join('') : `<div class="cd-empty-cat">No SKUs sold in this category for this period</div>`}
@@ -12393,34 +12375,26 @@ function toggleCardDetailCategoryMenu(e) {
   openSheetDropdown(btn, menu, panel, detailBody);
 }
 
-function updateCardDetailHeadline() {
-  const fromData = CARD_DETAIL_DATA[cardDetailCurrentFrom];
-  const toData = PREV_PERIOD_DATA[cardDetailCurrentTo];
+function updateCardDetailHeadline(cur, prev) {
+  const all = cardDetailCategory === 'all';
+  const cCat = all ? null : cur.categories.find(function(c) { return c.key === cardDetailCategory; });
+  const pCat = all ? null : prev.categories.find(function(c) { return c.key === cardDetailCategory; });
+  const fromRevenue = all ? cur.revenue : (cCat ? cCat.revenue : 0);
+  const toRevenue = all ? prev.revenue : (pCat ? pCat.revenue : 0);
+  const fromMargin = all ? cur.margin : (cCat ? cCat.margin : null);
+  const toMargin = all ? prev.margin : (pCat ? pCat.margin : null);
 
-  let fromRevenue, toRevenue, fromMargin;
-  if (cardDetailCategory === 'all') {
-    fromRevenue = fromData.revenue;
-    toRevenue = toData.revenue;
-    fromMargin = Math.round(fromData.skus.reduce((sum, s) => sum + s.margin, 0) / fromData.skus.length);
-  } else {
-    const fromCat = fromData.categories.find(c => c.key === cardDetailCategory);
-    fromRevenue = fromCat ? fromCat.revenue : 0;
-    toRevenue = toData.categories[cardDetailCategory] || 0;
-    const catSkus = fromData.skus.filter(s => s.category === cardDetailCategory);
-    fromMargin = catSkus.length
-      ? Math.round(catSkus.reduce((sum, s) => sum + s.margin, 0) / catSkus.length)
-      : Math.round(fromData.skus.reduce((sum, s) => sum + s.margin, 0) / fromData.skus.length);
-  }
-
-  const pctChange = toRevenue ? Math.round(((fromRevenue - toRevenue) / toRevenue) * 100) : 0;
-  const isPositive = pctChange >= 0;
-  const toMargin = toData.avgMargin;
-  const marginChange = fromMargin - toMargin;
+  const hasBase = toRevenue > 0;
+  const pctChange = hasBase ? Math.round(((fromRevenue - toRevenue) / toRevenue) * 100) : 0;
+  const isPositive = hasBase ? pctChange >= 0 : true;
+  const pctText = hasBase ? (pctChange >= 0 ? '+' : '') + pctChange + '%' : (fromRevenue > 0 ? 'New' : '0%');
+  const showMargin = fromMargin != null && toMargin != null;
+  const marginChange = showMargin ? Math.round((fromMargin - toMargin) * 10) / 10 : 0;
   const marginIsPositive = marginChange >= 0;
 
-  document.getElementById('cardDetailHeaderValue').textContent = '৳' + fromRevenue.toLocaleString('en-IN');
+  document.getElementById('cardDetailHeaderValue').textContent = '৳' + Math.round(fromRevenue).toLocaleString('en-IN');
 
-  const catLabel = cardDetailCategory === 'all' ? '' : ` · ${TOP5_CATEGORY_LABELS[cardDetailCategory]}`;
+  const catLabel = all ? '' : ` · ${TOP5_CATEGORY_LABELS[cardDetailCategory]}`;
   const metaEl = document.getElementById('cardDetailHeaderMeta');
   metaEl.innerHTML = `
     <span class="crypto-change ${isPositive ? 'up' : 'down'}">
@@ -12430,43 +12404,39 @@ function updateCardDetailHeadline() {
           : '<polyline points="23 18 13.5 8.5 8.5 13.5 1 6"/><polyline points="17 18 23 18 23 12"/>'
         }
       </svg>
-      ${isPositive ? '+' : ''}${pctChange}%
+      ${pctText}
     </span>
-    <span style="font-size:12px;opacity:0.7">vs ${toData.label.toLowerCase()}${catLabel}</span>
+    <span style="font-size:12px;opacity:0.7">vs ${OV_PREV_LABEL[cardDetailCurrentTo].toLowerCase()}${catLabel}</span>
+    ${showMargin ? `
     <span style="width:1px;height:12px;background:rgba(255,255,255,0.25);margin:0 3px"></span>
     <span class="crypto-change ${marginIsPositive ? 'up' : 'down'}" style="font-size:11px;padding:4px 10px;border-width:1.5px">
       ${marginIsPositive ? '+' : ''}${marginChange}% margin
-    </span>
+    </span>` : ''}
   `;
 }
 
 function setCardDetailCategory(key) {
   cardDetailCategory = key;
-  const fromData = CARD_DETAIL_DATA[cardDetailCurrentFrom];
-  renderCardDetailBody(fromData);
-  updateCardDetailHeadline();
+  ovRenderDetail();
 }
 
 function openRevenueCardDetail() {
-  const key = currentTf === '3months' ? 'quarter' : currentTf;
-  if (CARD_DETAIL_DATA[key]) {
-    cardDetailCurrentFrom = key;
-    cardDetailCurrentTo = key;
-  }
+  const key = ovTf(currentTf);
+  cardDetailCurrentFrom = key;
+  cardDetailCurrentTo = key;
   showCardDetail('revenue');
 }
 
 function showCardDetail(card = 'revenue') {
-  if (card !== 'revenue') return; // Only revenue for now
+  if (card !== 'revenue') return;
   cardDetailCategory = 'all';
-
-  const fromData = CARD_DETAIL_DATA[cardDetailCurrentFrom];
-  updateCardDetailHeadline();
 
   document.getElementById('cardDetailCompareFrom').value = cardDetailCurrentFrom;
   document.getElementById('cardDetailCompareTo').value = cardDetailCurrentTo;
 
-  renderCardDetailBody(fromData);
+  ovRequest(cardDetailCurrentFrom, 'cur', true);
+  ovRequest(cardDetailCurrentTo, 'prev', true);
+  ovRenderDetail();
   cardDetailOverlay.classList.add('open');
   document.querySelector('.content').style.overflowY = 'hidden';
 }
@@ -26074,6 +26044,55 @@ function setSalesFilter(f) {
   }
 }
 
+
+/* ===== OVERVIEW LIVE DATA BRIDGE: overview iframe -> Supabase RPC overview_kpis ===== */
+function svOvWindow(tf, which, nowMs) {
+  const H = 6 * 3600000, D = 86400000;
+  const n = new Date((nowMs == null ? Date.now() : nowMs) + H);
+  const y = n.getUTCFullYear(), m = n.getUTCMonth(), d = n.getUTCDate();
+  const day = Date.UTC(y, m, d);
+  let from, to;
+  if (tf === 'today')        { from = day; to = day + D; }
+  else if (tf === 'week')    { from = day - ((n.getUTCDay() + 6) % 7) * D; to = from + 7 * D; }
+  else if (tf === 'month')   { from = Date.UTC(y, m, 1); to = Date.UTC(y, m + 1, 1); }
+  else if (tf === 'quarter') { from = Date.UTC(y, m - 3, d); to = day + D; }
+  else                       { from = Date.UTC(2000, 0, 1); to = day + D; }
+  if (which === 'cur') return [from - H, to - H];
+  if (tf === 'today')   return [from - D - H, from - H];
+  if (tf === 'week')    return [from - 7 * D - H, from - H];
+  if (tf === 'month')   return [Date.UTC(y, m - 1, 1) - H, from - H];
+  if (tf === 'quarter') return [Date.UTC(y, m - 6, d) - H, from - H];
+  return null;
+}
+
+async function svOvFetch(mode, tf, which) {
+  const win = svOvWindow(tf, which);
+  if (!win) return { revenue: 0, orders: 0, margin: null, skus: [], categories: [], payments: [] };
+  for (let i = 0; i < 20; i++) {
+    const { data: { session } } = await sb.auth.getSession();
+    if (session) break;
+    await new Promise(function(r) { setTimeout(r, 250); });
+  }
+  const { data, error } = await sb.rpc('overview_kpis', {
+    p_from: new Date(win[0]).toISOString(),
+    p_to: new Date(win[1]).toISOString(),
+    p_mode: mode === 'proxy' ? 'proxy' : 'store'
+  });
+  if (error) throw error;
+  return data;
+}
+
+window.addEventListener('message', async function(e) {
+  const m = e.data;
+  const frame = document.getElementById('overviewFrame');
+  if (!m || m.type !== 'sv-overview-request' || !frame || e.source !== frame.contentWindow) return;
+  if (['today', 'week', 'month', 'quarter', 'all'].indexOf(m.tf) === -1) return;
+  if (m.which !== 'cur' && m.which !== 'prev') return;
+  const reply = { type: 'sv-overview-data', reqId: m.reqId, mode: m.mode, tf: m.tf, which: m.which };
+  try { reply.data = await svOvFetch(m.mode, m.tf, m.which); }
+  catch (err) { reply.error = String((err && err.message) || err); }
+  try { e.source.postMessage(reply, '*'); } catch (x) {}
+});
 
 function _loadOverviewFrame() {
   try {
