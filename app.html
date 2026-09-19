@@ -21546,21 +21546,27 @@ async function restockExistingProduct() {
 
   // No manual catalog sync needed — getProductCatalog() always reads live from PRODUCTS_DATA.
 
-  // Best-effort Supabase sync — won't block or fail the local update since
-  // Supabase isn't wired up yet.
+  // Persist to Supabase: stock total, the new expiry batch, and colour/size variants.
+  // Batches live in product_batches and variants on products.variants — syncing only
+  // stock_qty left them behind, so they vanished on refresh.
   (async () => {
     try {
-      const found = await sbFetch(`products?sku=eq.${encodeURIComponent(sku)}&select=id,stock_qty`);
-      if (found && found.length > 0) {
-        const product = found[0];
-        await sbFetch(`products?id=eq.${product.id}`, 'PATCH', { stock_qty: newQty, updated_at: new Date().toISOString() });
-        await sbFetch('restock_entries', 'POST', {
-          product_id: product.id, qty, supplier: supplier || null,
-          expiry_date: expiryDate || null, created_at: new Date().toISOString()
+      const found = await sbFetch(`products?sku=eq.${encodeURIComponent(sku)}&select=id`);
+      if (!found || found.length === 0) throw new Error('Product row not found in database');
+      const productId = found[0].id;
+      const patch = { stock_qty: newQty, updated_at: new Date().toISOString() };
+      if (hasColorCat && pickedColor) patch.variants = localProd.variants;
+      await sbFetch(`products?id=eq.${productId}`, 'PATCH', patch);
+      if (needsExpiry && expiryDate) {
+        await sbFetch('product_batches', 'POST', {
+          product_id: productId, qty: qty, cost_per_unit: cost || null,
+          expiry_date: expiryDate, supplier: supplier || null,
+          created_at: new Date().toISOString()
         });
       }
     } catch (err) {
-      console.warn('Supabase sync skipped (not configured):', err.message);
+      console.warn('Restock sync failed:', err.message);
+      showToast('⚠ Restocked locally only — sync failed');
     }
   })();
 
