@@ -75,12 +75,17 @@ body{
 }
 .admin-header{
   background:linear-gradient(180deg,#0f3258 0%,#002248 22%,#001f3c 55%,#001532 82%,#000d20 100%);
-  padding:18px 20px;color:#fff;position:sticky;top:0;z-index:50;
+  padding:0 20px;height:58px;color:#fff;position:sticky;top:0;z-index:50;
   box-shadow:0 6px 28px rgba(0,0,0,.35);
-  display:flex;align-items:center;justify-content:space-between;
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
 }
 .admin-header h1{font-family:var(--font-display);font-size:16px;font-weight:800;letter-spacing:-.2px}
-.admin-header p{font-size:11px;color:rgba(255,255,255,.6);margin-top:2px;font-weight:500}
+.admin-header-back{
+  width:36px;height:36px;border-radius:10px;border:1px solid rgba(255,255,255,.15);
+  background:rgba(255,255,255,.08);color:#fff;display:flex;align-items:center;justify-content:center;
+  cursor:pointer;flex-shrink:0;
+}
+.admin-header-back svg{width:20px;height:20px}
 .theme-btn{
   width:36px;height:36px;border-radius:10px;border:1px solid rgba(255,255,255,.15);
   background:rgba(255,255,255,.08);color:#fff;display:flex;align-items:center;justify-content:center;
@@ -1021,17 +1026,11 @@ body.dark-mode .pay-badge-bank svg path[style*="fill:#66cde7"]{fill:#fff!importa
   </symbol>
 </svg>
 <div class="admin-header">
-  <div>
+  <div style="display:flex;align-items:center;gap:10px;min-width:0">
+    <button class="admin-header-back" id="apBackBtn" aria-label="Back" style="display:none">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+    </button>
     <h1>SuppVerse BD — Product Editor</h1>
-    <p>Add / edit a product · live card preview</p>
-  </div>
-  <div style="display:flex;align-items:center;gap:8px">
-    <button class="theme-btn" id="apCloseBtn" aria-label="Close" style="display:none">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-    </button>
-    <button class="theme-btn" id="themeBtn" aria-label="Toggle theme">
-      <svg id="themeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
-    </button>
   </div>
 </div>
 <div class="admin-wrap">
@@ -3820,27 +3819,19 @@ function applyTheme(){
   if (!window.frameElement) localStorage.setItem('sv-theme-editor', themeState.theme);
 }
 applyTheme();
-// Show close button only when embedded inside parent app's iframe
+// Show back button only when embedded inside parent app's iframe
 if (window.frameElement) {
-  const closeBtn = document.getElementById('apCloseBtn');
-  if (closeBtn) {
-    closeBtn.style.display = 'flex';
-    closeBtn.addEventListener('click', () => {
+  const backBtn = document.getElementById('apBackBtn');
+  if (backBtn) {
+    backBtn.style.display = 'flex';
+    backBtn.addEventListener('click', () => {
       if (window.parent) {
         try { window.parent.postMessage({ type: 'sv-close-admin-panel' }, '*'); } catch(e) {}
       }
     });
   }
 }
-document.getElementById('themeBtn').addEventListener('click', () => {
-  themeState.theme = themeState.theme === 'light' ? 'dark' : 'light';
-  applyTheme();
-  if(typeof pagesSelectedKey !== 'undefined' && typeof renderPagePreview === 'function') renderPagePreview(pagesSelectedKey);
-  // Tell parent app if embedded, so main toggle + other open frames stay in sync
-  if (window.frameElement && window.parent) {
-    try { window.parent.postMessage({ type: 'sv-theme', dark: themeState.theme === 'dark' }, '*'); } catch(e) {}
-  }
-});
+// Theme is controlled by the main app only — no local toggle here.
 // Live theme sync while open — parent broadcasts on its own toggle
 window.addEventListener('message', function(e){
   if (!e.data || e.data.type !== 'sv-theme') return;
