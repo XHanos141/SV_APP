@@ -15620,7 +15620,7 @@ window.addEventListener('message',function(e){
         <div class="fs-hint" id="noNameHint">Customer name is required</div>
       </div>
       <div class="fs-field">
-        <label class="fs-label">Phone Number</label>
+        <label class="fs-label">Phone Number *</label>
         <input type="tel" class="fs-input" id="noPhone" placeholder="+880 1X-XXXX-XXXX" oninput="onPhoneInput(this.value)" onblur="validatePhoneField()" autocomplete="tel">
         <div class="fs-hint" id="noPhoneHint">Invalid BD mobile number (01XXXXXXXXX)</div>
         <div class="cust-strip" id="custStrip" style="display:none"></div>
@@ -19868,8 +19868,8 @@ async function saveNewOrderDraft() {
     document.getElementById('noProductHint').classList.add('visible');
     hasError = true;
   }
-  if (phoneRaw && !normalizeBdPhone(phoneRaw)) {
-    validatePhoneField();
+  if (!phoneRaw || !normalizeBdPhone(phoneRaw)) {
+    if (!phoneRaw) setPhoneHint('Phone number is required (01XXXXXXXXX)'); else validatePhoneField();
     const phoneEl = document.getElementById('noPhone');
     phoneEl.classList.add('shake');
     setTimeout(() => phoneEl.classList.remove('shake'), 400);
