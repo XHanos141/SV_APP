@@ -3343,7 +3343,9 @@ function initEditLock(fieldsetIds, btnId, saveBtnId, cancelBtnId, opts){
 initEditLock('testiFieldset','testiEditBtn','testiSaveBtn','testiCancelBtn');
 initEditLock('mcardFieldset','mcardEditBtn','mcardSaveBtn','mcardCancelBtn');
 initEditLock('hotdealFieldset','hotdealEditBtn','hotdealSaveBtn','hotdealCancelBtn');
-initEditLock('heroFieldset','heroEditBtn','heroSaveBtn','heroCancelBtn');
+initEditLock('heroFieldset','heroEditBtn','heroSaveBtn','heroCancelBtn',{
+  onSave: saveHeroContent
+});
 initEditLock('bannerFieldset','bannerEditBtn','bannerSaveBtn','bannerCancelBtn');
 initEditLock(['svcFieldset','svcBadgeFieldset'],'svcEditBtn','svcSaveBtn','svcCancelBtn');
 initEditLock('statsFieldset','statsEditBtn','statsSaveBtn','statsCancelBtn');
@@ -4500,6 +4502,49 @@ function updateHero(){
   document.getElementById('heroPreviewPill2').textContent = document.getElementById('inpHeroPill2').value || '';
   document.getElementById('heroPreviewPill3').textContent = document.getElementById('inpHeroPill3').value || '';
 }
+async function saveHeroContent(){
+  if(!sbClient) { T('Not connected to database','⚠️'); return; }
+  const content = {
+    badge: document.getElementById('inpHeroBadge').value || '',
+    h1_line1: document.getElementById('inpHeroH1Line1').value || '',
+    h1_line2: document.getElementById('inpHeroH1Line2').value || '',
+    h1_gradient_word: document.getElementById('inpHeroH1Grad').value || '',
+    subheading: document.getElementById('inpHeroSub').value || '',
+    pill1: document.getElementById('inpHeroPill1').value || '',
+    pill2: document.getElementById('inpHeroPill2').value || '',
+    pill3: document.getElementById('inpHeroPill3').value || ''
+  };
+  const { error } = await sbClient.from('site_content').upsert({
+    page: 'landing',
+    section: 'hero',
+    content,
+    updated_at: new Date().toISOString()
+  }, { onConflict: 'page,section' });
+  if(error){ console.error('saveHeroContent error:', error.message); T('Save failed — check connection','❌'); return; }
+  T('Hero section published','🚀');
+}
+async function loadHeroContent(){
+  if(!sbClient) return;
+  const { data, error } = await sbClient
+    .from('site_content')
+    .select('content')
+    .eq('page', 'landing')
+    .eq('section', 'hero')
+    .maybeSingle();
+  if(error){ console.error('loadHeroContent error:', error.message); return; }
+  if(!data || !data.content) return;
+  const c = data.content;
+  if(c.badge !== undefined) document.getElementById('inpHeroBadge').value = c.badge;
+  if(c.h1_line1 !== undefined) document.getElementById('inpHeroH1Line1').value = c.h1_line1;
+  if(c.h1_line2 !== undefined) document.getElementById('inpHeroH1Line2').value = c.h1_line2;
+  if(c.h1_gradient_word !== undefined) document.getElementById('inpHeroH1Grad').value = c.h1_gradient_word;
+  if(c.subheading !== undefined) document.getElementById('inpHeroSub').value = c.subheading;
+  if(c.pill1 !== undefined) document.getElementById('inpHeroPill1').value = c.pill1;
+  if(c.pill2 !== undefined) document.getElementById('inpHeroPill2').value = c.pill2;
+  if(c.pill3 !== undefined) document.getElementById('inpHeroPill3').value = c.pill3;
+  updateHero();
+}
+loadHeroContent();
 function initMcards(){
   renderMcardPicker();
   renderMcardPreview();
