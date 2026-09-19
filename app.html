@@ -87,7 +87,7 @@ html[data-theme="dark"] .cust-strip.new-customer { color:#34d399; }
 html[data-theme="dark"] .cust-strip-cta { color:#a79dff; }
 .cust-strip.applied { background:rgba(16,185,129,0.07); border:1px solid rgba(16,185,129,0.25); color:#059669; }
 html[data-theme="dark"] .cust-strip.applied { color:#34d399; }
-.fs-input.invalid { border-color:#d95353; box-shadow:0 0 0 3px rgba(217,83,83,0.15); }
+.fs-input.invalid, .prod-picker-btn.invalid { border-color:#d95353; box-shadow:0 0 0 3px rgba(217,83,83,0.15); }
 
 /* ===== ANIMATED DAY/NIGHT TOGGLE (main app) ===== */
 .header-toggle { width: 77px; height: 32px; overflow: hidden; cursor: pointer; flex-shrink: 0; position: relative; }
@@ -16432,8 +16432,8 @@ window.addEventListener('message',function(e){
       <!-- Order ID lookup -->
       <div class="fs-field">
         <label class="fs-label">Order ID</label>
-        <input type="text" class="fs-input" id="rtOrderId" placeholder="SV-XXXX or PX-XXXX" oninput="this.value=this.value.toUpperCase();lookupReturnOrder(this.value)">
-        <div class="fs-hint" id="rtOrderHint" style="color:#8c92a1;opacity:1">Enter original order ID to auto-fill</div>
+        <input type="text" class="fs-input" id="rtOrderId" placeholder="SV-XXXX" oninput="this.value=this.value.toUpperCase();lookupReturnOrder(this.value)">
+        <div class="fs-hint" id="rtOrderHint" style="color:#8c92a1;opacity:1">Enter the original store order ID (SV-XXXX)</div>
       </div>
 
       <!-- Phone with lookup strip -->
@@ -17300,6 +17300,11 @@ function openPaymentModal(index) {
 function closePaymentModal() {
   document.getElementById("paymentModal").classList.remove("active");
   _pendingPaymentIndex = null;
+  if (_pendingReturnIndex !== null) {
+    _pendingReturnIndex = null;
+    const payBtn = document.querySelector('#paymentModal .modal-btn-pay');
+    if (payBtn) payBtn.onclick = confirmPayment;
+  }
 }
 
 function selectPayMethod(method) {
@@ -19972,6 +19977,8 @@ async function loadOrdersFromSupabase() {
     if (paidAdded && typeof renderSalesTab === 'function') renderSalesTab();
   } catch (err) {
     console.warn('Orders load failed:', err.message);
+  } finally {
+    loadReturnsFromSupabase();
   }
 }
 (function initOrdersLoad() {
@@ -19982,6 +19989,7 @@ async function loadOrdersFromSupabase() {
 /* The main script runs inside a try-block, so async function declarations stay block-scoped.
    Inline onclick handlers need these on window. */
 window.saveNewOrderDraft = saveNewOrderDraft;
+window.restockExistingProduct = restockExistingProduct;
 window.deleteDraft = deleteDraft;
 window.confirmPayment = confirmPayment;
 
@@ -21755,7 +21763,16 @@ async function restockExistingProduct() {
   const pickedColorLabel = hasColorCat ? ((document.getElementById('rsColorSelectedLabel')||{}).textContent || '') : '';
   const pickedSize   = hasSizeCat ? (document.getElementById('rsProductSize').value || '') : '';
 
-  if (!productName || !sku) { showToast('Please select a product'); return; }
+  if (!productName || !sku) {
+    const pickBtn = document.getElementById('rsProdPickerBtn');
+    if (pickBtn) {
+      pickBtn.classList.add('invalid');
+      pickBtn.style.animation = 'none'; void pickBtn.offsetWidth; pickBtn.style.animation = 'inputShake 0.4s';
+      setTimeout(() => { pickBtn.style.animation = ''; }, 400);
+    }
+    showToast('\u26a0 Missing: Product');
+    return;
+  }
   if (needsExpiry && !expiryDate) {
     showToast('⚠ Missing: Expiry Date');
     const dateInput = document.getElementById('rsDate');
@@ -22163,7 +22180,10 @@ function openReturnModal() {
   const now = new Date();
   document.getElementById('rtFormDate').textContent = now.toLocaleDateString('en-GB', { day:'2-digit', month:'short', year:'2-digit' });
 
+  _rtOrder = null; _rtEditingIdx = null;
   document.getElementById('rtOrderId').value = '';
+  document.getElementById('rtOrderId').classList.remove('invalid');
+  _rtHint('Enter the original store order ID (SV-XXXX)', '#8c92a1');
   document.getElementById('rtPhone').value = '';
   document.getElementById('rtCustomer').value = '';
   document.getElementById('rtAddress').value = '';
@@ -22424,30 +22444,70 @@ function _rtPhoneLookup(digits) {
     retBadge;
 }
 
+let _rtOrder = null;
+let _rtEditingIdx = null;
+let _rtSaving = false;
+
+function _rtReturnedQty(orderNumber, sku, excludeIdx) {
+  let n = 0;
+  RETURNS_DATA.forEach(r => { if (r.orderId === orderNumber) r.products.forEach(p => { if (p.sku === sku) n += p.qty; }); });
+  draftReturns.forEach((r, i) => { if (i !== excludeIdx && r.orderId === orderNumber) r.products.forEach(p => { if (p.sku === sku) n += p.qty; }); });
+  return n;
+}
+function _rtRemaining(sku) {
+  if (!_rtOrder) return Infinity;
+  const it = _rtOrder.items.find(i => i.sku === sku);
+  if (!it) return 0;
+  return Math.max(0, it.qty - _rtReturnedQty(_rtOrder.id, sku, _rtEditingIdx));
+}
+function _rtHint(msg, color) {
+  const hint = document.getElementById('rtOrderHint');
+  hint.textContent = msg; hint.style.color = color; hint.style.opacity = '1';
+}
+
 function lookupReturnOrder(orderId) {
-  var hint = document.getElementById('rtOrderHint');
-  if (!orderId || orderId.length < 4) { hint.textContent='Enter original order ID to auto-fill'; hint.style.color='#8c92a1'; return; }
-  var txData = (typeof TRANSACTIONS_DATA !== 'undefined') ? TRANSACTIONS_DATA : [];
-  var match = txData.find(function(tx){ return tx.id === orderId && tx.status !== 'return'; });
-  if (!match) { hint.textContent='Order not found'; hint.style.color='#d95353'; return; }
-  hint.textContent = '✓ Found — ' + match.customer; hint.style.color='#2f9b68';
-  var custEl  = document.getElementById('rtCustomer');
-  var phoneEl = document.getElementById('rtPhone');
-  var addrEl  = document.getElementById('rtAddress');
-  if(custEl  && !custEl.value.trim())  custEl.value  = match.customer || '';
-  if(phoneEl && !phoneEl.value.trim()) phoneEl.value = match.phone    || '';
-  if(addrEl  && !addrEl.value.trim())  addrEl.value  = match.address  || '';
-  if(match.phone) { debounceReturnPhoneLookup(match.phone); }
-  if(match.channel) {
-    var chMap = {facebook:'fb',whatsapp:'wa',instagram:'ig',website:'web'};
-    var src = chMap[match.channel.toLowerCase()] || match.channel.toLowerCase();
-    selectReturnSource(src);
+  _rtOrder = null;
+  orderId = String(orderId || '').trim().toUpperCase();
+  const idInput = document.getElementById('rtOrderId');
+  if (idInput) idInput.classList.remove('invalid');
+  if (orderId.length < 4) { _rtHint('Enter the original store order ID (SV-XXXX)', '#8c92a1'); return; }
+  if (orderId.indexOf('PX-') === 0) { _rtHint("Proxy orders can't be returned here", '#d95353'); if (idInput) idInput.classList.add('invalid'); return; }
+  const txData = (typeof TRANSACTIONS_DATA !== 'undefined') ? TRANSACTIONS_DATA : [];
+  const match = orderId.indexOf('SV-') === 0 ? txData.find(tx => tx.id === orderId && tx.status === 'paid') : null;
+  if (!match) { _rtHint('Paid store order not found', '#d95353'); if (idInput) idInput.classList.add('invalid'); return; }
+
+  _rtOrder = {
+    id: match.id, uuid: match.uuid || null,
+    items: (match.items || []).map(i => ({ sku: i.sku, name: i.name, category: i.category || '', qty: i.qty, price: i.each != null ? i.each : (i.price || 0) }))
+  };
+  _rtHint('\u2713 Found \u2014 ' + (match.customer || 'Customer') + ' \u00b7 ' + _rtOrder.items.length + ' item' + (_rtOrder.items.length > 1 ? 's' : ''), '#2f9b68');
+
+  // rows picked before the order was known: use the price actually charged on that order
+  document.querySelectorAll('#returnProducts .product-row').forEach(row => {
+    const skuEl = row.querySelector('[id*="-prod-sku-"]');
+    const priceEl = row.querySelector('[id*="-prod-price-"]');
+    const oi = skuEl && _rtOrder.items.find(i => i.sku === skuEl.value);
+    if (oi && priceEl) priceEl.value = oi.price;
+  });
+  updateReturnSummary();
+
+  const custEl  = document.getElementById('rtCustomer');
+  const phoneEl = document.getElementById('rtPhone');
+  const addrEl  = document.getElementById('rtAddress');
+  if (custEl  && !custEl.value.trim())  custEl.value  = match.customer || '';
+  if (phoneEl && !phoneEl.value.trim()) phoneEl.value = match.phone    || '';
+  if (addrEl  && !addrEl.value.trim())  addrEl.value  = match.address  || '';
+  if (match.phone) { debounceReturnPhoneLookup(match.phone); }
+  if (match.channel) {
+    const chMap = { facebook: 'fb', whatsapp: 'wa', instagram: 'ig', website: 'web' };
+    selectReturnSource(chMap[match.channel.toLowerCase()] || match.channel.toLowerCase());
   }
 }
 
 function closeReturnModal(e) {
   if (e && e.target !== e.currentTarget) return;
   document.getElementById('returnOverlay').classList.remove('active');
+  _rtEditingIdx = null; _rtOrder = null;
 }
 
 function updateReturnDeductionType() {
@@ -22500,101 +22560,148 @@ function updateReturnPlaceholder() {
   // User manually edited, don't override
 }
 
-function confirmReturn() {
-  // Collect all products from rows
-  const rows = document.querySelectorAll('#returnProducts .product-row');
-  const products = [];
-  let totalRefund = 0;
-  
-  rows.forEach(row => {
-    const inputs = row.querySelectorAll('input[type="hidden"]');
-    let rowProduct = null;
-    inputs.forEach(inp => {
-      if (inp.id.includes('-prod-') && !inp.id.includes('-sku-') && !inp.id.includes('-price-') && !inp.id.includes('-qty-') && !inp.id.includes('-cat-')) {
-        rowProduct = inp.value;
-      }
-    });
-    
-    if (rowProduct) {
-      const skuInp = row.querySelector(`input[id*="-sku-"]`);
-      const priceInp = row.querySelector(`input[id*="-price-"]`);
-      const qtyInp = row.querySelector(`input[id*="-qty-"]`);
-      const catInp = row.querySelector(`input[id*="-cat-"]`);
-      
-      const price = parseFloat(priceInp?.value) || 0;
-      const qty = parseInt(qtyInp?.value) || 1;
-      const rowTotal = price * qty;
-      
-      products.push({
-        name: rowProduct,
-        sku: skuInp?.value || '',
-        price: price,
-        qty: qty,
-        total: rowTotal,
-        category: catInp?.value || ''
-      });
-      totalRefund += rowTotal;
-    }
-  });
-  
-  if (products.length === 0) {
-    alert('Please add at least one product');
-    return;
-  }
-  
-  const deductionType = document.getElementById('rtDeductionType').value;
-  const deductionValue = parseFloat(document.getElementById('rtDeduction').value) || 0;
-  let deductionAmount = 0;
-  
-  if (deductionType === 'percent') {
-    deductionAmount = Math.round(totalRefund * Math.min(deductionValue, 100) / 100);
-  } else {
-    deductionAmount = deductionValue;
-  }
-  deductionAmount = Math.min(deductionAmount, totalRefund);
-  
-  const shippingAmount = parseFloat(document.getElementById('rtShipping').value) || 0;
-  const finalRefund = totalRefund - shippingAmount - deductionAmount;
-  
-  const returnData = {
-    id: 'RT-' + String(draftReturns.length + 1000 + 1).slice(-4),
-    orderId: document.getElementById('rtOrderId').value,
-    phone: document.getElementById('rtPhone').value,
-    customer: document.getElementById('rtCustomer').value,
-    address: document.getElementById('rtAddress').value,
-    source: document.getElementById('rtSource').value,
-    products: products,
-    reason: document.getElementById('rtReason').value,
-    refundAmount: totalRefund,
-    shippingAmount: shippingAmount,
-    deductionType: deductionType,
-    deductionValue: deductionValue,
-    deductionAmount: deductionAmount,
-    finalRefund: Math.max(finalRefund, 0),
-    date: new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: '2-digit' }),
+function confirmReturn() { return _saveReturnDraft(); }
+
+function returnRowToDraft(r) {
+  const items = r.items || r.return_items || [];
+  return {
+    id: r.return_number, uuid: r.id, orderId: r.order_number,
+    phone: r.customer_phone || '', customer: r.customer_name || '', address: r.address_text || '',
+    source: _CHANNEL_TO_SRC[r.channel] || '',
+    products: items.map(i => ({ name: i.product_name, sku: i.sku || '', price: Number(i.unit_price) || 0, qty: i.quantity, total: (Number(i.unit_price) || 0) * i.quantity, category: i.category || '' })),
+    reason: r.reason || '', refundAmount: Number(r.subtotal) || 0, shippingAmount: Number(r.shipping_deduct) || 0,
+    deductionType: r.deduction_type || 'flat', deductionValue: Number(r.deduction_value) || 0,
+    deductionAmount: Number(r.deduction_amount) || 0, finalRefund: Number(r.refund_amount) || 0,
+    date: new Date(r.created_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: '2-digit' }),
     status: 'draft'
   };
-  
-  // Add to draft returns
-  draftReturns.push(returnData);
-  
-  // Update badge
-  const draftBadge = document.getElementById('draftBadge');
-  if (draftBadge) {
-    draftBadge.textContent = (parseInt(draftBadge.textContent) || 0) + 1;
+}
+
+function _rtShake(el) {
+  if (!el) return;
+  el.classList.add('invalid'); el.classList.remove('shake'); void el.offsetWidth; el.classList.add('shake');
+  setTimeout(() => el.classList.remove('shake'), 400);
+}
+
+async function _saveReturnDraft() {
+  if (_rtSaving) return;
+  const orderIdInput = document.getElementById('rtOrderId');
+  const orderIdVal = orderIdInput.value.trim().toUpperCase();
+  lookupReturnOrder(orderIdVal);
+
+  const products = [];
+  let totalRefund = 0;
+  document.querySelectorAll('#returnProducts .product-row').forEach(row => {
+    const nameInp = row.querySelector('input[id^="rt-prod-"]:not([id*="-sku-"]):not([id*="-price-"]):not([id*="-cat-"])');
+    if (!nameInp || !nameInp.value) return;
+    const sku = row.querySelector('input[id*="-sku-"]')?.value || '';
+    const price = parseFloat(row.querySelector('input[id*="-price-"]')?.value) || 0;
+    const qty = parseInt(row.querySelector('input[id*="-qty-"]')?.value) || 1;
+    products.push({ name: nameInp.value, sku, price, qty, total: price * qty, category: row.querySelector('input[id*="-cat-"]')?.value || '' });
+    totalRefund += price * qty;
+  });
+
+  // Errors are reported on save (fields stay unlocked while filling)
+  const errors = [];
+  if (!orderIdVal) { errors.push('Order ID'); _rtHint('Order ID is required (SV-XXXX)', '#d95353'); _rtShake(orderIdInput); }
+  else if (!_rtOrder) { errors.push('valid paid SV- order'); _rtShake(orderIdInput); }
+  if (products.length === 0) {
+    errors.push('Products');
+    const ph = document.getElementById('rtProductHint'); if (ph) ph.classList.add('visible');
+  } else if (_rtOrder) {
+    const need = {};
+    products.forEach(pr => { need[pr.sku] = (need[pr.sku] || 0) + pr.qty; });
+    Object.keys(need).forEach(sku => {
+      const left = _rtRemaining(sku);
+      if (need[sku] > left) errors.push((products.find(x => x.sku === sku).name) + ': only ' + left + ' returnable');
+    });
   }
-  
-  // Show toast
+  const reasonEl = document.getElementById('rtReason');
+  if (!reasonEl.value) { errors.push('Reason'); _rtShake(reasonEl); }
+  const custEl = document.getElementById('rtCustomer');
+  if (!custEl.value.trim()) { errors.push('Customer name'); _rtShake(custEl); }
+  if (errors.length) { showToast('\u26a0 Fix: ' + errors.join(', ')); return; }
+
+  const deductionType = document.getElementById('rtDeductionType').value;
+  const deductionValue = parseFloat(document.getElementById('rtDeduction').value) || 0;
+  let deductionAmount = deductionType === 'percent' ? Math.round(totalRefund * Math.min(deductionValue, 100) / 100) : deductionValue;
+  deductionAmount = Math.min(deductionAmount, totalRefund);
+  const shippingAmount = parseFloat(document.getElementById('rtShipping').value) || 0;
+
+  const editing = _rtEditingIdx !== null && draftReturns[_rtEditingIdx];
+  let draft;
+  if (_rtOrder.uuid) {
+    _rtSaving = true;
+    try {
+      const row = await sbFetch('rpc/save_return_draft', 'POST', { p: {
+        return_id: editing ? (editing.uuid || null) : null, order_number: _rtOrder.id,
+        reason: reasonEl.value, customer_name: custEl.value.trim(),
+        customer_phone: document.getElementById('rtPhone').value.trim(), address_text: document.getElementById('rtAddress').value.trim(),
+        channel: _SRC_TO_CHANNEL[document.getElementById('rtSource').value] || null,
+        shipping_deduct: shippingAmount, deduction_type: deductionType, deduction_value: deductionValue,
+        items: products.map(pr => ({ sku: pr.sku, qty: pr.qty }))
+      } });
+      draft = returnRowToDraft(row);
+    } catch (err) {
+      console.warn('Return save failed:', err.message);
+      showToast('\u26a0 Return not saved \u2014 ' + _dbErrMsg(err));
+      return;
+    } finally { _rtSaving = false; }
+  } else {
+    // demo order (no database row): local draft only
+    draft = {
+      id: editing ? editing.id : 'RT-' + String(draftReturns.length + 1000 + 1).slice(-4),
+      orderId: _rtOrder.id, phone: document.getElementById('rtPhone').value, customer: custEl.value.trim(),
+      address: document.getElementById('rtAddress').value, source: document.getElementById('rtSource').value,
+      products, reason: reasonEl.value, refundAmount: totalRefund, shippingAmount, deductionType, deductionValue, deductionAmount,
+      finalRefund: Math.max(totalRefund - shippingAmount - deductionAmount, 0),
+      date: new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: '2-digit' }), status: 'draft'
+    };
+  }
+
+  if (editing) draftReturns[_rtEditingIdx] = draft;
+  else {
+    draftReturns.push(draft);
+    const draftBadge = document.getElementById('draftBadge');
+    if (draftBadge) draftBadge.textContent = (parseInt(draftBadge.textContent) || 0) + 1;
+  }
+
   const toast = document.getElementById('exportToast');
-  toast.textContent = 'Return draft created! ✓';
+  toast.textContent = (editing ? 'Return draft updated \u2014 ' : 'Return draft created \u2014 ') + draft.id;
   toast.classList.add('visible');
   setTimeout(() => { toast.classList.remove('visible'); toast.textContent = 'Data exported!'; }, 2000);
-  
-  // Render draft returns
   renderDraftCards();
-  
-  // Close modal
   closeReturnModal();
+}
+
+async function loadReturnsFromSupabase() {
+  try {
+    const rows = await sbFetch('returns?select=*,return_items(*)&order=created_at.asc');
+    if (!Array.isArray(rows) || rows.length === 0) return;
+    let changed = false;
+    rows.forEach(r => {
+      const d = returnRowToDraft(r);
+      if (r.status === 'confirmed') {
+        if (RETURNS_DATA.some(x => x.uuid === r.id)) return;
+        const paid = r.refunded_at ? new Date(r.refunded_at) : new Date(r.created_at);
+        RETURNS_DATA.unshift(Object.assign({}, d, {
+          payment: r.refund_method || 'cash', paymentRef: r.refund_ref || null,
+          paidAt: paid.toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit', hour12: true }),
+          dateRaw: paid.toISOString().split('T')[0]
+        }));
+      } else {
+        if (draftReturns.some(x => x.uuid === r.id)) return;
+        draftReturns.push(d);
+      }
+      changed = true;
+    });
+    if (changed) {
+      renderDraftCards();
+      if (typeof renderSalesTab === 'function') renderSalesTab();
+    }
+  } catch (err) {
+    console.warn('Returns load failed:', err.message);
+  }
 }
 
 function updateReturnSummary() {
@@ -22691,7 +22798,7 @@ function buildReturnCard(ret, idx) {
         <div class="dc-header">
           <!-- LEFT -->
           <div class="dc-left">
-            <span class="draft-id" style="color:#d95353;background:rgba(217,83,83,0.12);border:1px solid rgba(217,83,83,0.25);padding:2px 7px;">RT-${String(idx + 1001).slice(-4)}</span>
+            <span class="draft-id" style="color:#d95353;background:rgba(217,83,83,0.12);border:1px solid rgba(217,83,83,0.25);padding:2px 7px;">${escapeHtml(ret.id)}</span>
             <div class="draft-name">
               <svg fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><use href="#icon-user-profile"/></svg>
               ${escapeHtml(ret.customer)}
@@ -22999,8 +23106,9 @@ function markReturnPaid(idx, event) {
   requestAnimationFrame(() => requestAnimationFrame(() => document.getElementById('paymentModal').classList.add('active')));
 }
 
-function confirmReturnPayment() {
-  if (_pendingReturnIndex === null) return;
+function confirmReturnPayment() { return _confirmReturnPayment(); }
+async function _confirmReturnPayment() {
+  if (_pendingReturnIndex === null || _payInFlight) return;
   const refInput = document.getElementById('payRefInput');
   const ref = refInput.value.trim();
   const isReq = refInput.dataset.required === 'true';
@@ -23015,29 +23123,30 @@ function confirmReturnPayment() {
 
   const idx = _pendingReturnIndex;
   const ret = draftReturns[idx];
+  if (!ret) return;
+  const method = document.querySelector('input[name="payMethod"]:checked')?.value || 'cash';
+
+  if (ret.uuid) {
+    _payInFlight = true;
+    try {
+      await sbFetch('rpc/confirm_return', 'POST', { p_return_id: ret.uuid, p_method: method, p_ref: ref || null });
+    } catch (err) {
+      showToast('\u26a0 Return not confirmed \u2014 ' + _dbErrMsg(err));
+      return;
+    } finally { _payInFlight = false; }
+    loadProductsFromSupabase();
+  }
   _pendingReturnIndex = null;
 
   const now = new Date();
   const paidAt = now.toLocaleString('en-US', { month:'short', day:'numeric', year:'numeric', hour:'numeric', minute:'2-digit', hour12:true });
 
   RETURNS_DATA.unshift({
-    id: ret.id,
-    orderId: ret.orderId,
-    phone: ret.phone,
-    customer: ret.customer,
-    address: ret.address,
-    source: ret.source,
-    products: ret.products,
-    reason: ret.reason,
-    refundAmount: ret.refundAmount,
-    shippingAmount: ret.shippingAmount || 0,
-    deductionAmount: ret.deductionAmount || 0,
-    finalRefund: ret.finalRefund,
-    date: ret.date,
-    payment: document.querySelector('input[name="payMethod"]:checked')?.value || 'cash',
-    paymentRef: ref || null,
-    paidAt: paidAt,
-    dateRaw: now.toISOString().split('T')[0]
+    id: ret.id, uuid: ret.uuid || null,
+    orderId: ret.orderId, phone: ret.phone, customer: ret.customer, address: ret.address, source: ret.source,
+    products: ret.products, reason: ret.reason, refundAmount: ret.refundAmount,
+    shippingAmount: ret.shippingAmount || 0, deductionAmount: ret.deductionAmount || 0, finalRefund: ret.finalRefund,
+    date: ret.date, payment: method, paymentRef: ref || null, paidAt: paidAt, dateRaw: now.toISOString().split('T')[0]
   });
 
   document.querySelector('#paymentModal .modal-btn-pay').onclick = confirmPayment;
@@ -23060,16 +23169,23 @@ function closeReturnSuccess() {
   document.getElementById('rtSuccessOverlay').classList.remove('show');
 }
 
-function deleteReturn(idx, event) {
-  event.stopPropagation();
-  if (confirm('Delete this return draft?')) {
-    draftReturns.splice(idx, 1);
-    renderDraftCards();
-    const draftBadge = document.getElementById('draftBadge');
-    if (draftBadge) {
-      draftBadge.textContent = Math.max(0, parseInt(draftBadge.textContent) - 1);
+function deleteReturn(idx, event) { event.stopPropagation(); return _deleteReturn(idx); }
+async function _deleteReturn(idx) {
+  const ret = draftReturns[idx];
+  if (!ret || !confirm('Delete this return draft?')) return;
+  if (ret.uuid) {
+    try {
+      const res = await sbFetch('returns?id=eq.' + ret.uuid, 'DELETE');
+      if (!_affected(res)) throw new Error('Return not found or already confirmed');
+    } catch (err) {
+      showToast('\u26a0 Return not deleted \u2014 ' + _dbErrMsg(err));
+      return;
     }
   }
+  draftReturns.splice(idx, 1);
+  renderDraftCards();
+  const draftBadge = document.getElementById('draftBadge');
+  if (draftBadge) draftBadge.textContent = Math.max(0, parseInt(draftBadge.textContent) - 1);
 }
 
 function editReturn(idx, event) {
@@ -23081,7 +23197,9 @@ function editReturn(idx, event) {
   openReturnModal();
 
   // Pre-fill customer info
+  _rtEditingIdx = idx;
   document.getElementById('rtOrderId').value = ret.orderId || '';
+  lookupReturnOrder(ret.orderId || '');
   document.getElementById('rtPhone').value = ret.phone || '';
   document.getElementById('rtCustomer').value = ret.customer || '';
   document.getElementById('rtAddress').value = ret.address || '';
@@ -23200,7 +23318,10 @@ function filterReturnPicker(cat) {
 
 function renderReturnPickerList(cat, rowId) {
   const list = document.getElementById('prodPickerList');
-  let filtered = cat === 'all' ? PRODUCTS_DATA.filter(p => !p.archived) : PRODUCTS_DATA.filter(p => p.category === cat && !p.archived);
+  const base = _rtOrder
+    ? _rtOrder.items.filter(i => _rtRemaining(i.sku) > 0).map(i => PRODUCTS_DATA.find(pr => pr.sku === i.sku) || { name: i.name, sku: i.sku, category: i.category, price: i.price, stock: 0, color: 'p' })
+    : PRODUCTS_DATA.filter(p => !p.archived);
+  let filtered = cat === 'all' ? base : base.filter(p => p.category === cat);
   if (_pickerSearchTerm) {
     filtered = filtered.filter(p =>
       p.name.toLowerCase().includes(_pickerSearchTerm) ||
@@ -23208,7 +23329,7 @@ function renderReturnPickerList(cat, rowId) {
     );
   }
   if (filtered.length === 0) {
-    list.innerHTML = `<div style="padding:40px 20px;text-align:center;color:#8c92a1;font-size:13px;font-weight:600">No products found</div>`;
+    list.innerHTML = `<div style="padding:40px 20px;text-align:center;color:#8c92a1;font-size:13px;font-weight:600">${_rtOrder ? 'Nothing left to return on this order' : 'No products found'}</div>`;
     return;
   }
   list.innerHTML = filtered.map(p => {
@@ -23228,12 +23349,14 @@ function renderReturnPickerList(cat, rowId) {
 }
 
 function selectReturnProductForRow(rowId, productName) {
-  const prod = getProductCatalog()[productName];
+  const oi = _rtOrder ? _rtOrder.items.find(i => i.name === productName) : null;
+  let prod = getProductCatalog()[productName];
+  if (!prod && oi) prod = { sku: oi.sku, category: oi.category, price: oi.price };
   if (!prod) return;
   
   document.getElementById('rt-prod-' + rowId).value = productName;
   document.getElementById('rt-prod-sku-' + rowId).value = prod.sku;
-  document.getElementById('rt-prod-price-' + rowId).value = prod.price;
+  document.getElementById('rt-prod-price-' + rowId).value = oi ? oi.price : prod.price;
   document.getElementById('rt-prod-cat-' + rowId).value = prod.category || '';
   
   document.getElementById('rt-prod-picker-btn-' + rowId).style.display = 'none';
@@ -23268,6 +23391,8 @@ function changeReturnProductQty(id, delta) {
   const disp = document.getElementById('rt-qty-disp-' + id);
   let val = parseInt(input.value) || 1;
   val = Math.max(1, val + delta);
+  const max = _rtRemaining(document.getElementById('rt-prod-sku-' + id).value);
+  if (val > max) { val = Math.max(1, max); showToast('Only ' + max + ' can still be returned on this order'); }
   input.value = val;
   disp.textContent = val;
   updateReturnSummary();
