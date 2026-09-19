@@ -10722,9 +10722,9 @@ body { width: 100% !important; max-width: 100% !important; }
           <div class="hbar-label-left sales-label">
             <span class="hbar-accent-dot" style="background:var(--sales)"></span>
             <span id="salesWord">SALES</span>
-            <span class="hbar-units" id="salesUnits">180 units</span>
+            <span class="hbar-units" id="salesUnits">— units</span>
           </div>
-          <span class="hbar-value sales-value" id="salesAmount">৳584,000</span>
+          <span class="hbar-value sales-value" id="salesAmount">৳—</span>
         </div>
         <div class="hbar-track">
           <div class="hbar-fill sales-fill" id="salesBar" style="width:100%"></div>
@@ -10737,12 +10737,12 @@ body { width: 100% !important; max-width: 100% !important; }
           <div class="hbar-label-left returns-label">
             <span class="hbar-accent-dot" style="background:var(--returns)"></span>
             <span id="returnsWord">RETURNS</span>
-            <span class="hbar-units" id="returnsUnits">20 units</span>
+            <span class="hbar-units" id="returnsUnits">— units</span>
           </div>
-          <span class="hbar-value returns-value" id="returnsAmount">৳89,500</span>
+          <span class="hbar-value returns-value" id="returnsAmount">৳—</span>
         </div>
         <div class="hbar-track" id="returnsTrack">
-          <div class="hbar-fill returns-fill" id="returnsBar" style="width:15.3%"></div>
+          <div class="hbar-fill returns-fill" id="returnsBar" style="width:0%"></div>
         </div>
       </div>
 
@@ -10750,17 +10750,17 @@ body { width: 100% !important; max-width: 100% !important; }
       <div class="net-stats">
         <div class="net-stat">
           <div class="net-stat-label">Net Revenue</div>
-          <div class="net-stat-value net-revenue-val" id="netRevenue">৳494,500</div>
+          <div class="net-stat-value net-revenue-val" id="netRevenue">৳—</div>
         </div>
         <div class="net-stat-divider"></div>
         <div class="net-stat">
           <div class="net-stat-label">Return Rate</div>
-          <div class="net-stat-value return-rate-val" id="returnRate">11.1%</div>
+          <div class="net-stat-value return-rate-val" id="returnRate">—</div>
         </div>
         <div class="net-stat-divider"></div>
         <div class="net-stat">
           <div class="net-stat-label">Units</div>
-          <div class="net-stat-value units-ratio-val" id="unitsRatio">180 / 20</div>
+          <div class="net-stat-value units-ratio-val" id="unitsRatio">— / —</div>
         </div>
       </div>
     </section>
@@ -11631,12 +11631,7 @@ document.querySelectorAll('input[name="timeframe"]').forEach(radio => {
     top5Render();
     positionIndicator(true);
     const svrtf = newTf === '3months' ? 'quarter' : newTf;
-    if (chartData[svrtf]) {
-      svrCurrentTf = svrtf;
-      updateChart(svrtf);
-    } else {
-      console.warn(`SuppVerse: No SVR data for timeframe "${svrtf}".`);
-    }
+    svrCurrentTf = svrtf;
     ovSync();
   });
 });
@@ -11686,62 +11681,6 @@ requestAnimationFrame(function() { positionIndicator(false); });
 window.addEventListener('resize', function() { positionIndicator(false); });
 
 // ===== SALES VS RETURNS CHART LOGIC =====
-const chartData = {
-  today: {
-    label: "Today",
-    sales: { amount: 58400, units: 18, displayAmount: "৳58,400" },
-    returns: { amount: 8950, units: 2, displayAmount: "৳8,950" }
-  },
-  week: {
-    label: "This Week",
-    sales: { amount: 142800, units: 42, displayAmount: "৳142,800" },
-    returns: { amount: 18500, units: 5, displayAmount: "৳18,500" }
-  },
-  month: {
-    label: "This Month",
-    sales: { amount: 584000, units: 180, displayAmount: "৳584,000" },
-    returns: { amount: 89500, units: 20, displayAmount: "৳89,500" }
-  },
-  quarter: {
-    label: "Last 3 Months",
-    sales: { amount: 1680000, units: 520, displayAmount: "৳1,680,000" },
-    returns: { amount: 245000, units: 58, displayAmount: "৳245,000" }
-  },
-  all: {
-    label: "All Time",
-    sales: { amount: 4200000, units: 1350, displayAmount: "৳4,200,000" },
-    returns: { amount: 680000, units: 165, displayAmount: "৳680,000" }
-  }
-};
-
-const proxyChartData = {
-  today: {
-    label: "Today",
-    sales: { amount: 3600, units: 1, displayAmount: "৳3,600" },
-    returns: { amount: 0, units: 0, displayAmount: "৳0" }
-  },
-  week: {
-    label: "This Week",
-    sales: { amount: 10800, units: 3, displayAmount: "৳10,800" },
-    returns: { amount: 650, units: 1, displayAmount: "৳650" }
-  },
-  month: {
-    label: "This Month",
-    sales: { amount: 32600, units: 9, displayAmount: "৳32,600" },
-    returns: { amount: 1450, units: 1, displayAmount: "৳1,450" }
-  },
-  quarter: {
-    label: "Last 3 Months",
-    sales: { amount: 94500, units: 26, displayAmount: "৳94,500" },
-    returns: { amount: 3900, units: 3, displayAmount: "৳3,900" }
-  },
-  all: {
-    label: "All Time",
-    sales: { amount: 268000, units: 74, displayAmount: "৳268,000" },
-    returns: { amount: 12100, units: 9, displayAmount: "৳12,100" }
-  }
-};
-
 const kpiCardData = {
   store: { revenueTitle: "Total Revenue", profitTitle: "Net Profit", profitNum: "21,300", ordersTitle: "Total Orders", ordersNum: "24", returnsTitle: "Total Returns", returnsNum: "6" },
   proxy: { revenueTitle: "Proxy Revenue", profitTitle: "Net Profit", profitNum: "4,850", ordersTitle: "Proxy Orders", ordersNum: "9", returnsTitle: "Failed Orders", returnsNum: "1" }
@@ -11783,43 +11722,45 @@ function formatBDT(num) {
 }
 
 function updateChart(timeframe) {
-  const source = kpiMode === 'proxy' ? proxyChartData : chartData;
-  const data = source[timeframe];
-  if (!data) return;
+  const tf = ovTf(timeframe);
+  const $ = id => document.getElementById(id);
+  $('chartTimeLabel').textContent = OV_TF_LABEL[tf] || '';
 
-  const salesBar     = document.getElementById("salesBar");
-  const salesAmount  = document.getElementById("salesAmount");
-  const returnsAmount= document.getElementById("returnsAmount");
-  const salesUnits   = document.getElementById("salesUnits");
-  const returnsUnits = document.getElementById("returnsUnits");
-  const netRevenue   = document.getElementById("netRevenue");
-  const returnRate   = document.getElementById("returnRate");
-  const unitsRatio   = document.getElementById("unitsRatio");
-  const chartTimeLabel = document.getElementById("chartTimeLabel");
+  const hit = OV_LIVE[ovKey(kpiMode, tf, 'cur')];
+  if (!hit) {
+    ['salesAmount', 'returnsAmount', 'netRevenue'].forEach(id => { $(id).textContent = '৳—'; });
+    $('returnRate').textContent = '—';
+    $('unitsRatio').textContent = '— / —';
+    $('salesUnits').textContent = '— units';
+    $('returnsUnits').textContent = '— units';
+    return;
+  }
 
-  const maxAmount    = data.sales.amount;
-  const returnsWidth = (data.returns.amount / maxAmount) * 100;
-  const net          = data.sales.amount - data.returns.amount;
-  const rate         = ((data.returns.amount / data.sales.amount) * 100).toFixed(1);
+  const d = hit.data;
+  const r = d.returns || {};
+  const sales = Number(d.revenue) || 0, salesU = Number(d.units) || 0;
+  const ret = Number(r.amount) || 0, retU = Number(r.units) || 0;
+  const net = sales - ret;
+  const unitText = n => n + (n === 1 ? ' unit' : ' units');
 
-  chartTimeLabel.textContent  = data.label;
-  salesAmount.textContent     = data.sales.displayAmount;
-  returnsAmount.textContent   = data.returns.displayAmount;
-  salesUnits.textContent      = data.sales.units + ' units';
-  returnsUnits.textContent    = data.returns.units + ' units';
-  netRevenue.textContent      = formatBDT(net);
-  returnRate.textContent      = rate + '%';
-  unitsRatio.textContent      = data.sales.units + ' / ' + data.returns.units;
+  $('salesAmount').textContent = formatBDT(Math.round(sales));
+  $('returnsAmount').textContent = formatBDT(Math.round(ret));
+  $('salesUnits').textContent = unitText(salesU);
+  $('returnsUnits').textContent = unitText(retU);
+  $('netRevenue').textContent = net < 0 ? '−' + formatBDT(Math.round(-net)) : formatBDT(Math.round(net));
+  $('returnRate').textContent = sales > 0 ? (ret / sales * 100).toFixed(1) + '%' : (ret > 0 ? '—' : '0.0%');
+  $('unitsRatio').textContent = salesU + ' / ' + retU;
+  $('salesBar').style.width = sales > 0 ? '100%' : '0%';
 
-  salesBar.style.width = '100%';
-  const returnsTrack = document.getElementById('returnsTrack');
-  if (data.returns.units === 0) {
-    returnsTrack.innerHTML = '<div class="no-data-returns">📭 No returns this period</div>';
+  const returnsWidth = sales > 0 ? Math.min(ret / sales * 100, 100) : (ret > 0 ? 100 : 0);
+  const returnsTrack = $('returnsTrack');
+  if (retU === 0 && ret === 0) {
+    returnsTrack.innerHTML = '<div class="no-data-returns">📭 ' + (kpiMode === 'proxy' ? 'No failed orders this period' : 'No returns this period') + '</div>';
   } else {
     returnsTrack.innerHTML = '<div class="hbar-fill returns-fill" id="returnsBar" style="width:0%"></div>';
     requestAnimationFrame(() => {
       const bar = document.getElementById('returnsBar');
-      if (bar) bar.style.width = Math.max(returnsWidth, 0) + '%';
+      if (bar) bar.style.width = returnsWidth + '%';
     });
   }
 }
@@ -11844,30 +11785,15 @@ document.addEventListener("DOMContentLoaded", function() {
     const rnd = () => Math.random() < 0.5;
 
     // TODAY — always no-data returns (cleanest demo trigger)
-    chartData.today.returns.units  = 0;
-    chartData.today.returns.amount = 0;
-    chartData.today.returns.displayAmount = '৳0';
     top5DataByTf.today.forEach(p => {
       p.returns.units = 0; p.returns.amount = 0; p.returns.display = '৳0';
     });
 
-    // THIS WEEK — random chance: all returns zero
-    if (rnd()) {
-      chartData.week.returns.units  = 0;
-      chartData.week.returns.amount = 0;
-      chartData.week.returns.displayAmount = '৳0';
-    }
     // Random 2 products in week top5 get 0 returns
     top5DataByTf.week
       .filter(() => rnd())
       .forEach(p => { p.returns.units = 0; p.returns.amount = 0; p.returns.display = '৳0'; });
 
-    // THIS MONTH — 40% chance returns bar shows no-data
-    if (Math.random() < 0.4) {
-      chartData.month.returns.units  = 0;
-      chartData.month.returns.amount = 0;
-      chartData.month.returns.displayAmount = '৳0';
-    }
     // Random products in month top5 returns zeroed
     top5DataByTf.month
       .filter(() => Math.random() < 0.35)
@@ -12108,6 +12034,7 @@ const OV_RETRY = {};
 const OV_PENDING = {};
 let ovReqSeq = 0;
 
+const OV_TF_LABEL = { today: 'Today', week: 'This Week', month: 'This Month', quarter: 'Last 3 Months', all: 'All Time' };
 const OV_PREV_LABEL = { today: 'Yesterday', week: 'Last Week', month: 'Last Month', quarter: 'Prev 3M', all: 'Prev Period' };
 const OV_PAY = {
   bkash: ['bKash', '#e2136e'], nagad: ['Nagad', '#f7931e'], cash: ['Cash', '#009b72'],
@@ -12155,6 +12082,7 @@ window.addEventListener('message', function(e) {
     OV_LIVE[k] = { data: m.data, ts: Date.now() };
   }
   ovApplyRevenueCard();
+  updateChart(svrCurrentTf);
   if (cardDetailOverlay.classList.contains('open')) ovRenderDetail();
 });
 
@@ -12169,6 +12097,7 @@ function ovApplyRevenueCard() {
 
 function ovSync() {
   ovApplyRevenueCard();
+  updateChart(svrCurrentTf);
   ovRequest(currentTf, 'cur');
 }
 
