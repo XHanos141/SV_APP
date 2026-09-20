@@ -1081,20 +1081,6 @@ body.dark-mode .pay-badge-bank svg path[style*="fill:#66cde7"]{fill:#fff!importa
       </div>
       <div class="carousel-slide">
         <div class="card-wrap" style="width:100%">
-          <div class="banner-viewport">
-            <div class="banner-card bc-green" id="bcard">
-              <div class="banner-text">
-                <span class="banner-tag" id="bcardTag">Free Shipping</span>
-                <h3 class="banner-title" id="bcardTitle">On Orders Over ৳2000</h3>
-                <p class="banner-sub" id="bcardSub">Anywhere across Bangladesh</p>
-              </div>
-              <div class="banner-deco" id="bcardDeco"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="carousel-slide">
-        <div class="card-wrap" style="width:100%">
           <div class="mcard-preview-wrap" id="mcardSinglePreview">
             <div class="mcard mcard-local" id="mcardLocal">
               <div class="mcard-top">
@@ -1107,6 +1093,20 @@ body.dark-mode .pay-badge-bank svg path[style*="fill:#66cde7"]{fill:#fff!importa
                 <button class="mcard-cta"><span id="mcardLocalCta">Browse</span><svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg></button>
               </div>
               <div class="mcard-deco"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="carousel-slide">
+        <div class="card-wrap" style="width:100%">
+          <div class="banner-viewport">
+            <div class="banner-card bc-green" id="bcard">
+              <div class="banner-text">
+                <span class="banner-tag" id="bcardTag">Free Shipping</span>
+                <h3 class="banner-title" id="bcardTitle">On Orders Over ৳2000</h3>
+                <p class="banner-sub" id="bcardSub">Anywhere across Bangladesh</p>
+              </div>
+              <div class="banner-deco" id="bcardDeco"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div>
             </div>
           </div>
         </div>
@@ -2983,10 +2983,10 @@ function makeCarousel(opts){
 const landingCarousel = makeCarousel({
   trackId:'carouselTrackLanding', dotsId:'carouselDotsLanding', labelId:'slideLabelLanding',
   prevId:'carouselPrevLanding', nextId:'carouselNextLanding', boxId:'carouselBoxLanding',
-  total:11, labels:['Hero','Banner','Main Cards','Hot Deal Card','Why Choose Us','Stats','Category Badge','Testimonial','FAQ','Footer Payments','Pages'],
+  total:11, labels:['Hero','Main Cards','Banner','Hot Deal Card','Why Choose Us','Stats','Category Badge','Testimonial','FAQ','Footer Payments','Pages'],
   onSlide:(i)=>{
     if(i===5 && typeof replayStatsAnimation==='function') replayStatsAnimation();
-    const formKeys = ['hero','banner','maincards','hotdeal','services','stats','catbadge','testimonial','faq','footerpay','pages'];
+    const formKeys = ['hero','maincards','banner','hotdeal','services','stats','catbadge','testimonial','faq','footerpay','pages'];
     document.querySelectorAll('#landingForms .form-card').forEach(card=>{
       card.style.display = card.dataset.form === formKeys[i] ? '' : 'none';
     });
