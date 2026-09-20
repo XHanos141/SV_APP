@@ -3357,7 +3357,7 @@ initEditLock('heroFieldset','heroEditBtn','heroSaveBtn','heroCancelBtn',{
 });
 initEditLock('bannerFieldset','bannerEditBtn','bannerSaveBtn','bannerCancelBtn',{onSave:saveBannerContent});
 initEditLock(['svcFieldset','svcBadgeFieldset'],'svcEditBtn','svcSaveBtn','svcCancelBtn',{onSave:saveServicesContent});
-initEditLock('statsFieldset','statsEditBtn','statsSaveBtn','statsCancelBtn');
+initEditLock('statsFieldset','statsEditBtn','statsSaveBtn','statsCancelBtn',{onSave:saveStatsContent});
 initEditLock('catbadgeFieldset','catbadgeEditBtn','catbadgeSaveBtn','catbadgeCancelBtn',{onSave:saveCatBadgeContent});
 initEditLock('faqFieldset','faqEditBtn','faqSaveBtn','faqCancelBtn');
 initEditLock('footerpayFieldset','footerpayEditBtn','footerpaySaveBtn','footerpayCancelBtn',{onSave:savePaymentBadges});
@@ -4722,6 +4722,42 @@ function updateStats(){
   }
   replayStatsAnimation();
 }
+async function saveStatsContent(){
+  if(!window.sb) { T('Not connected to database','⚠️'); return; }
+  const content = {};
+  for(let n=1; n<=4; n++){
+    content['stat' + n + 'Num'] = document.getElementById('inpStat' + n + 'Num').value || '';
+    content['stat' + n + 'Label'] = document.getElementById('inpStat' + n + 'Label').value || '';
+    content['stat' + n + 'Desc'] = document.getElementById('inpStat' + n + 'Desc').value || '';
+  }
+  const { error } = await sb.from('site_content').upsert({
+    page: 'landing',
+    section: 'stats',
+    content,
+    updated_at: new Date().toISOString()
+  }, { onConflict: 'page,section' });
+  if(error){ console.error('saveStatsContent error:', error.message); T('Save failed — check connection','❌'); return; }
+  T('Stats section published','🚀');
+}
+async function loadStatsContent(){
+  if(!window.sb) return;
+  const { data, error } = await sb
+    .from('site_content')
+    .select('content')
+    .eq('page', 'landing')
+    .eq('section', 'stats')
+    .maybeSingle();
+  if(error){ console.error('loadStatsContent error:', error.message); return; }
+  if(!data || !data.content) return;
+  const c = data.content;
+  for(let n=1; n<=4; n++){
+    if(c['stat' + n + 'Num'] !== undefined) document.getElementById('inpStat' + n + 'Num').value = c['stat' + n + 'Num'];
+    if(c['stat' + n + 'Label'] !== undefined) document.getElementById('inpStat' + n + 'Label').value = c['stat' + n + 'Label'];
+    if(c['stat' + n + 'Desc'] !== undefined) document.getElementById('inpStat' + n + 'Desc').value = c['stat' + n + 'Desc'];
+  }
+  updateStats();
+}
+loadStatsContent();
 
 /* ═══════════════════════════════════════════════════════════════
    TESTIMONIAL — exact star SVG from index.html, ported verbatim
