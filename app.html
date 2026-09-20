@@ -14077,6 +14077,7 @@ html[data-theme="dark"] .badge-product{color:#4ade80}
 .expiry-countdown{position:absolute;right:10px;top:50%;transform:translateY(-50%);font-family:'Courier Prime',monospace;font-size:10px;font-weight:700;padding:3px 8px;border-radius:6px;background:rgba(34,197,94,0.12);color:#4ade80;pointer-events:none;opacity:0;transition:opacity 0.2s ease}
 .expiry-countdown.show{opacity:1}
 .expiry-countdown.expired{background:rgba(220,38,38,0.12);color:#dc2626}
+.field-hint{font-size:10px;color:rgba(255,255,255,0.4);margin-top:6px;font-family:'Inter',sans-serif}
 .fs-select{width:100%;height:40px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:0 32px 0 12px;color:#fff;font-family:'Inter',sans-serif;font-size:14px;font-weight:500;outline:none;-webkit-appearance:none;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='rgba(255,255,255,0.4)' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;cursor:pointer;transition:border-color 0.2s ease,box-shadow 0.2s ease}
 .fs-select:focus{border-color:#38bdf8;box-shadow:0 0 0 3px rgba(56,189,248,0.18)}
 .fs-select option{color:#fff;background:#1a2a3a}
@@ -14278,6 +14279,7 @@ html[data-theme="light"] .toast.error{border-color:#dc2626;background:#fef2f2}
 html[data-theme="light"] .toast-code{color:#16a34a}
 html[data-theme="light"] .expiry-countdown{background:rgba(34,197,94,0.12);color:#16a34a}
 html[data-theme="light"] .expiry-countdown.expired{background:rgba(220,38,38,0.12);color:#dc2626}
+html[data-theme="light"] .field-hint{color:rgba(26,42,58,0.55)}
 html[data-theme="light"] .input-prefix{color:#38bdf8}
 html[data-theme="light"] .demo-toggle{background:rgba(0,0,0,0.08);color:#1a2a3a}
 html[data-theme="light"] .demo-toggle:hover{background:rgba(0,0,0,0.15)}
@@ -14599,8 +14601,11 @@ html[data-theme="light"] .vc-float-close{background:rgba(240,244,248,0.95);borde
       </div>
       <div class="fs-field">
         <label class="fs-label">Start Date <span style="opacity:.55;font-weight:500">optional</span></label>
-        <input type="date" class="fs-input" id="v-start" onchange="render()">
-        <p style="font-size:10px;color:rgba(255,255,255,0.4);margin-top:6px;font-family:'Inter',sans-serif">Leave empty to start immediately</p>
+        <div class="expiry-wrap">
+          <input type="date" class="fs-input" id="v-start" onchange="render()">
+          <div class="expiry-countdown" id="start-countdown"></div>
+        </div>
+        <p class="field-hint">Leave empty to start immediately</p>
       </div>
       <div class="cond-section" id="cond-products">
         <div class="field-divider"></div>
@@ -15371,6 +15376,16 @@ function updatePreview() {
     inputCd.classList.remove('show');
   }
 
+  const startCd = document.getElementById('start-countdown');
+  const startVal = document.getElementById('v-start').value;
+  if (startVal) {
+    const stl = formatTimeLeft(startVal);
+    startCd.textContent = stl === 'Expired' ? 'Started' : (stl === 'Today' ? 'Today' : 'in ' + stl);
+    startCd.classList.add('show');
+  } else {
+    startCd.classList.remove('show');
+  }
+
   if (amt) {
     const val = S.discType === 'flat' ? '৳' + amt : amt + '%';
     document.getElementById('vp-amount').textContent = S.discType === 'flat' ? '৳' + amt : amt + '%';
@@ -15498,7 +15513,11 @@ function updateSummary() {
   if (maxV > 0) document.getElementById('s-maxdisc').textContent = '৳' + maxV;
   const startV = document.getElementById('v-start').value;
   document.getElementById('s-start-row').style.display = startV ? 'flex' : 'none';
-  if (startV) document.getElementById('s-start').textContent = formatDate(startV);
+  if (startV) {
+    const stl2 = formatTimeLeft(startV);
+    const sBase = formatDate(startV);
+    document.getElementById('s-start').textContent = stl2 === 'Expired' ? sBase + ' (Started)' : (stl2 === 'Today' ? sBase + ' · Today' : sBase + ' · in ' + stl2);
+  }
 
   const products = [...document.querySelectorAll('#product-rows .fs-select')]
     .map(s => s.value).filter(Boolean);
@@ -15623,6 +15642,11 @@ window.addEventListener('message',function(e){
   if(e.data&&e.data.type==='LOAD_EDIT'){loadVoucherForEdit(e.data.voucher);}
 });
 
+(function() {
+  const d = new Date();
+  const iso = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+  document.getElementById('v-start').min = iso;
+})();
 svLoadProducts();
 
 // Scroll-hide removed — preview stays permanently visible
