@@ -702,6 +702,7 @@ body.dark-mode .banner-viewport{
   gap:14px;-webkit-user-select:none;user-select:none;
 }
 .banner-card.bc-purple{background:linear-gradient(135deg,#6761a8 0%,#4a4480 100%);box-shadow:0 4px 18px rgba(103,97,168,.30)}
+.banner-card.bc-image-only{background:#e8e8ec;background-size:cover;background-position:center}
 .banner-card.bc-green{background:linear-gradient(135deg,#009b72 0%,#00704f 100%);box-shadow:0 4px 18px rgba(0,155,114,.30)}
 .banner-text{position:relative;z-index:1;display:flex;flex-direction:column;align-items:flex-start;gap:4px}
 .banner-tag{font-size:10.5px;font-weight:800;letter-spacing:.04em;text-transform:uppercase}
@@ -1100,14 +1101,7 @@ body.dark-mode .pay-badge-bank svg path[style*="fill:#66cde7"]{fill:#fff!importa
       <div class="carousel-slide">
         <div class="card-wrap" style="width:100%">
           <div class="banner-viewport">
-            <div class="banner-card bc-green" id="bcard">
-              <div class="banner-text">
-                <span class="banner-tag" id="bcardTag">Free Shipping</span>
-                <h3 class="banner-title" id="bcardTitle">On Orders Over ৳2000</h3>
-                <p class="banner-sub" id="bcardSub">Anywhere across Bangladesh</p>
-              </div>
-              <div class="banner-deco" id="bcardDeco"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div>
-            </div>
+            <div class="banner-card bc-image-only" id="bcard"></div>
           </div>
         </div>
       </div>
@@ -1439,7 +1433,7 @@ body.dark-mode .pay-badge-bank svg path[style*="fill:#66cde7"]{fill:#fff!importa
       <button type="button" class="banner-item-delete" onclick="deleteBannerItem(this)" style="position:absolute;top:10px;right:10px;width:28px;height:28px;border-radius:50%;border:none;background:var(--danger,#d95353);color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:2">
         <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
       </button>
-      <div class="field" style="margin-bottom:8px">
+      <div class="field" style="margin-bottom:0">
         <label>Background Image <span style="font-weight:400;color:var(--text3)">(recommended: 1200×500px, 2.4:1)</span></label>
         <div class="img-upload banner-img-upload">
           <input type="file" accept="image/jpeg,image/png,image/webp" class="banner-img-input" onchange="handleBannerItemImage(event)">
@@ -1449,25 +1443,6 @@ body.dark-mode .pay-badge-bank svg path[style*="fill:#66cde7"]{fill:#fff!importa
             <span>JPG, PNG or WebP · 1200×500px (2.4:1) · under 400KB</span>
           </div>
         </div>
-      </div>
-      <div class="field" style="margin-bottom:8px">
-        <label>Tag</label>
-        <input type="text" class="banner-inp-tag" placeholder="Free Shipping" oninput="updateBannerPreviewFromForm()">
-      </div>
-      <div class="field" style="margin-bottom:8px">
-        <label>Title</label>
-        <input type="text" class="banner-inp-title" placeholder="On Orders Over ৳2000" oninput="updateBannerPreviewFromForm()">
-      </div>
-      <div class="field" style="margin-bottom:8px">
-        <label>Subtext</label>
-        <input type="text" class="banner-inp-sub" placeholder="Anywhere across Bangladesh" oninput="updateBannerPreviewFromForm()">
-      </div>
-      <div class="field" style="margin-bottom:0">
-        <label>Color</label>
-        <select class="banner-inp-color" onchange="updateBannerPreviewFromForm()">
-          <option value="green">Green</option>
-          <option value="purple">Purple</option>
-        </select>
       </div>
     </div>
   </template>
@@ -4268,10 +4243,6 @@ let bannerItemsData = [];
 function bannerItemFromCard(card){
   const imgEl = card.querySelector('.banner-img-upload img.img-preview-thumb');
   return {
-    tag: card.querySelector('.banner-inp-tag').value || '',
-    title: card.querySelector('.banner-inp-title').value || '',
-    sub: card.querySelector('.banner-inp-sub').value || '',
-    color: card.querySelector('.banner-inp-color').value || 'green',
     image_url: imgEl ? imgEl.dataset.url || imgEl.src : null
   };
 }
@@ -4282,10 +4253,6 @@ function renderBannerList(){
   mount.innerHTML = '';
   bannerItemsData.forEach(b=>{
     const node = tmpl.content.cloneNode(true);
-    node.querySelector('.banner-inp-tag').value = b.tag || '';
-    node.querySelector('.banner-inp-title').value = b.title || '';
-    node.querySelector('.banner-inp-sub').value = b.sub || '';
-    node.querySelector('.banner-inp-color').value = b.color || 'green';
     if(b.image_url){
       const box = node.querySelector('.banner-img-upload');
       box.classList.add('has-img');
@@ -4297,7 +4264,7 @@ function renderBannerList(){
 }
 
 function addBannerItem(){
-  bannerItemsData.push({ tag:'', title:'', sub:'', color:'green', image_url:null });
+  bannerItemsData.push({ image_url:null });
   renderBannerList();
 }
 
@@ -4344,28 +4311,19 @@ function updateBannerPreviewFromForm(){
   const first = cards[0];
   const bcard = document.getElementById('bcard');
   if(!bcard) return;
+  bcard.className = 'banner-card bc-image-only';
   if(!first){
-    bcard.className = 'banner-card bc-green';
     bcard.style.backgroundImage = '';
-    document.getElementById('bcardTag').textContent = '';
-    document.getElementById('bcardTitle').textContent = '';
-    document.getElementById('bcardSub').textContent = '';
     return;
   }
-  const color = first.querySelector('.banner-inp-color').value || 'green';
-  bcard.className = 'banner-card bc-' + color;
   const imgEl = first.querySelector('.banner-img-upload img.img-preview-thumb');
   if(imgEl){
-    bcard.style.backgroundImage = 'linear-gradient(rgba(0,0,0,.28),rgba(0,0,0,.28)), url(' + imgEl.src + ')';
+    bcard.style.backgroundImage = 'url(' + imgEl.src + ')';
     bcard.style.backgroundSize = 'cover';
     bcard.style.backgroundPosition = 'center';
   } else {
     bcard.style.backgroundImage = '';
   }
-  document.getElementById('bcardTag').textContent = first.querySelector('.banner-inp-tag').value || '';
-  document.getElementById('bcardTitle').textContent = first.querySelector('.banner-inp-title').value || '';
-  document.getElementById('bcardSub').textContent = first.querySelector('.banner-inp-sub').value || '';
-  document.getElementById('bcardDeco').innerHTML = BANNER_DECO.shipping;
 }
 
 async function uploadPendingBannerImages(){
@@ -4389,7 +4347,7 @@ async function saveBannerContent(){
   if(!window.sb) { T('Not connected to database','⚠️'); return; }
   await uploadPendingBannerImages();
   const cards = [...document.querySelectorAll('#bannerListMount .banner-item-card')];
-  const content = cards.map(bannerItemFromCard).filter(b => b.tag || b.title || b.sub || b.image_url);
+  const content = cards.map(bannerItemFromCard).filter(b => b.image_url);
   if(!content.length){ T('Add at least one banner','⚠️'); return; }
   const { error } = await sb.from('site_content').upsert({
     page: 'landing',
@@ -4412,7 +4370,7 @@ async function loadBannerContent(){
     .maybeSingle();
   if(error){ console.error('loadBannerContent error:', error.message); return; }
   if(!data || !Array.isArray(data.content) || !data.content.length){
-    bannerItemsData = [{ tag:'Free Shipping', title:'On Orders Over ৳2000', sub:'Anywhere across Bangladesh', color:'green', image_url:null }];
+    bannerItemsData = [{ image_url:null }];
   } else {
     bannerItemsData = data.content;
   }
