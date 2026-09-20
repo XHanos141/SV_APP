@@ -1642,6 +1642,11 @@ html[data-theme="light"] .mini-voucher {
 html[data-theme="light"] .mini-voucher .tear-notch { background: var(--surface-2); }
 
 
+.card-rules { margin: 0 14px 10px; font-size: 10.5px; font-weight: 600; color: var(--text-muted); line-height: 1.5; }
+.ch-pill-badge.direct { background: rgba(148,163,184,0.12); color: #94a3b8; border: 1px solid rgba(148,163,184,0.25); }
+.ch-fill.direct { background: #94a3b8; }
+.hub-loading { display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 48px 20px; font-size: 13px; font-weight: 600; color: var(--text-muted); text-align: center; }
+.hub-retry { border: none; background: var(--primary); color: #fff; font-weight: 700; font-size: 12px; padding: 9px 20px; border-radius: 10px; cursor: pointer; }
 </style>
 
 <div class="app-shell">
@@ -1663,15 +1668,15 @@ html[data-theme="light"] .mini-voucher .tear-notch { background: var(--surface-2
   <!-- STATS BAR -->
   <div class="stat-bar">
     <div class="stat-cell">
-      <div class="stat-val green" id="stat-active">2</div>
+      <div class="stat-val green" id="stat-active">—</div>
       <div class="stat-label">Active</div>
     </div>
     <div class="stat-cell">
-      <div class="stat-val purple" id="stat-used">59</div>
+      <div class="stat-val purple" id="stat-used">—</div>
       <div class="stat-label">Total Used</div>
     </div>
     <div class="stat-cell">
-      <div class="stat-val orange" id="stat-revenue">৳29,500</div>
+      <div class="stat-val orange" id="stat-revenue">—</div>
       <div class="stat-label">Discount Given</div>
     </div>
   </div>
@@ -1708,356 +1713,7 @@ html[data-theme="light"] .mini-voucher .tear-notch { background: var(--surface-2
     <!-- ============ TAB 0: ACTIVE ============ -->
     <div class="tab-panel active" id="panel-0">
 
-      <!-- VOUCHER 1: EID SPECIAL -->
-      <div class="voucher-card active-card" data-code="SUP-EVT-EID24" data-title="EID SPECIAL" data-search="eid special sup-evt-eid24">
-        <!-- MINI VOUCHER PREVIEW -->
-                        <div class="card-top">
-          <div class="card-icon-wrap event">
-            <svg viewBox="0 0 24 24" width="17" height="17" fill="none"><defs><linearGradient id="star3d-1" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#f4c55a"/><stop offset="100%" stop-color="#a16207"/></linearGradient></defs><path d="M12 1.5l3 7 7.5 1.5-5.5 5 1.5 7.5-6.5-4-6.5 4 1.5-7.5-5.5-5L9 8.5z" fill="url(#star3d-1)" stroke="#d4a017" stroke-width="2.5" stroke-linejoin="round"/><circle cx="12" cy="11" r="2.5" fill="#fff" stroke="#d4a017" stroke-width="1.5"/></svg>
-            </div>
-          <div class="card-info">
-            <div class="card-code">
-              SUP-EVT-EID24
-              <button class="copy-btn" onclick="copyCode('SUP-EVT-EID24')" title="Copy code">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><use href="#icon-copy"/></svg>
-              </button>
-            </div>
-            <div class="card-name">EID SPECIAL · Everything On Sale</div>
-          </div>
-          <span class="status-badge active"><span class="status-dot active"></span>Active</span>
-        </div>
-        <div class="mini-voucher-wrap" id="mini-wrap-SUP-EVT-EID24">
-          <div class="mini-voucher-scaler">
-            <div class="mini-voucher" id="mini-SUP-EVT-EID24" data-code="SUP-EVT-EID24">
-              <div class="left-panel" style="background: linear-gradient(135deg,#2a1f0a 0%,#1a1305 100%)">
-                <div class="wave-svg wave-1">
-                  <svg viewBox="0 0 537 365" preserveAspectRatio="none">
-                    <path d="M 537 235 C 350 322, 201 156, 0 294 L 0 0 L 537 0 Z" fill="#92700a" opacity="0.35"/>
-                  </svg>
-                </div>
-                <div class="wave-svg wave-2">
-                  <svg viewBox="0 0 513 313" preserveAspectRatio="none">
-                    <path d="M 513 164 C 350 251, 201 107, 0 207 L 0 0 L 513 0 Z" fill="#c9922a" opacity="0.35"/>
-                  </svg>
-                </div>
-                <div class="wave-svg wave-3">
-                  <svg viewBox="0 0 490 260" preserveAspectRatio="none">
-                    <path d="M 490 97 C 350 184, 201 40, 0 140 L 0 0 L 490 0 Z" fill="#e8c46a" opacity="0.50"/>
-                  </svg>
-                </div>
-                <div class="logo-row">
-                  <div class="logo-icon" style="width:37px;height:37px;display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:visible"><svg viewBox="0 0 375 375" width="37" height="37"><use href="#icon-logo"/></svg></div>
-                  <div class="logo-text">SuppVerse BD</div>
-                </div>
-                <div class="title-block">
-                  <div class="main-title">EID SPECIAL</div>
-                  <div class="sub-title">Everything On Sale</div>
-                  <div class="desc">Enjoy 20% off your entire order. Valid on all items during Eid celebration.</div>
-                </div>
-                <div class="bottom-row">
-                  <div class="discount-pill">20% OFF</div>
-                  <div class="meta-row">
-                    <div class="meta-text"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><use href="#icon-globe-website"/></svg> suppversebd.com</div>
-                    <div class="meta-text"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><use href="#icon-phone-filled"/></svg> +880 1644232935</div>
-                  </div>
-                </div>
-                <div class="sell-icon-wrap">
-                  <svg width="51" height="51" viewBox="0 0 24 24" fill="none"><use href="#icon-mail-envelope"/></svg>
-                </div>
-              </div>
-              <div class="middle-panel">
-                <div class="tear-line">
-                  <div class="tear-track"></div>
-                  <div class="tear-notch top"></div>
-                  <div class="tear-notch bottom"></div>
-                </div>
-              </div>
-              <div class="right-panel">
-                <div class="discount-box">
-                  <div class="discount-amount">20</div>
-                  <div class="discount-label">OFF</div>
-                </div>
-                <div class="barcode-code-area">
-                  <canvas class="bar-canvas" id="bar-SUP-EVT-EID24"></canvas>
-                  <div class="code-text">SUP-EVT-EID24</div>
-                </div>
-                <div class="validity-box">
-                  <div class="validity-label">Valid Until</div>
-                  <div class="validity-date">Jun 22, 2025</div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-<div class="card-stripe stripe-gold"></div>
-
-        
-
-        
-        
-
-<div class="card-stats">
-          <div class="stat-item type-event">
-            <div class="stat-item-val">Event</div>
-            <div class="stat-item-lbl">Type</div>
-          </div>
-          <div class="stat-item days-critical">
-            <div class="stat-item-val">3 Days Left</div>
-            <div class="stat-item-lbl">22 Jun 2025</div>
-          </div>
-          <div class="stat-item">
-            <div class="stat-item-val offer-value">20%</div>
-            <div class="stat-item-lbl">OFF All Products</div>
-          </div>
-          <div class="stat-item">
-            <div class="stat-item-val">47 / 100</div>
-            <div class="stat-item-lbl">Uses</div>
-          </div>
-        </div>
-
-        
-
-        
-
-        <div class="usage-bar-wrap">
-          <div class="usage-bar-header">
-            <span class="usage-bar-label">Usage Limit</span>
-            <span class="center-group">
-              <span class="divider"></span>
-              <span class="usage-bar-pct moderate">47%</span>
-              <span class="divider"></span>
-            </span>
-            <span class="usage-bar-count">47 / 100</span>
-          </div>
-          <div class="usage-bar-track">
-            <div class="usage-bar-fill moderate" style="width:47%"></div>
-          </div>
-        </div>
-        <div class="channel-section">
-          <div class="channel-header">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" width="10" height="10"><use href="#icon-activity-pulse"/></svg>
-            Redemptions by Channel
-          </div>
-          <div class="channel-bars">
-            <div class="channel-row">
-              <span class="ch-pill-badge fb">FB 62%</span>
-              <div class="ch-track"><div class="ch-fill fb" style="width:62%"></div></div>
-              <span class="ch-count">29</span>
-            </div>
-            <div class="channel-row">
-              <span class="ch-pill-badge ig">IG 19%</span>
-              <div class="ch-track"><div class="ch-fill ig" style="width:19%"></div></div>
-              <span class="ch-count">9</span>
-            </div>
-            <div class="channel-row">
-              <span class="ch-pill-badge web">Web 13%</span>
-              <div class="ch-track"><div class="ch-fill web" style="width:13%"></div></div>
-              <span class="ch-count">6</span>
-            </div>
-            <div class="channel-row">
-              <span class="ch-pill-badge wp">WP 6%</span>
-              <div class="ch-track"><div class="ch-fill wp" style="width:6%"></div></div>
-              <span class="ch-count">3</span>
-            </div>
-          </div>
-          
-        </div>
-<div class="revenue-row">
-          <span class="revenue-label">Total Discount Given</span>
-          <span class="revenue-val">৳23,500</span>
-        </div>
-
-        <div class="card-actions">
-          <button class="action-btn btn-edit" onclick="openEditModal('SUP-EVT-EID24')">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><use href="#icon-edit-pencil"/></svg>
-            Edit
-          </button>
-          <button class="action-btn btn-deactivate" onclick="openDeactivateModal('SUP-EVT-EID24')">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
-            Pause
-          </button>
-          <button class="action-btn btn-analytics" onclick="openAnalytics('SUP-EVT-EID24')">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" width="10" height="10"><use href="#icon-activity-pulse"/></svg>
-            Analytics
-          </button>
-        </div>
-      </div>
-
-      <!-- VOUCHER 2: WELCOME15 -->
-      <div class="voucher-card active-card" data-code="SUP-NEW-WEL15" data-title="WELCOME15" data-search="welcome15 sup-new-wel15 new customer">
-        <!-- MINI VOUCHER PREVIEW -->
-                        <div class="card-top">
-          <div class="card-icon-wrap newcustomer">
-            <svg viewBox="0 0 24 24" width="20" height="20" fill="none"><defs><linearGradient id="newCustGrad-1" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#c084fc"/><stop offset="100%" stop-color="#7c3aed"/></linearGradient></defs><circle cx="10" cy="8" r="4" fill="url(#newCustGrad-1)" stroke="#9333ea" stroke-width="1.5"/><path d="M2 20c0-3.31 3.58-6 8-6" stroke="url(#newCustGrad-1)" stroke-width="2" stroke-linecap="round"/><circle cx="19" cy="16" r="3" fill="none" stroke="#c084fc" stroke-width="2"/><path d="M19 14.5v3M17.5 16h3" stroke="#c084fc" stroke-width="1.8" stroke-linecap="round"/></svg>
-            </div>
-          <div class="card-info">
-            <div class="card-code">
-              SUP-NEW-WEL15
-              <button class="copy-btn" onclick="copyCode('SUP-NEW-WEL15')" title="Copy code">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><use href="#icon-copy"/></svg>
-              </button>
-            </div>
-            <div class="card-name">WELCOME15 · First Purchase Discount</div>
-          </div>
-          <span class="status-badge active"><span class="status-dot active"></span>Active</span>
-        </div>
-
-        <div class="mini-voucher-wrap" id="mini-wrap-SUP-NEW-WEL15">
-          <div class="mini-voucher-scaler">
-            <div class="mini-voucher" id="mini-SUP-NEW-WEL15" data-code="SUP-NEW-WEL15">
-              <div class="left-panel" style="background: linear-gradient(135deg, #1a2a3a 0%, #243b4d 50%, #1e3345 100%)">
-                <div class="wave-svg wave-1">
-                  <svg viewBox="0 0 537 365" preserveAspectRatio="none">
-                    <path d="M 537 235 C 350 322, 201 156, 0 294 L 0 0 L 537 0 Z" fill="rgba(255,255,255,0.12)" opacity="0.35"/>
-                  </svg>
-                </div>
-                <div class="wave-svg wave-2">
-                  <svg viewBox="0 0 513 313" preserveAspectRatio="none">
-                    <path d="M 513 164 C 350 251, 201 107, 0 207 L 0 0 L 513 0 Z" fill="rgba(255,255,255,0.08)" opacity="0.35"/>
-                  </svg>
-                </div>
-                <div class="wave-svg wave-3">
-                  <svg viewBox="0 0 490 260" preserveAspectRatio="none">
-                    <path d="M 490 97 C 350 184, 201 40, 0 140 L 0 0 L 490 0 Z" fill="rgba(255,255,255,0.05)" opacity="0.50"/>
-                  </svg>
-                </div>
-                <div class="logo-row">
-                  <div class="logo-icon" style="width:37px;height:37px;display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:visible"><svg viewBox="0 0 375 375" width="37" height="37"><use href="#icon-logo"/></svg></div>
-                  <div class="logo-text">SuppVerse BD</div>
-                </div>
-                <div class="title-block">
-                  <div class="main-title">WELCOME15</div>
-                  <div class="sub-title">First Purchase Discount</div>
-                  <div class="desc">New customer exclusive. Flat ৳500 off on your first order with us.</div>
-                </div>
-                <div class="bottom-row">
-                  <div class="discount-pill">৳500 OFF</div>
-                  <div class="meta-row">
-                    <div class="meta-text"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><use href="#icon-globe-website"/></svg> suppversebd.com</div>
-                    <div class="meta-text"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><use href="#icon-phone-filled"/></svg> +880 1644232935</div>
-                  </div>
-                </div>
-                <div class="sell-icon-wrap">
-                  <svg width="51" height="51" viewBox="0 0 24 24" fill="none"><use href="#icon-mail-envelope"/></svg>
-                </div>
-              </div>
-              <div class="middle-panel">
-                <div class="tear-line">
-                  <div class="tear-track"></div>
-                  <div class="tear-notch top"></div>
-                  <div class="tear-notch bottom"></div>
-                </div>
-              </div>
-              <div class="right-panel">
-                <div class="discount-box">
-                  <div class="discount-amount">500</div>
-                  <div class="discount-label">OFF</div>
-                </div>
-                <div class="barcode-code-area">
-                  <canvas class="bar-canvas" id="bar-SUP-NEW-WEL15"></canvas>
-                  <div class="code-text">SUP-NEW-WEL15</div>
-                </div>
-                <div class="validity-box">
-                  <div class="validity-label">Valid Until</div>
-                  <div class="validity-date">No Expiry</div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-<div class="card-stripe stripe-purple"></div>
-
-        
-
-        
-        
-
-<div class="card-stats">
-          <div class="stat-item type-newcustomer">
-            <div class="stat-item-val">New Customer</div>
-            <div class="stat-item-lbl">Type</div>
-          </div>
-          <div class="stat-item days-unlimited">
-            <div class="stat-item-val">No Expiry</div>
-            <div class="stat-item-lbl">Never</div>
-          </div>
-          <div class="stat-item">
-            <div class="stat-item-val offer-value">৳500</div>
-            <div class="stat-item-lbl">Flat Discount</div>
-          </div>
-          <div class="stat-item">
-            <div class="stat-item-val">12 / ∞</div>
-            <div class="stat-item-lbl">Uses (Unlimited)</div>
-          </div>
-        </div>
-
-        
-
-        
-
-        <div class="usage-bar-wrap">
-          <div class="usage-bar-header">
-            <span class="usage-bar-label">Usage Limit</span>
-            <span class="center-group">
-              <span class="divider"></span>
-              <span class="usage-bar-pct unlimited">—</span>
-              <span class="divider"></span>
-            </span>
-            <span class="usage-bar-count">12 / ∞</span>
-          </div>
-          <div class="usage-bar-track">
-            <div class="usage-bar-fill unlimited" style="width:100%"></div>
-          </div>
-        </div>
-        <div class="channel-section">
-          <div class="channel-header">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" width="10" height="10"><use href="#icon-activity-pulse"/></svg>
-            Redemptions by Channel
-          </div>
-          <div class="channel-bars">
-            <div class="channel-row">
-              <span class="ch-pill-badge fb">FB 50%</span>
-              <div class="ch-track"><div class="ch-fill fb" style="width:50%"></div></div>
-              <span class="ch-count">6</span>
-            </div>
-            <div class="channel-row">
-              <span class="ch-pill-badge ig">IG 33%</span>
-              <div class="ch-track"><div class="ch-fill ig" style="width:33%"></div></div>
-              <span class="ch-count">4</span>
-            </div>
-            <div class="channel-row">
-              <span class="ch-pill-badge web">Web 17%</span>
-              <div class="ch-track"><div class="ch-fill web" style="width:17%"></div></div>
-              <span class="ch-count">2</span>
-            </div>
-            <div class="channel-row">
-              <span class="ch-pill-badge wp">WP 0%</span>
-              <div class="ch-track"><div class="ch-fill wp" style="width:0%"></div></div>
-              <span class="ch-count">0</span>
-            </div>
-          </div>
-          
-        </div>
-<div class="revenue-row">
-          <span class="revenue-label">Total Discount Given</span>
-          <span class="revenue-val">৳6,000</span>
-        </div>
-
-        <div class="card-actions">
-          <button class="action-btn btn-edit" onclick="openEditModal('SUP-NEW-WEL15')">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><use href="#icon-edit-pencil"/></svg>
-            Edit
-          </button>
-          <button class="action-btn btn-deactivate" onclick="openDeactivateModal('SUP-NEW-WEL15')">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
-            Pause
-          </button>
-          <button class="action-btn btn-analytics" onclick="openAnalytics('SUP-NEW-WEL15')">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" width="10" height="10"><use href="#icon-activity-pulse"/></svg>
-            Analytics
-          </button>
-        </div>
-      </div>
+      <div class="cards-host" id="cards-0"></div>
 
       <div class="empty-state" id="empty-0" style="display:none">
         <div class="empty-icon">
@@ -2073,175 +1729,7 @@ html[data-theme="light"] .mini-voucher .tear-notch { background: var(--surface-2
     <!-- ============ TAB 1: INACTIVE ============ -->
     <div class="tab-panel" id="panel-1">
 
-      <div class="voucher-card inactive-card" data-code="SUP-REG-FLASH1" data-title="FLASH SALE" data-search="flash sale sup-reg-flash1">
-        <!-- MINI VOUCHER PREVIEW -->
-                        <div class="card-top">
-          <div class="card-icon-wrap regular">
-            <svg viewBox="0 0 24 24" width="20" height="20" fill="none"><use href="#icon-phone-outline"/></svg>
-            </div>
-          <div class="card-info">
-            <div class="card-code">
-              SUP-REG-FLASH1
-              <button class="copy-btn" onclick="copyCode('SUP-REG-FLASH1')">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><use href="#icon-copy"/></svg>
-              </button>
-            </div>
-            <div class="card-name">FLASH SALE · Weekend Special</div>
-          </div>
-          <span class="status-badge inactive"><span class="status-dot inactive"></span>Paused</span>
-        </div>
-        <div class="mini-voucher-wrap" id="mini-wrap-SUP-REG-FLASH1">
-          <div class="mini-voucher-scaler">
-            <div class="mini-voucher" id="mini-SUP-REG-FLASH1" data-code="SUP-REG-FLASH1">
-              <div class="left-panel" style="background: linear-gradient(135deg,#14532d 0%,#0d3320 100%)">
-                <div class="wave-svg wave-1">
-                  <svg viewBox="0 0 537 365" preserveAspectRatio="none">
-                    <path d="M 537 235 C 350 322, 201 156, 0 294 L 0 0 L 537 0 Z" fill="#166534" opacity="0.35"/>
-                  </svg>
-                </div>
-                <div class="wave-svg wave-2">
-                  <svg viewBox="0 0 513 313" preserveAspectRatio="none">
-                    <path d="M 513 164 C 350 251, 201 107, 0 207 L 0 0 L 513 0 Z" fill="#22c55e" opacity="0.35"/>
-                  </svg>
-                </div>
-                <div class="wave-svg wave-3">
-                  <svg viewBox="0 0 490 260" preserveAspectRatio="none">
-                    <path d="M 490 97 C 350 184, 201 40, 0 140 L 0 0 L 490 0 Z" fill="#86efac" opacity="0.50"/>
-                  </svg>
-                </div>
-                <div class="logo-row">
-                  <div class="logo-icon" style="width:37px;height:37px;display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:visible"><svg viewBox="0 0 375 375" width="37" height="37"><use href="#icon-logo"/></svg></div>
-                  <div class="logo-text">SuppVerse BD</div>
-                </div>
-                <div class="title-block">
-                  <div class="main-title">FLASH SALE</div>
-                  <div class="sub-title">Weekend Special</div>
-                  <div class="desc">Limited time 15% off on all products this weekend only.</div>
-                </div>
-                <div class="bottom-row">
-                  <div class="discount-pill">15% OFF</div>
-                  <div class="meta-row">
-                    <div class="meta-text"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><use href="#icon-globe-website"/></svg> suppversebd.com</div>
-                    <div class="meta-text"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><use href="#icon-phone-filled"/></svg> +880 1644232935</div>
-                  </div>
-                </div>
-                <div class="sell-icon-wrap">
-                  <svg width="51" height="51" viewBox="0 0 24 24" fill="none"><use href="#icon-mail-envelope"/></svg>
-                </div>
-              </div>
-              <div class="middle-panel">
-                <div class="tear-line">
-                  <div class="tear-track"></div>
-                  <div class="tear-notch top"></div>
-                  <div class="tear-notch bottom"></div>
-                </div>
-              </div>
-              <div class="right-panel">
-                <div class="discount-box">
-                  <div class="discount-amount">15</div>
-                  <div class="discount-label">OFF</div>
-                </div>
-                <div class="barcode-code-area">
-                  <canvas class="bar-canvas" id="bar-SUP-REG-FLASH1"></canvas>
-                  <div class="code-text">SUP-REG-FLASH1</div>
-                </div>
-                <div class="validity-box">
-                  <div class="validity-label">Valid Until</div>
-                  <div class="validity-date">Sep 30, 2025</div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-<div class="card-stripe stripe-green"></div>
-
-        
-
-        
-        
-
-<div class="card-stats">
-          <div class="stat-item type-regular">
-            <div class="stat-item-val">Regular</div>
-            <div class="stat-item-lbl">Type</div>
-          </div>
-          <div class="stat-item days-left">
-            <div class="stat-item-val">103 Days Left</div>
-            <div class="stat-item-lbl">30 Sep 2025</div>
-          </div>
-          <div class="stat-item">
-            <div class="stat-item-val offer-value">15%</div>
-            <div class="stat-item-lbl">OFF All Products</div>
-          </div>
-          <div class="stat-item">
-            <div class="stat-item-val">34 / 50</div>
-            <div class="stat-item-lbl">Uses Before Pause</div>
-          </div>
-        </div>
-
-        
-
-        
-
-        <!-- CHANNEL PREVIEW (last snapshot before pause) -->
-        <div class="usage-bar-wrap">
-          <div class="usage-bar-header">
-            <span class="usage-bar-label">Usage Limit</span>
-            <span class="center-group">
-              <span class="divider"></span>
-              <span class="usage-bar-pct moderate">68%</span>
-              <span class="divider"></span>
-            </span>
-            <span class="usage-bar-count">34 / 50</span>
-          </div>
-          <div class="usage-bar-track">
-            <div class="usage-bar-fill moderate" style="width:68%"></div>
-          </div>
-        </div>
-        <div class="channel-section">
-          <div class="channel-header">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" width="10" height="10"><use href="#icon-activity-pulse"/></svg>
-            Last Channel Snapshot (Before Pause)
-          </div>
-          <div class="channel-bars">
-            <div class="channel-row">
-              <span class="ch-pill-badge fb">FB 55%</span>
-              <div class="ch-track"><div class="ch-fill fb" style="width:55%"></div></div>
-              <span class="ch-count">19</span>
-            </div>
-            <div class="channel-row">
-              <span class="ch-pill-badge ig">IG 24%</span>
-              <div class="ch-track"><div class="ch-fill ig" style="width:24%"></div></div>
-              <span class="ch-count">8</span>
-            </div>
-            <div class="channel-row">
-              <span class="ch-pill-badge web">Web 15%</span>
-              <div class="ch-track"><div class="ch-fill web" style="width:15%"></div></div>
-              <span class="ch-count">5</span>
-            </div>
-            <div class="channel-row">
-              <span class="ch-pill-badge wp">WP 6%</span>
-              <div class="ch-track"><div class="ch-fill wp" style="width:6%"></div></div>
-              <span class="ch-count">2</span>
-            </div>
-          </div>
-        </div>
-
-        <div class="card-actions">
-          <button class="action-btn btn-reactivate" onclick="openReactivateModal('SUP-REG-FLASH1')">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8" fill="currentColor"/></svg>
-            Reactivate
-          </button>
-          <button class="action-btn btn-clone" onclick="cloneVoucher('SUP-REG-FLASH1')">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><use href="#icon-copy"/></svg>
-            Clone
-          </button>
-          <button class="action-btn btn-delete" onclick="openDeleteModal('SUP-REG-FLASH1')">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
-            Delete
-          </button>
-        </div>
-      </div>
+      <div class="cards-host" id="cards-1"></div>
 
       <div class="empty-state" id="empty-1" style="display:none">
         <div class="empty-icon">
@@ -2258,287 +1746,16 @@ html[data-theme="light"] .mini-voucher .tear-notch { background: var(--surface-2
 
       <div class="archive-banner">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 8v13a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8"/><rect x="1" y="3" width="22" height="5" rx="1"/><line x1="10" y1="12" x2="14" y2="12"/></svg>
-        Read-only · These vouchers are expired or archived. No changes allowed.
+        Expired, used-up or archived vouchers. Edit an expired one to extend it, or clone it as a new campaign.
       </div>
 
       <div class="section-divider">
         <div class="section-divider-line"></div>
-        <span class="section-divider-label">Expired · 2025</span>
+        <span class="section-divider-label">Expired &amp; Archived</span>
         <div class="section-divider-line"></div>
       </div>
 
-      <!-- ARCHIVE 1 -->
-      <div class="voucher-card archived-card" data-code="SUP-EVT-EID23" data-title="EID 2023" data-search="eid 2023 sup-evt-eid23">
-        <!-- MINI VOUCHER PREVIEW -->
-                        <div class="card-top">
-          <div class="card-icon-wrap event" style="opacity:0.6">
-            <svg viewBox="0 0 24 24" width="17" height="17" fill="none"><defs><linearGradient id="star3d-2" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#f4c55a"/><stop offset="100%" stop-color="#a16207"/></linearGradient></defs><path d="M12 1.5l3 7 7.5 1.5-5.5 5 1.5 7.5-6.5-4-6.5 4 1.5-7.5-5.5-5L9 8.5z" fill="url(#star3d-2)" stroke="#d4a017" stroke-width="2.5" stroke-linejoin="round"/><circle cx="12" cy="11" r="2.5" fill="#fff" stroke="#d4a017" stroke-width="1.5"/></svg>
-            </div>
-          <div class="card-info">
-            <div class="card-code" style="opacity:0.7">SUP-EVT-EID23</div>
-            <div class="card-name">EID SPECIAL 2023 · Everything On Sale</div>
-          </div>
-          <span class="status-badge archived"><span class="status-dot archived"></span>Expired</span>
-        </div>
-        <div class="mini-voucher-wrap" id="mini-wrap-SUP-EVT-EID23">
-          <div class="mini-voucher-scaler">
-            <div class="mini-voucher" id="mini-SUP-EVT-EID23" data-code="SUP-EVT-EID23">
-              <div class="left-panel" style="background: linear-gradient(135deg,#2a1f0a 0%,#1a1305 100%)">
-                <div class="wave-svg wave-1">
-                  <svg viewBox="0 0 537 365" preserveAspectRatio="none">
-                    <path d="M 537 235 C 350 322, 201 156, 0 294 L 0 0 L 537 0 Z" fill="#92700a" opacity="0.35"/>
-                  </svg>
-                </div>
-                <div class="wave-svg wave-2">
-                  <svg viewBox="0 0 513 313" preserveAspectRatio="none">
-                    <path d="M 513 164 C 350 251, 201 107, 0 207 L 0 0 L 513 0 Z" fill="#c9922a" opacity="0.35"/>
-                  </svg>
-                </div>
-                <div class="wave-svg wave-3">
-                  <svg viewBox="0 0 490 260" preserveAspectRatio="none">
-                    <path d="M 490 97 C 350 184, 201 40, 0 140 L 0 0 L 490 0 Z" fill="#e8c46a" opacity="0.50"/>
-                  </svg>
-                </div>
-                <div class="logo-row">
-                  <div class="logo-icon" style="width:37px;height:37px;display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:visible"><svg viewBox="0 0 375 375" width="37" height="37"><use href="#icon-logo"/></svg></div>
-                  <div class="logo-text">SuppVerse BD</div>
-                </div>
-                <div class="title-block">
-                  <div class="main-title">EID SPECIAL 2023</div>
-                  <div class="sub-title">Everything On Sale</div>
-                  <div class="desc">Eid 2023 special offer. 25% off on all products.</div>
-                </div>
-                <div class="bottom-row">
-                  <div class="discount-pill">25% OFF</div>
-                  <div class="meta-row">
-                    <div class="meta-text"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><use href="#icon-globe-website"/></svg> suppversebd.com</div>
-                    <div class="meta-text"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><use href="#icon-phone-filled"/></svg> +880 1644232935</div>
-                  </div>
-                </div>
-                <div class="sell-icon-wrap">
-                  <svg width="51" height="51" viewBox="0 0 24 24" fill="none"><use href="#icon-mail-envelope"/></svg>
-                </div>
-              </div>
-              <div class="middle-panel">
-                <div class="tear-line">
-                  <div class="tear-track"></div>
-                  <div class="tear-notch top"></div>
-                  <div class="tear-notch bottom"></div>
-                </div>
-              </div>
-              <div class="right-panel">
-                <div class="discount-box">
-                  <div class="discount-amount">25</div>
-                  <div class="discount-label">OFF</div>
-                </div>
-                <div class="barcode-code-area">
-                  <canvas class="bar-canvas" id="bar-SUP-EVT-EID23"></canvas>
-                  <div class="code-text">SUP-EVT-EID23</div>
-                </div>
-                <div class="validity-box">
-                  <div class="validity-label">Valid Until</div>
-                  <div class="validity-date">Apr 2023</div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-<div class="card-stripe stripe-gold" style="opacity:0.4"></div>
-
-        <div class="card-stats">
-          <div class="stat-item type-event">
-            <div class="stat-item-val">Event</div>
-            <div class="stat-item-lbl">Type</div>
-          </div>
-          <div class="stat-item days-expired">
-            <div class="stat-item-val">Expired</div>
-            <div class="stat-item-lbl">Apr 2023</div>
-          </div>
-          <div class="stat-item">
-            <div class="stat-item-val offer-value">25%</div>
-            <div class="stat-item-lbl">OFF All Products</div>
-          </div>
-          <div class="stat-item">
-            <div class="stat-item-val" style="color:var(--text-muted)">88 / 100</div>
-            <div class="stat-item-lbl">Total Used</div>
-          </div>
-        </div>
-
-        <!-- Channel Final Report -->
-        <div class="usage-bar-wrap">
-          <div class="usage-bar-header">
-            <span class="usage-bar-label">Usage Limit</span>
-            <span class="center-group">
-              <span class="divider"></span>
-              <span class="usage-bar-pct critical">88%</span>
-              <span class="divider"></span>
-            </span>
-            <span class="usage-bar-count">88 / 100</span>
-          </div>
-          <div class="usage-bar-track">
-            <div class="usage-bar-fill critical" style="width:88%"></div>
-          </div>
-        </div>
-        <div class="channel-section" style="opacity:0.7">
-          <div class="channel-header">Final Channel Report</div>
-          <div class="channel-bars">
-            <div class="channel-row">
-              <span class="ch-pill-badge fb">FB 68%</span>
-              <div class="ch-track"><div class="ch-fill fb" style="width:68%"></div></div>
-              <span class="ch-count">60</span>
-            </div>
-            <div class="channel-row">
-              <span class="ch-pill-badge ig">IG 16%</span>
-              <div class="ch-track"><div class="ch-fill ig" style="width:16%"></div></div>
-              <span class="ch-count">14</span>
-            </div>
-            <div class="channel-row">
-              <span class="ch-pill-badge web">Web 11%</span>
-              <div class="ch-track"><div class="ch-fill web" style="width:11%"></div></div>
-              <span class="ch-count">10</span>
-            </div>
-            <div class="channel-row">
-              <span class="ch-pill-badge wp">WP 5%</span>
-              <div class="ch-track"><div class="ch-fill wp" style="width:5%"></div></div>
-              <span class="ch-count">4</span>
-            </div>
-          </div>
-        </div>
-
-        <div class="card-actions">
-          <button class="action-btn btn-clone" onclick="cloneVoucher('SUP-EVT-EID23')">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><use href="#icon-copy"/></svg>
-            Clone for 2025
-          </button>
-          <button class="action-btn btn-analytics" onclick="openAnalytics('SUP-EVT-EID23')">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" width="10" height="10"><use href="#icon-activity-pulse"/></svg>
-            View Report
-          </button>
-        </div>
-      </div>
-
-      <!-- ARCHIVE 2 -->
-      <div class="voucher-card archived-card" data-code="SUP-REG-DEC22" data-title="YEAR END" data-search="year end dec22 sup-reg-dec22">
-        <!-- MINI VOUCHER PREVIEW -->
-                        <div class="card-top">
-          <div class="card-icon-wrap regular" style="opacity:0.6">
-            <svg viewBox="0 0 24 24" width="20" height="20" fill="none"><use href="#icon-phone-outline"/></svg>
-            </div>
-          <div class="card-info">
-            <div class="card-code" style="opacity:0.7">SUP-REG-DEC22</div>
-            <div class="card-name">YEAR END SALE 2022 · December Special</div>
-          </div>
-          <span class="status-badge archived"><span class="status-dot archived"></span>Expired</span>
-        </div>
-        <div class="mini-voucher-wrap" id="mini-wrap-SUP-REG-DEC22">
-          <div class="mini-voucher-scaler">
-            <div class="mini-voucher" id="mini-SUP-REG-DEC22" data-code="SUP-REG-DEC22">
-              <div class="left-panel" style="background: linear-gradient(135deg, #0c4a6e 0%, #0a2e47 100%)">
-                <div class="wave-svg wave-1">
-                  <svg viewBox="0 0 537 365" preserveAspectRatio="none">
-                    <path d="M 537 235 C 350 322, 201 156, 0 294 L 0 0 L 537 0 Z" fill="#0e6ba8" opacity="0.35"/>
-                  </svg>
-                </div>
-                <div class="wave-svg wave-2">
-                  <svg viewBox="0 0 513 313" preserveAspectRatio="none">
-                    <path d="M 513 164 C 350 251, 201 107, 0 207 L 0 0 L 513 0 Z" fill="#38bdf8" opacity="0.35"/>
-                  </svg>
-                </div>
-                <div class="wave-svg wave-3">
-                  <svg viewBox="0 0 490 260" preserveAspectRatio="none">
-                    <path d="M 490 97 C 350 184, 201 40, 0 140 L 0 0 L 490 0 Z" fill="#7dd3fc" opacity="0.50"/>
-                  </svg>
-                </div>
-                <div class="logo-row">
-                  <div class="logo-icon" style="width:37px;height:37px;display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:visible"><svg viewBox="0 0 375 375" width="37" height="37"><use href="#icon-logo"/></svg></div>
-                  <div class="logo-text">SuppVerse BD</div>
-                </div>
-                <div class="title-block">
-                  <div class="main-title">YEAR END SALE</div>
-                  <div class="sub-title">December Special</div>
-                  <div class="desc">End of year celebration. Flat ৳300 off on all orders.</div>
-                </div>
-                <div class="bottom-row">
-                  <div class="discount-pill">৳300 OFF</div>
-                  <div class="meta-row">
-                    <div class="meta-text"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><use href="#icon-globe-website"/></svg> suppversebd.com</div>
-                    <div class="meta-text"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><use href="#icon-phone-filled"/></svg> +880 1644232935</div>
-                  </div>
-                </div>
-                <div class="sell-icon-wrap">
-                  <svg width="51" height="51" viewBox="0 0 24 24" fill="none"><use href="#icon-mail-envelope"/></svg>
-                </div>
-              </div>
-              <div class="middle-panel">
-                <div class="tear-line">
-                  <div class="tear-track"></div>
-                  <div class="tear-notch top"></div>
-                  <div class="tear-notch bottom"></div>
-                </div>
-              </div>
-              <div class="right-panel">
-                <div class="discount-box">
-                  <div class="discount-amount">300</div>
-                  <div class="discount-label">OFF</div>
-                </div>
-                <div class="barcode-code-area">
-                  <canvas class="bar-canvas" id="bar-SUP-REG-DEC22"></canvas>
-                  <div class="code-text">SUP-REG-DEC22</div>
-                </div>
-                <div class="validity-box">
-                  <div class="validity-label">Valid Until</div>
-                  <div class="validity-date">Dec 2022</div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-<div class="card-stripe stripe-blue" style="opacity:0.4"></div>
-
-        <div class="card-stats">
-          <div class="stat-item type-regular">
-            <div class="stat-item-val">Regular</div>
-            <div class="stat-item-lbl">Type</div>
-          </div>
-          <div class="stat-item days-expired">
-            <div class="stat-item-val">Expired</div>
-            <div class="stat-item-lbl">Dec 2022</div>
-          </div>
-          <div class="stat-item">
-            <div class="stat-item-val offer-value">৳300</div>
-            <div class="stat-item-lbl">Flat Discount</div>
-          </div>
-          <div class="stat-item">
-            <div class="stat-item-val" style="color:var(--text-muted)">65 / 100</div>
-            <div class="stat-item-lbl">Total Used</div>
-          </div>
-        </div>
-
-        <div class="usage-bar-wrap">
-          <div class="usage-bar-header">
-            <span class="usage-bar-label">Usage Limit</span>
-            <span class="center-group">
-              <span class="divider"></span>
-              <span class="usage-bar-pct moderate">65%</span>
-              <span class="divider"></span>
-            </span>
-            <span class="usage-bar-count">65 / 100</span>
-          </div>
-          <div class="usage-bar-track">
-            <div class="usage-bar-fill moderate" style="width:65%"></div>
-          </div>
-        </div>
-        <div class="card-actions">
-          <button class="action-btn btn-clone" onclick="cloneVoucher('SUP-REG-DEC22')">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><use href="#icon-copy"/></svg>
-            Clone
-          </button>
-          <button class="action-btn btn-analytics" onclick="openAnalytics('SUP-REG-DEC22')">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" width="10" height="10"><use href="#icon-activity-pulse"/></svg>
-            View Report
-          </button>
-        </div>
-      </div>
+      <div class="cards-host" id="cards-2"></div>
 
       <div class="empty-state" id="empty-2" style="display:none">
         <div class="empty-icon">
@@ -2606,6 +1823,19 @@ html[data-theme="light"] .mini-voucher .tear-notch { background: var(--surface-2
     <div class="modal-btns">
       <button class="modal-cancel" onclick="closeModal('deleteModal')">Cancel</button>
       <button class="modal-confirm-danger" onclick="confirmDelete()">Delete Permanently</button>
+    </div>
+  </div>
+</div>
+
+<!-- GENERIC CONFIRM MODAL (archive / restore) -->
+<div class="voucher-modal-overlay" id="genericModal">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="genTitle"></div>
+    <div class="modal-msg" id="genMsg"></div>
+    <div class="modal-btns">
+      <button class="modal-cancel" onclick="closeModal('genericModal')">Cancel</button>
+      <button id="genBtn" onclick="confirmGeneric()"></button>
     </div>
   </div>
 </div>
@@ -2717,7 +1947,7 @@ function closeModal(id) {
   _hid(id).classList.remove('open');
 }
 
-// Deactivate
+// Pause
 function openDeactivateModal(code) {
   pendingCode = code;
   _hid('deactivateCode').textContent = code;
@@ -2725,8 +1955,7 @@ function openDeactivateModal(code) {
 }
 function confirmDeactivate() {
   closeModal('deactivateModal');
-  hubShowToast(pendingCode + ' paused successfully', 'warning');
-  // TODO: Supabase UPDATE vouchers SET status='inactive' WHERE voucher_code=pendingCode
+  hubDoStatus(pendingCode, 'paused', pendingCode + ' paused successfully', 'warning');
 }
 
 // Reactivate
@@ -2737,20 +1966,55 @@ function openReactivateModal(code) {
 }
 function confirmReactivate() {
   closeModal('reactivateModal');
-  hubShowToast(pendingCode + ' is now live again!', 'success');
-  // TODO: Supabase UPDATE vouchers SET status='active' WHERE voucher_code=pendingCode
+  hubDoStatus(pendingCode, 'active', pendingCode + ' is now live again!', 'success');
 }
 
-// Delete
+// Delete (only vouchers that were never redeemed - the server refuses otherwise)
 function openDeleteModal(code) {
   pendingCode = code;
   _hid('deleteCode').textContent = code;
   openModal('deleteModal');
 }
-function confirmDelete() {
+async function confirmDelete() {
   closeModal('deleteModal');
-  hubShowToast(pendingCode + ' deleted', 'warning');
-  // TODO: Supabase soft-delete or hard DELETE WHERE voucher_code=pendingCode
+  const code = pendingCode;
+  try {
+    await svHub('delete', { code: code });
+    hubShowToast(code + ' deleted', 'warning');
+    hubLoad();
+  } catch (err) {
+    hubShowToast(err.message, 'error');
+  }
+}
+
+// Archive / Restore
+let _genAction = null;
+function hubConfirm(title, msg, btnText, btnClass, action) {
+  _hid('genTitle').textContent = title;
+  _hid('genMsg').innerHTML = msg;
+  const b = _hid('genBtn');
+  b.textContent = btnText;
+  b.className = btnClass;
+  _genAction = action;
+  openModal('genericModal');
+}
+function confirmGeneric() {
+  closeModal('genericModal');
+  if (_genAction) _genAction();
+}
+function openArchiveModal(code) {
+  const v = hubFind(code);
+  const n = v ? v.uses : 0;
+  hubConfirm('📦 Archive Voucher?',
+    'Archiving <span class="modal-code">' + esc(code) + '</span> keeps its ' + n + ' redemption' + (n === 1 ? '' : 's') + ' and history, but customers can no longer use it. You can restore it later.',
+    'Yes, Archive', 'modal-confirm-danger',
+    function() { hubDoStatus(code, 'archived', code + ' archived', 'warning'); });
+}
+function openRestoreModal(code) {
+  hubConfirm('↩ Restore Voucher?',
+    '<span class="modal-code">' + esc(code) + '</span> will move back to Inactive (paused). Reactivate it when you are ready.',
+    'Yes, Restore', 'modal-confirm-success',
+    function() { hubDoStatus(code, 'paused', code + ' restored to Inactive', 'success'); });
 }
 
 // Close modal on overlay click
@@ -2761,58 +2025,16 @@ _hq('.voucher-modal-overlay').forEach(overlay => {
 });
 
 // =============================================
-// EDIT VOUCHER
-// TODO: Replace MOCK_VOUCHERS lookup with a Supabase fetch by voucher_code
+// FORM ACTIONS (the parent app opens the creation form)
 // =============================================
-const MOCK_VOUCHERS = {
-  'SUP-EVT-EID24': {
-    voucher_code: 'SUP-EVT-EID24', theme: 'blue', type: 'event',
-    discount_type: 'percent', discount_amount: 20,
-    usage_limit: 'multiple', max_uses: 100, per_customer_limit: false,
-    title: 'EID SPECIAL', subtitle: 'Everything On Sale',
-    description: 'Enjoy 20% off your entire order during Eid.',
-    expiry_date: '2026-06-22', products: null, redemptions: 47
-  },
-  'SUP-NEW-WEL15': {
-    voucher_code: 'SUP-NEW-WEL15', theme: 'blue', type: 'newcustomer',
-    discount_type: 'percent', discount_amount: 15,
-    usage_limit: 'multiple', max_uses: null, per_customer_limit: true,
-    title: 'WELCOME15', subtitle: 'New Customer Offer',
-    description: 'Get 15% off your first order with us.',
-    expiry_date: '2026-12-31', products: null, redemptions: 12
-  }
-};
-
-function openEditModal(code) {
-  closeActionSheet();
-  const data = MOCK_VOUCHERS[code];
-  if (!data) { hubShowToast('Voucher not found', 'error'); return; }
-
-  const overlay = document.getElementById('voucherOverlay');
-  const frame   = document.getElementById('voucherFrame');
-  const src     = document.getElementById('vc-src');
-  if (!overlay || !frame || !src) return;
-
-  const dark = document.documentElement.getAttribute('data-theme') === 'dark';
-  const vcHtml = src.value
-    .replace(/\<\\\/textarea\>/g, '</textarea>')
-    .replace('data-theme="dark"','data-theme="'+(dark?'dark':'light')+'"');
-  frame.srcdoc = vcHtml; // always reload for fresh state
-  overlay.style.display = 'block';
-
-  const sendEdit = () => {
-    try { frame.contentWindow.postMessage({ type: 'LOAD_EDIT', voucher: data }, '*'); } catch(e) {}
-  };
-  frame.onload = () => setTimeout(sendEdit, 80);
+function hubAskParent(mode, code) {
+  try { window.parent.postMessage({ type: 'sv-hub-open-form', mode: mode, code: code || null }, '*'); }
+  catch (e) { hubShowToast('Could not open the form', 'error'); }
 }
-function cloneVoucher(code) {
-  hubShowToast('Clone ready — opens creation form pre-filled', 'success');
-  // TODO: Open voucher creation form with pre-filled values
-}
-function hubOpenCreateVoucher() {
-  hubShowToast('Opens your existing voucher creation form', 'success');
-  openIssueVoucherModal();
-}
+function openEditModal(code) { hubAskParent('edit', code); }
+function cloneVoucher(code) { hubAskParent('clone', code); }
+function hubOpenCreateVoucher() { hubAskParent('create', null); }
+function openAnalytics(code) { hubShowToast('Voucher analytics goes live in the next update', 'warning'); }
 function hubGoBack() {
   try { window.parent.postMessage({ type: 'sv-close-voucher-hub' }, '*'); } catch(e) {}
 }
@@ -2840,19 +2062,333 @@ function hubShowToast(msg, type) {
 }
 
 // =============================================
-// ANIMATE BARS ON LOAD
+// LIVE DATA (parent app talks to Supabase; hub never holds credentials)
+// =============================================
+const HUB = { vouchers: [], loaded: false, error: null };
+const _hubPending = {};
+let _hubReq = 0;
+
+function svHub(op, payload) {
+  return new Promise(function(resolve, reject) {
+    const id = ++_hubReq;
+    const t = setTimeout(function() {
+      delete _hubPending[id];
+      reject(new Error('Request timed out - check your connection'));
+    }, 25000);
+    _hubPending[id] = { resolve: resolve, reject: reject, t: t };
+    window.parent.postMessage({ type: 'sv-hub-req', reqId: id, op: op, payload: payload || {} }, '*');
+  });
+}
+
+window.addEventListener('message', function(e) {
+  const m = e.data;
+  if (!m || e.source !== window.parent) return;
+  if (m.type === 'sv-hub-res') {
+    const p = _hubPending[m.reqId];
+    if (!p) return;
+    clearTimeout(p.t);
+    delete _hubPending[m.reqId];
+    if (m.ok) p.resolve(m.data); else p.reject(new Error(m.error || 'Request failed'));
+  } else if (m.type === 'sv-vouchers-changed') {
+    hubLoad();
+  }
+});
+
+const HUB_THEMES = {
+  blue:  { bg: 'linear-gradient(135deg,#0c4a6e 0%,#0a2e47 100%)', w1: '#0e6ba8', w2: '#38bdf8', w3: '#7dd3fc', pill: 'rgba(255,255,255,0.88)', pillText: '#1a2a3a', stripe: 'stripe-blue' },
+  gold:  { bg: 'linear-gradient(135deg,#2a1f0a 0%,#1a1305 100%)', w1: '#92700a', w2: '#c9922a', w3: '#e8c46a', pill: 'rgba(232,201,122,0.9)', pillText: '#1a2a3a', stripe: 'stripe-gold' },
+  green: { bg: 'linear-gradient(135deg,#14532d 0%,#0d3320 100%)', w1: '#166534', w2: '#22c55e', w3: '#86efac', pill: 'rgba(74,222,128,0.9)', pillText: '#0d2118', stripe: 'stripe-green' },
+  vault: { bg: 'linear-gradient(135deg,#1a2a3a 0%,#243b4d 50%,#1e3345 100%)', w1: '#94a3b8', w2: '#bacee0', w3: '#dce8f4', pill: 'rgba(255,255,255,0.88)', pillText: '#1a2a3a', stripe: 'stripe-vault' }
+};
+const HUB_TYPE_LABEL = { regular: 'Regular', event: 'Event', product: 'Product', newcustomer: 'New Customer' };
+const HUB_CHANNELS = {
+  facebook: { cls: 'fb', label: 'FB' }, instagram: { cls: 'ig', label: 'IG' },
+  website: { cls: 'web', label: 'Web' }, whatsapp: { cls: 'wp', label: 'WP' },
+  direct: { cls: 'direct', label: 'Direct' }
+};
+const HUB_MON = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+function esc(s) {
+  return String(s == null ? '' : s).replace(/[&<>"']/g, function(ch) {
+    return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch];
+  });
+}
+function fmtBDT(n) { return '৳' + Math.round(Number(n) || 0).toLocaleString('en-IN'); }
+function fmtDateLong(iso) { const p = iso.split('-'); return HUB_MON[+p[1] - 1] + ' ' + (+p[2]) + ', ' + p[0]; }
+function fmtDateShort(iso) { const p = iso.split('-'); return (+p[2]) + ' ' + HUB_MON[+p[1] - 1] + ' ' + p[0]; }
+function dhakaToday() {
+  const n = new Date(Date.now() + 6 * 3600000);
+  return Date.UTC(n.getUTCFullYear(), n.getUTCMonth(), n.getUTCDate());
+}
+function daysBetween(iso) {
+  const p = iso.split('-').map(Number);
+  return Math.round((Date.UTC(p[0], p[1] - 1, p[2]) - dhakaToday()) / 86400000);
+}
+
+function hubTabOf(v) {
+  const s = v.derived_status;
+  if (s === 'active' || s === 'scheduled') return 0;
+  if (s === 'paused') return 1;
+  return 2;
+}
+
+function hubTypeIcon(type, n) {
+  if (type === 'event') {
+    return '<svg viewBox="0 0 24 24" width="17" height="17" fill="none"><defs><linearGradient id="star3d-' + n + '" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#f4c55a"/><stop offset="100%" stop-color="#a16207"/></linearGradient></defs><path d="M12 1.5l3 7 7.5 1.5-5.5 5 1.5 7.5-6.5-4-6.5 4 1.5-7.5-5.5-5L9 8.5z" fill="url(#star3d-' + n + ')" stroke="#d4a017" stroke-width="2.5" stroke-linejoin="round"/><circle cx="12" cy="11" r="2.5" fill="#fff" stroke="#d4a017" stroke-width="1.5"/></svg>';
+  }
+  if (type === 'newcustomer') {
+    return '<svg viewBox="0 0 24 24" width="20" height="20" fill="none"><defs><linearGradient id="newCustGrad-' + n + '" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#c084fc"/><stop offset="100%" stop-color="#7c3aed"/></linearGradient></defs><circle cx="10" cy="8" r="4" fill="url(#newCustGrad-' + n + ')" stroke="#9333ea" stroke-width="1.5"/><path d="M2 20c0-3.31 3.58-6 8-6" stroke="url(#newCustGrad-' + n + ')" stroke-width="2" stroke-linecap="round"/><circle cx="19" cy="16" r="3" fill="none" stroke="#c084fc" stroke-width="2"/><path d="M19 14.5v3M17.5 16h3" stroke="#c084fc" stroke-width="1.8" stroke-linecap="round"/></svg>';
+  }
+  if (type === 'product') {
+    return '<svg viewBox="0 0 24 24" width="20" height="20" fill="none"><defs><linearGradient id="prodGrad-' + n + '" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#4ade80"/><stop offset="100%" stop-color="#15803d"/></linearGradient></defs><path d="M21 8l-9-5-9 5v8l9 5 9-5z" fill="url(#prodGrad-' + n + ')" stroke="#16a34a" stroke-width="1.5" stroke-linejoin="round"/><path d="M3 8l9 5 9-5M12 13v8" stroke="#dcfce7" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  }
+  return '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#38bdf8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-tag-price"/></svg>';
+}
+
+function hubBadge(v) {
+  const s = v.derived_status;
+  if (s === 'active')    return '<span class="status-badge active"><span class="status-dot active"></span>Active</span>';
+  if (s === 'scheduled') return '<span class="status-badge expiring"><span class="status-dot expiring"></span>Scheduled</span>';
+  if (s === 'paused')    return '<span class="status-badge inactive"><span class="status-dot inactive"></span>Paused</span>';
+  if (s === 'expired')   return '<span class="status-badge archived"><span class="status-dot inactive"></span>Expired</span>';
+  if (s === 'exhausted') return '<span class="status-badge archived"><span class="status-dot inactive"></span>Used Up</span>';
+  return '<span class="status-badge archived"><span class="status-dot inactive"></span>Archived</span>';
+}
+
+function hubDaysTile(v) {
+  if (v.no_expiry) return { cls: 'days-unlimited', val: 'No Expiry', lbl: 'Never expires' };
+  const d = daysBetween(v.expiry_date);
+  const lbl = fmtDateShort(v.expiry_date);
+  if (d < 0) return { cls: 'days-expired', val: 'Expired', lbl: lbl };
+  if (v.derived_status === 'scheduled') {
+    const sd = daysBetween(v.start_date);
+    return { cls: 'days-left', val: 'Starts in ' + sd + (sd === 1 ? ' Day' : ' Days'), lbl: 'from ' + fmtDateShort(v.start_date) };
+  }
+  const val = d === 0 ? 'Ends Today' : d + (d === 1 ? ' Day Left' : ' Days Left');
+  return { cls: d <= 7 ? 'days-critical' : d <= 30 ? 'days-warning' : 'days-left', val: val, lbl: lbl };
+}
+
+function hubRules(v) {
+  const r = [];
+  if (Number(v.min_order_amount) > 0) r.push('Min order ' + fmtBDT(v.min_order_amount));
+  if (v.max_discount != null) r.push('Max ' + fmtBDT(v.max_discount));
+  if (v.type === 'newcustomer') r.push('First order only');
+  else if (v.per_customer_once) r.push('Once per customer');
+  if (v.type === 'product' && v.product_skus) r.push(v.product_skus.length + (v.product_skus.length === 1 ? ' product' : ' products'));
+  if (v.derived_status === 'scheduled') r.push('Starts ' + fmtDateShort(v.start_date));
+  return r.length ? '<div class="card-rules">' + r.map(esc).join(' · ') + '</div>' : '';
+}
+
+function hubActions(v) {
+  const c = esc(v.code);
+  const svgEdit = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><use href="#icon-edit-pencil"/></svg>';
+  const svgPause = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>';
+  const svgAn = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" width="10" height="10"><use href="#icon-activity-pulse"/></svg>';
+  const btn = function(cls, fn, icon, label) { return '<button class="action-btn ' + cls + '" onclick="' + fn + '(\'' + c + '\')">' + icon + label + '</button>'; };
+  const s = v.derived_status;
+  let html = '';
+  if (s === 'active' || s === 'scheduled') {
+    html = btn('btn-edit', 'openEditModal', svgEdit, 'Edit') + btn('btn-deactivate', 'openDeactivateModal', svgPause, 'Pause') + btn('btn-analytics', 'openAnalytics', svgAn, 'Analytics');
+  } else if (s === 'paused') {
+    html = btn('btn-reactivate', 'openReactivateModal', '', 'Reactivate') + btn('btn-clone', 'cloneVoucher', '', 'Clone') +
+      (v.uses > 0 ? btn('btn-delete', 'openArchiveModal', '', 'Archive') : btn('btn-delete', 'openDeleteModal', '', 'Delete'));
+  } else if (s === 'archived') {
+    html = btn('btn-reactivate', 'openRestoreModal', '', 'Restore') + btn('btn-clone', 'cloneVoucher', '', 'Clone') + btn('btn-analytics', 'openAnalytics', svgAn, 'Analytics');
+  } else {
+    html = btn('btn-edit', 'openEditModal', svgEdit, 'Edit') + btn('btn-clone', 'cloneVoucher', '', 'Clone') + btn('btn-analytics', 'openAnalytics', svgAn, 'Analytics');
+  }
+  return '<div class="card-actions">' + html + '</div>';
+}
+
+function hubCardHtml(v, idx) {
+  const c = esc(v.code);
+  const t = HUB_THEMES[v.theme] || HUB_THEMES.blue;
+  const pct = v.discount_type === 'percent';
+  const val = Number(v.discount_value);
+  const offerNum = pct ? val + '%' : fmtBDT(val);
+  const offerText = pct ? val + '% OFF' : fmtBDT(val) + ' OFF';
+  const validText = v.no_expiry ? 'No Expiry' : fmtDateLong(v.expiry_date);
+  const uses = Number(v.uses) || 0;
+  const max = v.max_uses == null ? null : Number(v.max_uses);
+  const usesTxt = uses + ' / ' + (max == null ? '∞' : max);
+  const usagePct = max ? Math.min(100, Math.round(uses / max * 100)) : 0;
+  const usageCls = max == null ? 'unlimited' : usagePct >= 80 ? 'critical' : usagePct >= 40 ? 'moderate' : 'safe';
+  const days = hubDaysTile(v);
+  const tab = hubTabOf(v);
+  const cardCls = tab === 0 ? 'active-card' : tab === 1 ? 'inactive-card' : 'archived-card';
+  const offerLbl = pct ? (v.type === 'product' ? 'OFF Selected Products' : 'OFF All Products') : 'Flat Discount';
+
+  let channels = '';
+  if (uses > 0 && v.by_channel && v.by_channel.length) {
+    channels = '<div class="channel-section"><div class="channel-header"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" width="10" height="10"><use href="#icon-activity-pulse"/></svg> Redemptions by Channel</div><div class="channel-bars">' +
+      v.by_channel.map(function(ch) {
+        const m = HUB_CHANNELS[ch.channel] || HUB_CHANNELS.direct;
+        const p = Math.round(ch.count / uses * 100);
+        return '<div class="channel-row"><span class="ch-pill-badge ' + m.cls + '">' + m.label + ' ' + p + '%</span><div class="ch-track"><div class="ch-fill ' + m.cls + '" style="width:0%" data-w="' + p + '%"></div></div><span class="ch-count">' + ch.count + '</span></div>';
+      }).join('') + '</div></div>';
+  }
+  const revenue = uses > 0 ? '<div class="revenue-row"><span class="revenue-label">Total Discount Given</span><span class="revenue-val">' + fmtBDT(v.discount_given) + '</span></div>' : '';
+  const search = (v.title + ' ' + v.subtitle + ' ' + v.code).toLowerCase();
+
+  return '<div class="voucher-card ' + cardCls + '" data-code="' + c + '" data-title="' + esc(v.title) + '" data-search="' + esc(search) + '">' +
+    '<div class="card-top"><div class="card-icon-wrap ' + esc(v.type) + '">' + hubTypeIcon(v.type, idx) + '</div>' +
+    '<div class="card-info"><div class="card-code">' + c + '<button class="copy-btn" onclick="copyCode(\'' + c + '\')" title="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><use href="#icon-copy"/></svg></button></div>' +
+    '<div class="card-name">' + esc(v.title) + ' · ' + esc(v.subtitle) + '</div></div>' + hubBadge(v) + '</div>' +
+    HUB_MINI_TPL(v, c, t, offerNum, offerText, validText) +
+    '<div class="card-stripe ' + t.stripe + '"></div>' +
+    '<div class="card-stats">' +
+      '<div class="stat-item type-' + esc(v.type) + '"><div class="stat-item-val">' + (HUB_TYPE_LABEL[v.type] || esc(v.type)) + '</div><div class="stat-item-lbl">Type</div></div>' +
+      '<div class="stat-item ' + days.cls + '"><div class="stat-item-val">' + days.val + '</div><div class="stat-item-lbl">' + days.lbl + '</div></div>' +
+      '<div class="stat-item"><div class="stat-item-val offer-value">' + (pct ? val + '%' : fmtBDT(val)) + '</div><div class="stat-item-lbl">' + offerLbl + '</div></div>' +
+      '<div class="stat-item"><div class="stat-item-val">' + usesTxt + '</div><div class="stat-item-lbl">Uses</div></div>' +
+    '</div>' + hubRules(v) +
+    '<div class="usage-bar-wrap"><div class="usage-bar-header"><span class="usage-bar-label">Usage Limit</span><span class="center-group"><span class="divider"></span><span class="usage-bar-pct ' + usageCls + '">' + (max == null ? '—' : usagePct + '%') + '</span><span class="divider"></span></span><span class="usage-bar-count">' + usesTxt + '</span></div>' +
+    '<div class="usage-bar-track"><div class="usage-bar-fill ' + usageCls + '" style="width:0%" data-w="' + usagePct + '%"></div></div></div>' +
+    channels + revenue + hubActions(v) + '</div>';
+}
+
+function hubRender() {
+  const hosts = [document.getElementById('cards-0'), document.getElementById('cards-1'), document.getElementById('cards-2')];
+  const buckets = [[], [], []];
+  HUB.vouchers.forEach(function(v, i) { buckets[hubTabOf(v)].push(hubCardHtml(v, i)); });
+  hosts.forEach(function(h, i) { if (h) h.innerHTML = buckets[i].join(''); });
+
+  const active = HUB.vouchers.filter(function(v) { return v.derived_status === 'active'; }).length;
+  const used = HUB.vouchers.reduce(function(s, v) { return s + (Number(v.uses) || 0); }, 0);
+  const given = HUB.vouchers.reduce(function(s, v) { return s + (Number(v.discount_given) || 0); }, 0);
+  document.getElementById('stat-active').textContent = active;
+  document.getElementById('stat-used').textContent = used;
+  document.getElementById('stat-revenue').textContent = fmtBDT(given);
+
+  const si = document.getElementById('hubSearchInput');
+  if (si && si.value) hubFilterVouchers(si.value); else hubShowAllCards();
+  hubUpdateEmptyState(currentTab);
+  renderMiniVouchers();
+  requestAnimationFrame(function() {
+    setTimeout(function() {
+      document.querySelectorAll('.ch-fill[data-w], .usage-bar-fill[data-w]').forEach(function(el) {
+        if (!el.classList.contains('unlimited')) el.style.width = el.dataset.w;
+      });
+    }, 80);
+  });
+}
+
+function hubShowLoadState(msg, withRetry) {
+  [0, 1, 2].forEach(function(i) {
+    const h = document.getElementById('cards-' + i);
+    const em = document.getElementById('empty-' + i);
+    if (em) em.style.display = 'none';
+    if (h) h.innerHTML = (i === currentTab)
+      ? '<div class="hub-loading">' + esc(msg) + (withRetry ? '<button class="hub-retry" onclick="hubLoad()">Retry</button>' : '') + '</div>'
+      : '';
+  });
+}
+
+async function hubLoad() {
+  if (!HUB.loaded) hubShowLoadState('Loading vouchers...', false);
+  try {
+    HUB.vouchers = await svHub('list');
+    HUB.loaded = true;
+    HUB.error = null;
+    hubRender();
+  } catch (err) {
+    HUB.error = err.message;
+    if (!HUB.loaded) hubShowLoadState('Could not load vouchers: ' + err.message, true);
+    else hubShowToast(err.message, 'error');
+  }
+}
+
+function hubFind(code) {
+  return HUB.vouchers.find(function(v) { return v.code === code; });
+}
+
+async function hubDoStatus(code, status, okMsg, okType) {
+  try {
+    await svHub('status', { code: code, status: status });
+    await hubLoad();
+    const v = hubFind(code);
+    if (status === 'active' && v && v.derived_status === 'expired') {
+      hubShowToast(code + ' reactivated, but it has expired - edit its expiry date to use it', 'warning');
+    } else {
+      hubShowToast(okMsg, okType);
+    }
+  } catch (err) {
+    hubShowToast(err.message, 'error');
+  }
+}
+
+function HUB_MINI_TPL(v, c, t, offerNum, offerText, validText) {
+  return `<div class="mini-voucher-wrap" id="mini-wrap-${c}">
+          <div class="mini-voucher-scaler">
+            <div class="mini-voucher" id="mini-${c}" data-code="${c}">
+              <div class="left-panel" style="background: ${t.bg}">
+                <div class="wave-svg wave-1">
+                  <svg viewBox="0 0 537 365" preserveAspectRatio="none">
+                    <path d="M 537 235 C 350 322, 201 156, 0 294 L 0 0 L 537 0 Z" fill="${t.w1}" opacity="0.35"/>
+                  </svg>
+                </div>
+                <div class="wave-svg wave-2">
+                  <svg viewBox="0 0 513 313" preserveAspectRatio="none">
+                    <path d="M 513 164 C 350 251, 201 107, 0 207 L 0 0 L 513 0 Z" fill="${t.w2}" opacity="0.35"/>
+                  </svg>
+                </div>
+                <div class="wave-svg wave-3">
+                  <svg viewBox="0 0 490 260" preserveAspectRatio="none">
+                    <path d="M 490 97 C 350 184, 201 40, 0 140 L 0 0 L 490 0 Z" fill="${t.w3}" opacity="0.50"/>
+                  </svg>
+                </div>
+                <div class="logo-row">
+                  <div class="logo-icon" style="width:37px;height:37px;display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:visible"><svg viewBox="0 0 375 375" width="37" height="37"><use href="#icon-logo"/></svg></div>
+                  <div class="logo-text">SuppVerse BD</div>
+                </div>
+                <div class="title-block">
+                  <div class="main-title">${esc(v.title)}</div>
+                  <div class="sub-title">${esc(v.subtitle)}</div>
+                  <div class="desc">${esc(v.description || "")}</div>
+                </div>
+                <div class="bottom-row">
+                  <div class="discount-pill" style="background:${t.pill};color:${t.pillText}">${offerText}</div>
+                  <div class="meta-row">
+                    <div class="meta-text"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><use href="#icon-globe-website"/></svg> suppversebd.com</div>
+                    <div class="meta-text"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><use href="#icon-phone-filled"/></svg> +880 1644232935</div>
+                  </div>
+                </div>
+                <div class="sell-icon-wrap">
+                  <svg width="51" height="51" viewBox="0 0 24 24" fill="none"><use href="#icon-mail-envelope"/></svg>
+                </div>
+              </div>
+              <div class="middle-panel">
+                <div class="tear-line">
+                  <div class="tear-track"></div>
+                  <div class="tear-notch top"></div>
+                  <div class="tear-notch bottom"></div>
+                </div>
+              </div>
+              <div class="right-panel">
+                <div class="discount-box">
+                  <div class="discount-amount">${offerNum}</div>
+                  <div class="discount-label">OFF</div>
+                </div>
+                <div class="barcode-code-area">
+                  <canvas class="bar-canvas" id="bar-${c}"></canvas>
+                  <div class="code-text">${c}</div>
+                </div>
+                <div class="validity-box">
+                  <div class="validity-label">Valid Until</div>
+                  <div class="validity-date">${validText}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>`;
+}
+
+// =============================================
+// START
 // =============================================
 document.addEventListener('DOMContentLoaded', () => {
   hubInitTabIndicator();
-  // Reset all fills to 0 then animate to their target width
-  _hq('.ch-fill, .usage-bar-fill').forEach(el => {
-    if (el.classList.contains('unlimited')) return;
-    const target = el.style.width;
-    el.style.width = '0%';
-    requestAnimationFrame(() => {
-      setTimeout(() => { el.style.width = target; }, 120);
-    });
-  });
+  hubLoad();
 });
 
 

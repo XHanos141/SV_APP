@@ -15421,12 +15421,7 @@ function checkUsageFloor() {
   }
 }
 
-function loadVoucherForEdit(data) {
-  S.mode = 'edit';
-  S.code = data.voucher_code;
-  S.editRedemptions = data.redemptions || 0;
-
-  // --- Prefill (locks are still open at this point) ---
+function prefillVoucherFields(data) {
   const themeCard = document.querySelector('.theme-card.' + data.theme + '-theme');
   if (themeCard) selectTheme(data.theme, themeCard);
 
@@ -15463,6 +15458,38 @@ function loadVoucherForEdit(data) {
       if (data.products[i]) fillProductSelect(sel, data.products[i]);
     });
   }
+
+}
+
+function todayISO() {
+  const d = new Date();
+  return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+}
+
+function loadVoucherForClone(data) {
+  S.mode = 'create';
+  S.code = null;
+  S.editRedemptions = 0;
+  const d = Object.assign({}, data, { redemptions: 0, start_date: null });
+  const t = String(d.title || '');
+  if (t.length + 7 <= 60) d.title = t + ' (Copy)';
+  const expired = !d.no_expiry && d.expiry_date && d.expiry_date < todayISO();
+  if (expired) d.no_expiry = false;
+  prefillVoucherFields(d);
+  if (expired) {
+    selectExpiryMode('date', document.getElementById('pill-exp-date'));
+    document.getElementById('v-expiry').value = '';
+  }
+  render();
+  updateStep();
+}
+
+function loadVoucherForEdit(data) {
+  S.mode = 'edit';
+  S.editRedemptions = data.redemptions || 0;
+
+  prefillVoucherFields(data);
+  S.code = data.voucher_code;  // set after prefill: selectType() clears S.code when the type changes
 
   // Show the existing (fixed) code instead of generating a new one
   document.getElementById('code-display').textContent = S.code;
@@ -15850,6 +15877,7 @@ function downloadVoucherPNG() {
 window.addEventListener('message',function(e){
   if(e.data&&e.data.type==='sv-theme'){document.documentElement.setAttribute('data-theme',e.data.dark?'dark':'light');}
   if(e.data&&e.data.type==='LOAD_EDIT'){loadVoucherForEdit(e.data.voucher);}
+  if(e.data&&e.data.type==='LOAD_CLONE'){loadVoucherForClone(e.data.voucher);}
 });
 
 (function() {
@@ -22596,6 +22624,71 @@ async function svMaybeImportLocalVouchers() {
   renderDrawerVouchers();
 }
 
+/* ===== VOUCHER HUB BRIDGE (hub iframe -> Supabase RPC, and opening the form for edit / clone) ===== */
+async function svHubRpc(op, payload) {
+  const sess = await sb.auth.getSession();
+  if (!sess.data || !sess.data.session) throw new Error('Session expired - please sign in again');
+  if (['list', 'status', 'delete'].indexOf(op) === -1) throw new Error('Unknown request');
+  const code = payload && payload.code;
+  if (op !== 'list' && !/^[A-Za-z0-9-]{3,24}$/.test(String(code || ''))) throw new Error('Invalid voucher code');
+  let r;
+  if (op === 'list') r = await sb.rpc('admin_list_vouchers');
+  else if (op === 'status') {
+    if (['active', 'paused', 'archived'].indexOf(payload.status) === -1) throw new Error('Invalid status');
+    r = await sb.rpc('set_voucher_status', { p_code: code, p_status: payload.status });
+  }
+  else if (op === 'delete') r = await sb.rpc('delete_voucher', { p_code: code });
+  else throw new Error('Unknown request');
+  if (r.error) throw new Error(r.error.message || 'Request failed');
+  return r.data;
+}
+
+function svVoucherToForm(v) {
+  return {
+    voucher_code: v.code, theme: v.theme, type: v.type,
+    discount_type: v.discount_type, discount_amount: Number(v.discount_value),
+    usage_limit: v.usage_mode, max_uses: v.max_uses, per_customer_limit: !!v.per_customer_once,
+    title: v.title, subtitle: v.subtitle, description: v.description || '',
+    expiry_date: v.expiry_date || null, no_expiry: !!v.no_expiry, start_date: v.start_date || null,
+    products: v.product_skus || null,
+    min_order_amount: Number(v.min_order_amount) || 0,
+    max_discount: v.max_discount == null ? null : Number(v.max_discount),
+    redemptions: v.uses || 0
+  };
+}
+
+async function svHubOpenForm(mode, code) {
+  if (mode === 'create') { openIssueVoucherModal(); return; }
+  if (mode !== 'edit' && mode !== 'clone') return;
+  let v;
+  try { v = await svVoucherRpc('get', { code: code }); }
+  catch (err) { showToast(err.message, 'error'); return; }
+  openIssueVoucherModal();
+  const frame = document.getElementById('voucherFrame');
+  const msg = { type: mode === 'edit' ? 'LOAD_EDIT' : 'LOAD_CLONE', voucher: svVoucherToForm(v) };
+  frame.onload = function() {
+    setTimeout(function() { try { frame.contentWindow.postMessage(msg, '*'); } catch (x) {} }, 80);
+  };
+}
+
+function svNotifyHub() {
+  const f = document.getElementById('voucherHubFrame3');
+  try { if (f && f.contentWindow) f.contentWindow.postMessage({ type: 'sv-vouchers-changed' }, '*'); } catch (x) {}
+}
+
+window.addEventListener('message', async function(e) {
+  const m = e.data;
+  const frame = document.getElementById('voucherHubFrame3');
+  if (!m || !frame || e.source !== frame.contentWindow) return;
+  if (m.type === 'sv-hub-open-form') { svHubOpenForm(m.mode, m.code); return; }
+  if (m.type !== 'sv-hub-req') return;
+  const reply = { type: 'sv-hub-res', reqId: m.reqId };
+  try { reply.data = await svHubRpc(m.op, m.payload || {}); reply.ok = true; }
+  catch (err) { reply.ok = false; reply.error = String((err && err.message) || err); }
+  try { e.source.postMessage(reply, '*'); } catch (x) {}
+  if (reply.ok && (m.op === 'status' || m.op === 'delete')) renderDrawerVouchers();
+});
+
 (function initVoucherDrawer() {
   const go = function() { renderDrawerVouchers(); svMaybeImportLocalVouchers(); };
   if (window.__svAdminReady) setTimeout(go, 0);
@@ -26505,9 +26598,11 @@ window.addEventListener('message', function(e) {
   }
   if (e.data && e.data.type === 'voucher-created') {
     renderDrawerVouchers();
+    svNotifyHub();
   }
   if (e.data && e.data.type === 'voucher-updated') {
     renderDrawerVouchers();
+    svNotifyHub();
   }
   if (e.data && e.data.type === 'open-voucher-create') {
     const ov = document.getElementById('voucherHubOverlay');
