@@ -11062,7 +11062,7 @@ body { width: 100% !important; max-width: 100% !important; }
 
 <script>
 // ===== MARGIN TREND CHART =====
-const Y_MIN = 10, Y_MAX = 60;
+let Y_MIN = 10, Y_MAX = 60, Y_STEP = 10;
 const PLOT_LEFT = 12, PLOT_RIGHT = 350, PLOT_TOP = 8, PLOT_BOTTOM = 188;
 const PLOT_W = PLOT_RIGHT - PLOT_LEFT;
 const PLOT_H = PLOT_BOTTOM - PLOT_TOP;
@@ -11103,56 +11103,8 @@ function marginFromY(y) {
   return Y_MIN + ((PLOT_BOTTOM - y) / PLOT_H) * (Y_MAX - Y_MIN);
 }
 
-const DATA = {
-  today: [
-    { label: '9am', margin: 22.5, revenue: 18500, units: 5, topSku: 'NW-OMG3-UTA-180', topCat: 'supplement' },
-    { label: '10am', margin: 24.1, revenue: 22100, units: 7, topSku: 'DB-MAG-GLY-120', topCat: 'supplement' },
-    { label: '11am', margin: 27.8, revenue: 28400, units: 9, topSku: 'DB-MAG-GLY-120', topCat: 'supplement' },
-    { label: '12pm', margin: 31.2, revenue: 35200, units: 11, topSku: 'DB-MAG-GLY-120', topCat: 'supplement' },
-    { label: '1pm', margin: 33.5, revenue: 38900, units: 12, topSku: 'DB-HCI-PEP-120', topCat: 'supplement' },
-    { label: '2pm', margin: 29.4, revenue: 31000, units: 10, topSku: 'NW-OMG3-UTA-180', topCat: 'supplement' },
-    { label: '3pm', margin: 26.1, revenue: 26800, units: 8, topSku: 'NW-OMG3-UTA-180', topCat: 'supplement' },
-    { label: '4pm', margin: 28.7, revenue: 29500, units: 9, topSku: 'DB-MAG-GLY-120', topCat: 'supplement' },
-    { label: '5pm', margin: 35.2, revenue: 42100, units: 13, topSku: 'DB-MAG-GLY-120', topCat: 'supplement' },
-    { label: '6pm', margin: 38.9, revenue: 46800, units: 15, topSku: 'DB-HCI-PEP-120', topCat: 'supplement' },
-    { label: '7pm', margin: 36.4, revenue: 44500, units: 14, topSku: 'DB-MAG-GLY-120', topCat: 'supplement' },
-    { label: '8pm', margin: 32.1, revenue: 37800, units: 12, topSku: 'NW-OMG3-UTA-180', topCat: 'supplement' },
-    { label: '9pm', margin: 30.5, revenue: 34100, units: 11, topSku: 'DB-HCI-PEP-120', topCat: 'supplement' }
-  ],
-  week: [
-    { label: 'Mon', margin: 18.2, revenue: 28400, units: 9, topSku: 'NW-OMG3-UTA-180', topCat: 'supplement', sublabel: '17 Apr' },
-    { label: 'Tue', margin: 22.5, revenue: 32100, units: 10, topSku: 'DB-MAG-GLY-120', topCat: 'supplement', sublabel: '18 Apr' },
-    { label: 'Wed', margin: 28.3, revenue: 38500, units: 12, topSku: 'DB-MAG-GLY-120', topCat: 'supplement', sublabel: '19 Apr' },
-    { label: 'Thu', margin: 35.7, revenue: 45200, units: 14, topSku: 'DB-HCI-PEP-120', topCat: 'supplement', sublabel: '20 Apr' },
-    { label: 'Fri', margin: 41.6, revenue: 52800, units: 16, topSku: 'DB-MAG-GLY-120', topCat: 'supplement', sublabel: '21 Apr' },
-    { label: 'Sat', margin: 39.2, revenue: 42250, units: 13, topSku: 'DB-MAG-GLY-120', topCat: 'supplement', sublabel: '22 Apr' }
-  ],
-  month: [
-    { label: 'W1', margin: 15.3, revenue: 68200, units: 22, topSku: 'NW-OMG3-UTA-180', topCat: 'supplement', sublabel: '10-16 Apr' },
-    { label: 'W2', margin: 24.7, revenue: 84500, units: 28, topSku: 'DB-MAG-GLY-120', topCat: 'supplement', sublabel: '17-23 Apr' },
-    { label: 'W3', margin: 33.1, revenue: 112000, units: 35, topSku: 'DB-HCI-PEP-120', topCat: 'supplement', sublabel: '24-30 Apr' },
-    { label: 'W4', margin: 38.5, revenue: 128500, units: 40, topSku: 'DB-MAG-GLY-120', topCat: 'supplement', sublabel: '1-7 May' },
-    { label: 'W5', margin: 42.3, revenue: 95400, units: 30, topSku: 'DB-MAG-GLY-120', topCat: 'supplement', sublabel: '8-10 May' }
-  ],
-  '3months': [
-    { label: 'Feb', sublabel: '2026', margin: 14.8, revenue: 245000, units: 78, topSku: 'NW-OMG3-UTA-180', topCat: 'supplement' },
-    { label: 'Mar', sublabel: '2026', margin: 26.2, revenue: 312000, units: 98, topSku: 'DB-MAG-GLY-120', topCat: 'supplement' },
-    { label: 'Apr', sublabel: '2026', margin: 39.2, revenue: 422500, units: 133, topSku: 'DB-MAG-GLY-120', topCat: 'supplement' }
-  ],
-  all: [
-    { label: 'Jun', sublabel: "'25", margin: 12.5, revenue: 180000, units: 60, topSku: 'NW-OMG3-UTA-180', topCat: 'supplement' },
-    { label: 'Jul', sublabel: "'25", margin: 15.2, revenue: 210000, units: 68, topSku: 'NW-OMG3-UTA-180', topCat: 'supplement' },
-    { label: 'Aug', sublabel: "'25", margin: 18.7, revenue: 245000, units: 76, topSku: 'DB-MAG-GLY-120', topCat: 'supplement' },
-    { label: 'Sep', sublabel: "'25", margin: 22.4, revenue: 278000, units: 85, topSku: 'DB-MAG-GLY-120', topCat: 'supplement' },
-    { label: 'Oct', sublabel: "'25", margin: 27.1, revenue: 320000, units: 98, topSku: 'DB-HCI-PEP-120', topCat: 'supplement' },
-    { label: 'Nov', sublabel: "'25", margin: 31.5, revenue: 365000, units: 112, topSku: 'DB-MAG-GLY-120', topCat: 'supplement' },
-    { label: 'Dec', sublabel: "'25", margin: 35.8, revenue: 410000, units: 128, topSku: 'DB-MAG-GLY-120', topCat: 'supplement' },
-    { label: 'Jan', sublabel: "'26", margin: 38.2, revenue: 445000, units: 138, topSku: 'DB-HCI-PEP-120', topCat: 'supplement' },
-    { label: 'Feb', sublabel: "'26", margin: 14.8, revenue: 245000, units: 78, topSku: 'NW-OMG3-UTA-180', topCat: 'supplement' },
-    { label: 'Mar', sublabel: "'26", margin: 26.2, revenue: 312000, units: 98, topSku: 'DB-MAG-GLY-120', topCat: 'supplement' },
-    { label: 'Apr', sublabel: "'26", margin: 39.2, revenue: 422500, units: 133, topSku: 'DB-MAG-GLY-120', topCat: 'supplement' }
-  ]
-};
+const DATA = { today: [], week: [], month: [], '3months': [], all: [] };
+let ovMarginMsg = 'Loading…';
 
 let currentTf = 'month';
 let currentData = DATA[currentTf];
@@ -11253,7 +11205,8 @@ function renderChart() {
   pointsGroup.innerHTML = '';
 
   // Y grid & labels
-  const ySteps = [10, 20, 30, 40, 50, 60];
+  const ySteps = [];
+  for (let v = Y_MIN; v <= Y_MAX; v += Y_STEP) ySteps.push(v);
   ySteps.forEach(val => {
     const y = yScale(val);
     const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
@@ -11300,13 +11253,23 @@ function renderChart() {
     gridGroup.appendChild(label);
   });
 
+  if (!data.length) {
+    const msg = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    msg.setAttribute('x', (PLOT_LEFT + PLOT_RIGHT) / 2);
+    msg.setAttribute('y', (PLOT_TOP + PLOT_BOTTOM) / 2);
+    msg.setAttribute('text-anchor', 'middle');
+    msg.setAttribute('class', 'x-label');
+    msg.textContent = ovMarginMsg;
+    gridGroup.appendChild(msg);
+  }
+
   // Generate smooth samples
-  const samples = generateSmoothSamples(data);
+  const samples = data.length > 1 ? generateSmoothSamples(data) : [];
 
   // Group samples by zone
   const groups = [];
-  let currentGroup = [samples[0]];
-  let currentZone = getZone(samples[0].margin);
+  let currentGroup = samples.length ? [samples[0]] : [];
+  let currentZone = samples.length ? getZone(samples[0].margin) : 'green';
 
   for (let i = 1; i < samples.length; i++) {
     const zone = getZone(samples[i].margin);
@@ -11375,15 +11338,21 @@ function renderChart() {
   });
 
   // Update header
-  const last = data[data.length - 1];
-  const zone = getZone(last.margin);
   const marginEl = document.getElementById('currentMargin');
-  marginEl.textContent = last.margin.toFixed(1) + '%';
-  marginEl.style.color = ZONE_COLORS[zone];
-
   const pill = document.getElementById('zonePill');
-  pill.className = 'zone-pill ' + (zone === 'green' ? 'healthy' : zone === 'orange' ? 'watch' : 'danger');
-  document.getElementById('zoneText').textContent = getZoneLabel(zone);
+  if (data.length) {
+    const last = data[data.length - 1];
+    const zone = getZone(last.margin);
+    marginEl.textContent = last.margin.toFixed(1) + '%';
+    marginEl.style.color = ZONE_COLORS[zone];
+    pill.className = 'zone-pill ' + (zone === 'green' ? 'healthy' : zone === 'orange' ? 'watch' : 'danger');
+    document.getElementById('zoneText').textContent = getZoneLabel(zone);
+  } else {
+    marginEl.textContent = '—';
+    marginEl.style.color = '';
+    pill.className = 'zone-pill';
+    document.getElementById('zoneText').textContent = 'No data';
+  }
 
   resetScrubber();
   } catch(err) {
@@ -11452,6 +11421,13 @@ function setScrubberDirect(x, y, zone) {
 
 function resetScrubber() {
   const data = currentData;
+  if (!data.length) {
+    document.getElementById('scrubberDot').classList.remove('active');
+    document.getElementById('guideLine').classList.remove('active');
+    document.getElementById('popup').classList.remove('active');
+    stopReturnAnimation();
+    return;
+  }
   const lastIdx = data.length - 1;
   const x = xScale(lastIdx, data.length);
   const y = yScale(data[lastIdx].margin);
@@ -11526,6 +11502,7 @@ function showPopup(index) {
 
 function moveScrubberToIndex(index) {
   const data = currentData;
+  if (!data.length) return;
   index = Math.max(0, Math.min(index, data.length - 1));
   const d = data[index];
   const zone = getZone(d.margin);
@@ -11780,35 +11757,6 @@ document.addEventListener("DOMContentLoaded", function() {
     showToast('Something went wrong. Retrying...', 'error');
   });
 
-  // ===== RANDOM NO-DATA DEMO SEEDER =====
-  (function seedRandomNoData() {
-    const rnd = () => Math.random() < 0.5;
-
-    // TODAY — always no-data returns (cleanest demo trigger)
-    top5DataByTf.today.forEach(p => {
-      p.returns.units = 0; p.returns.amount = 0; p.returns.display = '৳0';
-    });
-
-    // Random 2 products in week top5 get 0 returns
-    top5DataByTf.week
-      .filter(() => rnd())
-      .forEach(p => { p.returns.units = 0; p.returns.amount = 0; p.returns.display = '৳0'; });
-
-    // Random products in month top5 returns zeroed
-    top5DataByTf.month
-      .filter(() => Math.random() < 0.35)
-      .forEach(p => { p.returns.units = 0; p.returns.amount = 0; p.returns.display = '৳0'; });
-
-    // QUARTER — 33% full no-data on top5 returns
-    if (Math.random() < 0.33) {
-      top5DataByTf['3months'].forEach(p => {
-        p.returns.units = 0; p.returns.amount = 0; p.returns.display = '৳0';
-      });
-    }
-
-    // ALL TIME — never show no-data (all-time always has records)
-  })();
-  // ===== END NO-DATA SEEDER =====
 
   updateChart("month");
   ovSync();
@@ -11828,53 +11776,23 @@ document.addEventListener("DOMContentLoaded", function() {
 
 
 // ===== TOP 5 SALES VS RETURNS CHART =====
-const top5DataByTf = {
-  today: [
-    { name: "Omega-3 Ultra",       sku: "SUP-OM3-UTA-180", category: "supplement", sales: { units: 3, amount: 7200,  display: "৳7.2K"  }, returns: { units: 0, amount: 0,    display: "৳0"    } },
-    { name: "Magnesium Glycinate",  sku: "SUP-MAG-GLY-120", category: "supplement", sales: { units: 2, amount: 4800,  display: "৳4.8K"  }, returns: { units: 0, amount: 0,    display: "৳0"    } },
-    { name: "Betaine HCL & Pepsin", sku: "SUP-HCI-PEP-120", category: "supplement", sales: { units: 2, amount: 4800,  display: "৳4.8K"  }, returns: { units: 1, amount: 2400,  display: "৳2.4K" } },
-    { name: "Vitamin D3 + K2",      sku: "SUP-VD3-K2-90", category: "supplement",  sales: { units: 1, amount: 2400,  display: "৳2.4K"  }, returns: { units: 0, amount: 0,    display: "৳0"    } },
-    { name: "Zinc Complex",          sku: "SUP-ZNC-CMP-60", category: "supplement",  sales: { units: 1, amount: 2400,  display: "৳2.4K"  }, returns: { units: 1, amount: 2400,  display: "৳2.4K" } }
-  ],
-  week: [
-    { name: "Magnesium Glycinate",  sku: "SUP-MAG-GLY-120", category: "supplement", sales: { units: 9,  amount: 21600, display: "৳21.6K" }, returns: { units: 1, amount: 2400,  display: "৳2.4K" } },
-    { name: "Omega-3 Ultra",        sku: "SUP-OM3-UTA-180", category: "supplement", sales: { units: 8,  amount: 19200, display: "৳19.2K" }, returns: { units: 1, amount: 3118,  display: "৳3.1K" } },
-    { name: "Betaine HCL & Pepsin", sku: "SUP-HCI-PEP-120", category: "supplement", sales: { units: 5,  amount: 12000, display: "৳12K"   }, returns: { units: 2, amount: 5400,  display: "৳5.4K" } },
-    { name: "Vitamin D3 + K2",      sku: "SUP-VD3-K2-90", category: "supplement",  sales: { units: 4,  amount: 9600,  display: "৳9.6K"  }, returns: { units: 0, amount: 0,    display: "৳0"    } },
-    { name: "Zinc Complex",          sku: "SUP-ZNC-CMP-60", category: "supplement",  sales: { units: 2,  amount: 4800,  display: "৳4.8K"  }, returns: { units: 1, amount: 2400,  display: "৳2.4K" } }
-  ],
-  month: [
-    { name: "Omega-3 Ultra",        sku: "SUP-OM3-UTA-180", category: "supplement", sales: { units: 24, amount: 58400,  display: "৳58.4K"  }, returns: { units: 3, amount: 8950,  display: "৳8.9K"  } },
-    { name: "Magnesium Glycinate",  sku: "SUP-MAG-GLY-120", category: "supplement", sales: { units: 18, amount: 43200,  display: "৳43.2K"  }, returns: { units: 2, amount: 4800,  display: "৳4.8K"  } },
-    { name: "Betaine HCL & Pepsin", sku: "SUP-HCI-PEP-120", category: "supplement", sales: { units: 12, amount: 28800,  display: "৳28.8K"  }, returns: { units: 5, amount: 12000, display: "৳12K"   } },
-    { name: "Vitamin D3 + K2",      sku: "SUP-VD3-K2-90", category: "supplement",  sales: { units: 9,  amount: 21600,  display: "৳21.6K"  }, returns: { units: 1, amount: 2400,  display: "৳2.4K"  } },
-    { name: "Zinc Complex",          sku: "SUP-ZNC-CMP-60", category: "supplement",  sales: { units: 6,  amount: 14400,  display: "৳14.4K"  }, returns: { units: 4, amount: 9600,  display: "৳9.6K"  } }
-  ],
-  '3months': [
-    { name: "Magnesium Glycinate",  sku: "SUP-MAG-GLY-120", category: "supplement", sales: { units: 68, amount: 163200, display: "৳163.2K" }, returns: { units: 8,  amount: 19200,  display: "৳19.2K" } },
-    { name: "Omega-3 Ultra",        sku: "SUP-OM3-UTA-180", category: "supplement", sales: { units: 55, amount: 132000, display: "৳132K"   }, returns: { units: 6,  amount: 18708,  display: "৳18.7K" } },
-    { name: "Betaine HCL & Pepsin", sku: "SUP-HCI-PEP-120", category: "supplement", sales: { units: 42, amount: 100800, display: "৳100.8K" }, returns: { units: 12, amount: 32400,  display: "৳32.4K" } },
-    { name: "Vitamin D3 + K2",      sku: "SUP-VD3-K2-90", category: "supplement",  sales: { units: 38, amount: 91200,  display: "৳91.2K"  }, returns: { units: 4,  amount: 9600,   display: "৳9.6K"  } },
-    { name: "Zinc Complex",          sku: "SUP-ZNC-CMP-60", category: "supplement",  sales: { units: 25, amount: 60000,  display: "৳60K"    }, returns: { units: 10, amount: 24000,  display: "৳24K"   } }
-  ],
-  all: [
-    { name: "Omega-3 Ultra",        sku: "SUP-OM3-UTA-180", category: "supplement", sales: { units: 180, amount: 432000, display: "৳432K"  }, returns: { units: 18, amount: 56124,  display: "৳56.1K" } },
-    { name: "Magnesium Glycinate",  sku: "SUP-MAG-GLY-120", category: "supplement", sales: { units: 145, amount: 348000, display: "৳348K"  }, returns: { units: 14, amount: 33600,  display: "৳33.6K" } },
-    { name: "Betaine HCL & Pepsin", sku: "SUP-HCI-PEP-120", category: "supplement", sales: { units: 110, amount: 264000, display: "৳264K"  }, returns: { units: 22, amount: 59400,  display: "৳59.4K" } },
-    { name: "Vitamin D3 + K2",      sku: "SUP-VD3-K2-90", category: "supplement",  sales: { units: 88,  amount: 211200, display: "৳211.2K"}, returns: { units: 8,  amount: 19200,  display: "৳19.2K" } },
-    { name: "Zinc Complex",          sku: "SUP-ZNC-CMP-60", category: "supplement",  sales: { units: 65,  amount: 156000, display: "৳156K"  }, returns: { units: 20, amount: 48000,  display: "৳48K"   } }
-  ]
-};
-
 function getTop5Products() {
-  return top5DataByTf[currentTf] || top5DataByTf.month;
+  const hit = OV_LIVE[ovKey(kpiMode, ovTf(currentTf), 'cur')];
+  if (!hit) return null;
+  return (hit.data.products || []).map(function(p) {
+    return {
+      name: p.name, sku: p.code, category: TOP5_CATEGORY_LABELS[p.category] ? p.category : 'general',
+      sales: { units: +p.sales_units, amount: +p.sales_amount, display: ovShortBDT(+p.sales_amount) },
+      returns: { units: +p.ret_units, amount: +p.ret_amount, display: ovShortBDT(+p.ret_amount) }
+    };
+  });
 }
 
 let top5CurrentMode = 'sales';
 
 function top5GetAvg(mode) {
-  const products = getTop5Products();
-  return Math.round(products.reduce((sum, p) => sum + p[mode].units, 0) / products.length);
+  const products = (getTop5Products() || []).filter(p => p[mode].units > 0).slice(0, 5);
+  return products.length ? Math.round(products.reduce((sum, p) => sum + p[mode].units, 0) / products.length) : 0;
 }
 
 const TOP5_CATEGORY_COLORS = {
@@ -11903,7 +11821,7 @@ function toggleTop5CategoryMenu(e) {
 function buildTop5CategoryMenu() {
   const menu = document.getElementById('top5CatMenu');
   if (!menu) return;
-  const products = getTop5Products();
+  const products = getTop5Products() || [];
   const counts = {};
   products.forEach(p => { counts[p.category] = (counts[p.category] || 0) + 1; });
   const items = Object.keys(TOP5_CATEGORY_LABELS).map(key => {
@@ -11950,8 +11868,17 @@ document.addEventListener('click', function(e) {
 
 function top5Render() {
   const allProducts = getTop5Products();
-  const products = top5Category === 'all' ? allProducts : allProducts.filter(p => p.category === top5Category);
   const list = document.getElementById('top5ProductList');
+  if (!allProducts) {
+    document.getElementById('top5Title').textContent = top5CurrentMode === 'sales' ? 'Top 5 Sales' : 'Top 5 Returns';
+    document.getElementById('top5AvgLabel').textContent = 'Avg: — units';
+    list.innerHTML = '<div class="no-data-state"><div class="no-data-sub">Loading…</div></div>';
+    return;
+  }
+  const products = (top5Category === 'all' ? allProducts : allProducts.filter(p => p.category === top5Category))
+    .filter(p => p[top5CurrentMode].units > 0)
+    .sort((a, b) => b[top5CurrentMode].units - a[top5CurrentMode].units)
+    .slice(0, 5);
   const avg = products.length ? Math.round(products.reduce((sum, p) => sum + p[top5CurrentMode].units, 0) / products.length) : 0;
   document.getElementById('top5AvgLabel').textContent = 'Avg: ' + avg + ' units';
   document.getElementById('top5Title').textContent = top5CurrentMode === 'sales' ? 'Top 5 Sales' : 'Top 5 Returns';
@@ -12022,8 +11949,6 @@ function top5SwitchMode(mode) {
   top5Render();
 }
 
-// Initialize top5 chart
-top5Render();
 
 // ===== CARD DETAILS SYSTEM =====
 /* ===== LIVE REVENUE DATA (Supabase RPC overview_kpis, fetched by parent app) ===== */
@@ -12033,6 +11958,66 @@ const OV_ERR = {};
 const OV_RETRY = {};
 const OV_PENDING = {};
 let ovReqSeq = 0;
+
+const OV_MON = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+const OV_DOW = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+function ovShortBDT(n) {
+  if (n >= 1000000) return '৳' + (n / 1000000).toFixed(1).replace(/\.0$/, '') + 'M';
+  if (n >= 1000) return '৳' + (n / 1000).toFixed(1).replace(/\.0$/, '') + 'K';
+  return '৳' + Math.round(n);
+}
+
+function ovBuildSeries(tf, series) {
+  const nowD = new Date(Date.now() + 6 * 3600000);
+  const y0 = nowD.getUTCFullYear(), m0 = nowD.getUTCMonth();
+  const pts = [];
+  series.forEach(function(s) {
+    if (s.margin == null) return;
+    const y = +s.bucket.slice(0, 4), mo = +s.bucket.slice(5, 7) - 1, d = +s.bucket.slice(8, 10), h = +s.bucket.slice(11, 13);
+    let label, sublabel;
+    if (tf === 'today') {
+      label = (h % 12 || 12) + (h < 12 ? 'am' : 'pm');
+    } else if (tf === 'week') {
+      label = OV_DOW[new Date(Date.UTC(y, mo, d)).getUTCDay()];
+      sublabel = d + ' ' + OV_MON[mo];
+    } else if (tf === 'month') {
+      const dayNum = Math.round((Date.UTC(y, mo, d) - Date.UTC(y0, m0, 1)) / 86400000) + 1;
+      const firstMon = 1 - ((new Date(Date.UTC(y0, m0, 1)).getUTCDay() + 6) % 7);
+      const dim = new Date(Date.UTC(y0, m0 + 1, 0)).getUTCDate();
+      label = 'W' + (Math.floor((dayNum - firstMon) / 7) + 1);
+      sublabel = Math.max(dayNum, 1) + '–' + Math.min(dayNum + 6, dim) + ' ' + OV_MON[m0];
+    } else {
+      label = OV_MON[mo];
+      sublabel = tf === 'all' ? "'" + String(y).slice(2) : String(y);
+    }
+    pts.push({
+      label: label, sublabel: sublabel, margin: +s.margin, revenue: +s.revenue, units: +s.units,
+      topSku: s.top_sku || '—', topCat: TOP5_CATEGORY_LABELS[s.top_cat] ? s.top_cat : 'general'
+    });
+  });
+  if (pts.length) {
+    const lo = Math.min.apply(null, pts.map(function(p) { return p.margin; }));
+    const hi = Math.max.apply(null, pts.map(function(p) { return p.margin; }));
+    const floorV = Math.min(10, lo), ceilV = Math.max(60, hi);
+    Y_STEP = (ceilV - floorV) > 60 ? 20 : 10;
+    Y_MIN = Math.floor(floorV / Y_STEP) * Y_STEP;
+    Y_MAX = Math.ceil(ceilV / Y_STEP) * Y_STEP;
+  } else {
+    Y_STEP = 10; Y_MIN = 10; Y_MAX = 60;
+  }
+  return pts;
+}
+
+function ovRefreshMargin() {
+  const tf = ovTf(currentTf);
+  const k = ovKey(kpiMode, tf, 'cur');
+  const hit = OV_LIVE[k];
+  DATA[currentTf] = hit ? ovBuildSeries(tf, hit.data.series || []) : [];
+  currentData = DATA[currentTf];
+  ovMarginMsg = hit ? 'No sales in this period' : (OV_ERR[k] ? 'Could not load data' : 'Loading…');
+  renderChart();
+}
 
 const OV_TF_LABEL = { today: 'Today', week: 'This Week', month: 'This Month', quarter: 'Last 3 Months', all: 'All Time' };
 const OV_PREV_LABEL = { today: 'Yesterday', week: 'Last Week', month: 'Last Month', quarter: 'Prev 3M', all: 'Prev Period' };
@@ -12083,6 +12068,7 @@ window.addEventListener('message', function(e) {
   }
   ovApplyRevenueCard();
   updateChart(svrCurrentTf);
+  if (m.which === 'cur' && m.tf === ovTf(currentTf) && m.mode === kpiMode) { ovRefreshMargin(); top5Render(); }
   if (cardDetailOverlay.classList.contains('open')) ovRenderDetail();
 });
 
@@ -12098,6 +12084,8 @@ function ovApplyRevenueCard() {
 function ovSync() {
   ovApplyRevenueCard();
   updateChart(svrCurrentTf);
+  ovRefreshMargin();
+  top5Render();
   ovRequest(currentTf, 'cur');
 }
 
@@ -26005,7 +25993,8 @@ async function svOvFetch(mode, tf, which) {
   const { data, error } = await sb.rpc('overview_kpis', {
     p_from: new Date(win[0]).toISOString(),
     p_to: new Date(win[1]).toISOString(),
-    p_mode: mode === 'proxy' ? 'proxy' : 'store'
+    p_mode: mode === 'proxy' ? 'proxy' : 'store',
+    p_bucket: ({ today: 'hour', week: 'day', month: 'week', quarter: 'month', all: 'month' })[tf] || 'day'
   });
   if (error) throw error;
   return data;
