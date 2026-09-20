@@ -1627,6 +1627,7 @@ body.dark-mode .pay-badge-bank svg path[style*="fill:#66cde7"]{fill:#fff!importa
         <select id="inpTestiRole" onchange="updateTestimonial()">
           <option value="Verified Buyer" selected>Verified Buyer</option>
           <option value="Verified Customer">Verified Customer</option>
+          <option value="">None</option>
         </select>
       </div>
     </div>
@@ -3349,7 +3350,7 @@ function initEditLock(fieldsetIds, btnId, saveBtnId, cancelBtnId, opts){
   }
   lock();
 }
-initEditLock('testiFieldset','testiEditBtn','testiSaveBtn','testiCancelBtn');
+initEditLock('testiFieldset','testiEditBtn','testiSaveBtn','testiCancelBtn',{onSave:saveTestimonialContent});
 initEditLock('mcardFieldset','mcardEditBtn','mcardSaveBtn','mcardCancelBtn');
 initEditLock('hotdealFieldset','hotdealEditBtn','hotdealSaveBtn','hotdealCancelBtn');
 initEditLock('heroFieldset','heroEditBtn','heroSaveBtn','heroCancelBtn',{
@@ -4779,7 +4780,17 @@ function updateTestimonial(){
 
   document.getElementById('tscardText').textContent = '"' + text + '"';
   document.getElementById('tscardName').textContent = name;
-  document.getElementById('tscardRole').textContent = (city ? city + ' · ' : '') + role;
+  const roleEl = document.getElementById('tscardRole');
+  if(role){
+    roleEl.textContent = (city ? city + ' · ' : '') + role;
+    roleEl.style.display = '';
+  } else if(city){
+    roleEl.textContent = city;
+    roleEl.style.display = '';
+  } else {
+    roleEl.textContent = '';
+    roleEl.style.display = 'none';
+  }
   const avatarEl = document.getElementById('tscardAvatar');
   if(currentTestiAvatar){
     avatarEl.innerHTML = '<img src="' + currentTestiAvatar + '" style="width:100%;height:100%;object-fit:cover;border-radius:50%">';
@@ -4790,9 +4801,11 @@ function updateTestimonial(){
 }
 
 let currentTestiAvatar = null;
+let pendingTestiAvatarFile = null;
 function handleTestiAvatar(e){
   const file = e.target.files[0];
   if(!file) return;
+  pendingTestiAvatarFile = file;
   const reader = new FileReader();
   reader.onload = function(ev){
     currentTestiAvatar = ev.target.result;
@@ -4801,6 +4814,62 @@ function handleTestiAvatar(e){
   };
   reader.readAsDataURL(file);
 }
+async function uploadPendingTestiAvatar(){
+  if(!pendingTestiAvatarFile || !window.sb) return;
+  const file = pendingTestiAvatarFile;
+  const ext = (file.name.split('.').pop() || 'jpg').toLowerCase();
+  const path = 'testimonial/' + Date.now() + '-' + Math.random().toString(36).slice(2,8) + '.' + ext;
+  const { error: upErr } = await sb.storage.from('site-content-images').upload(path, file, { upsert: false });
+  if(upErr){ console.error('testimonial avatar upload error:', upErr.message); return; }
+  const { data: pub } = sb.storage.from('site-content-images').getPublicUrl(path);
+  if(pub && pub.publicUrl){
+    currentTestiAvatar = pub.publicUrl;
+    pendingTestiAvatarFile = null;
+  }
+}
+async function saveTestimonialContent(){
+  if(!window.sb) { T('Not connected to database','⚠️'); return; }
+  await uploadPendingTestiAvatar();
+  const content = {
+    text: document.getElementById('inpTestiText').value || '',
+    name: document.getElementById('inpTestiName').value || '',
+    rating: Math.max(1, Math.min(5, parseInt(document.getElementById('inpTestiRating').value) || 5)),
+    city: document.getElementById('inpTestiCity').value || '',
+    role: document.getElementById('inpTestiRole').value || '',
+    avatar_url: currentTestiAvatar || null
+  };
+  const { error } = await sb.from('site_content').upsert({
+    page: 'landing',
+    section: 'testimonial',
+    content,
+    updated_at: new Date().toISOString()
+  }, { onConflict: 'page,section' });
+  if(error){ console.error('saveTestimonialContent error:', error.message); T('Save failed — check connection','❌'); return; }
+  T('Testimonial published','🚀');
+}
+async function loadTestimonialContent(){
+  if(!window.sb) return;
+  const { data, error } = await sb
+    .from('site_content')
+    .select('content')
+    .eq('page', 'landing')
+    .eq('section', 'testimonial')
+    .maybeSingle();
+  if(error){ console.error('loadTestimonialContent error:', error.message); return; }
+  if(!data || !data.content) return;
+  const c = data.content;
+  if(c.text !== undefined) document.getElementById('inpTestiText').value = c.text;
+  if(c.name !== undefined) document.getElementById('inpTestiName').value = c.name;
+  if(c.rating !== undefined) document.getElementById('inpTestiRating').value = c.rating;
+  if(c.city !== undefined) document.getElementById('inpTestiCity').value = c.city;
+  if(c.role !== undefined) document.getElementById('inpTestiRole').value = c.role;
+  if(c.avatar_url){
+    currentTestiAvatar = c.avatar_url;
+    document.getElementById('testiAvatarPreview').innerHTML = '<img src="' + c.avatar_url + '" style="width:100%;height:100%;object-fit:cover">';
+  }
+  updateTestimonial();
+}
+loadTestimonialContent();
 
 /* ═══════════════════════════════════════════════════════════════
    CATEGORY BADGE — exact gradients/viewBox/labels from index.html
