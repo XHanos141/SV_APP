@@ -1430,11 +1430,8 @@ body.dark-mode .pay-badge-bank svg path[style*="fill:#66cde7"]{fill:#fff!importa
   </div>
   <template id="bannerItemTemplate">
     <div class="banner-item-card" style="border:1px solid var(--border);border-radius:14px;padding:12px;margin-bottom:12px;position:relative">
-      <button type="button" class="banner-item-delete" onclick="deleteBannerItem(this)" style="position:absolute;top:10px;right:10px;width:28px;height:28px;border-radius:50%;border:none;background:var(--danger,#d95353);color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:2">
-        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
-      </button>
       <div class="field" style="margin-bottom:0">
-        <label>Background Image <span style="font-weight:400;color:var(--text3)">(recommended: 1200×500px, 2.4:1)</span></label>
+        <label>Banner Image</label>
         <div class="img-upload banner-img-upload">
           <input type="file" accept="image/jpeg,image/png,image/webp" class="banner-img-input" onchange="handleBannerItemImage(event)">
           <div class="banner-img-empty">
@@ -1443,6 +1440,10 @@ body.dark-mode .pay-badge-bank svg path[style*="fill:#66cde7"]{fill:#fff!importa
             <span>JPG, PNG or WebP · 1200×500px (2.4:1) · under 400KB</span>
           </div>
         </div>
+        <button type="button" class="btn-draft banner-item-delete" onclick="deleteBannerItem(this)" style="width:100%;margin-top:8px;color:var(--danger,#d95353);display:flex;align-items:center;justify-content:center;gap:6px">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0-1 14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2L4 6h16Z"/><path d="M10 11v6M14 11v6"/></svg>
+          Delete Banner
+        </button>
       </div>
     </div>
   </template>
@@ -4256,7 +4257,7 @@ function renderBannerList(){
     if(b.image_url){
       const box = node.querySelector('.banner-img-upload');
       box.classList.add('has-img');
-      box.innerHTML = '<img src="' + b.image_url + '" class="img-preview-thumb" data-url="' + b.image_url + '"><div class="img-remove" onclick="removeBannerItemImage(event)"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></div><input type="file" accept="image/jpeg,image/png,image/webp" class="banner-img-input" onchange="handleBannerItemImage(event)">';
+      box.innerHTML = '<img src="' + b.image_url + '" class="img-preview-thumb" data-url="' + b.image_url + '"><input type="file" accept="image/jpeg,image/png,image/webp" class="banner-img-input" onchange="handleBannerItemImage(event)">';
     }
     mount.appendChild(node);
   });
@@ -4290,7 +4291,7 @@ function handleBannerItemImage(e){
   const reader = new FileReader();
   reader.onload = function(ev){
     box.classList.add('has-img');
-    box.innerHTML = '<img src="' + ev.target.result + '" class="img-preview-thumb"><div class="img-remove" onclick="removeBannerItemImage(event)"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></div><input type="file" accept="image/jpeg,image/png,image/webp" class="banner-img-input" onchange="handleBannerItemImage(event)">';
+    box.innerHTML = '<img src="' + ev.target.result + '" class="img-preview-thumb"><input type="file" accept="image/jpeg,image/png,image/webp" class="banner-img-input" onchange="handleBannerItemImage(event)">';
     updateBannerPreviewFromForm();
   };
   reader.readAsDataURL(file);
