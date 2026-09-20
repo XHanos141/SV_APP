@@ -4503,7 +4503,7 @@ function updateHero(){
   document.getElementById('heroPreviewPill3').textContent = document.getElementById('inpHeroPill3').value || '';
 }
 async function saveHeroContent(){
-  if(!sbClient) { T('Not connected to database','⚠️'); return; }
+  if(!window.sb) { T('Not connected to database','⚠️'); return; }
   const content = {
     badge: document.getElementById('inpHeroBadge').value || '',
     h1_line1: document.getElementById('inpHeroH1Line1').value || '',
@@ -4514,7 +4514,7 @@ async function saveHeroContent(){
     pill2: document.getElementById('inpHeroPill2').value || '',
     pill3: document.getElementById('inpHeroPill3').value || ''
   };
-  const { error } = await sbClient.from('site_content').upsert({
+  const { error } = await sb.from('site_content').upsert({
     page: 'landing',
     section: 'hero',
     content,
@@ -4524,8 +4524,8 @@ async function saveHeroContent(){
   T('Hero section published','🚀');
 }
 async function loadHeroContent(){
-  if(!sbClient) return;
-  const { data, error } = await sbClient
+  if(!window.sb) return;
+  const { data, error } = await sb
     .from('site_content')
     .select('content')
     .eq('page', 'landing')
