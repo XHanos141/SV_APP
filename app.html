@@ -14383,7 +14383,7 @@ html[data-theme="light"] .vc-float-close{background:rgba(240,244,248,0.95);borde
             </div>
             <div class="barcode-code-area">
               <canvas id="bar-canvas" class="bar-canvas"></canvas>
-              <div class="code-text" id="vp-code">SUP-???-????</div>
+              <div class="code-text" id="vp-code">SUP-???-?????</div>
             </div>
             <div class="validity-box">
               <div class="validity-label">Valid Until</div>
@@ -14522,6 +14522,22 @@ html[data-theme="light"] .vc-float-close{background:rgba(240,244,248,0.95);borde
             <input type="number" class="fs-input" id="disc-amount" placeholder="e.g. 200" min="1" oninput="render()">
           </div>
         </div>
+        <div class="cond-section" id="cond-maxdisc">
+          <div class="fs-field">
+            <label class="fs-label">Max Discount (৳) <span style="opacity:.55;font-weight:500">optional</span></label>
+            <div class="input-prefix-wrap">
+              <span class="input-prefix">৳</span>
+              <input type="number" class="fs-input" id="max-discount" placeholder="e.g. 300 - caps the % discount" min="1" oninput="render()">
+            </div>
+          </div>
+        </div>
+        <div class="fs-field">
+          <label class="fs-label">Minimum Order (৳) <span style="opacity:.55;font-weight:500">optional</span></label>
+          <div class="input-prefix-wrap">
+            <span class="input-prefix">৳</span>
+            <input type="number" class="fs-input" id="min-order" placeholder="e.g. 1500" min="0" oninput="render()">
+          </div>
+        </div>
         <div class="lock-notice" id="discount-lock-notice">🔒 This voucher has already been redeemed, so its discount can't be changed.</div>
       </div>
       <div class="field-divider"></div>
@@ -14564,15 +14580,15 @@ html[data-theme="light"] .vc-float-close{background:rgba(240,244,248,0.95);borde
       <div class="step-subheading">Fill in the details that appear on the voucher.</div>
       <div class="fs-field">
         <label class="fs-label">Title <span style="color:#dc2626">*</span></label>
-        <input type="text" class="fs-input" id="v-title" placeholder="e.g. EID SPECIAL, FLASH SALE..." oninput="render()">
+        <input type="text" class="fs-input" id="v-title" maxlength="60" placeholder="e.g. EID SPECIAL, FLASH SALE..." oninput="render()">
       </div>
       <div class="fs-field">
         <label class="fs-label">Subtitle <span style="color:#dc2626">*</span></label>
-        <input type="text" class="fs-input" id="v-subtitle" placeholder="e.g. Everything On Sale..." oninput="render()">
+        <input type="text" class="fs-input" id="v-subtitle" maxlength="80" placeholder="e.g. Everything On Sale..." oninput="render()">
       </div>
       <div class="fs-field">
         <label class="fs-label">Description</label>
-        <textarea class="fs-textarea" id="v-desc" placeholder="e.g. Enjoy 20% off your entire order. Valid on all items..." oninput="render()"><\/textarea>
+        <textarea class="fs-textarea" id="v-desc" maxlength="300" placeholder="e.g. Enjoy 20% off your entire order. Valid on all items..." oninput="render()"><\/textarea>
       </div>
       <div class="fs-field">
         <label class="fs-label">Expiry Date <span style="color:#dc2626">*</span></label>
@@ -14581,24 +14597,17 @@ html[data-theme="light"] .vc-float-close{background:rgba(240,244,248,0.95);borde
           <div class="expiry-countdown" id="expiry-countdown"></div>
         </div>
       </div>
+      <div class="fs-field">
+        <label class="fs-label">Start Date <span style="opacity:.55;font-weight:500">optional</span></label>
+        <input type="date" class="fs-input" id="v-start" onchange="render()">
+        <p style="font-size:10px;color:rgba(255,255,255,0.4);margin-top:6px;font-family:'Inter',sans-serif">Leave empty to start immediately</p>
+      </div>
       <div class="cond-section" id="cond-products">
         <div class="field-divider"></div>
         <div class="fs-label" style="margin-bottom:8px">Select Product(s) <span style="color:#dc2626">*</span></div>
         <div class="product-rows" id="product-rows">
           <div class="product-row">
-            <select class="fs-select" onchange="render()">
-              <option value="">Choose product...</option>
-              <option>NW-OMG3-UTA-180 · NOW Omega-3 180caps</option>
-              <option>NW-VTC-1000-90 · NOW Vitamin C 1000mg</option>
-              <option>ON-WPC-CHOC-5LB · ON Whey Gold Chocolate 5lb</option>
-              <option>ON-WPC-VAN-5LB · ON Whey Gold Vanilla 5lb</option>
-              <option>JRW-MAG-250-100 · Jarrow Magnesium 250mg</option>
-              <option>NM-VTD3-2000-90 · Nature Made Vit D3 2000IU</option>
-              <option>BSN-SYN-CHOC-5LB · BSN Syntha-6 Chocolate</option>
-              <option>MN-ZMA-90 · MuscleNow ZMA 90caps</option>
-              <option>OPT-CRTN-300G · Optimum Creatine 300g</option>
-              <option>DR-FISH-1000-90 · Doctor's Best Fish Oil 1000mg</option>
-            </select>
+            <select class="fs-select" onchange="render()"><option value="">Loading products...</option></select>
           </div>
         </div>
         <button class="add-prod-btn" onclick="addProductRow()">
@@ -14624,6 +14633,9 @@ html[data-theme="light"] .vc-float-close{background:rgba(240,244,248,0.95);borde
         <div class="summary-row"><span class="summary-key">Theme</span><span class="summary-val" id="s-theme">—</span></div>
         <div class="summary-row"><span class="summary-key">Type</span><span class="summary-val" id="s-type">—</span></div>
         <div class="summary-row"><span class="summary-key">Discount</span><span class="summary-val" id="s-discount">—</span></div>
+        <div class="summary-row" id="s-minorder-row" style="display:none"><span class="summary-key">Min Order</span><span class="summary-val" id="s-minorder">—</span></div>
+        <div class="summary-row" id="s-maxdisc-row" style="display:none"><span class="summary-key">Max Discount</span><span class="summary-val" id="s-maxdisc">—</span></div>
+        <div class="summary-row" id="s-start-row" style="display:none"><span class="summary-key">Starts</span><span class="summary-val" id="s-start">—</span></div>
         <div class="summary-row"><span class="summary-key">Usage</span><span class="summary-val" id="s-usage">—</span></div>
         <div class="summary-row"><span class="summary-key">Per-Customer</span><span class="summary-val" id="s-percustomer">—</span></div>
         <div class="summary-row"><span class="summary-key">Expiry</span><span class="summary-val" id="s-expiry">—</span></div>
@@ -14850,6 +14862,20 @@ function validateStep() {
           return false;
         }
       }
+      const minEl = document.getElementById('min-order');
+      if (minEl.value !== '' && !(parseFloat(minEl.value) >= 0)) {
+        minEl.classList.add('invalid');
+        setTimeout(() => minEl.classList.remove('invalid'), 700);
+        showToast('Minimum order must be 0 or more.', null, true);
+        return false;
+      }
+      const maxDEl = document.getElementById('max-discount');
+      if (S.discType === 'percent' && maxDEl.value !== '' && !(parseFloat(maxDEl.value) > 0)) {
+        maxDEl.classList.add('invalid');
+        setTimeout(() => maxDEl.classList.remove('invalid'), 700);
+        showToast('Max discount must be more than 0.', null, true);
+        return false;
+      }
       break;
     }
     case 4: {
@@ -14881,6 +14907,13 @@ function validateStep() {
         expiry.classList.add('invalid');
         setTimeout(() => expiry.classList.remove('invalid'), 700);
         showToast('Expiry date must be in the future.', null, true);
+        return false;
+      }
+      const startEl = document.getElementById('v-start');
+      if (startEl.value && startEl.value > expiry.value) {
+        startEl.classList.add('invalid');
+        setTimeout(() => startEl.classList.remove('invalid'), 700);
+        showToast('Start date must be on or before the expiry date.', null, true);
         return false;
       }
       if (S.type === 'product') {
@@ -14957,6 +14990,8 @@ function selectDiscType(type, el) {
   const amtEl = document.getElementById('disc-amount');
   amtEl.max   = type === 'percent' ? '50' : '';
   amtEl.placeholder = type === 'percent' ? 'e.g. 10, 20, 30...' : 'e.g. 200';
+  document.getElementById('cond-maxdisc').classList.toggle('show', type === 'percent');
+  if (type !== 'percent') document.getElementById('max-discount').value = '';
   render();
 }
 
@@ -14994,14 +15029,123 @@ function addProductRow() {
   const rows = document.getElementById('product-rows');
   const row  = document.createElement('div');
   row.className = 'product-row';
-  row.innerHTML = `<select class="fs-select"><option value="">Choose product...</option><option>NW-OMG3-UTA-180 · NOW Omega-3 180caps</option><option>NW-VTC-1000-90 · NOW Vitamin C 1000mg</option><option>ON-WPC-CHOC-5LB · ON Whey Gold Chocolate 5lb</option><option>ON-WPC-VAN-5LB · ON Whey Gold Vanilla 5lb</option><option>JRW-MAG-250-100 · Jarrow Magnesium 250mg</option><option>NM-VTD3-2000-90 · Nature Made Vit D3 2000IU</option><option>BSN-SYN-CHOC-5LB · BSN Syntha-6 Chocolate</option><option>MN-ZMA-90 · MuscleNow ZMA 90caps</option><option>OPT-CRTN-300G · Optimum Creatine 300g</option><option>DR-FISH-1000-90 · Doctor's Best Fish Oil 1000mg</option></select><button class="remove-prod-btn" onclick="this.parentElement.remove()">×</button>`;
+  const sel = document.createElement('select');
+  sel.className = 'fs-select';
+  sel.addEventListener('change', render);
+  fillProductSelect(sel, '');
+  row.appendChild(sel);
   rows.appendChild(row);
 }
 
-function generateCode() {
-  const prefix = S.type ? typeMap[S.type] : 'SUP-REG';
-  const rand   = Math.random().toString(36).substring(2, 6).toUpperCase();
-  S.code = prefix + '-' + rand;
+// ===== SERVER BRIDGE (parent app talks to Supabase) =====
+const _svPending = {};
+let _svReq = 0;
+function svCall(op, payload) {
+  return new Promise(function(resolve, reject) {
+    const id = ++_svReq;
+    const t = setTimeout(function() {
+      delete _svPending[id];
+      reject(new Error('Request timed out - check your connection and try again'));
+    }, 25000);
+    _svPending[id] = { resolve: resolve, reject: reject, t: t };
+    window.parent.postMessage({ type: 'sv-voucher-req', reqId: id, op: op, payload: payload || {} }, '*');
+  });
+}
+window.addEventListener('message', function(e) {
+  const m = e.data;
+  if (!m || m.type !== 'sv-voucher-res' || e.source !== window.parent) return;
+  const p = _svPending[m.reqId];
+  if (!p) return;
+  clearTimeout(p.t);
+  delete _svPending[m.reqId];
+  if (m.ok) p.resolve(m.data); else p.reject(new Error(m.error || 'Request failed'));
+});
+
+let PRODUCT_OPTIONS = [];
+function fillProductSelect(sel, selected) {
+  const cur = selected !== undefined ? selected : sel.value;
+  sel.innerHTML = '';
+  const first = document.createElement('option');
+  first.value = '';
+  first.textContent = 'Choose product...';
+  sel.appendChild(first);
+  PRODUCT_OPTIONS.forEach(function(p) {
+    const o = document.createElement('option');
+    o.value = p.sku;
+    o.textContent = p.sku + ' · ' + p.name;
+    sel.appendChild(o);
+  });
+  if (cur && !PRODUCT_OPTIONS.some(function(p) { return p.sku === cur; })) {
+    const o = document.createElement('option');
+    o.value = cur;
+    o.textContent = cur + ' (not in catalog)';
+    sel.appendChild(o);
+  }
+  sel.value = cur || '';
+}
+async function svLoadProducts() {
+  try {
+    PRODUCT_OPTIONS = await svCall('products');
+  } catch (err) {
+    PRODUCT_OPTIONS = [];
+    showToast('Could not load products: ' + err.message, null, true);
+  }
+  document.querySelectorAll('#product-rows .fs-select').forEach(function(sel) { fillProductSelect(sel); });
+}
+
+let _saving = false;
+function setSaving(on, label) {
+  const btn = document.getElementById('btn-create');
+  _saving = on;
+  if (on) {
+    if (!btn.dataset.busy) { btn._html = btn.innerHTML; btn.dataset.busy = '1'; }
+    btn.disabled = true;
+    btn.textContent = label;
+  } else {
+    if (btn.dataset.busy) { btn.innerHTML = btn._html; delete btn.dataset.busy; }
+    btn.disabled = false;
+  }
+}
+
+function collectVoucherFields() {
+  const num = function(id) { const v = document.getElementById(id).value; return v === '' ? null : parseFloat(v); };
+  const products = [...document.querySelectorAll('#product-rows .fs-select')].map(function(s) { return s.value; }).filter(Boolean);
+  const f = {
+    theme: S.theme,
+    type: S.type,
+    title: document.getElementById('v-title').value.trim(),
+    subtitle: document.getElementById('v-subtitle').value.trim(),
+    description: document.getElementById('v-desc').value.trim() || null,
+    discount_type: S.discType,
+    discount_value: parseFloat(document.getElementById('disc-amount').value) || 0,
+    max_discount: S.discType === 'percent' ? num('max-discount') : null,
+    min_order_amount: num('min-order') || 0,
+    usage_mode: S.usage,
+    per_customer_once: S.perCustomer === 'yes',
+    expiry_date: document.getElementById('v-expiry').value
+  };
+  if (S.usage === 'multiple') {
+    f.max_uses = S.maxUses === 'limited' ? (parseInt(document.getElementById('max-count').value) || null) : null;
+  }
+  if (S.type === 'product') f.product_skus = [...new Set(products)];
+  const start = document.getElementById('v-start').value;
+  if (start) f.start_date = start;
+  return f;
+}
+
+async function generateCode() {
+  if (!S.type) { showToast('Select a voucher type first.', null, true); return; }
+  const genBtn = document.getElementById('gen-btn');
+  if (genBtn.disabled) return;
+  genBtn.disabled = true;
+  try {
+    S.code = await svCall('peek_code', { type: S.type });
+  } catch (err) {
+    genBtn.disabled = false;
+    showToast(err.message, null, true);
+    return;
+  }
+  genBtn.disabled = false;
   document.getElementById('code-display').textContent = S.code;
   document.getElementById('code-display').classList.add('ready');
   const btn = document.getElementById('gen-btn');
@@ -15013,45 +15157,48 @@ function generateCode() {
   render();
 }
 
-function createVoucher() {
-  if (!S.code) return;
-
-  const products = [...document.querySelectorAll('#product-rows .fs-select')]
-    .map(s => s.value).filter(Boolean);
-
-  const payload = {
-    voucher_code: S.code,
-    theme: S.theme,
-    type: S.type,
-    discount_type: S.discType,
-    discount_amount: parseFloat(document.getElementById('disc-amount').value) || 0,
-    usage_limit: S.usage,
-    max_uses: S.usage === 'multiple' && S.maxUses === 'limited'
-      ? parseInt(document.getElementById('max-count').value) || null
-      : (S.maxUses === 'unlimited' ? null : 1),
-    per_customer_limit: S.perCustomer === 'yes',
-    title: document.getElementById('v-title').value.trim(),
-    subtitle: document.getElementById('v-subtitle').value.trim(),
-    description: document.getElementById('v-desc').value.trim() || null,
-    expiry_date: document.getElementById('v-expiry').value,
-    products: S.type === 'product' ? products : null,
-    created_at: new Date().toISOString(),
-    status: 'active'
-  };
-
-  console.log('[SuppVerse BD] Voucher Payload:', payload);
-
-  // Save to localStorage
-  const existing = JSON.parse(localStorage.getItem('sv_vouchers') || '[]');
-  existing.unshift(payload);
-  localStorage.setItem('sv_vouchers', JSON.stringify(existing));
-
-  // Tell parent app to refresh drawer voucher list
-  window.parent.postMessage({ type: 'voucher-created', voucher: payload }, '*');
-
-  showToast('Voucher created successfully!', S.code, false);
-
-  // Close form after short delay
+async function createVoucher() {
+  if (_saving || !S.code) return;
+  const f = collectVoucherFields();
+  if (S.usage === 'multiple' && S.maxUses === 'limited' && !(f.max_uses >= 2)) {
+    showToast('Enter a valid maximum uses (min 2).', null, true);
+    return;
+  }
+  f.code = S.code;
+  setSaving(true, 'Creating...');
+  let created = null;
+  try {
+    created = await svCall('create', f);
+  } catch (err) {
+    // a timed-out first attempt may already have saved: confirm before reporting a clash
+    if (/already exists/i.test(err.message)) {
+      try {
+        const ex = await svCall('get', { code: S.code });
+        if (ex && ex.title === f.title && ex.subtitle === f.subtitle && ex.type === f.type) created = ex;
+      } catch (e2) { /* fall through to the error toast */ }
+      if (!created) {
+        S.code = null;
+        document.getElementById('code-display').textContent = 'Tap to Generate →';
+        document.getElementById('code-display').classList.remove('ready');
+        document.getElementById('code-box').classList.remove('has-code');
+        const gb = document.getElementById('gen-btn');
+        gb.classList.remove('generated');
+        gb.innerHTML = 'Generate Code';
+        setSaving(false);
+        document.getElementById('btn-create').disabled = true;
+        showToast('That code was just taken - tap Generate Code for a new one.', null, true);
+        return;
+      }
+    } else {
+      setSaving(false);
+      showToast(err.message, null, true);
+      return;
+    }
+  }
+  S.code = created.code;
+  render();
+  window.parent.postMessage({ type: 'voucher-created', code: created.code }, '*');
+  showToast('Voucher created successfully!', created.code, false);
   setTimeout(function() {
     window.parent.postMessage({ type: 'close-voucher' }, '*');
   }, 1800);
@@ -15087,6 +15234,9 @@ function loadVoucherForEdit(data) {
 
   selectDiscType(data.discount_type, document.getElementById(data.discount_type === 'flat' ? 'pill-flat' : 'pill-pct'));
   document.getElementById('disc-amount').value = data.discount_amount || '';
+  document.getElementById('min-order').value = data.min_order_amount > 0 ? data.min_order_amount : '';
+  document.getElementById('max-discount').value = data.max_discount > 0 ? data.max_discount : '';
+  document.getElementById('v-start').value = data.start_date || '';
 
   selectUsage(data.usage_limit, document.getElementById(data.usage_limit === 'single' ? 'pill-single' : 'pill-multi'));
   if (data.usage_limit === 'multiple') {
@@ -15101,12 +15251,9 @@ function loadVoucherForEdit(data) {
   selectPerCustomer(data.per_customer_limit ? 'yes' : 'no', document.getElementById(data.per_customer_limit ? 'pill-oncepc' : 'pill-nolimit'));
 
   if (data.type === 'product' && Array.isArray(data.products) && data.products.length) {
-    const selects = document.querySelectorAll('#product-rows .fs-select');
-    data.products.forEach((p, i) => {
-      if (i > 0) addProductRow();
-    });
+    data.products.forEach((p, i) => { if (i > 0) addProductRow(); });
     document.querySelectorAll('#product-rows .fs-select').forEach((sel, i) => {
-      if (data.products[i]) sel.value = data.products[i];
+      if (data.products[i]) fillProductSelect(sel, data.products[i]);
     });
   }
 
@@ -15133,6 +15280,9 @@ function loadVoucherForEdit(data) {
     document.getElementById('discount-lock-group').classList.add('locked');
     document.getElementById('discount-lock-notice').classList.add('show');
     document.getElementById('disc-amount').disabled = true;
+    document.getElementById('min-order').disabled = true;
+    document.getElementById('max-discount').disabled = true;
+    document.getElementById('v-start').disabled = true;
   }
 
   // Footer: swap "Create Voucher" for "Save Changes"
@@ -15151,44 +15301,29 @@ function loadVoucherForEdit(data) {
   updateStep();
 }
 
-function saveVoucherChanges() {
-  if (S.mode !== 'edit') return;
-
-  const products = [...document.querySelectorAll('#product-rows .fs-select')]
-    .map(s => s.value).filter(Boolean);
-
-  const maxUsesVal = S.usage === 'multiple' && S.maxUses === 'limited'
-    ? parseInt(document.getElementById('max-count').value) || null
-    : (S.maxUses === 'unlimited' ? null : 1);
-
-  if (maxUsesVal !== null && S.editRedemptions && maxUsesVal < S.editRedemptions) {
+async function saveVoucherChanges() {
+  if (S.mode !== 'edit' || _saving) return;
+  const f = collectVoucherFields();
+  if (S.usage === 'multiple' && S.maxUses === 'limited' && !(f.max_uses >= 2)) {
+    showToast('Enter a valid maximum uses (min 2).', null, true);
+    return;
+  }
+  if (f.max_uses != null && S.editRedemptions && f.max_uses < S.editRedemptions) {
     showToast('Usage limit can\'t be lower than ' + S.editRedemptions + ' (already redeemed).', null, true);
     return;
   }
-
-  const payload = {
-    voucher_code: S.code,
-    theme: S.theme,
-    type: S.type,
-    discount_type: S.discType,
-    discount_amount: parseFloat(document.getElementById('disc-amount').value) || 0,
-    usage_limit: S.usage,
-    max_uses: maxUsesVal,
-    per_customer_limit: S.perCustomer === 'yes',
-    title: document.getElementById('v-title').value.trim(),
-    subtitle: document.getElementById('v-subtitle').value.trim(),
-    description: document.getElementById('v-desc').value.trim() || null,
-    expiry_date: document.getElementById('v-expiry').value,
-    products: S.type === 'product' ? products : null,
-    updated_at: new Date().toISOString(),
-    status: 'active'
-  };
-
-  console.log('[SuppVerse BD] Voucher Update Payload:', payload);
-
-  window.parent.postMessage({ type: 'voucher-updated', voucher: payload }, '*');
+  delete f.type;
+  if (S.lockedFields.discount) delete f.start_date;
+  setSaving(true, 'Saving...');
+  try {
+    await svCall('update', { code: S.code, patch: f });
+  } catch (err) {
+    setSaving(false);
+    showToast(err.message, null, true);
+    return;
+  }
+  window.parent.postMessage({ type: 'voucher-updated', code: S.code }, '*');
   showToast('Voucher updated successfully!', S.code, false);
-
   setTimeout(function() {
     window.parent.postMessage({ type: 'close-voucher' }, '*');
   }, 1800);
@@ -15249,7 +15384,7 @@ function updatePreview() {
 
   document.getElementById('vp-code').textContent = S.code
     ? S.code
-    : (S.type ? typeMap[S.type] + '-????' : 'SUP-???-????');
+    : (S.type ? typeMap[S.type] + '-?????' : 'SUP-???-?????');
   if (S.code) B128.draw(S.code, 'bar-canvas', 101);
 
   updatePreviewTheme();
@@ -15354,6 +15489,16 @@ function updateSummary() {
     document.getElementById('s-expiry').textContent = '—';
   }
   document.getElementById('s-code').textContent   = S.code || '—';
+
+  const minV = parseFloat(document.getElementById('min-order').value);
+  document.getElementById('s-minorder-row').style.display = minV > 0 ? 'flex' : 'none';
+  if (minV > 0) document.getElementById('s-minorder').textContent = '৳' + minV;
+  const maxV = parseFloat(document.getElementById('max-discount').value);
+  document.getElementById('s-maxdisc-row').style.display = (S.discType === 'percent' && maxV > 0) ? 'flex' : 'none';
+  if (maxV > 0) document.getElementById('s-maxdisc').textContent = '৳' + maxV;
+  const startV = document.getElementById('v-start').value;
+  document.getElementById('s-start-row').style.display = startV ? 'flex' : 'none';
+  if (startV) document.getElementById('s-start').textContent = formatDate(startV);
 
   const products = [...document.querySelectorAll('#product-rows .fs-select')]
     .map(s => s.value).filter(Boolean);
@@ -15477,6 +15622,8 @@ window.addEventListener('message',function(e){
   if(e.data&&e.data.type==='sv-theme'){document.documentElement.setAttribute('data-theme',e.data.dark?'dark':'light');}
   if(e.data&&e.data.type==='LOAD_EDIT'){loadVoucherForEdit(e.data.voucher);}
 });
+
+svLoadProducts();
 
 // Scroll-hide removed — preview stays permanently visible
 
@@ -22109,11 +22256,45 @@ function openReturnModal() {
 }
 
 
-function renderDrawerVouchers() {
+/* ===== VOUCHERS: server bridge for the creation form + live drawer list ===== */
+async function svVoucherRpc(op, payload) {
+  if (op === 'products') {
+    return PRODUCTS_DATA.filter(function(p) { return p && p.sku && !p.archived; })
+      .map(function(p) { return { sku: p.sku, name: p.name, category: p.category || null }; });
+  }
+  const sess = await sb.auth.getSession();
+  if (!sess.data || !sess.data.session) throw new Error('Session expired - please sign in again');
+  let r;
+  if (op === 'peek_code') r = await sb.rpc('peek_voucher_code', { p_type: payload.type });
+  else if (op === 'create') r = await sb.rpc('create_voucher', { p: payload });
+  else if (op === 'update') r = await sb.rpc('update_voucher', { p_code: payload.code, p: payload.patch });
+  else if (op === 'get') r = await sb.rpc('admin_get_voucher', { p_code: payload.code });
+  else throw new Error('Unknown request');
+  if (r.error) throw new Error(r.error.message || 'Request failed');
+  return r.data;
+}
+
+window.addEventListener('message', async function(e) {
+  const m = e.data;
+  const frame = document.getElementById('voucherFrame');
+  if (!m || m.type !== 'sv-voucher-req' || !frame || e.source !== frame.contentWindow) return;
+  const reply = { type: 'sv-voucher-res', reqId: m.reqId };
+  try { reply.data = await svVoucherRpc(m.op, m.payload || {}); reply.ok = true; }
+  catch (err) { reply.ok = false; reply.error = String((err && err.message) || err); }
+  try { e.source.postMessage(reply, '*'); } catch (x) {}
+});
+
+let _svDrawerVouchers = [];
+async function renderDrawerVouchers() {
   const container = document.getElementById('voucherListContainer');
   const emptyEl   = document.getElementById('voucherEmpty');
   if (!container) return;
-  const vouchers = JSON.parse(localStorage.getItem('sv_vouchers') || '[]');
+  try {
+    const r = await sb.rpc('admin_list_vouchers');
+    if (r.error) throw r.error;
+    _svDrawerVouchers = r.data || [];
+  } catch (err) { /* not signed in yet or offline: keep the last list */ }
+  const vouchers = _svDrawerVouchers;
   if (!vouchers.length) {
     if (emptyEl) emptyEl.style.display = '';
     container.innerHTML = '';
@@ -22122,17 +22303,19 @@ function renderDrawerVouchers() {
   if (emptyEl) emptyEl.style.display = 'none';
   const typeColors = { regular:'#38bdf8', event:'#f4c55a', product:'#22c55e', newcustomer:'#a78bfa' };
   const typeLabels = { regular:'Regular', event:'Event', product:'Product', newcustomer:'New Customer' };
+  const statusColors = { active:'#22c55e', scheduled:'#F4A922', paused:'#d95353', expired:'#94a3b8', exhausted:'#94a3b8', archived:'#94a3b8' };
   container.innerHTML = vouchers.slice(0, 5).map(v => {
     const color = typeColors[v.type] || '#7c6ff7';
     const label = typeLabels[v.type] || v.type;
-    const expiry = v.expiry_date ? new Date(v.expiry_date).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}) : 'No expiry';
-    const discStr = v.discount_type === 'flat' ? '৳'+v.discount_amount+' OFF' : v.discount_amount+'% OFF';
-    const isExpired = v.expiry_date && new Date(v.expiry_date) < new Date();
-    const statusColor = isExpired ? '#94a3b8' : (v.status === 'active' ? '#22c55e' : '#d95353');
+    const expiry = v.expiry_date ? new Date(v.expiry_date + 'T12:00:00').toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}) : 'No expiry';
+    const val = Number(v.discount_value);
+    const discStr = v.discount_type === 'flat' ? '৳'+val+' OFF' : val+'% OFF';
+    const st = v.derived_status || v.status;
+    const statusColor = statusColors[st] || '#94a3b8';
     return `<div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);border-radius:12px;padding:12px 14px;margin-bottom:8px;cursor:pointer" onclick="openVoucherHub()">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
-        <span style="font-family:'Roboto Mono',monospace;font-size:12px;font-weight:600;color:${color};letter-spacing:0.04em">${v.voucher_code}</span>
-        <span style="font-size:10px;font-weight:700;color:${statusColor};background:${statusColor}22;padding:2px 8px;border-radius:20px;text-transform:uppercase">${isExpired?'Expired':v.status}</span>
+        <span style="font-family:'Roboto Mono',monospace;font-size:12px;font-weight:600;color:${color};letter-spacing:0.04em">${v.code}</span>
+        <span style="font-size:10px;font-weight:700;color:${statusColor};background:${statusColor}22;padding:2px 8px;border-radius:20px;text-transform:uppercase">${st}</span>
       </div>
       <div style="display:flex;align-items:center;justify-content:space-between">
         <span style="font-size:11px;color:rgba(255,255,255,0.4)">${label} · ${expiry}</span>
@@ -22144,6 +22327,45 @@ function renderDrawerVouchers() {
     container.innerHTML += `<div style="text-align:center;font-size:11px;color:rgba(255,255,255,0.35);padding:4px 0">${vouchers.length - 5} more — tap Manage Vouchers</div>`;
   }
 }
+window.renderDrawerVouchers = renderDrawerVouchers;
+
+async function svMaybeImportLocalVouchers() {
+  let local = [];
+  try { local = JSON.parse(localStorage.getItem('sv_vouchers') || '[]'); } catch (e) { return; }
+  if (!Array.isArray(local) || !local.length || localStorage.getItem('sv_vouchers_import')) return;
+  if (!confirm(local.length + ' voucher(s) were saved only on this device. Import them to the server so they work everywhere?')) {
+    localStorage.setItem('sv_vouchers_import', 'skipped');
+    return;
+  }
+  let ok = 0;
+  const failed = [];
+  for (const v of local.slice().reverse()) {
+    try {
+      const p = {
+        code: v.voucher_code, type: v.type, theme: v.theme, title: v.title, subtitle: v.subtitle, description: v.description,
+        discount_type: v.discount_type, discount_value: v.discount_amount, usage_mode: v.usage_limit,
+        per_customer_once: !!v.per_customer_limit, expiry_date: v.expiry_date
+      };
+      if (v.usage_limit === 'multiple') p.max_uses = v.max_uses;
+      if (v.type === 'product') p.product_skus = (v.products || []).map(x => String(x).split('·')[0].trim()).filter(Boolean);
+      const r = await sb.rpc('create_voucher', { p: p });
+      if (r.error) throw r.error;
+      ok++;
+    } catch (err) { failed.push((v.voucher_code || '?') + ': ' + ((err && err.message) || err)); }
+  }
+  localStorage.setItem('sv_vouchers_import', 'done');
+  localStorage.setItem('sv_vouchers_backup', localStorage.getItem('sv_vouchers'));
+  localStorage.removeItem('sv_vouchers');
+  console.warn('Voucher import skipped:', failed);
+  showToast('Imported ' + ok + ' voucher(s)' + (failed.length ? ', skipped ' + failed.length + ' (expired or invalid)' : ''));
+  renderDrawerVouchers();
+}
+
+(function initVoucherDrawer() {
+  const go = function() { renderDrawerVouchers(); svMaybeImportLocalVouchers(); };
+  if (window.__svAdminReady) setTimeout(go, 0);
+  else window.addEventListener('sv-admin-ready', go, { once: true });
+})();
 
 const VOUCHER_HUB_LIVE_URL = 'https://raw.githubusercontent.com/XHanos141/SV_APP/main/voucher-hub.html';
 
@@ -26032,8 +26254,6 @@ if ('requestIdleCallback' in window) {
   setTimeout(_loadOverviewFrame, 50);
 }
 
-renderDrawerVouchers();
-
 // Listen for iframe messages
 window.addEventListener('message', function(e) {
   if (e.data && e.data.type === 'toggle-drawer') {
@@ -26052,8 +26272,6 @@ window.addEventListener('message', function(e) {
     renderDrawerVouchers();
   }
   if (e.data && e.data.type === 'voucher-updated') {
-    // TODO: once Supabase is wired, this is where the update gets written back
-    // to the row and the management list re-renders from real data.
     renderDrawerVouchers();
   }
   if (e.data && e.data.type === 'open-voucher-create') {
