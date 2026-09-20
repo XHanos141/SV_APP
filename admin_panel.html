@@ -3353,7 +3353,7 @@ initEditLock('heroFieldset','heroEditBtn','heroSaveBtn','heroCancelBtn',{
   onSave: saveHeroContent
 });
 initEditLock('bannerFieldset','bannerEditBtn','bannerSaveBtn','bannerCancelBtn',{onSave:saveBannerContent});
-initEditLock(['svcFieldset','svcBadgeFieldset'],'svcEditBtn','svcSaveBtn','svcCancelBtn');
+initEditLock(['svcFieldset','svcBadgeFieldset'],'svcEditBtn','svcSaveBtn','svcCancelBtn',{onSave:saveServicesContent});
 initEditLock('statsFieldset','statsEditBtn','statsSaveBtn','statsCancelBtn');
 initEditLock('catbadgeFieldset','catbadgeEditBtn','catbadgeSaveBtn','catbadgeCancelBtn');
 initEditLock('faqFieldset','faqEditBtn','faqSaveBtn','faqCancelBtn');
@@ -4486,6 +4486,49 @@ function initServices(){
   renderSvcPicker();
   renderSvcPreview();
 }
+async function saveServicesContent(){
+  if(!window.sb) { T('Not connected to database','⚠️'); return; }
+  const content = {
+    section_title: document.getElementById('inpSvcSectionTitle').value || '',
+    section_subtitle: document.getElementById('inpSvcSectionSubtitle').value || '',
+    badges: SVC_DATA.map(b => ({ title: b.title, desc: b.desc, icon: b.icon }))
+  };
+  const { error } = await sb.from('site_content').upsert({
+    page: 'landing',
+    section: 'why_choose_us',
+    content,
+    updated_at: new Date().toISOString()
+  }, { onConflict: 'page,section' });
+  if(error){ console.error('saveServicesContent error:', error.message); T('Save failed — check connection','❌'); return; }
+  T('Why Choose Us section published','🚀');
+}
+async function loadServicesContent(){
+  if(!window.sb) return;
+  const { data, error } = await sb
+    .from('site_content')
+    .select('content')
+    .eq('page', 'landing')
+    .eq('section', 'why_choose_us')
+    .maybeSingle();
+  if(error){ console.error('loadServicesContent error:', error.message); return; }
+  if(!data || !data.content) return;
+  const c = data.content;
+  if(c.section_title !== undefined) document.getElementById('inpSvcSectionTitle').value = c.section_title;
+  if(c.section_subtitle !== undefined) document.getElementById('inpSvcSectionSubtitle').value = c.section_subtitle;
+  if(Array.isArray(c.badges) && c.badges.length){
+    c.badges.forEach((b, i) => {
+      if(SVC_DATA[i]){
+        if(b.title !== undefined) SVC_DATA[i].title = b.title;
+        if(b.desc !== undefined) SVC_DATA[i].desc = b.desc;
+        if(b.icon !== undefined) SVC_DATA[i].icon = b.icon;
+      }
+    });
+  }
+  updateServices();
+  renderSvcPicker();
+  renderSvcPreview();
+}
+loadServicesContent();
 const MCARD_DATA = [
   { type:'local', eye:'Local Stock', title:'Shop from Local', desc:'Over 200+ products ready to ship across Bangladesh', cta:'Browse' },
   { type:'proxy', eye:'Global Import', title:'Buy for Me', desc:"Share your product link from your favorite store. We'll handle the rest.", cta:'Request' }
