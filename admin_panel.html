@@ -134,8 +134,11 @@ body::-webkit-scrollbar{display:none;width:0;height:0}
   display:flex;align-items:center;justify-content:center;
   padding:10px;position:relative;
   overflow-y:auto;-webkit-overflow-scrolling:touch;
+  scrollbar-width:none;-ms-overflow-style:none;
 }
-.carousel-slide > .card-wrap{width:100%;max-height:100%;overflow-y:auto;-webkit-overflow-scrolling:touch;}
+.carousel-slide::-webkit-scrollbar{display:none;width:0;height:0}
+.carousel-slide > .card-wrap{width:100%;max-height:100%;overflow-y:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;-ms-overflow-style:none;}
+.carousel-slide > .card-wrap::-webkit-scrollbar{display:none;width:0;height:0}
 #carouselTrackStore{width:300%}
 #carouselTrackStore .carousel-slide{width:33.3334%}
 #carouselTrackBuyForMe{width:500%}
@@ -3355,7 +3358,7 @@ initEditLock('heroFieldset','heroEditBtn','heroSaveBtn','heroCancelBtn',{
 initEditLock('bannerFieldset','bannerEditBtn','bannerSaveBtn','bannerCancelBtn',{onSave:saveBannerContent});
 initEditLock(['svcFieldset','svcBadgeFieldset'],'svcEditBtn','svcSaveBtn','svcCancelBtn',{onSave:saveServicesContent});
 initEditLock('statsFieldset','statsEditBtn','statsSaveBtn','statsCancelBtn');
-initEditLock('catbadgeFieldset','catbadgeEditBtn','catbadgeSaveBtn','catbadgeCancelBtn');
+initEditLock('catbadgeFieldset','catbadgeEditBtn','catbadgeSaveBtn','catbadgeCancelBtn',{onSave:saveCatBadgeContent});
 initEditLock('faqFieldset','faqEditBtn','faqSaveBtn','faqCancelBtn');
 initEditLock('footerpayFieldset','footerpayEditBtn','footerpaySaveBtn','footerpayCancelBtn',{onSave:savePaymentBadges});
 initEditLock('paypageFieldset','paypageEditBtn','paypageSaveBtn','paypageCancelBtn',{onSave:function(){savePaymentPageBadges();savePaymentPageQr();}});
@@ -4778,12 +4781,50 @@ function updateWbBadge(fromLabelInput){
   const meta = WB_CAT[cat] || WB_CAT.supplement;
   document.getElementById('wbIcon').style.background = meta.gradient;
   document.getElementById('wbIconSvg').setAttribute('viewBox', meta.viewBox);
-  document.getElementById('wbIconSvg').innerHTML = '<use href="#cat-icon-' + cat + '"/>';
+  document.getElementById('wbIconSvg').innerHTML = '<use href="#cat-icon-' + (cat === 'electronics' ? 'gadget' : cat) + '"/>';
   if(!fromLabelInput){
     document.getElementById('inpWbLabel').value = meta.label;
+  } else {
+    meta.label = document.getElementById('inpWbLabel').value;
   }
   document.getElementById('wbLabel').textContent = document.getElementById('inpWbLabel').value;
 }
+async function saveCatBadgeContent(){
+  if(!window.sb) { T('Not connected to database','⚠️'); return; }
+  const KEY_MAP = { electronics: 'gadget' };
+  const content = {};
+  Object.keys(WB_CAT).forEach(key => {
+    const outKey = KEY_MAP[key] || key;
+    content[outKey] = WB_CAT[key].label;
+  });
+  const { error } = await sb.from('site_content').upsert({
+    page: 'landing',
+    section: 'category_badges',
+    content,
+    updated_at: new Date().toISOString()
+  }, { onConflict: 'page,section' });
+  if(error){ console.error('saveCatBadgeContent error:', error.message); T('Save failed — check connection','❌'); return; }
+  T('Category badges published','🚀');
+}
+async function loadCatBadgeContent(){
+  if(!window.sb) return;
+  const { data, error } = await sb
+    .from('site_content')
+    .select('content')
+    .eq('page', 'landing')
+    .eq('section', 'category_badges')
+    .maybeSingle();
+  if(error){ console.error('loadCatBadgeContent error:', error.message); return; }
+  if(!data || !data.content) return;
+  const c = data.content;
+  const KEY_MAP = { gadget: 'electronics' };
+  Object.keys(c).forEach(outKey => {
+    const localKey = KEY_MAP[outKey] || outKey;
+    if(WB_CAT[localKey] && c[outKey]) WB_CAT[localKey].label = c[outKey];
+  });
+  updateWbBadge();
+}
+loadCatBadgeContent();
 
 /* ═══════════════════════════════════════════════════════════════
    FAQ — multiple items, picker selects which one to edit,
