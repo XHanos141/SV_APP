@@ -14593,11 +14593,16 @@ html[data-theme="light"] .vc-float-close{background:rgba(240,244,248,0.95);borde
         <textarea class="fs-textarea" id="v-desc" maxlength="300" placeholder="e.g. Enjoy 20% off your entire order. Valid on all items..." oninput="render()"><\/textarea>
       </div>
       <div class="fs-field">
-        <label class="fs-label">Expiry Date <span style="color:#dc2626">*</span></label>
-        <div class="expiry-wrap">
+        <label class="fs-label">Expiry <span style="color:#dc2626">*</span></label>
+        <div class="pill-row" style="margin-bottom:10px">
+          <div class="pill-opt selected" id="pill-exp-date" onclick="selectExpiryMode('date',this)"><span class="pill-label">Set Date</span></div>
+          <div class="pill-opt" id="pill-exp-none" onclick="selectExpiryMode('none',this)"><span class="pill-label">No Expiry</span></div>
+        </div>
+        <div class="expiry-wrap" id="expiry-date-wrap">
           <input type="date" class="fs-input" id="v-expiry" onchange="render()">
           <div class="expiry-countdown" id="expiry-countdown"></div>
         </div>
+        <p class="field-hint" id="noexp-hint" style="display:none">This voucher never expires. Pause or archive it from the Voucher Hub to stop it.</p>
       </div>
       <div class="fs-field">
         <label class="fs-label">Start Date <span style="opacity:.55;font-weight:500">optional</span></label>
@@ -14783,6 +14788,7 @@ const S = {
   usage: 'single',
   maxUses: 'limited',
   perCustomer: 'no',
+  expiryMode: 'date',
   code: null,
   mode: 'create',
   editRedemptions: 0,
@@ -14899,7 +14905,7 @@ function validateStep() {
         showToast('Subtitle is required.', null, true);
         return false;
       }
-      if (!expiry.value) {
+      if (S.expiryMode === 'date' && !expiry.value) {
         expiry.classList.add('invalid');
         setTimeout(() => expiry.classList.remove('invalid'), 700);
         showToast('Expiry date is required.', null, true);
@@ -14908,14 +14914,14 @@ function validateStep() {
       const today = new Date();
       today.setHours(0,0,0,0);
       const exp = new Date(expiry.value + 'T00:00:00');
-      if (exp < today) {
+      if (S.expiryMode === 'date' && exp < today) {
         expiry.classList.add('invalid');
         setTimeout(() => expiry.classList.remove('invalid'), 700);
         showToast('Expiry date must be in the future.', null, true);
         return false;
       }
       const startEl = document.getElementById('v-start');
-      if (startEl.value && startEl.value > expiry.value) {
+      if (S.expiryMode === 'date' && startEl.value && startEl.value > expiry.value) {
         startEl.classList.add('invalid');
         setTimeout(() => startEl.classList.remove('invalid'), 700);
         showToast('Start date must be on or before the expiry date.', null, true);
@@ -15019,6 +15025,15 @@ function selectMaxUses(type, el) {
   document.getElementById('pill-unlimited').classList.remove('selected');
   el.classList.add('selected');
   document.getElementById('cond-maxcount').classList.toggle('show', type === 'limited');
+  render();
+}
+
+function selectExpiryMode(mode, el) {
+  S.expiryMode = mode;
+  document.getElementById('pill-exp-date').classList.toggle('selected', mode === 'date');
+  document.getElementById('pill-exp-none').classList.toggle('selected', mode === 'none');
+  document.getElementById('expiry-date-wrap').style.display = mode === 'date' ? '' : 'none';
+  document.getElementById('noexp-hint').style.display = mode === 'none' ? '' : 'none';
   render();
 }
 
@@ -15127,7 +15142,8 @@ function collectVoucherFields() {
     min_order_amount: num('min-order') || 0,
     usage_mode: S.usage,
     per_customer_once: S.perCustomer === 'yes',
-    expiry_date: document.getElementById('v-expiry').value
+    expiry_date: S.expiryMode === 'none' ? null : document.getElementById('v-expiry').value,
+    no_expiry: S.expiryMode === 'none'
   };
   if (S.usage === 'multiple') {
     f.max_uses = S.maxUses === 'limited' ? (parseInt(document.getElementById('max-count').value) || null) : null;
@@ -15236,6 +15252,7 @@ function loadVoucherForEdit(data) {
   document.getElementById('v-subtitle').value = data.subtitle || '';
   document.getElementById('v-desc').value     = data.description || '';
   document.getElementById('v-expiry').value   = data.expiry_date || '';
+  if (data.no_expiry || !data.expiry_date) selectExpiryMode('none', document.getElementById('pill-exp-none'));
 
   selectDiscType(data.discount_type, document.getElementById(data.discount_type === 'flat' ? 'pill-flat' : 'pill-pct'));
   document.getElementById('disc-amount').value = data.discount_amount || '';
@@ -15343,14 +15360,16 @@ function updatePreview() {
   const title    = document.getElementById('v-title').value;
   const subtitle = document.getElementById('v-subtitle').value;
   const desc     = document.getElementById('v-desc').value;
-  const expiry   = document.getElementById('v-expiry').value;
+  const expiry   = S.expiryMode === 'none' ? '' : document.getElementById('v-expiry').value;
   const amt      = document.getElementById('disc-amount').value;
 
   document.getElementById('vp-title').textContent    = title    || 'VOUCHER TITLE';
   document.getElementById('vp-subtitle').textContent = subtitle || 'Subtitle here';
   document.getElementById('vp-desc').textContent     = desc     || 'Description will appear here';
 
-  document.getElementById('vp-expiry-display').textContent = expiry ? formatDate(expiry) : '—';
+  document.getElementById('vp-expiry-display').textContent = S.expiryMode === 'none' ? 'No expiry' : (expiry ? formatDate(expiry) : '—');
+  const vLabel = document.querySelector('#voucher-preview .validity-label');
+  if (vLabel) vLabel.textContent = S.expiryMode === 'none' ? 'Validity' : 'Valid Until';
 
   const cdEl = document.getElementById('vp-countdown');
   if (expiry) {
@@ -15496,7 +15515,9 @@ function updateSummary() {
   document.getElementById('s-percustomer').textContent = S.perCustomer === 'yes' ? 'Once per Customer' : 'No Limit';
 
   const expiryVal = document.getElementById('v-expiry').value;
-  if (expiryVal) {
+  if (S.expiryMode === 'none') {
+    document.getElementById('s-expiry').textContent = 'No expiry';
+  } else if (expiryVal) {
     const tl = formatTimeLeft(expiryVal);
     const base = formatDate(expiryVal);
     document.getElementById('s-expiry').textContent = tl === 'Expired' ? base + ' (Expired)' : base + ' · ' + tl;
