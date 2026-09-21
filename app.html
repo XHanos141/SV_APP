@@ -814,6 +814,7 @@ html[data-theme="dark"] .draft-math-row.shipping-row.free-shipping .draft-math-v
 
 /* Discount row */
 .draft-math-row.discount-row { padding-top: 0; }
+.draft-voucher-tag { margin-left: 6px; padding: 1px 6px; border-radius: 6px; font: 600 10px/1.5 'Roboto Mono', monospace; letter-spacing: .02em; background: rgba(217,83,83,0.12); }
 .draft-math-row.discount-row .draft-math-label { color: #d95353; }
 .draft-math-row.discount-row .draft-math-label svg { opacity: 1; }
 html[data-theme="dark"] .draft-math-row.discount-row .draft-math-label { color: #ff6b6b; }
@@ -17650,10 +17651,12 @@ async function confirmPayment() {
   if (!card) { closePaymentModal(); return; }
 
   const orderUuid = card.dataset.orderUuid || null;
+  let paidRow = null;
   if (orderUuid) {
     _payInFlight = true;
     try {
-      await sbFetch('rpc/confirm_order_payment', 'POST', { p_order_id: orderUuid, p_method: method, p_ref: ref || null });
+      const pr = await sbFetch('rpc/confirm_order_payment', 'POST', { p_order_id: orderUuid, p_method: method, p_ref: ref || null });
+      paidRow = Array.isArray(pr) ? pr[0] : pr;
     } catch (err) {
       showToast('⚠ Payment not saved — ' + _dbErrMsg(err));
       return;
@@ -17664,8 +17667,9 @@ async function confirmPayment() {
   }
 
   const draftId  = card.getAttribute("data-id") || ("SV-" + Date.now());
-  const discount = parseFloat(card.getAttribute("data-discount")) || 0;
+  const discount = (paidRow && paidRow.discount != null) ? Number(paidRow.discount) : (parseFloat(card.getAttribute("data-discount")) || 0);
   const shipping = parseFloat(card.getAttribute("data-shipping")) || 0;
+  const payVoucher = (paidRow && paidRow.voucher_code) || card.getAttribute("data-voucher") || null;
   const customer = card.querySelector(".draft-name")?.textContent.trim() || "Customer";
   const phone    = card.querySelector(".dc-meta-row:not(.address-row) span")?.textContent.trim() || null;
   const address  = card.querySelector(".dc-meta-row.address-row span")?.textContent.trim() || null;
@@ -17701,7 +17705,7 @@ async function confirmPayment() {
     phone, address,
     channel: srcClass, payment: method,
     paymentRef: ref || null, paidAt,
-    status: "paid", discount, shipping, items, uuid: orderUuid,
+    status: "paid", discount, voucher: payVoucher, shipping, items, uuid: orderUuid,
     fulfillType: draftId.startsWith('PX-') ? 'proxy' : 'local'
   });
 
@@ -18572,7 +18576,7 @@ function generateCustomerInvoiceHTML(inv, size) {
   ${(inv.discount||0)>0?`<div style="display:flex;align-items:center;justify-content:space-between;padding:${isA4?'10px 0':'7px 0'};border-bottom:1.5px dashed #001f3c">`:''}
     <div style="display:inline-flex;align-items:center;gap:5px;background:#e8f5ee;border:1px solid #2f9b68;border-radius:6px;padding:3px 8px">
       <svg width="${isA4?'13':'12'}" height="${isA4?'13':'12'}" viewBox="0 0 24 24" fill="none" stroke="#2f9b68" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-archive-box"/></svg>
-      <span style="font-family:'Plus Jakarta Sans',sans-serif;font-size:${isA4?'10px':'9px'};font-weight:700;color:#2f9b68">Discount</span>
+      <span style="font-family:'Plus Jakarta Sans',sans-serif;font-size:${isA4?'10px':'9px'};font-weight:700;color:#2f9b68">Discount${inv.voucher ? ' · ' + escapeHtml(inv.voucher) : ''}</span>
     </div>
     <span style="font-family:'Courier Prime',monospace;font-size:${pad.itemFs};font-weight:700;color:#2f9b68">-\u09f3${inv.discount.toLocaleString("en-IN")}</span>
   </div>
@@ -18713,7 +18717,7 @@ function generateOwnerInvoiceHTML(inv, size) {
       </div>
       <div>
         <div style="display:flex;justify-content:space-between;font-size:${fs.sm};padding:${isA4?'3px 0':'2px 0'}"><span style="color:#8c92a1;font-weight:500">Subtotal</span><span style="color:#001f3c;font-weight:600">\u09f3${subtotal.toLocaleString("en-IN")}</span></div>
-        <div style="display:flex;justify-content:space-between;font-size:${fs.sm};padding:${isA4?'3px 0':'2px 0'}"><span style="color:#8c92a1;font-weight:500">Discount</span><span style="color:#d95353;font-weight:700">-\u09f3${inv.discount.toLocaleString("en-IN")}</span></div>
+        <div style="display:flex;justify-content:space-between;font-size:${fs.sm};padding:${isA4?'3px 0':'2px 0'}"><span style="color:#8c92a1;font-weight:500">Discount${inv.voucher ? ' · ' + escapeHtml(inv.voucher) : ''}</span><span style="color:#d95353;font-weight:700">-\u09f3${inv.discount.toLocaleString("en-IN")}</span></div>
         <div style="display:flex;justify-content:space-between;font-size:${fs.sm};padding:${isA4?'3px 0':'2px 0'}"><span style="color:#8c92a1;font-weight:500">Grand Total</span><span style="color:#001f3c;font-weight:800;font-size:${isA4?'13px':'11px'}">\u09f3${grandTotal.toLocaleString("en-IN")}</span></div>
       </div>
     </div>
@@ -18985,6 +18989,7 @@ function createInvoiceFromDraft(index, event) {
     customerPhone: "+880 1712-345678",
     items: items,
     discount: discount,
+    voucher: card.getAttribute("data-voucher") || null,
     shipping: shipping,
     totalAmount: totalAmount,
     status: status,
@@ -19062,7 +19067,7 @@ function renderInvoices() {
           ${(()=>{ const sub=inv.items.reduce((s,i)=>s+i.total,0); const freeShip=inv.shipping===0; return `
             <div class="draft-math-row"><span class="draft-math-label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-card-payment"/></svg>Subtotal</span><span class="draft-math-val">৳${sub.toLocaleString('en-IN')}</span></div>
             <div class="draft-math-row shipping-row${freeShip?' free-shipping':''}"><span class="draft-math-label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13" rx="1"/><path d="M16 8h4l3 3v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>Delivery</span><span class="draft-math-val">${freeShip?'FREE':'৳'+inv.shipping.toLocaleString('en-IN')}</span></div>
-            ${inv.discount>0?`<div class="draft-math-row discount-row"><span class="draft-math-label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-archive-box"/></svg>Discount</span><span class="draft-math-val">-৳${inv.discount.toLocaleString('en-IN')}</span></div>`:''}
+            ${inv.discount>0?`<div class="draft-math-row discount-row"><span class="draft-math-label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-archive-box"/></svg>Discount${inv.voucher ? `<span class="draft-voucher-tag">${escapeHtml(inv.voucher)}</span>` : ''}</span><span class="draft-math-val">-৳${inv.discount.toLocaleString('en-IN')}</span></div>`:''}
             <div class="draft-math-total"><span class="draft-math-total-label">Grand Total</span><span class="draft-math-total-amt">৳${inv.totalAmount.toLocaleString('en-IN')}</span></div>
           `; })()}
         </div>
@@ -19163,7 +19168,7 @@ function openInvoiceDetailModal(invoiceId) {
     <div class="invoice-divider-line" style="margin:6px 0 4px"></div>
     <div class="draft-math-row"><span class="draft-math-label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-card-payment"/></svg>Subtotal</span><span class="draft-math-val">\u09f3${subtotal.toLocaleString('en-IN')}</span></div>
     <div class="draft-math-row shipping-row${freeShip?' free-shipping':''}"><span class="draft-math-label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13" rx="1"/><path d="M16 8h4l3 3v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>Delivery</span><span class="draft-math-val">${freeShip?'FREE':'\u09f3'+(inv.shipping||0).toLocaleString('en-IN')}</span></div>
-    ${inv.discount>0?`<div class="draft-math-row discount-row"><span class="draft-math-label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-archive-box"/></svg>Discount</span><span class="draft-math-val">-\u09f3${inv.discount.toLocaleString('en-IN')}</span></div>`:''}
+    ${inv.discount>0?`<div class="draft-math-row discount-row"><span class="draft-math-label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-archive-box"/></svg>Discount${inv.voucher ? `<span class="draft-voucher-tag">${escapeHtml(inv.voucher)}</span>` : ''}</span><span class="draft-math-val">-\u09f3${inv.discount.toLocaleString('en-IN')}</span></div>`:''}
     <div class="draft-math-total"><span class="draft-math-total-label">Grand Total</span><span class="draft-math-total-amt">\u09f3${grandTotal.toLocaleString('en-IN')}</span></div>
   `;
 
@@ -19454,6 +19459,7 @@ function onPhoneInput(val) {
   var phone = normalizeBdPhone(val);
   var n = String(val || '').replace(/\D/g, '').length;
   if (phone || n < 11) setPhoneHint(''); else validatePhoneField();
+  _scheduleVoucherRevalidate();
   if (!phone) { strip.style.display = 'none'; return; }
   strip.className = 'cust-strip loading';
   strip.style.display = 'flex';
@@ -19609,9 +19615,18 @@ function openEditDraft(cardId, e) {
   const idEl = card.querySelector('.draft-id');
   if (idEl) document.getElementById('newOrderDraftId').textContent = idEl.textContent.trim();
 
-  // Pre-fill discount
+  // Pre-fill discount (voucher orders reopen in voucher mode; server re-checks it)
   const discount = parseInt(card.getAttribute('data-discount')) || 0;
-  document.getElementById('noDiscount').value = discount;
+  const cardVoucher = card.getAttribute('data-voucher') || '';
+  if (cardVoucher) {
+    document.getElementById('noDiscountType').value = 'voucher';
+    updateDiscountType();
+    document.getElementById('noVoucherCode').value = cardVoucher;
+    _appliedVoucher = { code: cardVoucher, discount: discount, key: '' };
+    _setVoucherStatus('', 'Re-checking…');
+  } else {
+    document.getElementById('noDiscount').value = discount;
+  }
 
   // Pre-fill shipping
   const shipping = parseInt(card.getAttribute('data-shipping')) || 0;
@@ -19877,15 +19892,40 @@ function updateProductLineTotal(id) {
 }
 
 /* ====== 3-WAY DISCOUNT SYSTEM ====== */
-const VOUCHER_CODES = {
-  'SUPP10': { type: 'percent', value: 10, label: '10% off' },
-  'SUPP20': { type: 'percent', value: 20, label: '20% off' },
-  'FLAT500': { type: 'flat', value: 500, label: '৳500 flat discount' },
-  'FLAT1000': { type: 'flat', value: 1000, label: '৳1,000 flat discount' },
-  'NEWCUST': { type: 'flat', value: 300, label: '৳300 new customer offer' },
-  'WELCOME': { type: 'percent', value: 15, label: '15% welcome discount' }
-};
-let _appliedVoucher = null;
+let _appliedVoucher = null; // { code, discount, key } — set only from validate_voucher results
+let _voucherReqSeq = 0, _voucherTimer = null;
+
+function _voucherLines() {
+  const lines = [];
+  const catalog = getProductCatalog();
+  document.querySelectorAll('#newOrderProducts .product-row').forEach(row => {
+    const id = row.id.replace('prod-row-', '');
+    const sel = document.getElementById('no-prod-' + id);
+    const qty = parseInt(document.getElementById('no-qty-' + id)?.value) || 0;
+    if (sel && sel.value && catalog[sel.value] && qty > 0) lines.push({ sku: catalog[sel.value].sku, qty: qty, price: catalog[sel.value].price });
+  });
+  return lines;
+}
+function _voucherPhone() {
+  const raw = (document.getElementById('noPhone')?.value || '').trim();
+  return raw ? (normalizeBdPhone(raw) || raw) : null;
+}
+function _voucherOrderId() {
+  const c = _editingCardId !== null ? document.getElementById('draft-' + _editingCardId) : null;
+  const u = c ? c.dataset.orderUuid : null;
+  return _isUuid(u) ? u : null;
+}
+function _voucherKey(code) { return JSON.stringify([code, _voucherLines(), _voucherPhone()]); }
+async function _validateVoucher(code) {
+  const r = await sbFetch('rpc/validate_voucher', 'POST', { p_code: code, p_lines: _voucherLines(), p_phone: _voucherPhone(), p_order_id: _voucherOrderId() });
+  return Array.isArray(r) ? r[0] : r;
+}
+function _setVoucherStatus(cls, text) {
+  const el = document.getElementById('noVoucherStatus');
+  if (!el) return;
+  el.className = 'voucher-status' + (cls ? ' ' + cls : '');
+  el.textContent = text;
+}
 
 function updateDiscountType() {
   const type = document.getElementById('noDiscountType').value;
@@ -19893,9 +19933,8 @@ function updateDiscountType() {
   const voucherRow = document.getElementById('noVoucherRow');
   const prefix = document.getElementById('noDiscountPrefix');
   const input = document.getElementById('noDiscount');
-  _appliedVoucher = null;
-  const statusEl = document.getElementById('noVoucherStatus');
-  if (statusEl) { statusEl.className = 'voucher-status'; statusEl.textContent = ''; }
+  _appliedVoucher = null; _voucherReqSeq++; clearTimeout(_voucherTimer);
+  _setVoucherStatus('', '');
 
   if (type === 'voucher') {
     inputWrap.style.display = 'none';
@@ -19916,21 +19955,63 @@ function updateDiscountType() {
   updateNewOrderSummary();
 }
 
-function applyVoucher() {
+async function applyVoucher() {
   const code = (document.getElementById('noVoucherCode').value || '').trim().toUpperCase();
-  const statusEl = document.getElementById('noVoucherStatus');
-  if (!code) {
-    statusEl.className = 'voucher-status error'; statusEl.textContent = '⚠ Please enter a voucher code';
-    return;
-  }
-  if (VOUCHER_CODES[code]) {
-    _appliedVoucher = { code, ...VOUCHER_CODES[code] };
-    statusEl.className = 'voucher-status success';
-    statusEl.textContent = '✓ Applied: ' + VOUCHER_CODES[code].label;
-  } else {
+  if (!code) { _setVoucherStatus('error', '⚠ Please enter a voucher code'); return; }
+  const btn = document.querySelector('#noVoucherRow .voucher-apply-btn');
+  const seq = ++_voucherReqSeq;
+  const key = _voucherKey(code);
+  if (btn) btn.disabled = true;
+  _setVoucherStatus('', 'Checking…');
+  try {
+    const r = await _validateVoucher(code);
+    if (seq !== _voucherReqSeq) return;
+    if (r && r.valid) {
+      const disc = Number(r.discount) || 0;
+      _appliedVoucher = { code: r.voucher.code, discount: disc, key: key };
+      _setVoucherStatus('success', '✓ ' + r.voucher.code + ' applied · -৳' + disc.toLocaleString('en-IN'));
+    } else {
+      _appliedVoucher = null;
+      _setVoucherStatus('error', '✗ ' + ((r && r.message) || 'Voucher cannot be applied'));
+    }
+  } catch (err) {
+    if (seq !== _voucherReqSeq) return;
     _appliedVoucher = null;
-    statusEl.className = 'voucher-status error';
-    statusEl.textContent = '✗ Invalid voucher code';
+    _setVoucherStatus('error', '⚠ ' + _dbErrMsg(err));
+  } finally {
+    if (btn) btn.disabled = false;
+  }
+  updateNewOrderSummary();
+}
+
+function _scheduleVoucherRevalidate() {
+  if (!_appliedVoucher) return;
+  if (document.getElementById('noDiscountType')?.value !== 'voucher') return;
+  if (_voucherKey(_appliedVoucher.code) === _appliedVoucher.key) return;
+  clearTimeout(_voucherTimer);
+  _voucherTimer = setTimeout(_revalidateVoucher, 450);
+}
+async function _revalidateVoucher() {
+  const cur = _appliedVoucher;
+  if (!cur) return;
+  const seq = ++_voucherReqSeq;
+  const key = _voucherKey(cur.code);
+  _setVoucherStatus('', 'Re-checking…');
+  try {
+    const r = await _validateVoucher(cur.code);
+    if (seq !== _voucherReqSeq || !_appliedVoucher) return;
+    if (r && r.valid) {
+      const disc = Number(r.discount) || 0;
+      _appliedVoucher = { code: r.voucher.code, discount: disc, key: key };
+      _setVoucherStatus('success', '✓ ' + r.voucher.code + ' applied · -৳' + disc.toLocaleString('en-IN'));
+    } else {
+      _appliedVoucher = null;
+      _setVoucherStatus('error', '✗ ' + ((r && r.message) || 'Voucher cannot be applied'));
+    }
+  } catch (err) {
+    if (seq !== _voucherReqSeq) return;
+    _appliedVoucher = null;
+    _setVoucherStatus('error', '⚠ ' + _dbErrMsg(err));
   }
   updateNewOrderSummary();
 }
@@ -19938,9 +20019,7 @@ function applyVoucher() {
 function getDiscountAmount(subtotal) {
   const type = document.getElementById('noDiscountType')?.value || 'flat';
   if (type === 'voucher') {
-    if (!_appliedVoucher) return 0;
-    if (_appliedVoucher.type === 'percent') return Math.round(subtotal * _appliedVoucher.value / 100);
-    return _appliedVoucher.value;
+    return _appliedVoucher ? (Number(_appliedVoucher.discount) || 0) : 0;
   } else if (type === 'percent') {
     const pct = parseFloat(document.getElementById('noDiscount').value) || 0;
     return Math.round(subtotal * Math.min(pct, 100) / 100);
@@ -19975,6 +20054,7 @@ function updateNewOrderSummary() {
   }
   document.getElementById('noSummaryDiscount').textContent = '-৳' + discount.toLocaleString('en-IN');
   document.getElementById('noSummaryGrand').textContent = '৳' + grand.toLocaleString('en-IN');
+  _scheduleVoucherRevalidate();
 }
 
 const _SRC_TO_CHANNEL = { fb: 'facebook', wa: 'whatsapp', ig: 'instagram', web: 'website' };
@@ -19990,6 +20070,7 @@ function _affected(res) { return Array.isArray(res) ? res.length > 0 : true; }
 
 function buildDraftCardEl(d) {
   const { orderId, name, phone, fullAddress, items, source, discount, shipping, subtotal, dateStr } = d;
+  const voucher = d.voucher || '';
   const status = d.status || 'pending';
   const totalQty = items.reduce((sum, i) => sum + i.qty, 0);
   const srcLabels = { fb: channelIcon('facebook'), wa: channelIcon('whatsapp'), ig: channelIcon('instagram'), web: channelIcon('website') };
@@ -20020,7 +20101,7 @@ function buildDraftCardEl(d) {
       <span class="draft-math-val" id="draft-shipping-display-${draftIndex}">${isFreeShip ? 'FREE' : '৳' + shipping.toLocaleString('en-IN')}</span>
     </div>
     <div class="draft-math-row discount-row">
-      <span class="draft-math-label">${tagIcon}Discount</span>
+      <span class="draft-math-label">${tagIcon}Discount${voucher ? `<span class="draft-voucher-tag">${escapeHtml(voucher)}</span>` : ''}</span>
       <span class="draft-math-val">-৳${discount.toLocaleString('en-IN')}</span>
     </div>
     <div class="draft-math-total">
@@ -20036,6 +20117,7 @@ function buildDraftCardEl(d) {
   card.setAttribute('data-shipping', shipping);
   card.setAttribute('data-subtotal', subtotal);
   card.setAttribute('data-status', status);
+  if (voucher) card.setAttribute('data-voucher', voucher);
   if (d.uuid) card.dataset.orderUuid = d.uuid;
   card.innerHTML = `
     <div class="draft-card-top" onclick="toggleDraft(${draftIndex})">
@@ -20096,7 +20178,7 @@ async function persistOrderDraft(d) {
     customer_name: d.name, customer_phone: d.phone || null, district: d.district || null,
     address_text: d.address || null, channel: _SRC_TO_CHANNEL[d.source] || 'direct',
     subtotal: d.subtotal, discount: d.discount, shipping: d.shipping, total_amount: grand,
-    voucher_code: d.voucher || null, updated_at: new Date().toISOString()
+    updated_at: new Date().toISOString()
   };
   const itemRows = orderId => d.items.map(i => {
     const prod = bySku[normalizeSku(i.sku)];
@@ -20106,6 +20188,23 @@ async function persistOrderDraft(d) {
       quantity: i.qty, unit_price: i.price, cost_per_unit: prod ? (prod.cost || null) : null
     };
   });
+
+  // voucher_id / voucher_code are server-owned: only apply/remove RPCs touch them.
+  const finish = async (uuid, orderNumber) => {
+    const out = { uuid, orderNumber, discount: d.discount, voucher: null, voucherError: null };
+    if (!d.voucher) return out;
+    try {
+      const r = await sbFetch('rpc/apply_voucher_to_order', 'POST', { p_order_id: uuid, p_code: d.voucher });
+      out.discount = Number(r.discount) || 0;
+      out.voucher = r.voucher_code || d.voucher;
+    } catch (err) {
+      out.voucherError = _dbErrMsg(err);
+      out.discount = 0;
+      try { await sbFetch('rpc/remove_voucher_from_order', 'POST', { p_order_id: uuid }); } catch (e) { /* nothing to remove */ }
+      try { await sbFetch('orders?id=eq.' + uuid, 'PATCH', { discount: 0, total_amount: Math.max(0, d.subtotal + d.shipping) }); } catch (e) { /* best effort */ }
+    }
+    return out;
+  };
 
   if (!d.uuid) {
     const ins = await sbFetch('orders', 'POST', Object.assign({ order_type: 'internal', status: 'pending', source: 'admin' }, fields));
@@ -20117,9 +20216,13 @@ async function persistOrderDraft(d) {
       try { await sbFetch('orders?id=eq.' + row.id, 'DELETE'); } catch (e) { /* best effort rollback */ }
       throw err;
     }
-    return { uuid: row.id, orderNumber: row.order_number };
+    return finish(row.id, row.order_number);
   }
 
+  // Leaving voucher mode: server clears the voucher before the manual discount is written.
+  if (d.hadVoucher && !d.voucher) {
+    await sbFetch('rpc/remove_voucher_from_order', 'POST', { p_order_id: d.uuid });
+  }
   const upd = await sbFetch('orders?id=eq.' + d.uuid, 'PATCH', fields);
   if (!_affected(upd)) throw new Error('Order not found or already paid');
   const oldItems = await sbFetch('order_items?order_id=eq.' + d.uuid + '&select=id');
@@ -20127,7 +20230,7 @@ async function persistOrderDraft(d) {
   if (Array.isArray(oldItems) && oldItems.length) {
     await sbFetch('order_items?id=in.(' + oldItems.map(r => r.id).join(',') + ')', 'DELETE');
   }
-  return { uuid: d.uuid, orderNumber: d.orderId };
+  return finish(d.uuid, d.orderId);
 }
 
 async function saveNewOrderDraft() {
@@ -20175,38 +20278,63 @@ async function saveNewOrderDraft() {
   if (hasError) return;
 
   const source = document.getElementById('noSource')?.value || '';
-  const discount = getDiscountAmount(subtotal);
+  let discount = getDiscountAmount(subtotal);
   const shipping = parseInt(document.getElementById('noShipping')?.value) || 0;
   const dateStr = new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: '2-digit' });
   const fullAddress = [district, address].filter(Boolean).join(', ');
-  const voucherCode = (document.getElementById('noDiscountType')?.value === 'voucher' && _appliedVoucher) ? _appliedVoucher.code : null;
+  const voucherMode = document.getElementById('noDiscountType')?.value === 'voucher';
+  const typedCode = (document.getElementById('noVoucherCode')?.value || '').trim().toUpperCase();
+  let voucherCode = null;
+  let voucherNote = '';
 
   const container = document.getElementById('draftCardsContainer');
   const oldCard = _editingCardId !== null ? document.getElementById('draft-' + _editingCardId) : null;
   let orderId = document.getElementById('newOrderDraftId').textContent.trim();
   let uuid = oldCard ? (oldCard.dataset.orderUuid || null) : null;
   const status = oldCard ? (oldCard.getAttribute('data-status') || 'pending') : 'pending';
+  const hadVoucher = !!(oldCard && oldCard.getAttribute('data-voucher'));
 
   // Demo cards (no DB row) stay local; everything else must reach Supabase before it shows up.
   const isDemoEdit = !!oldCard && !uuid;
   const saveBtn = document.getElementById('noSaveBtn');
-  if (!isDemoEdit) {
-    _orderSaving = true;
-    if (saveBtn) saveBtn.disabled = true;
-    try {
-      const res = await persistOrderDraft({ uuid, orderId, name, phone, district, address, items, source, discount, shipping, subtotal, voucher: voucherCode });
-      uuid = res.uuid; orderId = res.orderNumber;
-    } catch (err) {
-      console.warn('Order save failed:', err.message);
-      showToast('⚠ Order not saved — ' + _dbErrMsg(err));
-      return;
-    } finally {
-      _orderSaving = false;
-      if (saveBtn) saveBtn.disabled = false;
+  _orderSaving = true;
+  if (saveBtn) saveBtn.disabled = true;
+  try {
+    // Voucher: the server has the final say, re-checked right before saving.
+    if (voucherMode && typedCode) {
+      if (!_appliedVoucher || _appliedVoucher.code !== typedCode) {
+        _setVoucherStatus('error', '⚠ Tap Apply to check this voucher');
+        showToast('⚠ Apply the voucher first, or clear the code');
+        return;
+      }
+      const chk = await _validateVoucher(typedCode);
+      if (!chk || !chk.valid) {
+        _appliedVoucher = null;
+        _setVoucherStatus('error', '✗ ' + ((chk && chk.message) || 'Voucher cannot be applied'));
+        updateNewOrderSummary();
+        showToast('⚠ Not saved — ' + ((chk && chk.message) || 'voucher cannot be applied'));
+        return;
+      }
+      voucherCode = chk.voucher.code;
+      discount = Number(chk.discount) || 0;
     }
+    if (!isDemoEdit) {
+      const res = await persistOrderDraft({ uuid, orderId, name, phone, district, address, items, source, discount, shipping, subtotal, voucher: voucherCode, hadVoucher });
+      uuid = res.uuid; orderId = res.orderNumber;
+      discount = res.discount;
+      voucherCode = res.voucher;
+      if (res.voucherError) voucherNote = res.voucherError;
+    }
+  } catch (err) {
+    console.warn('Order save failed:', err.message);
+    showToast('⚠ Order not saved — ' + _dbErrMsg(err));
+    return;
+  } finally {
+    _orderSaving = false;
+    if (saveBtn) saveBtn.disabled = false;
   }
 
-  const card = buildDraftCardEl({ orderId, name, phone, fullAddress, items, source, discount, shipping, subtotal, dateStr, status, uuid });
+  const card = buildDraftCardEl({ orderId, name, phone, fullAddress, items, source, discount, shipping, subtotal, dateStr, status, uuid, voucher: voucherCode });
   if (oldCard) oldCard.replaceWith(card); else container.appendChild(card);
 
   _editingCardId = null;
@@ -20215,9 +20343,9 @@ async function saveNewOrderDraft() {
   closeNewOrderModal();
 
   const toast = document.getElementById('exportToast');
-  toast.textContent = 'Draft saved — ' + orderId + '!';
+  toast.textContent = voucherNote ? ('Draft saved — ' + orderId + '. Voucher not applied: ' + voucherNote) : ('Draft saved — ' + orderId + '!');
   toast.classList.add('visible');
-  setTimeout(() => { toast.classList.remove('visible'); toast.textContent = 'Data exported!'; }, 2500);
+  setTimeout(() => { toast.classList.remove('visible'); toast.textContent = 'Data exported!'; }, voucherNote ? 4500 : 2500);
 }
 
 /* ====== LOAD SAVED ORDERS FROM SUPABASE ====== */
@@ -20241,7 +20369,7 @@ function orderRowToTx(o, items) {
     paymentRef: o.payment_ref || null,
     paidAt: paid.toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit', hour12: true }),
     status: 'paid', fulfillType: o.order_type === 'proxy' ? 'proxy' : 'local',
-    discount: Number(o.discount) || 0, shipping: Number(o.shipping) || 0, items
+    discount: Number(o.discount) || 0, shipping: Number(o.shipping) || 0, voucher: o.voucher_code || null, items
   };
 }
 
@@ -20265,7 +20393,7 @@ async function loadOrdersFromSupabase() {
       container.appendChild(buildDraftCardEl({
         orderId: o.order_number, name: o.customer_name || 'Customer', phone: o.customer_phone || '',
         fullAddress: [o.district, o.address_text].filter(Boolean).join(', '), items,
-        source: _CHANNEL_TO_SRC[o.channel] || '', discount: Number(o.discount) || 0,
+        source: _CHANNEL_TO_SRC[o.channel] || '', discount: Number(o.discount) || 0, voucher: o.voucher_code || '',
         shipping: Number(o.shipping) || 0, subtotal: Number(o.subtotal) || 0,
         dateStr: new Date(o.created_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: '2-digit' }),
         status: ['pending', 'ordered', 'shipped'].includes(o.status) ? o.status : 'pending', uuid: o.id
@@ -20287,6 +20415,7 @@ async function loadOrdersFromSupabase() {
 /* The main script runs inside a try-block, so async function declarations stay block-scoped.
    Inline onclick handlers need these on window. */
 window.saveNewOrderDraft = saveNewOrderDraft;
+window.applyVoucher = applyVoucher;
 window.restockExistingProduct = restockExistingProduct;
 window.deleteDraft = deleteDraft;
 window.confirmPayment = confirmPayment;
@@ -26171,7 +26300,7 @@ function buildTxCard(tx) {
   const mathBreakdown = `
     <div class="draft-math-row"><span class="draft-math-label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-card-payment"/></svg>Subtotal</span><span class="draft-math-val">\u09f3${subtotal.toLocaleString('en-IN')}</span></div>
     <div class="draft-math-row shipping-row${freeShip?' free-shipping':''}"><span class="draft-math-label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13" rx="1"/><path d="M16 8h4l3 3v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>Delivery</span><span class="draft-math-val">${freeShip?'FREE':'\u09f3'+tx.shipping.toLocaleString('en-IN')}</span></div>
-    ${tx.discount>0?`<div class="draft-math-row discount-row"><span class="draft-math-label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-archive-box"/></svg>Discount</span><span class="draft-math-val">-\u09f3${tx.discount.toLocaleString('en-IN')}</span></div>`:''}
+    ${tx.discount>0?`<div class="draft-math-row discount-row"><span class="draft-math-label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-archive-box"/></svg>Discount${tx.voucher ? `<span class="draft-voucher-tag">${escapeHtml(tx.voucher)}</span>` : ''}</span><span class="draft-math-val">-\u09f3${tx.discount.toLocaleString('en-IN')}</span></div>`:''}
     <div class="draft-math-total"><span class="draft-math-total-label">Grand Total</span><span class="draft-math-total-amt">\u09f3${grand.toLocaleString('en-IN')}</span></div>`;
 
   const payConfirmRow = tx.paidAt ? payConfirmHTML('Paid', tx.payment, tx.paymentRef, tx.paidAt) : '';
