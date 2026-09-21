@@ -22766,7 +22766,7 @@ async function svMaybeImportLocalVouchers() {
 async function svHubRpc(op, payload) {
   const sess = await sb.auth.getSession();
   if (!sess.data || !sess.data.session) throw new Error('Session expired - please sign in again');
-  if (['list', 'status', 'delete'].indexOf(op) === -1) throw new Error('Unknown request');
+  if (['list', 'status', 'delete', 'analytics'].indexOf(op) === -1) throw new Error('Unknown request');
   const code = payload && payload.code;
   if (op !== 'list' && !/^[A-Za-z0-9-]{3,24}$/.test(String(code || ''))) throw new Error('Invalid voucher code');
   let r;
@@ -22776,6 +22776,10 @@ async function svHubRpc(op, payload) {
     r = await sb.rpc('set_voucher_status', { p_code: code, p_status: payload.status });
   }
   else if (op === 'delete') r = await sb.rpc('delete_voucher', { p_code: code });
+  else if (op === 'analytics') {
+    if (['3d', '7d', '30d', '3m', 'all'].indexOf(payload.tf) === -1) throw new Error('Invalid timeframe');
+    r = await sb.rpc('voucher_analytics', { p_code: code, p_tf: payload.tf });
+  }
   else throw new Error('Unknown request');
   if (r.error) throw new Error(r.error.message || 'Request failed');
   return r.data;

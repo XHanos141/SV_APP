@@ -2034,7 +2034,49 @@ function hubAskParent(mode, code) {
 function openEditModal(code) { hubAskParent('edit', code); }
 function cloneVoucher(code) { hubAskParent('clone', code); }
 function hubOpenCreateVoucher() { hubAskParent('create', null); }
-function openAnalytics(code) { hubShowToast('Voucher analytics goes live in the next update', 'warning'); }
+function openAnalytics(code) {
+  const overlay = document.getElementById('analyticsOverlay');
+  const frame = document.getElementById('analyticsFrame');
+  const src = document.getElementById('analytics-src');
+  if (!overlay || !frame || !src) { hubShowToast('Analytics is not available', 'error'); return; }
+  const theme = document.documentElement.getAttribute('data-theme') === 'light' ? 'light' : 'dark';
+  const list = HUB.vouchers.map(function(v) { return { code: v.code, name: v.title || v.code, type: v.type, status: v.derived_status }; });
+  const send = function() {
+    try {
+      frame.contentWindow.postMessage({ type: 'SET_THEME', theme: theme }, '*');
+      frame.contentWindow.postMessage({ type: 'OPEN_VOUCHER', code: code, vouchers: list }, '*');
+    } catch (e) {}
+  };
+  overlay.classList.remove('closing');
+  overlay.classList.add('open');
+  if (!frame.srcdoc) {
+    frame.onload = function() { setTimeout(send, 60); };
+    frame.srcdoc = src.value.replace('data-theme="dark"', 'data-theme="' + theme + '"');
+  } else {
+    send();
+  }
+}
+function closeAnalyticsOverlay() {
+  const overlay = document.getElementById('analyticsOverlay');
+  if (!overlay) return;
+  overlay.classList.add('closing');
+  setTimeout(function() { overlay.classList.remove('open'); overlay.classList.remove('closing'); }, 430);
+}
+window.addEventListener('message', function(e) {
+  const frame = document.getElementById('analyticsFrame');
+  const m = e.data;
+  if (!m || !frame || e.source !== frame.contentWindow) return;
+  if (m.type === 'CLOSE_ANALYTICS') { closeAnalyticsOverlay(); return; }
+  if (m.type !== 'sv-an-req') return;
+  const reply = { type: 'sv-an-res', reqId: m.reqId };
+  svHub('analytics', { code: m.code, tf: m.tf }).then(function(data) {
+    reply.ok = true; reply.data = data;
+  }).catch(function(err) {
+    reply.ok = false; reply.error = String((err && err.message) || err);
+  }).then(function() {
+    try { e.source.postMessage(reply, '*'); } catch (x) {}
+  });
+});
 function hubGoBack() {
   try { window.parent.postMessage({ type: 'sv-close-voucher-hub' }, '*'); } catch(e) {}
 }
@@ -2951,6 +2993,7 @@ html[data-theme="light"] .channel-filter-bar .slide-indicator{
 .chart-tooltip .tt-dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:#d95353;margin-right:6px;vertical-align:middle}
 .chart-tooltip .tt-date{font-size:10px;font-weight:600;color:var(--text-muted);margin-top:2px;display:block}
 
+.ch-icon-wrap.dr{background:rgba(148,163,184,.14)}.ch-detail-fill.dr{background:#94a3b8}.ch-detail-pct.dr{color:#94a3b8}.log-ch-tag.dr{background:rgba(148,163,184,.14);color:#94a3b8}
 </style>
 </head>
 <body><svg style="position:absolute;width:0;height:0;overflow:hidden" aria-hidden="true"><symbol id="icon-checkmark" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></symbol><symbol id="icon-archive-box" viewBox="0 0 24 24"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></symbol><symbol id="icon-close-x" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></symbol><symbol id="icon-file-document" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></symbol><symbol id="icon-plus-add" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></symbol><symbol id="icon-filter-lines" viewBox="0 0 24 24"><line x1="4" y1="6" x2="20" y2="6"/><line x1="7" y1="12" x2="17" y2="12"/><line x1="10" y1="18" x2="14" y2="18"/></symbol><symbol id="icon-download" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></symbol><symbol id="icon-edit-pencil" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></symbol><symbol id="icon-trash-delete" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></symbol><symbol id="icon-phone-outline" viewBox="0 0 24 24"><defs><linearGradient id="ticketGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#38bdf8"/><stop offset="100%" stop-color="#0284c7"/></linearGradient></defs><path d="M7.0498 7.0498H7.0598M10.5118 3H7.8C6.11984 3 5.27976 3 4.63803 3.32698C4.07354 3.6146 3.6146 4.07354 3.32698 4.63803C3 5.27976 3 6.11984 3 7.8V10.5118C3 11.2455 3 11.6124 3.08289 11.9577C3.15638 12.2638 3.27759 12.5564 3.44208 12.8249C3.6276 13.1276 3.88703 13.387 4.40589 13.9059L9.10589 18.6059C10.2939 19.7939 10.888 20.388 11.5729 20.6105C12.1755 20.8063 12.8245 20.8063 13.4271 20.6105C14.112 20.388 14.7061 19.7939 15.8941 18.6059L18.6059 15.8941C19.7939 14.7061 20.388 14.112 20.6105 13.4271C20.8063 12.8245 20.8063 12.1755 20.6105 11.5729C20.388 10.888 19.7939 10.2939 18.6059 9.10589L13.9059 4.40589C13.387 3.88703 13.1276 3.6276 12.8249 3.44208C12.5564 3.27759 12.2638 3.15638 11.9577 3.08289C11.6124 3 11.2455 3 10.5118 3ZM7.5498 7.0498C7.5498 7.32595 7.32595 7.5498 7.0498 7.5498C6.77366 7.5498 6.5498 7.32595 6.5498 7.0498C6.5498 6.77366 6.77366 6.5498 7.0498 6.5498C7.32595 6.5498 7.5498 6.77366 7.5498 7.0498Z" fill="url(#ticketGrad)" stroke="#0ea5e9" stroke-width="2" stroke-linejoin="round" opacity="0.9"/></symbol><symbol id="icon-activity-pulse" viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></symbol><symbol id="icon-truck-delivery" viewBox="0 0 24 24"><path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"/><path d="M15 18H9"/><path d="M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.624l-3.48-4.35A1 1 0 0 0 17.52 8H14"/><circle cx="17" cy="18" r="2"/><circle cx="7" cy="18" r="2"/></symbol><symbol id="icon-chevron-down" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></symbol><symbol id="icon-globe-website" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" stroke="rgba(255,255,255,0.45)" stroke-width="1.5"/><ellipse cx="12" cy="12" rx="4" ry="9" stroke="rgba(255,255,255,0.45)" stroke-width="1.5"/><line x1="3" y1="12" x2="21" y2="12" stroke="rgba(255,255,255,0.45)" stroke-width="1.5"/></symbol><symbol id="icon-phone-filled" viewBox="0 0 24 24"><path d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.58.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1C7.61 21 3 16.39 3 10.74c0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.23 1.01z" stroke="rgba(255,255,255,0.45)" stroke-width="1.5" stroke-linejoin="round"/></symbol><symbol id="icon-mail-envelope" viewBox="0 0 24 24">
@@ -3141,7 +3184,7 @@ html[data-theme="light"] .channel-filter-bar .slide-indicator{
       </button>
     </div>
     <div class="log-card" id="logCard"></div>
-    <button class="load-more-btn" onclick="showToast('Full history coming with Supabase')">Load More Redemptions</button>
+    <button class="load-more-btn" id="logMoreBtn" style="display:none" onclick="showMoreLog()">Load More Redemptions</button>
     <div style="height:14px"></div>
   </div><!-- end scroll-body -->
 
@@ -3158,145 +3201,30 @@ html[data-theme="light"] .channel-filter-bar .slide-indicator{
 // DATA — organised by TYPE then individual voucher
 // =============================================
 const TYPES = {
-  event: {
-    label: 'Event', color: '#f4c55a',
-    vouchers: ['SUP-EVT-EID24','SUP-EVT-EID23']
-  },
-  regular: {
-    label: 'Regular', color: '#38bdf8',
-    vouchers: ['SUP-REG-FLASH1','SUP-REG-DEC22']
-  },
-  product: {
-    label: 'Product', color: '#22c55e',
-    vouchers: []   // no product-type vouchers in current demo
-  },
-  newcustomer: {
-    label: 'New Customer', color: '#c084fc',
-    vouchers: ['SUP-NEW-WEL15']
-  }
+  event:       { label: 'Event',        color: '#f4c55a', vouchers: [] },
+  regular:     { label: 'Regular',      color: '#38bdf8', vouchers: [] },
+  product:     { label: 'Product',      color: '#22c55e', vouchers: [] },
+  newcustomer: { label: 'New Customer', color: '#c084fc', vouchers: [] }
 };
-
-const VOUCHERS = {
-  'SUP-EVT-EID24': {
-    code:'SUP-EVT-EID24', name:'EID SPECIAL', status:'active', type:'event',
-    redeemed:47, maxUses:100, unique:41,
-    revenue:'৳23,500', avgOrder:'৳2,850', avgOrderBase:'৳2,100', rate:'47%',
-    channels:[
-      {key:'fb', name:'Facebook',  pct:62, count:29},
-      {key:'ig', name:'Instagram', pct:19, count:9},
-      {key:'web',name:'Website',   pct:13, count:6},
-      {key:'wp', name:'WhatsApp',  pct:6,  count:3}
-    ],
-    products:[
-      {name:'Omega-3 (1000mg)',    count:19, rev:'৳9,500'},
-      {name:'Vitamin D3',          count:14, rev:'৳7,000'},
-      {name:'Magnesium Glycinate', count:9,  rev:'৳4,500'}
-    ],
-    trend:[0,2,0,3,1,0,5,4,0,6,3,0,0,7,5,4,3,0,2,4,0,6,8,5,0,0,3,4,2,1],
-    log:[
-      {name:'Rafiq Ahmed',   date:'Jun 21', ch:'fb',  amt:'৳500', av:'av1'},
-      {name:'Nadia Islam',   date:'Jun 21', ch:'ig',  amt:'৳500', av:'av2'},
-      {name:'Karim Hossain', date:'Jun 20', ch:'fb',  amt:'৳500', av:'av3'},
-      {name:'Sumaiya Begum', date:'Jun 20', ch:'web', amt:'৳500', av:'av4'},
-      {name:'Tanvir Mahmud', date:'Jun 19', ch:'wp',  amt:'৳500', av:'av5'},
-      {name:'Farida Khatun', date:'Jun 19', ch:'fb',  amt:'৳500', av:'av6'}
-    ],
-    insight:'🔥 Facebook is driving 62% of redemptions — push more content there'
-  },
-  'SUP-EVT-EID23': {
-    code:'SUP-EVT-EID23', name:'EID 2023', status:'archived', type:'event',
-    redeemed:88, maxUses:100, unique:80,
-    revenue:'৳44,000', avgOrder:'৳2,500', avgOrderBase:'৳1,900', rate:'88%',
-    channels:[
-      {key:'fb', name:'Facebook',  pct:68, count:60},
-      {key:'ig', name:'Instagram', pct:16, count:14},
-      {key:'web',name:'Website',   pct:11, count:10},
-      {key:'wp', name:'WhatsApp',  pct:5,  count:4}
-    ],
-    products:[
-      {name:'Omega-3 (1000mg)',    count:35, rev:'৳17,500'},
-      {name:'Vitamin D3',          count:28, rev:'৳14,000'},
-      {name:'Magnesium Glycinate', count:15, rev:'৳7,500'}
-    ],
-    trend:[0,3,5,0,7,9,11,0,8,7,0,6,5,7,8,6,0,5,4,3,4,5,4,0,3,2,1,0,0,0],
-    log:[
-      {name:'Jakir Hossain', date:'Apr 22', ch:'fb',  amt:'৳500', av:'av1'},
-      {name:'Mitu Begum',    date:'Apr 21', ch:'fb',  amt:'৳500', av:'av2'},
-      {name:'Nayon Islam',   date:'Apr 21', ch:'web', amt:'৳500', av:'av3'}
-    ],
-    insight:'📊 Best campaign to date — 88% rate. Use as blueprint for EID 2025'
-  },
-  'SUP-REG-FLASH1': {
-    code:'SUP-REG-FLASH1', name:'FLASH SALE', status:'inactive', type:'regular',
-    redeemed:34, maxUses:50, unique:29,
-    revenue:'৳17,000', avgOrder:'৳2,600', avgOrderBase:'৳2,100', rate:'68%',
-    channels:[
-      {key:'fb', name:'Facebook',  pct:56, count:19},
-      {key:'ig', name:'Instagram', pct:24, count:8},
-      {key:'web',name:'Website',   pct:15, count:5},
-      {key:'wp', name:'WhatsApp',  pct:6,  count:2}
-    ],
-    products:[
-      {name:'Magnesium Glycinate', count:14, rev:'৳7,000'},
-      {name:'Omega-3 (1000mg)',    count:12, rev:'৳6,000'},
-      {name:'Betaine HCl',         count:8,  rev:'৳4,000'}
-    ],
-    trend:[0,4,3,5,6,0,4,3,2,4,3,0,2,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-    log:[
-      {name:'Mamun Sarkar', date:'Jun 14', ch:'fb',  amt:'৳375', av:'av3'},
-      {name:'Tania Akter',  date:'Jun 13', ch:'ig',  amt:'৳375', av:'av5'},
-      {name:'Rubel Islam',  date:'Jun 12', ch:'fb',  amt:'৳375', av:'av1'}
-    ],
-    insight:'⏸ Paused Jun 15 — 16 uses remaining when resumed'
-  },
-  'SUP-REG-DEC22': {
-    code:'SUP-REG-DEC22', name:'YEAR END 2022', status:'archived', type:'regular',
-    redeemed:65, maxUses:100, unique:58,
-    revenue:'৳19,500', avgOrder:'৳2,200', avgOrderBase:'৳1,800', rate:'65%',
-    channels:[
-      {key:'fb', name:'Facebook',  pct:60, count:39},
-      {key:'ig', name:'Instagram', pct:20, count:13},
-      {key:'web',name:'Website',   pct:14, count:9},
-      {key:'wp', name:'WhatsApp',  pct:6,  count:4}
-    ],
-    products:[
-      {name:'Betaine HCl',      count:25, rev:'৳7,500'},
-      {name:'Omega-3 (500mg)',  count:22, rev:'৳6,600'},
-      {name:'Zinc + Vitamin C', count:18, rev:'৳5,400'}
-    ],
-    trend:[0,2,3,4,0,5,6,4,3,5,0,4,3,2,1,2,3,0,2,1,0,0,0,0,0,0,0,0,0,0],
-    log:[
-      {name:'Sabbir Ahmed', date:'Dec 28', ch:'fb',  amt:'৳300', av:'av5'},
-      {name:'Nasrin Akter', date:'Dec 27', ch:'web', amt:'৳300', av:'av6'},
-      {name:'Milon Hasan',  date:'Dec 26', ch:'ig',  amt:'৳300', av:'av1'}
-    ],
-    insight:'📦 Consider ৳500 off version in Dec 2025 given price inflation'
-  },
-  'SUP-NEW-WEL15': {
-    code:'SUP-NEW-WEL15', name:'WELCOME15', status:'active', type:'newcustomer',
-    redeemed:12, maxUses:null, unique:12,
-    revenue:'৳6,000', avgOrder:'৳3,200', avgOrderBase:'৳2,400', rate:'∞',
-    channels:[
-      {key:'fb', name:'Facebook',  pct:50, count:6},
-      {key:'ig', name:'Instagram', pct:33, count:4},
-      {key:'web',name:'Website',   pct:17, count:2},
-      {key:'wp', name:'WhatsApp',  pct:0,  count:0}
-    ],
-    products:[
-      {name:'Starter Bundle',   count:6, rev:'৳3,000'},
-      {name:'Omega-3 (500mg)',  count:4, rev:'৳2,000'},
-      {name:'Zinc + Vitamin C', count:2, rev:'৳1,000'}
-    ],
-    trend:[0,1,0,2,1,0,0,1,2,1,0,1,0,0,2,1,0,1,0,1,0,0,1,0,1,0,0,1,0,0],
-    log:[
-      {name:'Sadia Rahman',   date:'Jun 21', ch:'fb',  amt:'৳500', av:'av2'},
-      {name:'Imran Hasan',    date:'Jun 20', ch:'ig',  amt:'৳500', av:'av3'},
-      {name:'Riya Chowdhury', date:'Jun 18', ch:'web', amt:'৳500', av:'av4'},
-      {name:'Arif Uddin',     date:'Jun 17', ch:'fb',  amt:'৳500', av:'av1'}
-    ],
-    insight:'💡 WhatsApp has 0 redemptions — share the code there to grow new customers'
-  }
+const VOUCHERS = {};
+const CH_META = {
+  facebook:  { key: 'fb',  name: 'Facebook' },
+  instagram: { key: 'ig',  name: 'Instagram' },
+  website:   { key: 'web', name: 'Website' },
+  whatsapp:  { key: 'wp',  name: 'WhatsApp' },
+  direct:    { key: 'dr',  name: 'Direct' }
 };
+const CH_NAMES = { fb: 'Facebook', ig: 'Instagram', web: 'Website', wp: 'WhatsApp', dr: 'Direct' };
+const CH_ORDER = ['fb', 'ig', 'web', 'wp', 'dr'];
+const MON = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const $ = (id) => document.getElementById(id);
+function esc(s) {
+  return String(s == null ? '' : s).replace(/[\x26<>"']/g, function(ch) {
+    return { '\x26': '\x26amp;', '<': '\x26lt;', '>': '\x26gt;', '"': '\x26quot;', "'": '\x26#39;' }[ch];
+  });
+}
+function fmtBDT(n) { return '৳' + Math.round(Number(n) || 0).toLocaleString('en-IN'); }
+function fmtDay(iso) { const p = String(iso).split('-'); return MON[+p[1] - 1] + ' ' + (+p[2]); }
 
 const CH_ICONS = {
   fb:`<svg viewBox="0 0 24 24" fill="var(--fb)" width="14" height="14"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>`,
@@ -3309,7 +3237,12 @@ const CH_ICONS = {
 // STATE
 // =============================================
 let currentType = 'event';
-let currentCode = 'SUP-EVT-EID24';
+let currentCode = null;
+let _trendDates = [];
+let DATA = null;
+let _loadSeq = 0, _anReq = 0, _logShown = 8;
+const _anPending = {};
+CH_ICONS.dr = '<svg viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2" stroke-linecap="round" width="14" height="14"><use href="#icon-user-profile"/></svg>';
 let currentTimeframe = '30d';
 let currentLogFilter = 'all';
 let currentLogData = [];
@@ -3370,14 +3303,16 @@ function renderSubSelector(type) {
   const codes = TYPES[type].vouchers;
   if (codes.length === 0) {
     sub.innerHTML = '<span style="font-size:11px;color:var(--text-dim);padding:4px 0;position:relative;z-index:1">No vouchers of this type yet</span>';
+    currentCode = null;
+    clearData();
     return;
   }
   let h = '<div class="slide-indicator" id="voucherSlide"></div>';
-  h += codes.map((code, i) => {
+  h += codes.map((code) => {
     const v = VOUCHERS[code];
     const isActive = code === currentCode;
-    return `<button class="vs-chip ${isActive ? 'active' : ''}" onclick="selectVoucher('${code}', this)">
-      <span class="vs-status ${v.status}"></span>${v.name}
+    return `<button class="vs-chip ${isActive ? 'active' : ''}" data-code="${esc(code)}" onclick="selectVoucher('${esc(code)}', this)">
+      <span class="vs-status ${v.status}"></span>${esc(v.name)}
     </button>`;
   }).join('');
   sub.innerHTML = h;
@@ -3397,9 +3332,11 @@ function renderSubSelector(type) {
 function selectVoucher(code, btn) {
   currentCode = code;
   document.querySelectorAll('.vs-chip').forEach(b => b.classList.remove('active'));
-  if(btn) btn.classList.add('active');
+  if (btn) btn.classList.add('active');
   moveSlideIndicator('voucherSlide', btn);
-  renderAll(code);
+  _logShown = 8;
+  renderHeader(code);
+  loadAnalytics();
   document.getElementById('scrollBody').scrollTop = 0;
 }
 
@@ -3411,71 +3348,156 @@ function setTimeframe(tf, btn) {
   document.querySelectorAll('.tf-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
   moveSlideIndicator('timeframeSlide', btn);
-  const d = VOUCHERS[currentCode];
-  const slices = {'3d':3,'7d':7,'30d':30,'3m':30,'all':30};
-  renderTrendChart(d.trend.slice(-(slices[tf]||30)));
+  _logShown = 8;
+  loadAnalytics();
 }
 
 // =============================================
-// RENDER ALL
+// LIVE DATA (hub proxies to the app, which talks to Supabase)
 // =============================================
-function renderAll(code) {
-  const d = VOUCHERS[code];
+function setVoucherList(list) {
+  Object.keys(TYPES).forEach(t => { TYPES[t].vouchers = []; });
+  Object.keys(VOUCHERS).forEach(k => { delete VOUCHERS[k]; });
+  (list || []).forEach(v => {
+    if (!TYPES[v.type]) return;
+    const st = v.status;
+    VOUCHERS[v.code] = {
+      code: v.code, name: v.name || v.code, type: v.type, state: st,
+      status: (st === 'active' || st === 'scheduled') ? 'active' : st === 'paused' ? 'inactive' : 'archived'
+    };
+    TYPES[v.type].vouchers.push(v.code);
+  });
+}
 
-  // Header
-  document.getElementById('headerCode').textContent = d.code;
-  document.getElementById('headerName').textContent = d.name + ' · Analytics';
-  const badge = document.getElementById('headerBadge');
-  if (d.status === 'active') {
+function anFetch(code, tf) {
+  return new Promise(function(resolve, reject) {
+    const id = ++_anReq;
+    const t = setTimeout(function() { delete _anPending[id]; reject(new Error('Request timed out - check your connection')); }, 25000);
+    _anPending[id] = { resolve: resolve, reject: reject, t: t };
+    window.parent.postMessage({ type: 'sv-an-req', reqId: id, code: code, tf: tf }, '*');
+  });
+}
+
+async function loadAnalytics() {
+  const code = currentCode;
+  if (!code) return;
+  const seq = ++_loadSeq;
+  const sb = $('scrollBody');
+  sb.style.opacity = '0.55';
+  try {
+    const d = await anFetch(code, currentTimeframe);
+    if (seq !== _loadSeq) return;
+    renderData(d);
+  } catch (err) {
+    if (seq !== _loadSeq) return;
+    showToast(err.message || 'Could not load analytics');
+  } finally {
+    if (seq === _loadSeq) sb.style.opacity = '';
+  }
+}
+
+function clearData() {
+  DATA = null; _loadSeq++;
+  ['kpiRedeemed','kpiRevenue','kpiUnique','kpiRate','kpiAov','kpiAovBase'].forEach(id => { $(id).textContent = '—'; });
+  ['kpiRedeemedSub','kpiRevenueSub','kpiUniqueSub','kpiRateSub'].forEach(id => { $(id).textContent = '—'; });
+  ['kpiRedeemedBar','kpiAovWithBar','kpiAovWithoutBar'].forEach(id => { $(id).style.width = '0%'; });
+  $('kpiLiftBadge').style.display = 'none';
+  $('trendSvg').innerHTML = ''; $('yLabels').innerHTML = ''; $('xLabels').innerHTML = '';
+  $('channelCard').innerHTML = ''; $('productsCard').innerHTML = ''; $('logCard').innerHTML = '';
+  $('logMoreBtn').style.display = 'none';
+  $('headerCode').textContent = '—';
+  $('headerName').textContent = 'Analytics';
+  const badge = $('headerBadge'); badge.className = 'header-badge archived'; badge.innerHTML = '';
+}
+
+function renderHeader(code) {
+  const d = VOUCHERS[code];
+  if (!d) return;
+  $('headerCode').textContent = d.code;
+  $('headerName').textContent = d.name + ' · Analytics';
+  const badge = $('headerBadge');
+  if (d.state === 'active') {
     badge.className = 'header-badge';
     badge.innerHTML = '<div class="pulse-dot"></div> Active';
-  } else if (d.status === 'inactive') {
+  } else if (d.state === 'paused') {
     badge.className = 'header-badge paused';
-    badge.innerHTML = '⏸ Paused';
+    badge.textContent = '⏸ Paused';
+  } else if (d.state === 'scheduled') {
+    badge.className = 'header-badge paused';
+    badge.textContent = '⏳ Scheduled';
   } else {
+    const lbl = { expired: 'Expired', exhausted: 'Used up' }[d.state] || 'Archived';
     badge.className = 'header-badge archived';
-    badge.innerHTML = '✕ Archived';
+    badge.textContent = '✕ ' + lbl;
   }
+}
 
-  // KPIs
-  document.getElementById('kpiRedeemed').textContent = d.redeemed;
-  document.getElementById('kpiRedeemedSub').textContent = d.maxUses ? `${d.redeemed} of ${d.maxUses} used · ${d.maxUses - d.redeemed} left` : 'unlimited cap';
-  const redeemedPct = d.maxUses ? Math.round(d.redeemed/d.maxUses*100) : 0;
-  const redeemedBar = document.getElementById('kpiRedeemedBar');
-  redeemedBar.style.width = redeemedPct + '%';
-  redeemedBar.style.transition = 'width .8s cubic-bezier(.4,0,.2,1)';
+function buildChannels(list) {
+  const counts = {}; let total = 0;
+  (list || []).forEach(c => {
+    const m = CH_META[c.channel] || CH_META.direct;
+    counts[m.key] = (counts[m.key] || 0) + c.count;
+    total += c.count;
+  });
+  const rows = CH_ORDER.filter(k => k !== 'dr' || counts.dr).map(k => ({
+    key: k, name: CH_NAMES[k], count: counts[k] || 0,
+    pct: total ? Math.round((counts[k] || 0) * 100 / total) : 0
+  }));
+  rows.sort((a, b) => b.count - a.count);
+  return rows;
+}
 
-  document.getElementById('kpiRevenue').textContent = d.revenue;
-  document.getElementById('kpiRevenueSub').textContent = 'avg ' + (parseInt(d.revenue.replace(/[^\d]/g,'')) / d.redeemed | 0) + ' per redemption';
+function renderData(d) {
+  DATA = d;
+  const max = d.voucher.max_uses;
+  const life = d.lifetime_uses || 0;
+  const red = d.redeemed || 0;
 
-  document.getElementById('kpiUnique').textContent = d.unique;
-  const repeatUsers = d.redeemed - d.unique;
-  document.getElementById('kpiUniqueSub').textContent = Math.round(d.unique/d.redeemed*100) + '% unique · ' + repeatUsers + ' repeat user' + (repeatUsers !== 1 ? 's' : '');
+  $('kpiRedeemed').textContent = red;
+  $('kpiRedeemedSub').textContent = max ? `${life} of ${max} used · ${Math.max(max - life, 0)} left` : `${life} used all time · no cap`;
+  const bar = $('kpiRedeemedBar');
+  bar.style.width = (max ? Math.min(100, Math.round(life / max * 100)) : 0) + '%';
+  bar.style.transition = 'width .8s cubic-bezier(.4,0,.2,1)';
 
-  document.getElementById('kpiRate').textContent = d.rate;
-  document.getElementById('kpiRateSub').textContent = d.maxUses ? `of ${d.maxUses} issued codes` : 'unlimited voucher';
+  $('kpiRevenue').textContent = fmtBDT(d.discount_total);
+  $('kpiRevenueSub').textContent = red ? 'avg ' + fmtBDT(d.discount_total / red) + ' per redemption' : 'no redemptions in this period';
 
-  // AOV wide card
-  const aovWith = parseInt(d.avgOrder.replace(/[^\d]/g,''));
-  const aovWithout = parseInt(d.avgOrderBase.replace(/[^\d]/g,''));
-  const liftPct = Math.round((aovWith - aovWithout) / aovWithout * 100);
-  const maxAov = Math.max(aovWith, aovWithout);
+  const uniq = d.unique_customers || 0;
+  const repeat = Math.max(red - uniq, 0);
+  $('kpiUnique').textContent = uniq;
+  $('kpiUniqueSub').textContent = red ? Math.round(uniq / red * 100) + '% unique · ' + repeat + ' repeat user' + (repeat !== 1 ? 's' : '') : 'no redemptions in this period';
 
-  document.getElementById('kpiAov').textContent = d.avgOrder;
-  document.getElementById('kpiAovBase').textContent = d.avgOrderBase;
-  document.getElementById('kpiLiftText').textContent = '+' + liftPct + '% bigger orders';
-  const withBar = document.getElementById('kpiAovWithBar');
-  const withoutBar = document.getElementById('kpiAovWithoutBar');
-  withBar.style.width = Math.round(aovWith/maxAov*100) + '%';
-  withBar.style.transition = 'width .8s cubic-bezier(.4,0,.2,1)';
-  withoutBar.style.width = Math.round(aovWithout/maxAov*100) + '%';
-  withoutBar.style.transition = 'width .8s cubic-bezier(.4,0,.2,1)';
+  $('kpiRate').textContent = max ? Math.round(life / max * 100) + '%' : '∞';
+  $('kpiRateSub').textContent = max ? `of ${max} issued codes` : 'unlimited voucher';
 
-  // Chart, channels, products, log
-  renderTrendChart(d.trend);
-  renderChannels(d.channels);
-  renderProducts(d.products);
-  renderLog(d.log, currentLogFilter);
+  const aw = Number(d.aov_with) || 0, ab = Number(d.aov_without) || 0;
+  $('kpiAov').textContent = aw ? fmtBDT(aw) : '—';
+  $('kpiAovBase').textContent = ab ? fmtBDT(ab) : '—';
+  const badge = $('kpiLiftBadge');
+  if (aw && ab) {
+    const lift = Math.round((aw - ab) / ab * 100);
+    badge.style.display = '';
+    badge.style.color = lift < 0 ? '#d95353' : '';
+    badge.querySelector('svg').style.transform = lift < 0 ? 'rotate(180deg)' : '';
+    $('kpiLiftText').textContent = (lift >= 0 ? '+' : '') + lift + '% ' + (lift >= 0 ? 'bigger' : 'smaller') + ' orders';
+  } else {
+    badge.style.display = 'none';
+  }
+  const mx = Math.max(aw, ab, 1);
+  const wb = $('kpiAovWithBar'), wob = $('kpiAovWithoutBar');
+  wb.style.width = Math.round(aw / mx * 100) + '%';
+  wb.style.transition = 'width .8s cubic-bezier(.4,0,.2,1)';
+  wob.style.width = Math.round(ab / mx * 100) + '%';
+  wob.style.transition = 'width .8s cubic-bezier(.4,0,.2,1)';
+
+  _trendDates = (d.trend || []).map(x => x.d);
+  renderTrendChart((d.trend || []).map(x => x.n));
+  renderChannels(buildChannels(d.channels));
+  renderProducts((d.products || []).map(p => ({ name: p.name, count: p.units, rev: fmtBDT(p.revenue) })));
+  renderLog((d.log || []).map(e => ({
+    name: e.name || 'Customer', date: fmtDay(e.date),
+    ch: (CH_META[e.channel] || CH_META.direct).key, amt: fmtBDT(e.amount)
+  })), currentLogFilter);
 }
 
 // =============================================
@@ -3573,9 +3595,7 @@ function renderTrendChart(data) {
     if (p.v > 0) {
       const delay = (0.3 + i*0.02).toFixed(2);
       const r = p.v >= 5 ? 4 : p.v >= 3 ? 3.5 : 3;
-      const daysAgo = totalPts - 1 - i;
-      const d = new Date(today); d.setDate(d.getDate() - daysAgo);
-      const dateStr = `${months[d.getMonth()]} ${d.getDate()}`;
+      const dateStr = _trendDates[i] ? fmtDay(_trendDates[i]) : '';
       dots += `<circle class="chart-dot" cx="${p.x}" cy="${p.y}" r="${r}" fill="#d95353" opacity="0.9" style="animation:popDot .5s ease ${delay}s both;cursor:pointer" data-val="${p.v}" data-date="${dateStr}"></circle>`;
     }
   });
@@ -3601,9 +3621,8 @@ function renderTrendChart(data) {
   const total = data.length;
   const labels = [];
   for (let i = 0; i < 6; i++) {
-    const daysAgo = Math.round((total-1) * (1 - i/5));
-    const d = new Date(today); d.setDate(d.getDate() - daysAgo);
-    labels.push(`${months[d.getMonth()]} ${d.getDate()}`);
+    const idx = Math.round((total-1) * (i/5));
+    labels.push(_trendDates[idx] ? fmtDay(_trendDates[idx]) : '');
   }
   document.getElementById('xLabels').innerHTML = labels.map(l => `<span class="chart-x-label">${l}</span>`).join('');
 
@@ -3639,7 +3658,7 @@ function renderChannels(channels) {
       </div>
       <div class="ch-detail-stats">
         <div class="ch-detail-pct ${ch.key}">${ch.pct}%</div>
-        <div class="ch-detail-count">${ch.count} uses</div>
+        <div class="ch-detail-count">${ch.count} use${ch.count === 1 ? '' : 's'}</div>
       </div>
     </div>`;
   });
@@ -3651,12 +3670,18 @@ function renderChannels(channels) {
 // PRODUCTS
 // =============================================
 function renderProducts(products) {
-  const maxC = products[0].count;
-  document.getElementById('productsCard').innerHTML = products.slice(0,3).map((p,i) => `
+  const card = document.getElementById('productsCard');
+  if (!products.length) {
+    card.innerHTML = '<div style="padding:20px 0;text-align:center;color:var(--text-dim);font-size:12px;font-weight:600">No products redeemed yet</div>';
+    return;
+  }
+  const maxC = products[0].count || 1;
+  const medal = (fill, stroke) => `<svg viewBox="0 0 24 24" fill="${fill}" stroke="${stroke}" stroke-width="1.5" stroke-linejoin="round" width="16" height="16"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>`;
+  card.innerHTML = products.slice(0,3).map((p,i) => `
     <div class="product-row">
-      <div class="product-rank ${i===0?'top':''}">${i===0?'<svg viewBox="0 0 24 24" fill="#FFD700" stroke="#DAA520" stroke-width="1.5" stroke-linejoin="round" width="16" height="16"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>':i===1?'<svg viewBox="0 0 24 24" fill="#C0C0C0" stroke="#A0A0A0" stroke-width="1.5" stroke-linejoin="round" width="16" height="16"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>':i===2?'<svg viewBox="0 0 24 24" fill="#CD7F32" stroke="#A0522D" stroke-width="1.5" stroke-linejoin="round" width="16" height="16"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>':i+1}</div>
+      <div class="product-rank ${i===0?'top':''}">${i===0?medal('#FFD700','#DAA520'):i===1?medal('#C0C0C0','#A0A0A0'):i===2?medal('#CD7F32','#A0522D'):i+1}</div>
       <div class="product-info">
-        <div class="product-name">${p.name}</div>
+        <div class="product-name">${esc(p.name)}</div>
         <div class="product-bar-wrap"><div class="product-bar-fill" style="width:${Math.round(p.count/maxC*100)}%"></div></div>
       </div>
       <div class="product-stats">
@@ -3671,19 +3696,24 @@ function filterLogByChannel(ch, btn) {
   if (btn) btn.classList.add('active');
   const chColors = {all:'#7c6ff7', fb:'#1877F2', ig:'#E1306C', web:'#7c6ff7', wp:'#25D366'};
   moveSlideIndicator('channelSlide', btn, chColors[ch] || chColors.all, 0.12, 0.35);
-  const d = VOUCHERS[currentCode];
-  renderLog(d.log, ch);
+  _logShown = 8;
+  renderLog(currentLogData, ch);
+}
+function showMoreLog() {
+  _logShown += 8;
+  renderLog(currentLogData, currentLogFilter);
 }
 
 function renderLog(log, filterCh) {
   currentLogData = log;
   const filtered = filterCh && filterCh !== 'all' ? log.filter(e => e.ch === filterCh) : log;
-  const emptyState = filtered.length === 0 ? `<div style="padding:20px 0;text-align:center;color:var(--text-dim);font-size:12px;font-weight:600">No redemptions on this channel yet</div>` : '';
-  document.getElementById('logCard').innerHTML = filtered.map(e => `
+  const msg = filterCh && filterCh !== 'all' ? 'No redemptions on this channel yet' : 'No redemptions yet';
+  const emptyState = filtered.length === 0 ? `<div style="padding:20px 0;text-align:center;color:var(--text-dim);font-size:12px;font-weight:600">${msg}</div>` : '';
+  document.getElementById('logCard').innerHTML = filtered.slice(0, _logShown).map(e => `
     <div class="log-row">
       <div class="log-avatar"><svg viewBox="0 0 24 24" fill="#fff" width="24" height="24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg></div>
       <div class="log-info">
-        <div class="log-name">${e.name}</div>
+        <div class="log-name">${esc(e.name)}</div>
         <div class="log-meta">
           <span class="log-date">${e.date}</span>
           <span class="log-ch-tag ${e.ch}">${e.ch.toUpperCase()}</span>
@@ -3691,6 +3721,8 @@ function renderLog(log, filterCh) {
       </div>
       <div class="log-amount">-${e.amt}</div>
     </div>`).join('') + emptyState;
+  const more = document.getElementById('logMoreBtn');
+  if (more) more.style.display = filtered.length > _logShown ? '' : 'none';
 }
 
 // =============================================
@@ -3718,38 +3750,34 @@ function hubGoBack() {
   }
 }
 
-// Listen for OPEN_VOUCHER message from Hub
+// Messages from the Hub: open a voucher, theme, live data replies
 window.addEventListener('message', (e) => {
-  if (e.data && e.data.type === 'OPEN_VOUCHER' && e.data.code) {
-    const code = e.data.code;
-
-    // Find which type this voucher belongs to
-    let foundType = null;
-    for (const [type, data] of Object.entries(TYPES)) {
-      if (data.vouchers.includes(code)) { foundType = type; break; }
-    }
-
-    // Select type tab first
-    if (foundType) {
-      const typeBtn = document.querySelector(`.type-tab.${foundType}`);
-      if (typeBtn) selectType(foundType, typeBtn);
-    }
-
-    // Wait for sub-selector to render, then select voucher chip
-    setTimeout(() => {
-      // Select the voucher
-      selectVoucher(code, null);
-      // Fix active chip in sub-selector by matching code
-      document.querySelectorAll('.vs-chip').forEach(chip => {
-        const isMatch = chip.onclick && chip.getAttribute('onclick') &&
-          chip.getAttribute('onclick').includes(code);
-        chip.classList.toggle('active', isMatch);
-        if (isMatch) moveSlideIndicator('voucherSlide', chip);
-      });
-      // Scroll analytics to top
-      const sb = document.getElementById('scrollBody');
-      if (sb) sb.scrollTop = 0;
-    }, 80);
+  const m = e.data;
+  if (!m || e.source !== window.parent) return;
+  if (m.type === 'sv-an-res') {
+    const p = _anPending[m.reqId];
+    if (!p) return;
+    clearTimeout(p.t);
+    delete _anPending[m.reqId];
+    if (m.ok) p.resolve(m.data); else p.reject(new Error(m.error || 'Request failed'));
+  } else if (m.type === 'SET_THEME') {
+    document.documentElement.setAttribute('data-theme', m.theme === 'light' ? 'light' : 'dark');
+    initSlideIndicators();
+  } else if (m.type === 'OPEN_VOUCHER' && m.code) {
+    setVoucherList(m.vouchers || []);
+    const v = VOUCHERS[m.code];
+    if (!v) { showToast('Voucher not found'); return; }
+    currentCode = m.code;
+    currentLogFilter = 'all';
+    _logShown = 8;
+    document.querySelectorAll('.ch-filter-chip').forEach(b => b.classList.toggle('active', b.getAttribute('data-ch') === 'all'));
+    const typeBtn = document.querySelector('.type-tab.' + v.type);
+    if (typeBtn) selectType(v.type, typeBtn);
+    renderHeader(m.code);
+    loadAnalytics();
+    requestAnimationFrame(initSlideIndicators);
+    const sb = document.getElementById('scrollBody');
+    if (sb) sb.scrollTop = 0;
   }
 });
 
@@ -3758,8 +3786,8 @@ window.addEventListener('message', (e) => {
 // =============================================
 let tt;
 function showToast(msg) {
-  const t = _hid('hubToast');
-  _hid('hubToastMsg').textContent = msg;
+  const t = document.getElementById('hubToast');
+  document.getElementById('hubToastMsg').textContent = msg;
   t.classList.add('show');
   clearTimeout(tt);
   tt = setTimeout(() => t.classList.remove('show'), 2500);
@@ -3784,8 +3812,6 @@ document.addEventListener('DOMContentLoaded', () => {
       ? '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>'
       : '<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>';
   } catch(e) {}
-  renderSubSelector('event');
-  renderAll('SUP-EVT-EID24');
   // Defer until next frame so all layout is settled
   requestAnimationFrame(() => requestAnimationFrame(initSlideIndicators));
 
