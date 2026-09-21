@@ -17575,6 +17575,12 @@ function openPaymentModal(index) {
 
   // Set default method (single call — no redundant manual class toggle)
   selectPayMethod("bkash");
+  // Storefront orders arrive with the method and transaction ID the customer entered
+  const _pm0 = card.getAttribute("data-pay-method") || "";
+  const _pm = ({ cod: "cash", crypto: "usdt" })[_pm0] || _pm0;
+  if (_pm && document.querySelector('.pay-method-opt.' + _pm)) selectPayMethod(_pm);
+  const _pref = card.getAttribute("data-pay-ref");
+  if (_pref) document.getElementById("payRefInput").value = _pref;
 
   _pendingPaymentIndex = index;
   const overlay = document.getElementById("paymentModal");
@@ -20107,6 +20113,8 @@ function buildDraftCardEl(d) {
   card.setAttribute('data-subtotal', subtotal);
   card.setAttribute('data-status', status);
   if (voucher) card.setAttribute('data-voucher', voucher);
+  if (d.payMethod) card.setAttribute('data-pay-method', d.payMethod);
+  if (d.payRef) card.setAttribute('data-pay-ref', d.payRef);
   if (d.uuid) card.dataset.orderUuid = d.uuid;
   card.innerHTML = `
     <div class="draft-card-top" onclick="toggleDraft(${draftIndex})">
@@ -20364,7 +20372,7 @@ function orderRowToTx(o, items) {
 
 async function loadOrdersFromSupabase() {
   try {
-    const rows = await sbFetch('orders?select=*,order_items(*)&source=eq.admin&order=created_at.asc');
+    const rows = await sbFetch('orders?select=*,order_items(*)&source=in.(admin,web)&order=created_at.asc');
     if (!Array.isArray(rows) || rows.length === 0) return;
     const container = document.getElementById('draftCardsContainer');
     if (!container) return;
@@ -20385,7 +20393,8 @@ async function loadOrdersFromSupabase() {
         source: _CHANNEL_TO_SRC[o.channel] || '', discount: Number(o.discount) || 0, voucher: o.voucher_code || '',
         shipping: Number(o.shipping) || 0, subtotal: Number(o.subtotal) || 0,
         dateStr: new Date(o.created_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: '2-digit' }),
-        status: ['pending', 'ordered', 'shipped'].includes(o.status) ? o.status : 'pending', uuid: o.id
+        status: ['pending', 'ordered', 'shipped'].includes(o.status) ? o.status : 'pending', uuid: o.id,
+        payMethod: o.source === 'web' ? (o.payment_method || '') : '', payRef: o.source === 'web' ? (o.payment_ref || '') : ''
       }));
     });
     updateBadge();
@@ -23344,7 +23353,7 @@ function updateReturnSummary() {
   
   rows.forEach(row => {
     const priceInp = row.querySelector('[id*="-prod-price-"]');
-    const qtyInp = row.querySelector('[id*="-qty-"]');
+    const qtyInp = row.querySelector('input[id*="-qty-"]');
     
     if (priceInp && qtyInp) {
       const qty = parseInt(qtyInp.value) || 1;
