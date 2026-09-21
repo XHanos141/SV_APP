@@ -1591,52 +1591,63 @@ body.dark-mode .pay-badge-bank svg path[style*="fill:#66cde7"]{fill:#fff!importa
 
   <div class="form-card" data-form="testimonial">
     <h3>
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z"/></svg>Customer Testimonial
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z"/></svg>Customer Testimonials
       <button type="button" class="edit-lock-btn" id="testiEditBtn" style="margin-left:auto"></button>
     </h3>
     <fieldset id="testiFieldset" style="border:none;margin:0;padding:0">
-    <div class="field">
-      <label>Review Text</label>
-      <textarea id="inpTestiText" rows="6" oninput="updateTestimonial()">Ordered Optimum Nutrition whey through proxy import. Arrived in 12 days, perfectly sealed, authentic. Saved me ৳2,000 compared to local shops.</textarea>
-    </div>
-    <div class="field-row">
-      <div class="field">
-        <label>Customer Name</label>
-        <input type="text" id="inpTestiName" value="Rafiq Ahmed" oninput="updateTestimonial()">
-      </div>
-      <div class="field">
-        <label>Rating (1–5)</label>
-        <input type="number" id="inpTestiRating" value="5" min="1" max="5" step="1" oninput="updateTestimonial()">
-      </div>
-    </div>
-    <div class="field">
-      <label>Reviewer Photo <span style="font-weight:400;color:var(--text3)">(optional — 150×150px, under 100KB, falls back to initials)</span></label>
-      <div style="display:flex;align-items:center;gap:10px">
-        <div id="testiAvatarPreview" style="width:36px;height:36px;border-radius:50%;flex-shrink:0;overflow:hidden;background:linear-gradient(135deg,#009ddc,#6761a8);display:flex;align-items:center;justify-content:center;color:#fff;font-size:12px;font-weight:700;font-family:var(--font-display)">RA</div>
-        <label for="testiAvatarInput" style="flex:1;height:38px;border:1.5px dashed var(--border-strong);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:11.5px;color:var(--text3);cursor:pointer;font-weight:600">Tap to upload photo</label>
-        <input type="file" accept="image/jpeg,image/png" id="testiAvatarInput" style="display:none" onchange="handleTestiAvatar(event)">
-      </div>
-    </div>
-    <div class="field-row">
-      <div class="field">
-        <label>City</label>
-        <input type="text" id="inpTestiCity" value="Dhaka" oninput="updateTestimonial()">
-      </div>
-      <div class="field">
-        <label>Buyer Type</label>
-        <select id="inpTestiRole" onchange="updateTestimonial()">
-          <option value="Verified Buyer" selected>Verified Buyer</option>
-          <option value="Verified Customer">Verified Customer</option>
-          <option value="">None</option>
-        </select>
-      </div>
-    </div>
+      <div id="testiListMount"></div>
+      <button type="button" class="btn-draft" id="testiAddBtn" onclick="addTestiItem()" style="width:100%;margin-top:4px">+ Add Testimonial</button>
     </fieldset>
     <div class="save-bar" style="margin:14px 0 0;border-radius:14px">
       <button class="btn-draft" id="testiCancelBtn" style="display:none">Cancel</button>
       <button class="btn-save" id="testiSaveBtn" disabled>Save Changes</button>
     </div>
   </div>
+  <template id="testiItemTemplate">
+    <div class="testi-item-card" style="border:1px solid var(--border);border-radius:14px;padding:12px;margin-bottom:12px;position:relative">
+      <button type="button" class="testi-item-delete" onclick="deleteTestiItem(this)" style="position:absolute;top:8px;right:8px;width:28px;height:28px;border-radius:50%;border:none;background:transparent;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:3">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M7 4a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v2h4a1 1 0 1 1 0 2h-1.069l-.867 12.142A2 2 0 0 1 17.069 22H6.93a2 2 0 0 1-1.995-1.858L4.07 8H3a1 1 0 0 1 0-2h4V4zm2 2h6V4H9v2zM6.074 8l.857 12H17.07l.857-12H6.074zM10 10a1 1 0 0 1 1 1v6a1 1 0 1 1-2 0v-6a1 1 0 0 1 1-1zm4 0a1 1 0 0 1 1 1v6a1 1 0 1 1-2 0v-6a1 1 0 0 1 1-1z" fill="var(--danger,#d95353)"/></svg>
+      </button>
+      <div class="field" style="margin-bottom:10px;padding-right:34px">
+        <label>Review Text</label>
+        <textarea class="testi-inp-text" rows="5" oninput="updateTestiPreviewFromForm()" placeholder="Ordered..."></textarea>
+      </div>
+      <div class="field-row" style="margin-bottom:10px">
+        <div class="field">
+          <label>Customer Name</label>
+          <input type="text" class="testi-inp-name" oninput="updateTestiPreviewFromForm()" placeholder="Rafiq Ahmed">
+        </div>
+        <div class="field">
+          <label>Rating (1–5)</label>
+          <input type="number" class="testi-inp-rating" value="5" min="1" max="5" step="1" oninput="updateTestiPreviewFromForm()">
+        </div>
+      </div>
+      <div class="field" style="margin-bottom:10px">
+        <label>Reviewer Photo <span style="font-weight:400;color:var(--text3)">(optional — 150×150px, under 100KB, falls back to initials)</span></label>
+        <div style="display:flex;align-items:center;gap:10px">
+          <div class="testi-avatar-preview" style="width:36px;height:36px;border-radius:50%;flex-shrink:0;overflow:hidden;background:linear-gradient(135deg,#009ddc,#6761a8);display:flex;align-items:center;justify-content:center;color:#fff;font-size:12px;font-weight:700;font-family:var(--font-display)"></div>
+          <label style="flex:1;height:38px;border:1.5px dashed var(--border-strong);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:11.5px;color:var(--text3);cursor:pointer;font-weight:600">Tap to upload photo
+            <input type="file" accept="image/jpeg,image/png" class="testi-avatar-input" style="display:none" onchange="handleTestiItemAvatar(event)">
+          </label>
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label>City</label>
+          <input type="text" class="testi-inp-city" oninput="updateTestiPreviewFromForm()" placeholder="Dhaka">
+        </div>
+        <div class="field">
+          <label>Buyer Type</label>
+          <select class="testi-inp-role" onchange="updateTestiPreviewFromForm()">
+            <option value="Verified Buyer" selected>Verified Buyer</option>
+            <option value="Verified Customer">Verified Customer</option>
+            <option value="">None</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </template>
+
 
   <div class="form-card" data-form="faq">
     <h3>
@@ -4771,12 +4782,89 @@ function initialsFromName(name){
   if(parts.length === 1) return parts[0].slice(0,2).toUpperCase();
   return (parts[0][0] + parts[1][0]).toUpperCase();
 }
-function updateTestimonial(){
-  const text = document.getElementById('inpTestiText').value || '';
-  const name = document.getElementById('inpTestiName').value || 'Anonymous';
-  const rating = Math.max(1, Math.min(5, parseInt(document.getElementById('inpTestiRating').value) || 5));
-  const city = document.getElementById('inpTestiCity').value || '';
-  const role = document.getElementById('inpTestiRole').value;
+/* ═══════════════════════════════════════════════════════════════
+   TESTIMONIALS — repeatable list, backed by site_content + storage bucket
+   ═══════════════════════════════════════════════════════════════ */
+let testiItemsData = [];
+
+function testiItemFromCard(card){
+  const avatarEl = card.querySelector('.testi-avatar-preview');
+  const imgEl = avatarEl ? avatarEl.querySelector('img') : null;
+  return {
+    text: card.querySelector('.testi-inp-text').value || '',
+    name: card.querySelector('.testi-inp-name').value || '',
+    rating: Math.max(1, Math.min(5, parseInt(card.querySelector('.testi-inp-rating').value) || 5)),
+    city: card.querySelector('.testi-inp-city').value || '',
+    role: card.querySelector('.testi-inp-role').value || '',
+    avatar_url: imgEl ? (imgEl.dataset.url || imgEl.src) : null
+  };
+}
+
+function renderTestiList(){
+  const mount = document.getElementById('testiListMount');
+  const tmpl = document.getElementById('testiItemTemplate');
+  mount.innerHTML = '';
+  testiItemsData.forEach(t=>{
+    const node = tmpl.content.cloneNode(true);
+    node.querySelector('.testi-inp-text').value = t.text || '';
+    node.querySelector('.testi-inp-name').value = t.name || '';
+    node.querySelector('.testi-inp-rating').value = t.rating || 5;
+    node.querySelector('.testi-inp-city').value = t.city || '';
+    node.querySelector('.testi-inp-role').value = t.role || '';
+    const avatarEl = node.querySelector('.testi-avatar-preview');
+    if(t.avatar_url){
+      avatarEl.innerHTML = '<img src="' + t.avatar_url + '" data-url="' + t.avatar_url + '" style="width:100%;height:100%;object-fit:cover">';
+    } else {
+      avatarEl.textContent = initialsFromName(t.name || '');
+    }
+    mount.appendChild(node);
+  });
+  updateTestiPreviewFromForm();
+}
+
+function addTestiItem(){
+  testiItemsData.push({ text:'', name:'', rating:5, city:'', role:'Verified Buyer', avatar_url:null });
+  renderTestiList();
+}
+
+function deleteTestiItem(btn){
+  const card = btn.closest('.testi-item-card');
+  const cards = [...document.querySelectorAll('#testiListMount .testi-item-card')];
+  const idx = cards.indexOf(card);
+  if(idx === -1) return;
+  testiItemsData = cards.map(testiItemFromCard).filter((_,i)=> i!==idx);
+  renderTestiList();
+}
+
+const TESTI_AVATAR_MAX_BYTES = 100 * 1024;
+function handleTestiItemAvatar(e){
+  const file = e.target.files[0];
+  if(!file) return;
+  if(file.size > TESTI_AVATAR_MAX_BYTES){
+    T('Image too large — keep it under 100KB','⚠️');
+    e.target.value = '';
+    return;
+  }
+  const card = e.target.closest('.testi-item-card');
+  const avatarEl = card.querySelector('.testi-avatar-preview');
+  const reader = new FileReader();
+  reader.onload = function(ev){
+    avatarEl.innerHTML = '<img src="' + ev.target.result + '" style="width:100%;height:100%;object-fit:cover">';
+    avatarEl._pendingFile = file;
+    updateTestiPreviewFromForm();
+  };
+  reader.readAsDataURL(file);
+}
+
+function updateTestiPreviewFromForm(){
+  const cards = [...document.querySelectorAll('#testiListMount .testi-item-card')];
+  const first = cards[0];
+  if(!first) return;
+  const text = first.querySelector('.testi-inp-text').value || '';
+  const name = first.querySelector('.testi-inp-name').value || 'Anonymous';
+  const rating = Math.max(1, Math.min(5, parseInt(first.querySelector('.testi-inp-rating').value) || 5));
+  const city = first.querySelector('.testi-inp-city').value || '';
+  const role = first.querySelector('.testi-inp-role').value;
 
   document.getElementById('tscardText').textContent = '"' + text + '"';
   document.getElementById('tscardName').textContent = name;
@@ -4792,82 +4880,66 @@ function updateTestimonial(){
     roleEl.style.display = 'none';
   }
   const avatarEl = document.getElementById('tscardAvatar');
-  if(currentTestiAvatar){
-    avatarEl.innerHTML = '<img src="' + currentTestiAvatar + '" style="width:100%;height:100%;object-fit:cover;border-radius:50%">';
+  const firstAvatarImg = first.querySelector('.testi-avatar-preview img');
+  if(firstAvatarImg){
+    avatarEl.innerHTML = '<img src="' + firstAvatarImg.src + '" style="width:100%;height:100%;object-fit:cover;border-radius:50%">';
   } else {
     avatarEl.textContent = initialsFromName(name);
   }
   document.getElementById('tscardStars').innerHTML = STAR_SVG_FILLED.repeat(rating) + STAR_SVG_EMPTY.repeat(5 - rating);
 }
 
-let currentTestiAvatar = null;
-let pendingTestiAvatarFile = null;
-function handleTestiAvatar(e){
-  const file = e.target.files[0];
-  if(!file) return;
-  pendingTestiAvatarFile = file;
-  const reader = new FileReader();
-  reader.onload = function(ev){
-    currentTestiAvatar = ev.target.result;
-    document.getElementById('testiAvatarPreview').innerHTML = '<img src="' + currentTestiAvatar + '" style="width:100%;height:100%;object-fit:cover">';
-    updateTestimonial();
-  };
-  reader.readAsDataURL(file);
-}
-async function uploadPendingTestiAvatar(){
-  if(!pendingTestiAvatarFile || !window.sb) return;
-  const file = pendingTestiAvatarFile;
-  const ext = (file.name.split('.').pop() || 'jpg').toLowerCase();
-  const path = 'testimonial/' + Date.now() + '-' + Math.random().toString(36).slice(2,8) + '.' + ext;
-  const { error: upErr } = await sb.storage.from('site-content-images').upload(path, file, { upsert: false });
-  if(upErr){ console.error('testimonial avatar upload error:', upErr.message); return; }
-  const { data: pub } = sb.storage.from('site-content-images').getPublicUrl(path);
-  if(pub && pub.publicUrl){
-    currentTestiAvatar = pub.publicUrl;
-    pendingTestiAvatarFile = null;
+async function uploadPendingTestiAvatars(){
+  const avatarEls = [...document.querySelectorAll('#testiListMount .testi-avatar-preview')];
+  for(const avatarEl of avatarEls){
+    if(avatarEl._pendingFile && window.sb){
+      const file = avatarEl._pendingFile;
+      const ext = (file.name.split('.').pop() || 'jpg').toLowerCase();
+      const path = 'testimonial/' + Date.now() + '-' + Math.random().toString(36).slice(2,8) + '.' + ext;
+      const { error: upErr } = await sb.storage.from('site-content-images').upload(path, file, { upsert: false });
+      if(upErr){ console.error('testimonial avatar upload error:', upErr.message); continue; }
+      const { data: pub } = sb.storage.from('site-content-images').getPublicUrl(path);
+      const imgEl = avatarEl.querySelector('img');
+      if(imgEl && pub && pub.publicUrl) imgEl.dataset.url = pub.publicUrl;
+      delete avatarEl._pendingFile;
+    }
   }
 }
+
 async function saveTestimonialContent(){
   if(!window.sb) { T('Not connected to database','⚠️'); return; }
-  await uploadPendingTestiAvatar();
-  const content = {
-    text: document.getElementById('inpTestiText').value || '',
-    name: document.getElementById('inpTestiName').value || '',
-    rating: Math.max(1, Math.min(5, parseInt(document.getElementById('inpTestiRating').value) || 5)),
-    city: document.getElementById('inpTestiCity').value || '',
-    role: document.getElementById('inpTestiRole').value || '',
-    avatar_url: currentTestiAvatar || null
-  };
+  await uploadPendingTestiAvatars();
+  const cards = [...document.querySelectorAll('#testiListMount .testi-item-card')];
+  const content = cards.map(testiItemFromCard).filter(t => t.text && t.name);
+  if(!content.length){ T('Add at least one testimonial','⚠️'); return; }
   const { error } = await sb.from('site_content').upsert({
     page: 'landing',
-    section: 'testimonial',
+    section: 'testimonials',
     content,
     updated_at: new Date().toISOString()
   }, { onConflict: 'page,section' });
   if(error){ console.error('saveTestimonialContent error:', error.message); T('Save failed — check connection','❌'); return; }
-  T('Testimonial published','🚀');
+  testiItemsData = content;
+  T('Testimonials published','🚀');
 }
+
 async function loadTestimonialContent(){
   if(!window.sb) return;
   const { data, error } = await sb
     .from('site_content')
     .select('content')
     .eq('page', 'landing')
-    .eq('section', 'testimonial')
+    .eq('section', 'testimonials')
     .maybeSingle();
   if(error){ console.error('loadTestimonialContent error:', error.message); return; }
-  if(!data || !data.content) return;
-  const c = data.content;
-  if(c.text !== undefined) document.getElementById('inpTestiText').value = c.text;
-  if(c.name !== undefined) document.getElementById('inpTestiName').value = c.name;
-  if(c.rating !== undefined) document.getElementById('inpTestiRating').value = c.rating;
-  if(c.city !== undefined) document.getElementById('inpTestiCity').value = c.city;
-  if(c.role !== undefined) document.getElementById('inpTestiRole').value = c.role;
-  if(c.avatar_url){
-    currentTestiAvatar = c.avatar_url;
-    document.getElementById('testiAvatarPreview').innerHTML = '<img src="' + c.avatar_url + '" style="width:100%;height:100%;object-fit:cover">';
+  if(!data || !Array.isArray(data.content) || !data.content.length){
+    testiItemsData = [
+      { text:'Ordered Optimum Nutrition whey through proxy import. Arrived in 12 days, perfectly sealed, authentic. Saved me ৳2,000 compared to local shops.', name:'Rafiq Ahmed', rating:5, city:'Dhaka', role:'Verified Buyer', avatar_url:null }
+    ];
+  } else {
+    testiItemsData = data.content;
   }
-  updateTestimonial();
+  renderTestiList();
 }
 loadTestimonialContent();
 
