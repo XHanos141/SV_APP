@@ -16802,7 +16802,7 @@ svLoadProducts();
 
       <!-- Deduction Amount (Flat / Percentage) -->
       <div class="fs-field">
-        <label class="fs-label">Deduction (Discount Refund)</label>
+        <label class="fs-label">Extra Deduction</label>
         <div class="discount-type-row">
           <select class="discount-type-select" id="rtDeductionType" onchange="updateReturnDeductionType()">
             <option value="flat">৳ Flat</option>
@@ -16813,7 +16813,7 @@ svLoadProducts();
             <input type="number" class="fs-input has-prefix discount-input" id="rtDeduction" placeholder="0" min="0" step="1" oninput="updateReturnDeduction()">
           </div>
         </div>
-        <div class="fs-hint" style="color:#8c92a1;opacity:1">If customer had discount on original purchase</div>
+        <div class="fs-hint" style="color:#8c92a1;opacity:1">Optional, e.g. restocking fee. Order discount is deducted automatically</div>
       </div>
 
       <!-- Return Summary Card (Red) -->
@@ -16827,6 +16827,13 @@ svLoadProducts();
         </div>
         <div class="summary-bar-row">
           <span class="summary-bar-label">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-archive-box"/></svg>
+            Order Discount
+          </span>
+          <span class="summary-bar-value rt-green" id="rtSummaryDiscShare">-৳0</span>
+        </div>
+        <div class="summary-bar-row">
+          <span class="summary-bar-label">
             <svg fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><use href="#icon-truck-delivery"/></svg>
             Shipping
           </span>
@@ -16835,7 +16842,7 @@ svLoadProducts();
         <div class="summary-bar-row">
           <span class="summary-bar-label">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-archive-box"/></svg>
-            Discount
+            Deduction
           </span>
           <span class="summary-bar-value rt-green" id="rtSummaryDeduction">-৳0</span>
         </div>
@@ -18914,7 +18921,7 @@ function _retObjFromInv(inv) {
     id: inv.linkedDraftId, customer: inv.customerName, address: inv.customerLocation,
     phone: inv.customerPhone, date: inv.date, reason: inv.reason || '',
     products: inv.items.map(i => ({ name:i.name, sku:i.sku||'', qty:i.qty, price:i.each, total:i.total })),
-    refundAmount: inv.items.reduce((s,i)=>s+i.total,0),
+    refundAmount: inv.items.reduce((s,i)=>s+i.total,0), discountShare: inv.orderDiscount||0,
     shippingAmount: inv.shipping||0, deductionAmount: inv.discount||0,
     finalRefund: inv.totalAmount,
     payment: inv.payment, paymentRef: inv.paymentRef, paidAt: inv.paidAt,
@@ -19089,7 +19096,7 @@ function openInvoiceDetailModal(invoiceId) {
       id: inv.linkedDraftId, customer: inv.customerName, address: inv.customerLocation,
       phone: inv.customerPhone, date: inv.date, reason: inv.reason || '',
       products: inv.items.map(i => ({ name:i.name, sku:i.sku, qty:i.qty, price:i.each, total:i.total })),
-      refundAmount: inv.items.reduce((s,i)=>s+i.total,0),
+      refundAmount: inv.items.reduce((s,i)=>s+i.total,0), discountShare: inv.orderDiscount||0,
       shippingAmount: inv.shipping || 0,
       deductionAmount: inv.discount || 0,
       finalRefund: inv.totalAmount,
@@ -22642,7 +22649,9 @@ function openReturnModal() {
   document.getElementById('rtSummarySubtotal').textContent = '৳0';
   document.getElementById('rtSummaryShipping').textContent = '৳0';
   document.getElementById('rtSummaryDeduction').textContent = '-৳0';
+  document.getElementById('rtSummaryDiscShare').textContent = '-৳0';
   document.getElementById('rtSummaryFinalRefund').textContent = '৳0';
+  _rtShare = { key: '', value: 0 };
   
   document.getElementById('returnOverlay').classList.add('active');
 }
@@ -23174,7 +23183,7 @@ function returnRowToDraft(r) {
     phone: r.customer_phone || '', customer: r.customer_name || '', address: r.address_text || '',
     source: _CHANNEL_TO_SRC[r.channel] || '',
     products: items.map(i => ({ name: i.product_name, sku: i.sku || '', price: Number(i.unit_price) || 0, qty: i.quantity, total: (Number(i.unit_price) || 0) * i.quantity, category: i.category || '' })),
-    reason: r.reason || '', refundAmount: Number(r.subtotal) || 0, shippingAmount: Number(r.shipping_deduct) || 0,
+    reason: r.reason || '', refundAmount: Number(r.subtotal) || 0, discountShare: Number(r.discount_share) || 0, shippingAmount: Number(r.shipping_deduct) || 0,
     deductionType: r.deduction_type || 'flat', deductionValue: Number(r.deduction_value) || 0,
     deductionAmount: Number(r.deduction_amount) || 0, finalRefund: Number(r.refund_amount) || 0,
     date: new Date(r.created_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: '2-digit' }),
@@ -23311,6 +23320,38 @@ async function loadReturnsFromSupabase() {
   }
 }
 
+let _rtShare = { key: '', value: 0 }, _rtShareTimer = null;
+function _rtShareItems() {
+  const items = [];
+  document.querySelectorAll('#returnProducts .product-row').forEach(row => {
+    const sku = row.querySelector('input[id*="-sku-"]')?.value || '';
+    const qty = parseInt(row.querySelector('input[id*="-qty-"]')?.value) || 1;
+    if (sku) items.push({ sku: sku, qty: qty });
+  });
+  return items;
+}
+function _rtScheduleShare() {
+  if (!_rtOrder || !_rtOrder.uuid) return;
+  const items = _rtShareItems();
+  const editing = (_rtEditingIdx !== null && draftReturns[_rtEditingIdx]) ? (draftReturns[_rtEditingIdx].uuid || null) : null;
+  const key = JSON.stringify([_rtOrder.id, items, editing]);
+  if (key === _rtShare.key) return;
+  clearTimeout(_rtShareTimer);
+  if (!items.length) { _rtShare = { key: key, value: 0 }; return; }
+  _rtShareTimer = setTimeout(async () => {
+    _rtShare.key = key;
+    try {
+      const v = await sbFetch('rpc/preview_return_discount', 'POST', { p_order_number: _rtOrder.id, p_items: items, p_return_id: editing });
+      if (_rtShare.key !== key) return;
+      _rtShare.value = Number(Array.isArray(v) ? v[0] : v) || 0;
+    } catch (e) {
+      if (_rtShare.key !== key) return;
+      _rtShare.value = 0;
+    }
+    updateReturnSummary();
+  }, 250);
+}
+
 function updateReturnSummary() {
   const rows = document.querySelectorAll('#returnProducts .product-row');
   let subtotal = 0;
@@ -23322,12 +23363,16 @@ function updateReturnSummary() {
     if (priceInp && qtyInp) {
       const qty = parseInt(qtyInp.value) || 1;
       const price = parseFloat(priceInp.value) || 0;
-      const rowTotal = price * qty;
-      subtotal += rowTotal;
+      subtotal += price * qty;
     }
   });
   
+  // order discount share is computed by the server (pro-rata over eligible items)
+  const share = (_rtOrder && _rtOrder.uuid) ? Math.min(_rtShare.value || 0, subtotal) : 0;
+  const base = subtotal - share;
+  
   document.getElementById('rtSummarySubtotal').textContent = '৳' + subtotal.toLocaleString('en-IN');
+  document.getElementById('rtSummaryDiscShare').textContent = '-৳' + share.toLocaleString('en-IN');
   
   const shippingAmount = parseFloat(document.getElementById('rtShipping').value) || 0;
   document.getElementById('rtSummaryShipping').textContent = '৳' + shippingAmount.toLocaleString('en-IN');
@@ -23337,16 +23382,17 @@ function updateReturnSummary() {
   let deductionAmount = 0;
   
   if (deductionType === 'percent') {
-    deductionAmount = Math.round(subtotal * Math.min(deductionValue, 100) / 100);
+    deductionAmount = Math.round(base * Math.min(deductionValue, 100) / 100);
   } else {
     deductionAmount = deductionValue;
   }
-  deductionAmount = Math.min(deductionAmount, subtotal);
+  deductionAmount = Math.min(deductionAmount, base);
   
   document.getElementById('rtSummaryDeduction').textContent = '-৳' + deductionAmount.toLocaleString('en-IN');
   
-  const finalRefund = subtotal - shippingAmount - deductionAmount;
+  const finalRefund = base - shippingAmount - deductionAmount;
   document.getElementById('rtSummaryFinalRefund').textContent = '৳' + Math.max(finalRefund, 0).toLocaleString('en-IN');
+  _rtScheduleShare();
 }
 
 /* ====== IMPORT ORDER ====== */
@@ -23460,6 +23506,15 @@ function buildReturnCard(ret, idx) {
             <span class="draft-math-label">Subtotal <span class="draft-math-units">${ret.products.reduce((s, p) => s + p.qty, 0)}u</span></span>
             <span class="draft-math-val">৳${ret.refundAmount.toLocaleString('en-IN')}</span>
           </div>
+          ${(ret.discountShare || 0) > 0 ? `
+            <div class="draft-math-row rt-deduction">
+              <span class="draft-math-label">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-archive-box"/></svg>
+                Order Discount
+              </span>
+              <span class="draft-math-val green">-৳${ret.discountShare.toLocaleString('en-IN')}</span>
+            </div>
+          ` : ''}
           ${ret.shippingAmount > 0 ? `
             <div class="draft-math-row rt-deduction">
               <span class="draft-math-label">
@@ -23536,6 +23591,7 @@ function createInvoiceFromReturn(idx, event) {
     customerPhone: ret.phone || '',
     items,
     discount: ret.deductionAmount || 0,
+    orderDiscount: ret.discountShare || 0,
     shipping: ret.shippingAmount || 0,
     totalAmount: ret.finalRefund,
     status: 'return',
@@ -23614,8 +23670,9 @@ function generateCustomerReturnReceiptHTML(ret, size) {
   <table style="width:100%;border-collapse:collapse">${itemRows}</table>
   <table style="width:100%;border-collapse:collapse;margin-top:4px">
     <tr><td style="padding:${isA4?'7px 0':'5px 0'};font-family:'Plus Jakarta Sans',sans-serif;font-size:${P.sumFs};font-weight:700;color:#8c92a1;text-transform:uppercase;letter-spacing:0.04em">Subtotal</td><td style="padding:${isA4?'7px 0':'5px 0'};text-align:right;font-size:${P.sumFs};font-weight:700;color:#001f3c">৳${ret.refundAmount.toLocaleString('en-IN')}</td></tr>
+    ${(ret.discountShare||0)>0?`<tr><td style="padding:${isA4?'5px 0':'4px 0'};font-family:'Plus Jakarta Sans',sans-serif;font-size:${P.sumFs};font-weight:700;color:#d95353;text-transform:uppercase">Order Discount Deducted</td><td style="padding:${isA4?'5px 0':'4px 0'};text-align:right;font-size:${P.sumFs};font-weight:700;color:#d95353">-৳${ret.discountShare.toLocaleString('en-IN')}</td></tr>`:''}
     ${(ret.shippingAmount||0)>0?`<tr><td style="padding:${isA4?'5px 0':'4px 0'};font-family:'Plus Jakarta Sans',sans-serif;font-size:${P.sumFs};font-weight:700;color:#d95353;text-transform:uppercase">Shipping Deducted</td><td style="padding:${isA4?'5px 0':'4px 0'};text-align:right;font-size:${P.sumFs};font-weight:700;color:#d95353">-৳${ret.shippingAmount.toLocaleString('en-IN')}</td></tr>`:''}
-    ${(ret.deductionAmount||0)>0?`<tr style="border-bottom:1.5px solid #d95353"><td style="padding:${isA4?'5px 0':'4px 0'};font-family:'Plus Jakarta Sans',sans-serif;font-size:${P.sumFs};font-weight:700;color:#d95353;text-transform:uppercase">Discount Deducted</td><td style="padding:${isA4?'5px 0':'4px 0'};text-align:right;font-size:${P.sumFs};font-weight:700;color:#d95353">-৳${ret.deductionAmount.toLocaleString('en-IN')}</td></tr>`:''}
+    ${(ret.deductionAmount||0)>0?`<tr style="border-bottom:1.5px solid #d95353"><td style="padding:${isA4?'5px 0':'4px 0'};font-family:'Plus Jakarta Sans',sans-serif;font-size:${P.sumFs};font-weight:700;color:#d95353;text-transform:uppercase">Deduction</td><td style="padding:${isA4?'5px 0':'4px 0'};text-align:right;font-size:${P.sumFs};font-weight:700;color:#d95353">-৳${ret.deductionAmount.toLocaleString('en-IN')}</td></tr>`:''}
     <tr><td style="padding:${isA4?'12px 0 4px':'9px 0 3px'};font-family:'Plus Jakarta Sans',sans-serif;font-size:${isA4?'12px':'10px'};font-weight:800;color:#2f9b68;text-transform:uppercase;letter-spacing:0.06em">Final Refund</td><td style="padding:${isA4?'12px 0 4px':'9px 0 3px'};text-align:right;font-size:${P.totalFs};font-weight:800;color:#2f9b68">৳${ret.finalRefund.toLocaleString('en-IN')}</td></tr>
   </table>
   ${ret.paidAt?`<div style="display:flex;align-items:center;gap:6px;margin-top:8px;padding:6px 10px;background:rgba(0,0,0,0.04);border:1px solid rgba(0,0,0,0.08);border-radius:8px">
@@ -23681,8 +23738,9 @@ function generateOwnerReturnReceiptHTML(ret, size) {
   </table>
   <div style="padding:${P.pad};border-top:1px solid rgba(217,83,83,0.2)">
     <div style="display:flex;justify-content:space-between;padding:3px 0"><span style="font-size:${P.sm};color:#8c92a1;text-transform:uppercase;letter-spacing:0.04em;font-weight:700">Subtotal</span><span style="font-size:${P.sm};font-weight:700;color:#001f3c">৳${ret.refundAmount.toLocaleString('en-IN')}</span></div>
+    ${(ret.discountShare||0)>0?`<div style="display:flex;justify-content:space-between;padding:3px 0"><span style="font-size:${P.sm};color:#2f9b68;font-weight:700">Discount Clawback</span><span style="font-size:${P.sm};font-weight:700;color:#2f9b68">+৳${ret.discountShare.toLocaleString('en-IN')}</span></div>`:''}
     ${(ret.shippingAmount||0)>0?`<div style="display:flex;justify-content:space-between;padding:3px 0"><span style="font-size:${P.sm};color:#2f9b68;font-weight:700">Shipping Saved</span><span style="font-size:${P.sm};font-weight:700;color:#2f9b68">+৳${ret.shippingAmount.toLocaleString('en-IN')}</span></div>`:''}
-    ${(ret.deductionAmount||0)>0?`<div style="display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px solid rgba(217,83,83,0.2)"><span style="font-size:${P.sm};color:#2f9b68;font-weight:700">Discount Clawback</span><span style="font-size:${P.sm};font-weight:700;color:#2f9b68">+৳${ret.deductionAmount.toLocaleString('en-IN')}</span></div>`:''}
+    ${(ret.deductionAmount||0)>0?`<div style="display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px solid rgba(217,83,83,0.2)"><span style="font-size:${P.sm};color:#2f9b68;font-weight:700">Deduction Kept</span><span style="font-size:${P.sm};font-weight:700;color:#2f9b68">+৳${ret.deductionAmount.toLocaleString('en-IN')}</span></div>`:''}
     <div style="display:flex;justify-content:space-between;padding:${isA4?'10px 0 4px':'8px 0 3px'}"><span style="font-size:${isA4?'12px':'10px'};font-weight:800;color:#d95353;text-transform:uppercase;letter-spacing:0.06em">Total Paid Out</span><span style="font-size:${isA4?'18px':'15px'};font-weight:800;color:#d95353">৳${ret.finalRefund.toLocaleString('en-IN')}</span></div>
     ${ret.paidAt?`<div style="display:flex;align-items:center;gap:5px;margin-top:6px;padding:5px 10px;background:rgba(0,0,0,0.04);border:1px solid rgba(0,0,0,0.08);border-radius:6px"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="${payColor}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-checkmark"/></svg><span style="font-family:'Plus Jakarta Sans',sans-serif;font-size:${P.xs};font-weight:700;color:${payColor}">Paid via ${payLbl}${ret.paymentRef?' · '+escapeHtml(ret.paymentRef):''}</span><span style="margin-left:auto;font-size:${P.xs};color:#8c92a1">${ret.paidAt}</span></div>`:''}
   </div>
@@ -23751,7 +23809,7 @@ async function _confirmReturnPayment() {
   RETURNS_DATA.unshift({
     id: ret.id, uuid: ret.uuid || null,
     orderId: ret.orderId, phone: ret.phone, customer: ret.customer, address: ret.address, source: ret.source,
-    products: ret.products, reason: ret.reason, refundAmount: ret.refundAmount,
+    products: ret.products, reason: ret.reason, refundAmount: ret.refundAmount, discountShare: ret.discountShare || 0,
     shippingAmount: ret.shippingAmount || 0, deductionAmount: ret.deductionAmount || 0, finalRefund: ret.finalRefund,
     date: ret.date, payment: method, paymentRef: ref || null, paidAt: paidAt, dateRaw: now.toISOString().split('T')[0]
   });
@@ -23827,8 +23885,8 @@ function editReturn(idx, event) {
 
   // Pre-fill deduction
   document.getElementById('rtDeductionType').value = ret.deductionType || 'flat';
-  document.getElementById('rtDeduction').value = ret.deductionValue || 0;
   updateReturnDeductionType();
+  document.getElementById('rtDeduction').value = ret.deductionValue || 0;
 
   // Clear and add product rows
   document.getElementById('returnProducts').innerHTML = '';
@@ -26225,8 +26283,9 @@ function buildReturnTxCard(ret, retIdx) {
 
   const mathBreakdown = `
     <div class="draft-math-row"><span class="draft-math-label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-card-payment"/></svg>Subtotal</span><span class="draft-math-val">\u09f3${ret.refundAmount.toLocaleString('en-IN')}</span></div>
+    ${(ret.discountShare || 0) > 0 ? `<div class="draft-math-row rt-deduction"><span class="draft-math-label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-archive-box"/></svg>Order Discount</span><span class="draft-math-val green">-\u09f3${ret.discountShare.toLocaleString('en-IN')}</span></div>` : ''}
     ${ret.shippingAmount > 0 ? `<div class="draft-math-row rt-deduction"><span class="draft-math-label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-truck-delivery"/></svg>Shipping</span><span class="draft-math-val green">-\u09f3${ret.shippingAmount.toLocaleString('en-IN')}</span></div>` : ''}
-    ${ret.deductionAmount > 0 ? `<div class="draft-math-row rt-deduction"><span class="draft-math-label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-archive-box"/></svg>Discount</span><span class="draft-math-val green">-\u09f3${ret.deductionAmount.toLocaleString('en-IN')}</span></div>` : ''}
+    ${ret.deductionAmount > 0 ? `<div class="draft-math-row rt-deduction"><span class="draft-math-label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-archive-box"/></svg>Deduction</span><span class="draft-math-val green">-\u09f3${ret.deductionAmount.toLocaleString('en-IN')}</span></div>` : ''}
     <div class="draft-math-total"><span class="draft-math-total-label" style="color:#d95353;">Final Refund</span><span class="draft-math-total-amt" style="color:#d95353;">\u09f3${ret.finalRefund.toLocaleString('en-IN')}</span></div>`;
 
   const payConfirmRow = ret.paidAt ? payConfirmHTML('Refunded', ret.payment, ret.paymentRef, ret.paidAt) : '';
