@@ -10676,7 +10676,7 @@ body { width: 100% !important; max-width: 100% !important; }
             <div class="dots-btn"><div class="dots-inner"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div>
           </div>
           <div class="card-taka">&#2547;</div>
-          <div class="card-number" id="kpiNumberProfit">21,300</div>
+          <div class="card-number" id="kpiNumberProfit">—</div>
           <svg class="card-wave" viewBox="0 0 200 50" preserveAspectRatio="none"><path d="M0,18 C35,0 65,36 100,18 C135,0 165,30 200,14 L200,50 L0,50 Z"></path></svg>
         </div>
 
@@ -10685,7 +10685,7 @@ body { width: 100% !important; max-width: 100% !important; }
             <div class="card-title" id="kpiTitleOrders">Total Orders</div>
             <div class="dots-btn"><div class="dots-inner"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div>
           </div>
-          <div class="card-number" id="kpiNumberOrders">24</div>
+          <div class="card-number" id="kpiNumberOrders">—</div>
           <svg class="card-wave" viewBox="0 0 200 50" preserveAspectRatio="none"><path d="M0,18 C35,0 65,36 100,18 C135,0 165,30 200,14 L200,50 L0,50 Z"></path></svg>
         </div>
 
@@ -10694,7 +10694,7 @@ body { width: 100% !important; max-width: 100% !important; }
             <div class="card-title" id="kpiTitleReturns">Total Returns</div>
             <div class="dots-btn"><div class="dots-inner"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div>
           </div>
-          <div class="card-number" id="kpiNumberReturns">6</div>
+          <div class="card-number" id="kpiNumberReturns">—</div>
           <svg class="card-wave" viewBox="0 0 200 50" preserveAspectRatio="none"><path d="M0,18 C35,0 65,36 100,18 C135,0 165,30 200,14 L200,50 L0,50 Z"></path></svg>
         </div>
       </div>
@@ -11660,8 +11660,8 @@ window.addEventListener('resize', function() { positionIndicator(false); });
 
 // ===== SALES VS RETURNS CHART LOGIC =====
 const kpiCardData = {
-  store: { revenueTitle: "Total Revenue", profitTitle: "Net Profit", profitNum: "21,300", ordersTitle: "Total Orders", ordersNum: "24", returnsTitle: "Total Returns", returnsNum: "6" },
-  proxy: { revenueTitle: "Proxy Revenue", profitTitle: "Net Profit", profitNum: "4,850", ordersTitle: "Proxy Orders", ordersNum: "9", returnsTitle: "Failed Orders", returnsNum: "1" }
+  store: { revenueTitle: "Total Revenue", profitTitle: "Net Profit", ordersTitle: "Total Orders", returnsTitle: "Total Returns" },
+  proxy: { revenueTitle: "Proxy Revenue", profitTitle: "Net Profit", ordersTitle: "Proxy Orders", returnsTitle: "Failed Orders" }
 };
 
 let kpiMode = 'store';
@@ -11681,11 +11681,8 @@ function setKpiMode(mode) {
   document.getElementById('kpiTitleRevenue').textContent = d.revenueTitle;
   ovApplyRevenueCard();
   document.getElementById('kpiTitleProfit').textContent = d.profitTitle;
-  document.getElementById('kpiNumberProfit').textContent = d.profitNum;
   document.getElementById('kpiTitleOrders').textContent = d.ordersTitle;
-  document.getElementById('kpiNumberOrders').textContent = d.ordersNum;
   document.getElementById('kpiTitleReturns').textContent = d.returnsTitle;
-  document.getElementById('kpiNumberReturns').textContent = d.returnsNum;
 
   document.getElementById('salesReturnsTitle').textContent = mode === 'proxy' ? 'Proxy vs Failed' : 'Sales vs Returns';
   document.getElementById('salesWord').textContent = mode === 'proxy' ? 'PROXY' : 'SALES';
@@ -12071,6 +12068,9 @@ window.addEventListener('message', function(e) {
   updateChart(svrCurrentTf);
   if (m.which === 'cur' && m.tf === ovTf(currentTf) && m.mode === kpiMode) { ovRefreshMargin(); top5Render(); }
   if (cardDetailOverlay.classList.contains('open')) ovRenderDetail();
+  if (returnDetailOverlay.classList.contains('open')) ovRenderReturn();
+  if (orderDetailOverlay.classList.contains('open')) ovRenderOrder();
+  if (profitDetailOverlay.classList.contains('open')) ovRenderProfit();
 });
 
 function ovApplyRevenueCard() {
@@ -12080,6 +12080,107 @@ function ovApplyRevenueCard() {
   const txt = hit ? Math.round(Number(hit.data.revenue) || 0).toLocaleString('en-IN') : '—';
   el.textContent = txt;
   el.style.fontSize = txt.length > 9 ? '19px' : txt.length > 7 ? '22px' : '';
+  ovApplyKpiCards(hit ? hit.data : null);
+}
+
+function ovSetCard(id, txt) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.textContent = txt;
+  el.style.fontSize = txt.length > 9 ? '19px' : txt.length > 7 ? '22px' : '';
+}
+function ovMoney(n) {
+  n = Math.round(Number(n) || 0);
+  return (n < 0 ? '−' : '') + '৳' + Math.abs(n).toLocaleString('en-IN');
+}
+function ovApplyKpiCards(d) {
+  if (!d) { ovSetCard('kpiNumberProfit', '—'); ovSetCard('kpiNumberOrders', '—'); ovSetCard('kpiNumberReturns', '—'); return; }
+  const np = Math.round(Number((d.profit || {}).net) || 0);
+  ovSetCard('kpiNumberProfit', (np < 0 ? '−' : '') + Math.abs(np).toLocaleString('en-IN'));
+  ovSetCard('kpiNumberOrders', String(Number(d.orders) || 0));
+  ovSetCard('kpiNumberReturns', String(Number((d.returns || {}).count) || 0));
+}
+
+/* ---- live detail sheets (Returns / Orders / Profit): each side of the comparison is a full 'cur' window ---- */
+function ovCur(tf, which) { const h = OV_LIVE[ovKey(kpiMode, ovTf(tf), which || 'cur')]; return h ? h.data : null; }
+function ovKnownCat(k) { return TOP5_CATEGORY_LABELS[k] ? k : 'general'; }
+function ovSheetState(fromTf, toTf, headerValueId, headerMetaId, bodyId) {
+  ovRequest(fromTf, 'cur'); ovRequest(toTf, 'prev');
+  const a = ovCur(fromTf, 'cur'), b = ovCur(toTf, 'prev');
+  if (a && b) return { a: a, b: b };
+  const failed = OV_ERR[ovKey(kpiMode, ovTf(fromTf), 'cur')] || OV_ERR[ovKey(kpiMode, ovTf(toTf), 'prev')];
+  document.getElementById(headerValueId).textContent = '—';
+  document.getElementById(headerMetaId).innerHTML = '';
+  document.getElementById(bodyId).innerHTML = '<div class="cd-empty-cat" style="padding:28px 0;text-align:center">' + (failed ? 'Could not load data. Retrying…' : 'Loading…') + '</div>';
+  return null;
+}
+function ovDeltaChip(pct, goodWhenDown) {
+  if (pct == null) return '<span class="crypto-change up">—</span>';
+  const up = pct >= 0;
+  const good = goodWhenDown ? !up : up;
+  const arrow = up
+    ? '<polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/>'
+    : '<polyline points="23 18 13.5 8.5 8.5 13.5 1 6"/><polyline points="17 18 23 18 23 12"/>';
+  return '<span class="crypto-change ' + (good ? 'up' : 'down') + '"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">' + arrow + '</svg>' + (up ? '+' : '') + pct + '%</span>';
+}
+function ovPct(cur, base) { return base > 0 ? Math.round((cur - base) / base * 1000) / 10 : null; }
+function ovMarginChip(a, b) {
+  if (a == null || b == null) return '';
+  const mc = Math.round((a - b) * 10) / 10;
+  return '<span class="crypto-change ' + (mc >= 0 ? 'up' : 'down') + '" style="font-size:11px;padding:4px 10px;border-width:1.5px">' + (mc >= 0 ? '+' : '') + mc + '% margin</span>';
+}
+const OV_SEP = '<span style="width:1px;height:12px;background:rgba(255,255,255,0.25);margin:0 3px"></span>';
+const OV_REASON_COLORS = { 'Damaged': '#be123c', 'Wrong Item': '#e11d48', 'Changed Mind': '#f87171', 'Other': '#fca5a5' };
+const OV_CHAN = { whatsapp: ['WhatsApp', '#25d366'], facebook: ['Facebook', '#1877f2'], instagram: ['Instagram', '#d62a7b'], website: ['Website', '#f4a922'], direct: ['Direct', '#94a3b8'] };
+
+function ovAdaptReturn(d, tf, prevSide) {
+  const r = d.returns || {};
+  const sales = Number(d.revenue) || 0, loss = Number(r.amount) || 0;
+  const rs = d.reasons || [];
+  const tot = rs.reduce(function(s, x) { return s + (Number(x.count) || 0); }, 0) || 1;
+  return {
+    returns: Number(r.count) || 0, units: Number(r.units) || 0, label: (prevSide ? OV_PREV_LABEL : OV_TF_LABEL)[ovTf(tf)] || '',
+    loss: loss, rate: sales > 0 ? Math.round(loss / sales * 1000) / 10 : 0,
+    reasons: rs.map(function(x) { return { name: x.reason, pct: Math.round((Number(x.count) || 0) / tot * 100), color: OV_REASON_COLORS[x.reason] || '#fca5a5' }; }),
+    itemsReturned: (d.returned_items || []).map(function(it) {
+      const u = Number(it.units) || 0, amt = Number(it.amount) || 0, su = Number(it.sold_units) || 0;
+      return { qty: u, unitLoss: u > 0 ? Math.round(amt / u) : 0, loss: amt, rate: su > 0 ? Math.round(u / su * 100) : null, sku: it.code, name: it.name, category: ovKnownCat(it.category) };
+    })
+  };
+}
+function ovAdaptOrder(d, tf, prevSide) {
+  const st = d.order_status || {};
+  const ch = d.channels || [];
+  const tot = ch.reduce(function(s, c) { return s + (Number(c.count) || 0); }, 0) || 1;
+  return {
+    orders: Number(d.orders) || 0, items: Number(d.units) || 0, label: (prevSide ? OV_PREV_LABEL : OV_TF_LABEL)[ovTf(tf)] || '',
+    margin: d.margin == null ? null : Number(d.margin),
+    status: { paid: Number(st.paid) || 0, pending: Number(st.pending) || 0, returned: Number(st.returned) || 0 },
+    itemsSold: (d.sold_items || []).map(function(it) {
+      const u = Number(it.units) || 0, pr = Number(it.profit) || 0;
+      return { qty: u, unitProfit: u > 0 ? Math.round(pr / u) : 0, profit: pr, margin: it.margin == null ? null : Math.round(Number(it.margin)), sku: it.code, name: it.name, category: ovKnownCat(it.category) };
+    }),
+    sources: ch.map(function(c) {
+      const m = OV_CHAN[c.channel] || [String(c.channel).charAt(0).toUpperCase() + String(c.channel).slice(1), '#7c6ff7'];
+      return { name: m[0], color: m[1], pct: Math.round((Number(c.count) || 0) / tot * 100) };
+    })
+  };
+}
+function ovAdaptProfit(d, tf, prevSide) {
+  const p = d.profit || {};
+  return {
+    profit: Math.round(Number(p.net) || 0), label: (prevSide ? OV_PREV_LABEL : OV_TF_LABEL)[ovTf(tf)] || '', unknownUnits: Number(p.unknown_cost_units) || 0,
+    items: (d.profit_items || []).map(function(it) {
+      const u = Number(it.units) || 0;
+      return { name: it.name, sku: it.code, qty: u, cost: Math.round((Number(it.cost_avg) || 0) * u), sell: Math.round((Number(it.sell_avg) || 0) * u),
+               profit: Math.round(Number(it.profit) || 0), margin: it.margin == null ? null : Math.round(Number(it.margin)), category: ovKnownCat(it.category) };
+    }),
+    summary: {
+      units: Number(p.units) || 0, profitTotal: Math.round(Number(p.gross) || 0), discount: Math.round(Number(p.discount) || 0),
+      returnsNet: Math.round(Number(p.returns_net) || 0), grandTotal: Math.round(Number(p.net) || 0),
+      blendedMargin: d.margin == null ? null : Number(d.margin)
+    }
+  };
 }
 
 function ovSync() {
@@ -12431,34 +12532,6 @@ revenueActionPopup.querySelectorAll('.action-popup-item').forEach(item => {
 });
 
 // ===== RETURNS CARD SYSTEM =====
-const RETURN_DATA = {
-  today:   { returns:1,  label:'Today',         rate:1.1, loss:3118,
-    resolution:{refunded:1, exchanged:0, pending:0},
-    reasons:[{name:'Damaged',pct:40,color:'#be123c'},{name:'Wrong Item',pct:30,color:'#e11d48'},{name:'Changed Mind',pct:20,color:'#f87171'},{name:'Expired',pct:10,color:'#fca5a5'}],
-    itemsReturned:[{qty:1,unitLoss:3118,loss:3118,rate:8,sku:'SUP-OM3-UTA-180',name:'Omega-3 Ultra',category:'supplement'}]
-  },
-  week:    { returns:4,  label:'This Week',      rate:2.8, loss:10561,
-    resolution:{refunded:3, exchanged:1, pending:0},
-    reasons:[{name:'Damaged',pct:35,color:'#be123c'},{name:'Wrong Item',pct:25,color:'#e11d48'},{name:'Changed Mind',pct:25,color:'#f87171'},{name:'Expired',pct:15,color:'#fca5a5'}],
-    itemsReturned:[{qty:2,unitLoss:3118,loss:6236,rate:6,sku:'SUP-OM3-UTA-180',name:'Omega-3 Ultra',category:'supplement'},{qty:1,unitLoss:1625,loss:1625,rate:4,sku:'SUP-MAG-GLY-120',name:'Magnesium Glycinate',category:'supplement'},{qty:1,unitLoss:2700,loss:2700,rate:5,sku:'SUP-HCI-PEP-120',name:'Betaine HCL & Pepsin',category:'supplement'}]
-  },
-  month:   { returns:18, label:'This Month',     rate:3.1, loss:37890,
-    resolution:{refunded:12,exchanged:4, pending:2},
-    reasons:[{name:'Damaged',pct:33,color:'#be123c'},{name:'Wrong Item',pct:28,color:'#e11d48'},{name:'Changed Mind',pct:22,color:'#f87171'},{name:'Expired',pct:17,color:'#fca5a5'}],
-    itemsReturned:[{qty:5,unitLoss:3118,loss:15590,rate:6,sku:'SUP-OM3-UTA-180',name:'Omega-3 Ultra',category:'supplement'},{qty:4,unitLoss:1625,loss:6500,rate:7,sku:'SUP-MAG-GLY-120',name:'Magnesium Glycinate',category:'supplement'},{qty:3,unitLoss:2700,loss:8100,rate:7,sku:'SUP-HCI-PEP-120',name:'Betaine HCL & Pepsin',category:'supplement'},{qty:3,unitLoss:1500,loss:4500,rate:9,sku:'SUP-VD3-K2-90',name:'Vitamin D3 + K2',category:'supplement'},{qty:2,unitLoss:1600,loss:3200,rate:8,sku:'GN-DKS-BLK-01',name:'Digital Kitchen Scale',category:'general'}]
-  },
-  quarter: { returns:45, label:'Last 3 Months',  rate:2.7, loss:93766,
-    resolution:{refunded:30,exchanged:10,pending:5},
-    reasons:[{name:'Damaged',pct:30,color:'#be123c'},{name:'Wrong Item',pct:27,color:'#e11d48'},{name:'Changed Mind',pct:25,color:'#f87171'},{name:'Expired',pct:18,color:'#fca5a5'}],
-    itemsReturned:[{qty:12,unitLoss:3118,loss:37416,rate:5,sku:'SUP-OM3-UTA-180',name:'Omega-3 Ultra',category:'supplement'},{qty:10,unitLoss:1625,loss:16250,rate:6,sku:'SUP-MAG-GLY-120',name:'Magnesium Glycinate',category:'supplement'},{qty:8,unitLoss:2700,loss:21600,rate:6,sku:'SUP-HCI-PEP-120',name:'Betaine HCL & Pepsin',category:'supplement'},{qty:7,unitLoss:1500,loss:10500,rate:7,sku:'SUP-VD3-K2-90',name:'Vitamin D3 + K2',category:'supplement'},{qty:5,unitLoss:1600,loss:8000,rate:7,sku:'SUP-ZNC-CMP-60',name:'Zinc Complex',category:'supplement'}]
-  },
-  all:     { returns:95, label:'All Time',        rate:2.3, loss:198550,
-    resolution:{refunded:65,exchanged:20,pending:10},
-    reasons:[{name:'Damaged',pct:28,color:'#be123c'},{name:'Wrong Item',pct:26,color:'#e11d48'},{name:'Changed Mind',pct:26,color:'#f87171'},{name:'Expired',pct:20,color:'#fca5a5'}],
-    itemsReturned:[{qty:25,unitLoss:3118,loss:77950,rate:4,sku:'SUP-OM3-UTA-180',name:'Omega-3 Ultra',category:'supplement'},{qty:20,unitLoss:1625,loss:32500,rate:5,sku:'SUP-MAG-GLY-120',name:'Magnesium Glycinate',category:'supplement'},{qty:18,unitLoss:2700,loss:48600,rate:6,sku:'SUP-HCI-PEP-120',name:'Betaine HCL & Pepsin',category:'supplement'},{qty:15,unitLoss:1500,loss:22500,rate:6,sku:'SUP-VD3-K2-90',name:'Vitamin D3 + K2',category:'supplement'},{qty:10,unitLoss:1600,loss:16000,rate:5,sku:'SUP-ZNC-CMP-60',name:'Zinc Complex',category:'supplement'}]
-  }
-};
-
 function getReturnRateClass(r) { return r >= 8 ? 'high' : r >= 4 ? 'medium' : 'low'; }
 
 // — Action Popup —
@@ -12485,7 +12558,7 @@ function onReturnOutsideClick(e) {
 returnActionPopup.querySelectorAll('.action-popup-item').forEach(item => {
   item.addEventListener('click', e => {
     e.stopPropagation();
-    if (item.dataset.action === 'details') showReturnDetail();
+    if (item.dataset.action === 'details') { returnFrom = returnTo = ovTf(currentTf); showReturnDetail(); }
     hideReturnPopup();
   });
 });
@@ -12495,30 +12568,23 @@ const returnDetailOverlay = document.getElementById('returnDetailOverlay');
 let returnFrom = 'month', returnTo = 'today';
 
 function showReturnDetail() {
-  const fd = RETURN_DATA[returnFrom], td = RETURN_DATA[returnTo];
-  const pct = ((fd.loss - td.loss) / td.loss * 100).toFixed(1);
-  const isPos = parseFloat(pct) <= 0;
-
-  document.getElementById('returnDetailHeaderValue').textContent = fd.returns + ' Returns';
-  document.getElementById('returnDetailHeaderMeta').innerHTML = `
-    <span class="crypto-change ${isPos ? 'up' : 'down'}">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-        ${isPos
-          ? '<polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/>'
-          : '<polyline points="23 18 13.5 8.5 8.5 13.5 1 6"/><polyline points="17 18 23 18 23 12"/>'}
-      </svg>${isPos ? '' : '+'}${Math.abs(pct)}%
-    </span>
-    <span style="font-size:12px;opacity:0.7">vs ${td.label.toLowerCase()}</span>
-    <span style="width:1px;height:12px;background:rgba(255,255,255,0.25);margin:0 3px"></span>
-    <span class="crypto-change ${isPos ? 'up' : 'down'}" style="font-size:11px;padding:4px 10px;border-width:1.5px">
-      ${fd.returns} items · ${fd.rate}%
-    </span>`;
-
-  document.getElementById('returnCompareFrom').value = returnFrom;
-  document.getElementById('returnCompareTo').value   = returnTo;
-  renderReturnBody(fd);
   returnDetailOverlay.classList.add('open');
   document.querySelector('.content').style.overflowY = 'hidden';
+  ovRenderReturn();
+}
+
+function ovRenderReturn() {
+  document.getElementById('returnCompareFrom').value = returnFrom;
+  document.getElementById('returnCompareTo').value   = returnTo;
+  const st = ovSheetState(returnFrom, returnTo, 'returnDetailHeaderValue', 'returnDetailHeaderMeta', 'returnDetailBody');
+  if (!st) return;
+  const fd = ovAdaptReturn(st.a, returnFrom), td = ovAdaptReturn(st.b, returnTo, true);
+  document.getElementById('returnDetailHeaderValue').textContent = fd.returns + (fd.returns === 1 ? ' Return' : ' Returns');
+  document.getElementById('returnDetailHeaderMeta').innerHTML =
+    ovDeltaChip(ovPct(fd.loss, td.loss), true) +
+    '<span style="font-size:12px;opacity:0.7">refunds vs ' + td.label.toLowerCase() + '</span>' + OV_SEP +
+    '<span class="crypto-change ' + (fd.rate >= 8 ? 'down' : 'up') + '" style="font-size:11px;padding:4px 10px;border-width:1.5px">' + fd.units + (fd.units === 1 ? ' item' : ' items') + ' · ' + fd.rate + '%</span>';
+  renderReturnBody(fd);
 }
 
 let returnCategory = 'all';
@@ -12532,8 +12598,8 @@ function renderReturnBody(data) {
     </div>`).join('');
 
   const filteredReturned = returnCategory === 'all'
-    ? data.itemsReturned
-    : data.itemsReturned.filter(it => it.category === returnCategory);
+    ? data.itemsReturned.slice(0, 5)
+    : data.itemsReturned.filter(it => it.category === returnCategory).slice(0, 5);
 
   document.getElementById('returnDetailBody').innerHTML = `
     <div class="detail-section-title-row">
@@ -12574,7 +12640,7 @@ function renderReturnBody(data) {
           <div class="return-qty-block"><span class="return-qty">${item.qty}</span></div>
           <div class="return-unit-block"><span class="return-unit">৳${item.unitLoss.toLocaleString('en-IN')}</span></div>
           <div class="return-loss-block"><span class="return-loss">৳${(item.loss/1000).toFixed(1)}K</span></div>
-          <div class="return-metrics"><span class="return-rate-pill ${getReturnRateClass(item.rate)}">${item.rate}%</span></div>
+          <div class="return-metrics"><span class="return-rate-pill ${getReturnRateClass(item.rate == null ? 0 : item.rate)}">${item.rate == null ? '—' : item.rate + '%'}</span></div>
         </div>`).join('') : `<div class="cd-empty-cat">No items returned in this category for this period</div>`}
     </div>
     <div class="detail-section-title" style="margin-top:16px">Return Reasons</div>
@@ -12592,8 +12658,7 @@ function toggleReturnCategoryMenu(e) {
 
 function setReturnCategory(key) {
   returnCategory = key;
-  const fd = RETURN_DATA[returnFrom];
-  renderReturnBody(fd);
+  ovRenderReturn();
 }
 
 function hideReturnDetail() {
@@ -12620,15 +12685,7 @@ returnDetailOverlay.addEventListener('touchend', e => {
 
 
 // ===== ORDER CARD SYSTEM =====
-const ORDER_DATA = {
-  today:   { orders:47,   items:89,   label:'Today',          status:{paid:42,   pending:3,   returned:1,  cancelled:1},  itemsSold:[{qty:12,unitProfit:8783, profit:105396,margin:34,sku:'SUP-OM3-UTA-180',name:'Omega-3 Ultra',category:'supplement'},{qty:8,unitProfit:8900,profit:71200,margin:36,sku:'SUP-MAG-GLY-120',name:'Magnesium Glycinate',category:'supplement'},{qty:6,unitProfit:7200,profit:43200,margin:28,sku:'SUP-HCI-PEP-120',name:'Betaine HCL & Pepsin',category:'supplement'},{qty:5,unitProfit:7500,profit:37500,margin:33,sku:'SUP-VD3-K2-90',name:'Vitamin D3 + K2',category:'supplement'},{qty:4,unitProfit:6400,profit:25600,margin:20,sku:'SUP-ZNC-CMP-60',name:'Zinc Complex',category:'supplement'}], sources:[{name:'WhatsApp',pct:47,color:'#25d366'},{name:'Facebook',pct:26,color:'#1877f2'},{name:'Instagram',pct:15,color:'#d62a7b'},{name:'Website',pct:12,color:'#f4a922'}] },
-  week:    { orders:142,  items:284,  label:'This Week',       status:{paid:128,  pending:8,   returned:4,  cancelled:2},  itemsSold:[{qty:35,unitProfit:8514,profit:297990,margin:34,sku:'SUP-OM3-UTA-180',name:'Omega-3 Ultra',category:'supplement'},{qty:22,unitProfit:8000,profit:176000,margin:35,sku:'SUP-MAG-GLY-120',name:'Magnesium Glycinate',category:'supplement'},{qty:18,unitProfit:6400,profit:115200,margin:28,sku:'SUP-HCI-PEP-120',name:'Betaine HCL & Pepsin',category:'supplement'},{qty:15,unitProfit:6600,profit:99000,margin:33,sku:'SUP-VD3-K2-90',name:'Vitamin D3 + K2',category:'supplement'},{qty:10,unitProfit:6400,profit:64000,margin:22,sku:'SUP-ZNC-CMP-60',name:'Zinc Complex',category:'supplement'}], sources:[{name:'WhatsApp',pct:42,color:'#25d366'},{name:'Facebook',pct:28,color:'#1877f2'},{name:'Instagram',pct:16,color:'#d62a7b'},{name:'Website',pct:14,color:'#f4a922'}] },
-  month:   { orders:584,  items:1168, label:'This Month',      status:{paid:520,  pending:35,  returned:18, cancelled:11}, itemsSold:[{qty:80,unitProfit:8000,profit:640000,margin:34,sku:'SUP-OM3-UTA-180',name:'Omega-3 Ultra',category:'supplement'},{qty:55,unitProfit:7309,profit:401995,margin:35,sku:'SUP-MAG-GLY-120',name:'Magnesium Glycinate',category:'supplement'},{qty:42,unitProfit:5905,profit:248010,margin:28,sku:'SUP-HCI-PEP-120',name:'Betaine HCL & Pepsin',category:'supplement'},{qty:35,unitProfit:6057,profit:211995,margin:33,sku:'SUP-VD3-K2-90',name:'Vitamin D3 + K2',category:'supplement'},{qty:47,unitProfit:554,profit:26038,margin:31,sku:'GN-DKS-BLK-01',name:'Digital Kitchen Scale',category:'general'}], sources:[{name:'WhatsApp',pct:40,color:'#25d366'},{name:'Facebook',pct:28,color:'#1877f2'},{name:'Instagram',pct:17,color:'#d62a7b'},{name:'Website',pct:15,color:'#f4a922'}] },
-  quarter: { orders:1680, items:3360, label:'Last 3 Months',   status:{paid:1520, pending:85,  returned:45, cancelled:30}, itemsSold:[{qty:240,unitProfit:8000,profit:1920000,margin:34,sku:'SUP-OM3-UTA-180',name:'Omega-3 Ultra',category:'supplement'},{qty:165,unitProfit:7309,profit:1205985,margin:35,sku:'SUP-MAG-GLY-120',name:'Magnesium Glycinate',category:'supplement'},{qty:126,unitProfit:5905,profit:744030,margin:28,sku:'SUP-HCI-PEP-120',name:'Betaine HCL & Pepsin',category:'supplement'},{qty:105,unitProfit:6057,profit:635985,margin:33,sku:'SUP-VD3-K2-90',name:'Vitamin D3 + K2',category:'supplement'},{qty:75,unitProfit:6080,profit:456000,margin:24,sku:'SUP-ZNC-CMP-60',name:'Zinc Complex',category:'supplement'}], sources:[{name:'WhatsApp',pct:38,color:'#25d366'},{name:'Facebook',pct:30,color:'#1877f2'},{name:'Instagram',pct:17,color:'#d62a7b'},{name:'Website',pct:15,color:'#f4a922'}] },
-  all:     { orders:4200, items:8400, label:'All Time',         status:{paid:3850, pending:180, returned:95, cancelled:75}, itemsSold:[{qty:600,unitProfit:8000,profit:4800000,margin:34,sku:'SUP-OM3-UTA-180',name:'Omega-3 Ultra',category:'supplement'},{qty:410,unitProfit:7307,profit:2995870,margin:35,sku:'SUP-MAG-GLY-120',name:'Magnesium Glycinate',category:'supplement'},{qty:315,unitProfit:5905,profit:1860075,margin:28,sku:'SUP-HCI-PEP-120',name:'Betaine HCL & Pepsin',category:'supplement'},{qty:260,unitProfit:6062,profit:1576120,margin:33,sku:'SUP-VD3-K2-90',name:'Vitamin D3 + K2',category:'supplement'},{qty:190,unitProfit:6063,profit:1151970,margin:24,sku:'SUP-ZNC-CMP-60',name:'Zinc Complex',category:'supplement'}], sources:[{name:'WhatsApp',pct:37,color:'#25d366'},{name:'Facebook',pct:31,color:'#1877f2'},{name:'Instagram',pct:17,color:'#d62a7b'},{name:'Website',pct:15,color:'#f4a922'}] }
-};
-
-function orderMarginClass(m) { return m < 20 ? 'red' : m < 30 ? 'orange' : 'green'; }
+function orderMarginClass(m) { return m == null ? '' : m < 20 ? 'red' : m < 30 ? 'orange' : 'green'; }
 
 // — Action Popup —
 let orderPopupTrigger = null;
@@ -12654,7 +12711,7 @@ function onOrderOutsideClick(e) {
 orderActionPopup.querySelectorAll('.action-popup-item').forEach(item => {
   item.addEventListener('click', e => {
     e.stopPropagation();
-    if (item.dataset.action === 'details') showOrderDetail();
+    if (item.dataset.action === 'details') { orderFrom = orderTo = ovTf(currentTf); showOrderDetail(); }
     hideOrderPopup();
   });
 });
@@ -12664,33 +12721,23 @@ const orderDetailOverlay = document.getElementById('orderDetailOverlay');
 let orderFrom = 'month', orderTo = 'today';
 
 function showOrderDetail() {
-  const fd = ORDER_DATA[orderFrom], td = ORDER_DATA[orderTo];
-  const pct = Math.round(((fd.orders - td.orders) / td.orders) * 100);
-  const pos = pct >= 0;
-  const avgM   = Math.round(fd.itemsSold.reduce((s,i) => s + i.margin, 0) / fd.itemsSold.length);
-  const toAvgM = Math.round(td.itemsSold.reduce((s,i) => s + i.margin, 0) / td.itemsSold.length);
-  const mc = avgM - toAvgM; const mpos = mc >= 0;
-
-  document.getElementById('orderDetailHeaderValue').textContent = fd.orders.toLocaleString('en-IN') + ' Orders';
-  document.getElementById('orderDetailHeaderMeta').innerHTML = `
-    <span class="crypto-change ${pos?'up':'down'}">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-        ${pos
-          ? '<polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/>'
-          : '<polyline points="23 18 13.5 8.5 8.5 13.5 1 6"/><polyline points="17 18 23 18 23 12"/>'}
-      </svg>${pos?'+':''}${pct}%
-    </span>
-    <span style="font-size:12px;opacity:0.7">vs ${td.label.toLowerCase()}</span>
-    <span style="width:1px;height:12px;background:rgba(255,255,255,0.25);margin:0 3px"></span>
-    <span class="crypto-change ${mpos?'up':'down'}" style="font-size:11px;padding:4px 10px;border-width:1.5px">
-      ${mpos?'+':''}${mc}% margin
-    </span>`;
-
-  document.getElementById('orderCompareFrom').value = orderFrom;
-  document.getElementById('orderCompareTo').value   = orderTo;
-  renderOrderBody(fd);
   orderDetailOverlay.classList.add('open');
   document.querySelector('.content').style.overflowY = 'hidden';
+  ovRenderOrder();
+}
+
+function ovRenderOrder() {
+  document.getElementById('orderCompareFrom').value = orderFrom;
+  document.getElementById('orderCompareTo').value   = orderTo;
+  const st = ovSheetState(orderFrom, orderTo, 'orderDetailHeaderValue', 'orderDetailHeaderMeta', 'orderDetailBody');
+  if (!st) return;
+  const fd = ovAdaptOrder(st.a, orderFrom), td = ovAdaptOrder(st.b, orderTo, true);
+  document.getElementById('orderDetailHeaderValue').textContent = fd.orders.toLocaleString('en-IN') + (fd.orders === 1 ? ' Order' : ' Orders');
+  document.getElementById('orderDetailHeaderMeta').innerHTML =
+    ovDeltaChip(ovPct(fd.orders, td.orders), false) +
+    '<span style="font-size:12px;opacity:0.7">vs ' + td.label.toLowerCase() + '</span>' + OV_SEP +
+    ovMarginChip(fd.margin, td.margin);
+  renderOrderBody(fd);
 }
 
 function srcIconBg(name) {
@@ -12710,15 +12757,14 @@ let orderCategory = 'all';
 function renderOrderBody(data) {
   const s = data.status;
   const filteredSold = orderCategory === 'all'
-    ? data.itemsSold
-    : data.itemsSold.filter(it => it.category === orderCategory);
+    ? data.itemsSold.slice(0, 5)
+    : data.itemsSold.filter(it => it.category === orderCategory).slice(0, 5);
   document.getElementById('orderDetailBody').innerHTML = `
     <div class="detail-section-title">Order Status</div>
     <div class="status-row">
       <span class="status-pill paid"><span class="status-dot"></span>${s.paid} Paid</span>
       <span class="status-pill pending"><span class="status-dot"></span>${s.pending} Pending</span>
       <span class="status-pill returned"><span class="status-dot"></span>${s.returned} Returned</span>
-      <span class="status-pill cancelled"><span class="status-dot"></span>${s.cancelled} Cancelled</span>
     </div>
     <div class="detail-section-title-row" style="margin-top:16px">
       <span class="detail-section-title">Top 5 Most Sold Items</span>
@@ -12758,10 +12804,11 @@ function renderOrderBody(data) {
           <div class="order-qty-block"><span class="order-qty">${item.qty}</span></div>
           <div class="order-unit-profit-block"><span class="order-unit-profit">৳${item.unitProfit.toLocaleString('en-IN')}</span></div>
           <div class="order-profit-block"><span class="order-profit">৳${(item.profit/1000).toFixed(1)}K</span></div>
-          <div class="order-metrics"><span class="order-margin-pill ${orderMarginClass(item.margin)}">${item.margin}%</span></div>
+          <div class="order-metrics"><span class="order-margin-pill ${orderMarginClass(item.margin)}">${item.margin == null ? '—' : item.margin + '%'}</span></div>
         </div>`).join('') : `<div class="cd-empty-cat">No items sold in this category for this period</div>`}
     </div>
     <div class="detail-section-title" style="margin-top:16px">Order Sources</div>
+    ${data.sources.length ? '' : '<div class="cd-empty-cat">No orders in this period</div>'}
     ${data.sources.map(src => `
       <div class="source-row">
         <span class="source-label"><span class="source-icon" style="background:${srcIconBg(src.name)}">${srcIconSvg(src.name)}</span>${src.name}</span>
@@ -12781,8 +12828,7 @@ function toggleOrderCategoryMenu(e) {
 
 function setOrderCategory(key) {
   orderCategory = key;
-  const fd = ORDER_DATA[orderFrom];
-  renderOrderBody(fd);
+  ovRenderOrder();
 }
 
 function hideOrderDetail() {
@@ -12811,62 +12857,7 @@ orderDetailOverlay.addEventListener('touchend', e => {
 // ===== PROFIT CARD SYSTEM =====
 const LUDBA = { purple:'#6761a8', blue:'#009ddc', red:'#d95353', green:'#009b72', dark:'#2a2d34', orange:'#F4A922' };
 
-const PROFIT_DATA = {
-  today: {
-    profit: 28107, label: 'Today', exchangeRate: 130,
-    items: [
-      { qty:2, cost:3118, sell:23800, profit:20682, margin:87, category:'supplement', sku:'SUP-OM3-UTA-180', name:'Omega-3 Ultra' },
-      { qty:1, cost:1625, sell:3250,  profit:1625,  margin:50, category:'supplement', sku:'SUP-MAG-GLY-120', name:'Magnesium Glycinate' },
-      { qty:3, cost:2700, sell:9000,  profit:6300,  margin:70, category:'supplement', sku:'SUP-HCI-PEP-120', name:'Betaine HCL & Pepsin' }
-    ],
-    summary:{ units:6, costTotal:7443, sellTotal:36050, profitTotal:28607, discount:500, grandTotal:28107, blendedMargin:79.4 }
-  },
-  week: {
-    profit: 70400, label: 'This Week', exchangeRate: 130,
-    items: [
-      { qty:5, cost:7800,  sell:52000, profit:44200, margin:85, category:'supplement', sku:'SUP-OM3-UTA-180', name:'Omega-3 Ultra' },
-      { qty:3, cost:4800,  sell:15000, profit:10200, margin:68, category:'supplement', sku:'SUP-MAG-GLY-120', name:'Magnesium Glycinate' },
-      { qty:2, cost:3200,  sell:8000,  profit:4800,  margin:60, category:'supplement', sku:'SUP-HCI-PEP-120', name:'Betaine HCL & Pepsin' },
-      { qty:4, cost:5600,  sell:18000, profit:12400, margin:69, category:'supplement', sku:'SUP-VD3-K2-90',   name:'Vitamin D3 + K2' }
-    ],
-    summary:{ units:14, costTotal:21400, sellTotal:93000, profitTotal:71600, discount:1200, grandTotal:70400, blendedMargin:77.0 }
-  },
-  month: {
-    profit: 279400, label: 'This Month', exchangeRate: 130,
-    items: [
-      { qty:12, cost:18600, sell:124000, profit:105400, margin:85, category:'supplement', sku:'SUP-OM3-UTA-180', name:'Omega-3 Ultra' },
-      { qty:8,  cost:12800, sell:84000,  profit:71200,  margin:85, category:'supplement', sku:'SUP-MAG-GLY-120', name:'Magnesium Glycinate' },
-      { qty:6,  cost:10800, sell:54000,  profit:43200,  margin:80, category:'supplement', sku:'SUP-HCI-PEP-120', name:'Betaine HCL & Pepsin' },
-      { qty:5,  cost:7500,  sell:45000,  profit:37500,  margin:83, category:'supplement', sku:'SUP-VD3-K2-90',   name:'Vitamin D3 + K2' },
-      { qty:4,  cost:6400,  sell:32000,  profit:25600,  margin:80, category:'supplement', sku:'SUP-ZNC-CMP-60',  name:'Zinc Complex' }
-    ],
-    summary:{ units:35, costTotal:56100, sellTotal:339000, profitTotal:282900, discount:3500, grandTotal:279400, blendedMargin:83.5 }
-  },
-  quarter: {
-    profit: 740200, label: 'Last 3 Months', exchangeRate: 132,
-    items: [
-      { qty:35, cost:52000,  sell:350000, profit:298000, margin:85, category:'supplement', sku:'SUP-OM3-UTA-180', name:'Omega-3 Ultra' },
-      { qty:22, cost:34000,  sell:210000, profit:176000, margin:84, category:'supplement', sku:'SUP-MAG-GLY-120', name:'Magnesium Glycinate' },
-      { qty:18, cost:28800,  sell:144000, profit:115200, margin:80, category:'supplement', sku:'SUP-HCI-PEP-120', name:'Betaine HCL & Pepsin' },
-      { qty:15, cost:21000,  sell:120000, profit:99000,  margin:82, category:'supplement', sku:'SUP-VD3-K2-90',   name:'Vitamin D3 + K2' },
-      { qty:10, cost:16000,  sell:80000,  profit:64000,  margin:80, category:'supplement', sku:'SUP-ZNC-CMP-60',  name:'Zinc Complex' }
-    ],
-    summary:{ units:100, costTotal:151800, sellTotal:904000, profitTotal:752200, discount:12000, grandTotal:740200, blendedMargin:83.2 }
-  },
-  all: {
-    profit: 1626000, label: 'All Time', exchangeRate: 128,
-    items: [
-      { qty:80, cost:110000, sell:750000, profit:640000, margin:85, category:'supplement', sku:'SUP-OM3-UTA-180', name:'Omega-3 Ultra' },
-      { qty:55, cost:78000,  sell:480000, profit:402000, margin:84, category:'supplement', sku:'SUP-MAG-GLY-120', name:'Magnesium Glycinate' },
-      { qty:42, cost:62000,  sell:310000, profit:248000, margin:80, category:'supplement', sku:'SUP-HCI-PEP-120', name:'Betaine HCL & Pepsin' },
-      { qty:35, cost:48000,  sell:260000, profit:212000, margin:82, category:'supplement', sku:'SUP-VD3-K2-90',   name:'Vitamin D3 + K2' },
-      { qty:25, cost:38000,  sell:190000, profit:152000, margin:80, category:'supplement', sku:'SUP-ZNC-CMP-60',  name:'Zinc Complex' }
-    ],
-    summary:{ units:237, costTotal:336000, sellTotal:1990000, profitTotal:1654000, discount:28000, grandTotal:1626000, blendedMargin:83.1 }
-  }
-};
-
-function profitMarginClass(m) { return m < 20 ? 'red' : m < 30 ? 'orange' : 'green'; }
+function profitMarginClass(m) { return m == null ? '' : m < 20 ? 'red' : m < 30 ? 'orange' : 'green'; }
 
 // — Action Popup —
 let profitPopupTrigger = null;
@@ -12893,7 +12884,7 @@ profitActionPopup.querySelectorAll('.action-popup-item').forEach(item => {
   item.addEventListener('click', e => {
     e.stopPropagation();
     const action = item.dataset.action;
-    if (action === 'details') showProfitDetail();
+    if (action === 'details') { profitFrom = profitTo = ovTf(currentTf); showProfitDetail(); }
     hideProfitPopup();
   });
 });
@@ -12904,39 +12895,29 @@ let profitFrom = 'month', profitTo = 'today';
 let profitCategory = 'all';
 
 function showProfitDetail() {
-  const fd = PROFIT_DATA[profitFrom], td = PROFIT_DATA[profitTo];
-  const pct = Math.round(((fd.profit - td.profit) / td.profit) * 100);
-  const mc  = (fd.summary.blendedMargin - td.summary.blendedMargin).toFixed(1);
-  const pos = pct >= 0, mpos = mc >= 0;
-
-  document.getElementById('profitDetailHeaderValue').textContent = '৳' + fd.profit.toLocaleString('en-IN');
-
-  document.getElementById('profitDetailHeaderMeta').innerHTML = `
-    <span class="crypto-change ${pos ? 'up':'down'}">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-        ${pos
-          ? '<polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/>'
-          : '<polyline points="23 18 13.5 8.5 8.5 13.5 1 6"/><polyline points="17 18 23 18 23 12"/>'}
-      </svg>
-      ${pos?'+':''}${pct}%
-    </span>
-    <span style="font-size:12px;opacity:0.7">vs ${td.label.toLowerCase()}</span>
-    <span style="width:1px;height:12px;background:rgba(255,255,255,0.25);margin:0 3px"></span>
-    <span class="crypto-change ${mpos?'up':'down'}" style="font-size:11px;padding:4px 10px;border-width:1.5px">
-      ${mpos?'+':''}${mc}% margin
-    </span>`;
-
-  document.getElementById('profitCompareFrom').value = profitFrom;
-  document.getElementById('profitCompareTo').value   = profitTo;
-  renderProfitBody(fd);
   profitDetailOverlay.classList.add('open');
   document.querySelector('.content').style.overflowY = 'hidden';
+  ovRenderProfit();
+}
+
+function ovRenderProfit() {
+  document.getElementById('profitCompareFrom').value = profitFrom;
+  document.getElementById('profitCompareTo').value   = profitTo;
+  const st = ovSheetState(profitFrom, profitTo, 'profitDetailHeaderValue', 'profitDetailHeaderMeta', 'profitDetailBody');
+  if (!st) return;
+  const fd = ovAdaptProfit(st.a, profitFrom), td = ovAdaptProfit(st.b, profitTo, true);
+  document.getElementById('profitDetailHeaderValue').textContent = ovMoney(fd.profit);
+  document.getElementById('profitDetailHeaderMeta').innerHTML =
+    ovDeltaChip(td.profit > 0 ? ovPct(fd.profit, td.profit) : null, false) +
+    '<span style="font-size:12px;opacity:0.7">vs ' + td.label.toLowerCase() + '</span>' + OV_SEP +
+    ovMarginChip(fd.summary.blendedMargin, td.summary.blendedMargin);
+  renderProfitBody(fd);
 }
 
 function renderProfitBody(data) {
   const filteredItems = profitCategory === 'all'
-    ? data.items
-    : data.items.filter(it => it.category === profitCategory);
+    ? data.items.slice(0, 5)
+    : data.items.filter(it => it.category === profitCategory).slice(0, 5);
 
   const itemsHtml = filteredItems.map((item, i) => `
     <div class="profit-row">
@@ -12951,7 +12932,7 @@ function renderProfitBody(data) {
         <span class="profit-sell">৳${item.sell.toLocaleString('en-IN')}</span>
       </div>
       <div class="profit-profit-block"><span class="profit-profit">৳${item.profit.toLocaleString('en-IN')}</span></div>
-      <div class="profit-metrics"><span class="profit-margin-pill ${profitMarginClass(item.margin)}">${item.margin}%</span></div>
+      <div class="profit-metrics"><span class="profit-margin-pill ${profitMarginClass(item.margin)}">${item.margin == null ? '—' : item.margin + '%'}</span></div>
     </div>`).join('');
 
   document.getElementById('profitDetailBody').innerHTML = `
@@ -12990,22 +12971,28 @@ function renderProfitBody(data) {
       <div class="p-summary-row">
         <span class="p-summary-value">Subtotal</span>
         <span class="p-summary-label">${data.summary.units} units</span>
-        <span class="p-summary-value positive">৳${data.summary.profitTotal.toLocaleString('en-IN')}</span>
+        <span class="p-summary-value positive">${ovMoney(data.summary.profitTotal)}</span>
       </div>
       <div class="p-summary-row">
         <span class="p-summary-label">Discount</span>
         <span class="p-summary-label"></span>
         <span class="p-summary-value negative">-৳${data.summary.discount.toLocaleString('en-IN')}</span>
       </div>
+      <div class="p-summary-row">
+        <span class="p-summary-label">Returns (net of restock)</span>
+        <span class="p-summary-label"></span>
+        <span class="p-summary-value negative">-${ovMoney(data.summary.returnsNet)}</span>
+      </div>
       <div class="p-summary-grand">
-        <span class="p-summary-label">Grand Total</span>
-        <span class="p-summary-value">৳${data.summary.grandTotal.toLocaleString('en-IN')}</span>
+        <span class="p-summary-label">Net Profit</span>
+        <span class="p-summary-value">${ovMoney(data.summary.grandTotal)}</span>
       </div>
     </div>
     <div class="blended-margin-btn">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-checkmark"/></svg>
-      Blended Margin ${data.summary.blendedMargin}%
-    </div>`;
+      Blended Margin ${data.summary.blendedMargin == null ? '—' : data.summary.blendedMargin + '%'}
+    </div>
+    ${data.unknownUnits ? '<div class="cd-empty-cat" style="margin-top:10px">' + data.unknownUnits + ' sold unit(s) have no cost set and are left out of profit</div>' : ''}`;
 }
 
 function toggleProfitCategoryMenu(e) {
@@ -13019,8 +13006,7 @@ function toggleProfitCategoryMenu(e) {
 
 function setProfitCategory(key) {
   profitCategory = key;
-  const fd = PROFIT_DATA[profitFrom];
-  renderProfitBody(fd);
+  ovRenderProfit();
 }
 
 function hideProfitDetail() {
