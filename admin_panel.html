@@ -853,6 +853,15 @@ body.dark-mode .wb-label{color:var(--text)}
 .faq-ctrl-btn.danger:hover{background:rgba(229,72,77,.1);border-color:#e5484d;color:#e5484d}
 .faq-add-btn{width:100%;border:1.5px dashed var(--border);background:none;color:var(--text2);font-size:13px;font-weight:700;padding:12px;border-radius:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:border-color .15s,color .15s;margin-top:4px}
 .faq-add-btn:hover{border-color:var(--accent);color:var(--accent)}
+.faq-edit-row{border:1.5px solid var(--border);border-radius:12px;margin-bottom:8px;overflow:hidden;background:var(--surface2);transition:border-color .15s}
+.faq-edit-row.open{border-color:var(--accent)}
+.faq-edit-row .faq-picker-row{border:none;border-radius:0;margin-bottom:0;background:none}
+.faq-edit-row.open .faq-picker-row{background:var(--accent-soft)}
+.faq-edit-row .faq-picker-row-text{white-space:normal;overflow:visible;text-overflow:clip}
+.faq-edit-row .faq-chevron{width:16px;height:16px;flex-shrink:0;transition:transform .3s cubic-bezier(.34,1.56,.64,1);color:var(--text3)}
+.faq-edit-row .faq-chevron.open{transform:rotate(180deg);color:var(--accent)}
+.faq-edit-panel{max-height:0;overflow:hidden;transition:max-height .35s cubic-bezier(.4,0,.2,1),padding .35s}
+.faq-edit-row.open .faq-edit-panel{max-height:400px;padding:0 12px 12px}
 
 /* ═══════════════════════════════════════════════════════════════
    9) FOOTER PAYMENT BADGES — EXACT FROM REFERENCE (index.html .pay-badge)
@@ -1663,10 +1672,9 @@ body.dark-mode .pay-badge-bank svg path[style*="fill:#66cde7"]{fill:#fff!importa
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
       Add FAQ
     </button>
-    <div id="faqEditor" style="margin-top:14px"></div>
-    <div class="hint-row" style="margin-top:2px">
+    <div class="hint-row" style="margin-top:10px">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
-      Tap the FAQ card in the preview to test open/close
+      Tap a question to edit it
     </div>
     </fieldset>
     <div class="save-bar" style="margin:14px 0 0;border-radius:14px">
@@ -5015,63 +5023,90 @@ const DEFAULT_FAQS = [
   {q:"Can I return a product if I'm not satisfied?", a:"Yes. Eligible local stock items may be returned according to our return policy. If your order arrives damaged, incorrect, or defective, we'll replace it or provide an appropriate solution."},
   {q:'Do you deliver outside Dhaka?', a:'Absolutely. We deliver nationwide across all 64 districts of Bangladesh. Local stock orders in Dhaka are typically delivered the same day or the next business day.'}
 ];
-function getFaqs(){
-  try {
-    const saved = JSON.parse(localStorage.getItem('sv-faqs') || 'null');
-    if(saved && Array.isArray(saved) && saved.length){
-      let changed = false;
-      saved.forEach(item => { if(!item._uid){ item._uid = faqUid(); changed = true; } });
-      if(changed) saveFaqs(saved);
-      return saved;
-    }
-  } catch(e){}
-  const fresh = JSON.parse(JSON.stringify(DEFAULT_FAQS));
-  fresh.forEach(item => item._uid = faqUid());
-  saveFaqs(fresh);
-  return fresh;
-}
+let _faqCache = null;
+let _faqLoaded = false;
+let _faqSaveTimer = null;
 function faqUid(){
   return 'f' + Date.now().toString(36) + Math.random().toString(36).slice(2,7);
 }
+function getFaqs(){
+  if(_faqCache) return _faqCache;
+  const fresh = JSON.parse(JSON.stringify(DEFAULT_FAQS));
+  fresh.forEach(item => item._uid = faqUid());
+  _faqCache = fresh;
+  return _faqCache;
+}
 function saveFaqs(list){
-  localStorage.setItem('sv-faqs', JSON.stringify(list));
+  _faqCache = list;
+  clearTimeout(_faqSaveTimer);
+  _faqSaveTimer = setTimeout(()=>persistFaqs(list), 400);
+}
+async function persistFaqs(list){
+  if(!window.sb) { T('Not connected to database','⚠️'); return; }
+  const content = list.map(item => ({ q: item.q || '', a: item.a || '' }));
+  const { error } = await sb.from('site_content').upsert({
+    page: 'landing',
+    section: 'faq',
+    content,
+    updated_at: new Date().toISOString()
+  }, { onConflict: 'page,section' });
+  if(error){ console.error('saveFaqs error:', error.message); T('Save failed — check connection','❌'); }
+}
+async function loadFaqsFromDb(){
+  if(!window.sb) { _faqLoaded = true; return; }
+  const { data, error } = await sb
+    .from('site_content')
+    .select('content')
+    .eq('page', 'landing')
+    .eq('section', 'faq')
+    .maybeSingle();
+  _faqLoaded = true;
+  if(error){ console.error('loadFaqsFromDb error:', error.message); return; }
+  if(data && Array.isArray(data.content) && data.content.length){
+    _faqCache = data.content.map(item => ({ q: item.q || '', a: item.a || '', _uid: faqUid() }));
+  } else if(!_faqCache){
+    _faqCache = getFaqs();
+  }
+  if(faqSelectedIdx >= _faqCache.length) faqSelectedIdx = 0;
+  refreshFaq();
 }
 function escFaq(s){
   return (s || '').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 }
-let faqSelectedIdx = parseInt(localStorage.getItem('sv-faq-selected') || '0', 10) || 0;
+let faqSelectedIdx = 0;
 function setFaqSelected(i){
   faqSelectedIdx = i;
-  localStorage.setItem('sv-faq-selected', String(i));
 }
 function renderFaqPicker(){
   const list = getFaqs();
   if(faqSelectedIdx >= list.length) setFaqSelected(list.length - 1);
   const el = document.getElementById('faqPicker');
-  el.innerHTML = list.map((item, i) =>
-    '<div class="faq-picker-row' + (i===faqSelectedIdx ? ' active' : '') + '" data-uid="' + item._uid + '" onclick="selectFaq(' + i + ')">' +
-      '<span class="faq-picker-row-text">' + (i+1) + '. ' + escFaq(item.q) + '</span>' +
-      '<button type="button" class="faq-ctrl-btn" onclick="event.stopPropagation();moveFaq(' + i + ',-1)"' + (i===0?' disabled':'') + ' aria-label="Move up">↑</button>' +
-      '<button type="button" class="faq-ctrl-btn" onclick="event.stopPropagation();moveFaq(' + i + ',1)"' + (i===list.length-1?' disabled':'') + ' aria-label="Move down">↓</button>' +
-      '<button type="button" class="faq-ctrl-btn danger" onclick="event.stopPropagation();removeFaq(' + i + ')" aria-label="Delete">' +
-        '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0-1 14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2L4 6"/></svg>' +
-      '</button>' +
+  el.innerHTML = list.map((item, i) => {
+    const open = i === faqSelectedIdx;
+    return (
+    '<div class="faq-edit-row' + (open ? ' open' : '') + '" data-uid="' + item._uid + '">' +
+      '<div class="faq-picker-row' + (open ? ' active' : '') + '" onclick="selectFaq(' + i + ')">' +
+        '<span class="faq-picker-row-text">' + (i+1) + '. ' + escFaq(item.q) + '</span>' +
+        '<span class="faq-chevron' + (open ? ' open' : '') + '"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>' +
+        '<button type="button" class="faq-ctrl-btn" onclick="event.stopPropagation();moveFaq(' + i + ',-1)"' + (i===0?' disabled':'') + ' aria-label="Move up">↑</button>' +
+        '<button type="button" class="faq-ctrl-btn" onclick="event.stopPropagation();moveFaq(' + i + ',1)"' + (i===list.length-1?' disabled':'') + ' aria-label="Move down">↓</button>' +
+        '<button type="button" class="faq-ctrl-btn danger" onclick="event.stopPropagation();removeFaq(' + i + ')" aria-label="Delete">' +
+          '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0-1 14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2L4 6"/></svg>' +
+        '</button>' +
+      '</div>' +
+      '<div class="faq-edit-panel">' +
+        '<div class="field">' +
+          '<label>Question</label>' +
+          '<input type="text" value="' + escFaq(item.q) + '" oninput="updateFaqField(\'q\',this.value)">' +
+        '</div>' +
+        '<div class="field" style="margin-bottom:0">' +
+          '<label>Answer</label>' +
+          '<textarea rows="5" oninput="updateFaqField(\'a\',this.value)">' + escFaq(item.a) + '<\\/textarea>' +
+        '</div>' +
+      '</div>' +
     '</div>'
-  ).join('');
-}
-function renderFaqEditor(){
-  const list = getFaqs();
-  const item = list[faqSelectedIdx] || {q:'', a:''};
-  const el = document.getElementById('faqEditor');
-  el.innerHTML =
-    '<div class="field">' +
-      '<label>Question</label>' +
-      '<input type="text" id="inpFaqQ" value="' + escFaq(item.q) + '" oninput="updateFaqField(\'q\',this.value)">' +
-    '</div>' +
-    '<div class="field" style="margin-bottom:0">' +
-      '<label>Answer</label>' +
-      '<textarea id="inpFaqA" rows="6" oninput="updateFaqField(\'a\',this.value)">' + escFaq(item.a) + '<\\/textarea>' +
-    '</div>';
+    );
+  }).join('');
 }
 function renderFaqPreviewCard(){
   const list = getFaqs();
@@ -5081,11 +5116,10 @@ function renderFaqPreviewCard(){
 }
 function refreshFaq(){
   renderFaqPicker();
-  renderFaqEditor();
   renderFaqPreviewCard();
 }
 function selectFaq(i){
-  setFaqSelected(i);
+  setFaqSelected(faqSelectedIdx === i ? -1 : i);
   refreshFaq();
 }
 function updateFaqField(key, val){
@@ -5323,6 +5357,7 @@ updateStats();
 updateTestimonial();
 updateWbBadge();
 refreshFaq();
+loadFaqsFromDb();
 loadShipping();
 </script>
 </body>
