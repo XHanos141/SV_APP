@@ -220,6 +220,7 @@ fieldset:disabled .faq-add-btn{pointer-events:none;opacity:.5}
 }
 .field input:focus, .field select:focus, .field textarea:focus{outline:none;border-color:var(--accent)}
 .field input[readonly]{background:var(--surface2);color:var(--text2);cursor:not-allowed}
+.field select:disabled{background:var(--surface2);color:var(--text2);cursor:not-allowed;opacity:1}
 .field-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .img-upload{
   border:2px dashed var(--border);border-radius:14px;padding:18px;text-align:center;
@@ -1901,6 +1902,16 @@ fill="#ed1d24"><rect width="512" height="512" rx="15%" fill="#ed1d24"/><path d="
   </div>
   <fieldset id="productFieldset" style="border:none;margin:0;padding:0">
   <div class="form-card">
+    <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>Product (from Stock)</h3>
+    <div class="field" style="margin-bottom:0">
+      <label>Select listed inventory item</label>
+      <select id="inpStockProduct" onchange="loadStockProductIntoEditor(this.value)">
+        <option value="">— Pick a product from Stock —</option>
+      </select>
+    </div>
+    <div id="stockLinkInfo" style="display:none;margin-top:10px;padding:10px 12px;border-radius:10px;background:var(--surface2);font-size:12px;font-weight:600;color:var(--text2)"></div>
+  </div>
+  <div class="form-card">
     <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>Product Image</h3>
     <div class="img-upload" id="imgUploadBox">
       <input type="file" accept="image/*" id="imgInput" onchange="handleImage(event)">
@@ -2034,8 +2045,8 @@ fill="#ed1d24"><rect width="512" height="512" rx="15%" fill="#ed1d24"/><path d="
   <div class="form-card">
     <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>Stock & Flags</h3>
     <div class="field">
-      <label>Stock Status</label>
-      <select id="apInpStock" onchange="updateAll()">
+      <label>Stock Status <span style="font-weight:600;color:var(--text3);text-transform:none;letter-spacing:0">— linked to stock</span></label>
+      <select id="apInpStock" disabled>
         <option value="in" selected>In Stock</option>
         <option value="low">Low Stock</option>
         <option value="out">Out of Stock</option>
@@ -3985,6 +3996,56 @@ function updateStockAndSale(){
     document.getElementById('pcardActions').innerHTML = '<button class="p-wish" onclick="toggleWish(this)" aria-label="Add to wishlist"><svg class="heart-icon" width="16" height="16" style="margin-top:-1px" viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>Wishlist</button>';
   }
 }
+/* ═══════════════════════════════════════════════════════════════
+   INVENTORY LINK — pull real products from Supabase Stock (products table)
+   ═══════════════════════════════════════════════════════════════ */
+let STOCK_PRODUCTS = [];
+let currentStockProductId = '';
+const STOCK_CAT_LABEL = { supplement:'Supplement', gadget:'Gadget', cosmetic:'Cosmetic', clothing:'Clothing', general:'General' };
+
+function deriveStockStatus(qty){
+  const threshold = parseInt(localStorage.getItem('svbd-low-stock-threshold'), 10) || 10;
+  if(!qty || qty <= 0) return 'out';
+  if(qty <= threshold) return 'low';
+  return 'in';
+}
+
+async function loadStockProductsFromDb(){
+  if(!window.sb) return;
+  const { data, error } = await sb
+    .from('products')
+    .select('id,name,sku,price,category,subcategory,stock_qty,archived,is_active')
+    .eq('is_active', true)
+    .eq('archived', false)
+    .order('name');
+  if(error){ console.error('loadStockProductsFromDb error:', error.message); return; }
+  STOCK_PRODUCTS = data || [];
+  const sel = document.getElementById('inpStockProduct');
+  const current = sel.value;
+  sel.innerHTML = '<option value="">— Pick a product from Stock —</option>' +
+    STOCK_PRODUCTS.map(p => '<option value="' + p.id + '">' + escFaq(p.name) + ' — ৳' + p.price.toLocaleString() + '</option>').join('');
+  sel.value = STOCK_PRODUCTS.some(p => String(p.id) === current) ? current : '';
+}
+
+function loadStockProductIntoEditor(stockId){
+  currentStockProductId = stockId || '';
+  const info = document.getElementById('stockLinkInfo');
+  if(!stockId){
+    info.style.display = 'none';
+    return;
+  }
+  const p = STOCK_PRODUCTS.find(x => String(x.id) === String(stockId));
+  if(!p) return;
+  document.getElementById('apInpName').value = p.name;
+  document.getElementById('inpCat').value = STOCK_CAT_LABEL[p.category] || 'General';
+  document.getElementById('inpSubcat').value = p.subcategory || '';
+  document.getElementById('inpPrice').value = p.price;
+  document.getElementById('apInpStock').value = deriveStockStatus(p.stock_qty);
+  info.style.display = '';
+  info.textContent = 'Linked: ' + p.name + '  ·  SKU ' + (p.sku || '—') + '  ·  ' + (p.stock_qty || 0) + ' in stock';
+  updateAll();
+}
+
 function updateAll(){
   updateRteWordCount();
   const name = document.getElementById('apInpName').value || 'Unnamed Product';
@@ -4066,7 +4127,8 @@ function saveProduct(publish, evt){
   const list = getProducts();
   const id = currentEditId || ('p' + Date.now());
   const product = { id, name, cat, subcat, desc, rating, price, old, discount, stock, sale, hot, trending,
-                     image: currentImg, gradient: currentGradient, published: !!publish };
+                     image: currentImg, gradient: currentGradient, published: !!publish,
+                     stockProductId: currentStockProductId || null };
   const idx = list.findIndex(p => p.id === id);
   if(idx >= 0) list[idx] = product; else list.push(product);
   saveProducts(list);
@@ -4100,6 +4162,9 @@ function loadProductToEditor(id){
     document.getElementById('inpDiscount').value = '0% OFF';
     manualDiscount = false;
     document.getElementById('apInpStock').value = 'in';
+    document.getElementById('inpStockProduct').value = '';
+    document.getElementById('stockLinkInfo').style.display = 'none';
+    currentStockProductId = '';
     ['switchSale'].forEach(s => document.getElementById(s).classList.remove('on'));
     ['switchHot','switchTrending'].forEach(s => document.getElementById(s).classList.add('on'));
     removeImage({stopPropagation(){}});
@@ -4119,6 +4184,18 @@ function loadProductToEditor(id){
   document.getElementById('inpOld').value = p.old;
   document.getElementById('inpDiscount').value = p.discount;
   document.getElementById('apInpStock').value = p.stock;
+  currentStockProductId = p.stockProductId || '';
+  document.getElementById('inpStockProduct').value = currentStockProductId;
+  const linkInfo = document.getElementById('stockLinkInfo');
+  if(currentStockProductId){
+    const sp = STOCK_PRODUCTS.find(x => String(x.id) === String(currentStockProductId));
+    linkInfo.style.display = '';
+    linkInfo.textContent = sp
+      ? ('Linked: ' + sp.name + '  ·  SKU ' + (sp.sku || '—') + '  ·  ' + (sp.stock_qty || 0) + ' in stock')
+      : 'Linked product not found in current Stock list (may be archived).';
+  } else {
+    linkInfo.style.display = 'none';
+  }
   document.getElementById('switchSale').classList.toggle('on', p.sale);
   document.getElementById('switchHot').classList.toggle('on', p.hot);
   document.getElementById('switchTrending').classList.toggle('on', p.trending);
@@ -5381,6 +5458,7 @@ async function loadFooterSectionFromDb(){
   loadPaymentBadges();
 }
 loadFooterSectionFromDb();
+loadStockProductsFromDb();
 
 applyImageToCards();
 refreshProductEditorSelect();
