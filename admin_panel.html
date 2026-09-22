@@ -1709,10 +1709,6 @@ viewBox="0 0 512 512"
 fill="#ed1d24"><rect width="512" height="512" rx="15%" fill="#ed1d24"/><path d="m427 169c-4-15-17-27-32-31-34-9-239-10-278 0-15 4-28 16-32 31-9 38-10 135 0 174 4 15 17 27 32 31 36 10 241 10 278 0 15-4 28-16 32-31 9-36 9-137 0-174" fill="#ffffff"/><path d="m220 203v106l93-53z" fill="#ed1d24"/></svg></span>YouTube URL</label>
       <input type="url" id="inpSocialYt" placeholder="https://youtube.com/@suppversebd" oninput="updateSocialLink('yt', this.value)">
     </div>
-    <div class="hint-row" style="margin-top:2px;margin-bottom:12px">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
-      Not wired to live site yet — saved locally until Supabase config is connected.
-    </div>
     <div class="field" style="padding-top:14px;border-top:1px solid var(--line)">
       <label style="font-weight:700;font-size:11px;letter-spacing:.04em;text-transform:uppercase;color:var(--text3)">Payment Badges</label>
     </div>
@@ -5226,6 +5222,7 @@ function togglePay(key, switchId){
   const isOn = sw.classList.contains('on');
   const badge = document.querySelector('#footerPaymentStrip [data-pay="' + key + '"]');
   if(badge) badge.style.display = isOn ? '' : 'none';
+  savePaymentBadges();
 }
 
 function savePaymentBadges(){
@@ -5236,6 +5233,7 @@ function savePaymentBadges(){
     state[key] = sw ? sw.classList.contains('on') : true;
   });
   localStorage.setItem('sv-payment-badges', JSON.stringify(state));
+  saveFooterSection();
 }
 
 function loadPaymentBadges(){
@@ -5333,6 +5331,7 @@ function updateSocialLink(key, value){
   const links = JSON.parse(localStorage.getItem('sv-social-links') || '{}');
   links[key] = value.trim();
   localStorage.setItem('sv-social-links', JSON.stringify(links));
+  saveFooterSection();
 }
 
 function loadSocialLinks(){
@@ -5342,6 +5341,44 @@ function loadSocialLinks(){
   if(links.yt) document.getElementById('inpSocialYt').value = links.yt;
 }
 loadSocialLinks();
+
+/* ─── Footer section (social links + payment badges) — Supabase sync ─── */
+let _footerSaveTimer = null;
+function saveFooterSection(){
+  clearTimeout(_footerSaveTimer);
+  _footerSaveTimer = setTimeout(persistFooterSection, 400);
+}
+async function persistFooterSection(){
+  if(!window.sb) { T('Not connected to database','⚠️'); return; }
+  const content = {
+    social: JSON.parse(localStorage.getItem('sv-social-links') || '{}'),
+    payments: JSON.parse(localStorage.getItem('sv-payment-badges') || '{}')
+  };
+  const { error } = await sb.from('site_content').upsert({
+    page: 'landing',
+    section: 'footer',
+    content,
+    updated_at: new Date().toISOString()
+  }, { onConflict: 'page,section' });
+  if(error){ console.error('saveFooterSection error:', error.message); T('Save failed — check connection','❌'); }
+}
+async function loadFooterSectionFromDb(){
+  if(!window.sb) return;
+  const { data, error } = await sb
+    .from('site_content')
+    .select('content')
+    .eq('page', 'landing')
+    .eq('section', 'footer')
+    .maybeSingle();
+  if(error){ console.error('loadFooterSectionFromDb error:', error.message); return; }
+  if(data && data.content){
+    if(data.content.social) localStorage.setItem('sv-social-links', JSON.stringify(data.content.social));
+    if(data.content.payments) localStorage.setItem('sv-payment-badges', JSON.stringify(data.content.payments));
+  }
+  loadSocialLinks();
+  loadPaymentBadges();
+}
+loadFooterSectionFromDb();
 
 applyImageToCards();
 refreshProductEditorSelect();
