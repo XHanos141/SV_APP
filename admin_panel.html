@@ -4188,7 +4188,7 @@ const STOCK_CATEGORY_META = {
 };
 function stockCatIconBadgeSVG(key){
   const meta = STOCK_CATEGORY_META[key] || STOCK_CATEGORY_META.general;
-  return '<div class="cat-icon-badge" style="background:linear-gradient(135deg,' + meta.color + ',' + meta.color2 + ')"><svg class="cat-icon"><use href="#cat-icon-' + (meta.icon) + '"/></svg></div>';
+  return '<div class="cat-icon-badge" style="background:linear-gradient(135deg,' + meta.color + ',' + meta.color2 + ')"><svg class="cat-icon cat-icon-' + key + '"><use href="#cat-icon-' + (meta.icon) + '"/></svg></div>';
 }
 
 function deriveStockStatus(qty){
@@ -4247,13 +4247,15 @@ function renderStockPickerCatRow(){
   const row = document.getElementById('stockPickerCatRow');
   if(!row) return;
   const allActive = stockPickerCat === 'all';
-  const allPill = '<div class="picker-cat-pill' + (allActive ? ' active' : '') + '" onclick="filterStockPickerCat(\'all\')" title="All">' +
+  const allRingStyle = allActive ? 'background:#7C6FF726;border-color:#7C6FF766;' : '';
+  const allPill = '<div class="picker-cat-pill' + (allActive ? ' active' : '') + '" style="' + allRingStyle + '" onclick="filterStockPickerCat(\'all\')" title="All">' +
     '<span class="pill-dot" style="background:#8c92a1"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8"/></svg></span></div>';
   const catPills = Object.keys(STOCK_CATEGORY_META).map(key => {
     const meta = STOCK_CATEGORY_META[key];
     const isActive = stockPickerCat === key;
-    return '<div class="picker-cat-pill' + (isActive ? ' active' : '') + '" onclick="filterStockPickerCat(\'' + key + '\')" title="' + meta.label + '">' +
-      '<span class="pill-dot" style="background:linear-gradient(135deg,' + meta.color + ',' + meta.color2 + ')"><svg class="cat-icon"><use href="#cat-icon-' + meta.icon + '"/></svg></span></div>';
+    const ringStyle = isActive ? 'background:' + meta.color + '26;border-color:' + meta.color + '66;' : '';
+    return '<div class="picker-cat-pill' + (isActive ? ' active' : '') + '" style="' + ringStyle + '" onclick="filterStockPickerCat(\'' + key + '\')" title="' + meta.label + '">' +
+      '<span class="pill-dot" style="background:linear-gradient(135deg,' + meta.color + ',' + meta.color2 + ')"><svg class="cat-icon cat-icon-' + key + '"><use href="#cat-icon-' + meta.icon + '"/></svg></span></div>';
   }).join('');
   row.innerHTML = allPill + catPills;
 }
@@ -4302,7 +4304,7 @@ function refreshStockPickTrigger(){
   nameEl.textContent = p.name;
   subEl.textContent = 'SKU ' + (p.sku || '—') + '  ·  ' + (p.stock_qty || 0) + ' in stock  ·  ৳' + p.price.toLocaleString();
   const meta = STOCK_CATEGORY_META[p.category] || STOCK_CATEGORY_META.general;
-  iconEl.outerHTML = '<div class="cat-icon-badge" id="stockPickIcon" style="background:linear-gradient(135deg,' + meta.color + ',' + meta.color2 + ')"><svg class="cat-icon"><use href="#cat-icon-' + meta.icon + '"/></svg></div>';
+  iconEl.outerHTML = '<div class="cat-icon-badge" id="stockPickIcon" style="background:linear-gradient(135deg,' + meta.color + ',' + meta.color2 + ')"><svg class="cat-icon cat-icon-' + p.category + '"><use href="#cat-icon-' + meta.icon + '"/></svg></div>';
 }
 function pickStockProduct(stockId){
   loadStockProductIntoEditor(stockId);
