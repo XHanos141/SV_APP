@@ -219,6 +219,7 @@ fieldset:disabled .faq-add-btn{pointer-events:none;opacity:.5}
   transition:border-color .2s;
 }
 .field input:focus, .field select:focus, .field textarea:focus{outline:none;border-color:var(--accent)}
+.field input[readonly]{background:var(--surface2);color:var(--text2);cursor:not-allowed}
 .field-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .img-upload{
   border:2px dashed var(--border);border-radius:14px;padding:18px;text-align:center;
@@ -1919,7 +1920,7 @@ fill="#ed1d24"><rect width="512" height="512" rx="15%" fill="#ed1d24"/><path d="
     </div>
   </div>
 
-  <div class="form-card">
+  <div class="form-card" style="display:none" aria-hidden="true">
     <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 7h-9M14 17H5M17 3v8M7 13v8"/></svg>Product Details</h3>
     <div class="field">
       <label>Product Name</label>
@@ -2016,8 +2017,8 @@ fill="#ed1d24"><rect width="512" height="512" rx="15%" fill="#ed1d24"/><path d="
     <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>Pricing (BDT)</h3>
     <div class="field-row">
       <div class="field">
-        <label>Selling Price (৳)</label>
-        <input type="number" id="inpPrice" value="4200" oninput="updateAll()">
+        <label>Selling Price (৳) <span style="font-weight:600;color:var(--text3);text-transform:none;letter-spacing:0">— linked to stock</span></label>
+        <input type="number" id="inpPrice" value="4200" readonly>
       </div>
       <div class="field">
         <label>Old Price (৳)</label>
@@ -2025,8 +2026,8 @@ fill="#ed1d24"><rect width="512" height="512" rx="15%" fill="#ed1d24"/><path d="
       </div>
     </div>
     <div class="field">
-      <label>Discount % (auto-calculated, editable)</label>
-      <input type="text" id="inpDiscount" value="20% OFF" oninput="manualDiscount=true;updateAll()">
+      <label>Discount % <span style="font-weight:600;color:var(--text3);text-transform:none;letter-spacing:0">— auto-calculated</span></label>
+      <input type="text" id="inpDiscount" value="20% OFF" readonly>
     </div>
   </div>
 
@@ -3991,9 +3992,11 @@ function updateAll(){
   const rating = parseFloat(document.getElementById('inpRating').value) || 0;
   const price = parseInt(document.getElementById('inpPrice').value) || 0;
   const old = parseInt(document.getElementById('inpOld').value) || 0;
-  if(!manualDiscount && old > price && old > 0){
+  if(old > price && old > 0){
     const pct = Math.round(((old - price) / old) * 100);
     document.getElementById('inpDiscount').value = pct + '% OFF';
+  } else {
+    document.getElementById('inpDiscount').value = '0% OFF';
   }
   const pctMatch = document.getElementById('inpDiscount').value.match(/(\d+)/);
   const pctNum = pctMatch ? pctMatch[1] : '0';
@@ -4115,7 +4118,6 @@ function loadProductToEditor(id){
   document.getElementById('inpPrice').value = p.price;
   document.getElementById('inpOld').value = p.old;
   document.getElementById('inpDiscount').value = p.discount;
-  manualDiscount = true;
   document.getElementById('apInpStock').value = p.stock;
   document.getElementById('switchSale').classList.toggle('on', p.sale);
   document.getElementById('switchHot').classList.toggle('on', p.hot);
