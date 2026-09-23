@@ -264,7 +264,21 @@ fieldset:disabled .faq-add-btn{pointer-events:none;opacity:.5}
 .prod-picker-item .cat-icon-badge .cat-icon{width:16px;height:16px}
 .prod-info-name{font-size:14.5px;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .prod-info-sku{font-family:"Courier Prime","Courier New",monospace;font-size:11px;font-weight:700;color:#0891b2;letter-spacing:.1em;margin-top:2px}
-.prod-right{display:flex;align-items:center;flex-shrink:0}
+.prod-right{display:flex;align-items:center;flex-shrink:0;gap:6px}
+.prod-listed-badge{display:flex;align-items:center;gap:3px;font-size:9.5px;font-weight:800;color:#16a34a;background:#16a34a1a;border:1px solid #16a34a40;padding:2px 7px;border-radius:999px}
+.prod-listed-badge svg{width:9px;height:9px}
+
+.variant-row{margin-top:10px}
+.variant-chip-strip{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.variant-chip{display:flex;align-items:center;gap:6px;background:var(--bg);border:1.5px solid var(--border);border-radius:10px;padding:6px 8px 6px 10px}
+.variant-chip input{border:none;background:transparent;font-size:12.5px;font-weight:700;color:var(--text);width:92px;padding:0}
+.variant-chip input:focus{outline:none}
+.variant-chip-sku{font-family:"Courier Prime","Courier New",monospace;font-size:9.5px;font-weight:700;color:#0891b2;letter-spacing:.06em}
+.variant-chip-remove{width:18px;height:18px;border-radius:50%;background:var(--surface2);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;color:var(--text3)}
+.variant-chip-remove svg{width:9px;height:9px}
+.variant-add-btn{display:flex;align-items:center;gap:6px;font-size:12.5px;font-weight:700;color:var(--accent);background:var(--accent-soft,rgba(124,111,247,.1));border:1.5px dashed var(--accent);border-radius:10px;padding:7px 12px;cursor:pointer;margin-top:8px}
+.variant-add-btn svg{width:13px;height:13px}
+.p-variant-tag{font-size:9px;font-weight:800;color:#7c6ff7;background:#7c6ff71a;border:1px solid #7c6ff740;padding:1px 6px;border-radius:999px;margin-left:6px;vertical-align:middle}
 .cat-icon-badge{display:flex;align-items:center;justify-content:center;transition:background .2s ease}
 .cat-icon-badge .cat-icon{color:#fff !important}
 .cat-icon{width:17px;height:17px;flex-shrink:0;fill:currentColor;display:block}
@@ -1453,7 +1467,7 @@ body.dark-mode .pay-badge-bank svg path[style*="fill:#66cde7"]{fill:#fff!importa
                 <span class="p-cat" id="pcardCat">Protein</span>
                 <span class="p-rating"><span class="p-stars" id="pcardStars"></span><span id="pcardRatingNum">4.8</span></span>
               </div>
-              <div class="p-name" id="pcardName">Gold Standard Whey Protein 2lb</div>
+              <div class="p-name" id="pcardName"><span id="pcardNameText">Gold Standard Whey Protein 2lb</span><span class="p-variant-tag" id="pcardVariantTag" style="display:none"></span></div>
               <div class="p-footer">
                 <div class="p-price-block">
                   <div class="p-price"><span class="taka">&#2547;</span><span id="pcardPrice">4,200</span><span class="p-discount-inline" id="pcardDiscount">20% OFF</span></div>
@@ -2095,6 +2109,14 @@ fill="#ed1d24"><rect width="512" height="512" rx="15%" fill="#ed1d24"/><path d="
           <span class="stock-pick-sub" id="stockPickSub">Tap to search inventory</span>
         </span>
         <svg class="stock-pick-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="9 6 15 12 9 18"/></svg>
+      </button>
+    </div>
+    <div class="variant-row">
+      <label style="font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.04em">Sizes / Variants</label>
+      <div class="variant-chip-strip" id="variantChipStrip"></div>
+      <button type="button" class="variant-add-btn" onclick="openStockPicker('variant')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+        Add another size / SKU
       </button>
     </div>
   </div>
@@ -4069,6 +4091,8 @@ let currentImages = [];
 function syncCurrentImg(){ currentImg = currentImages[0] || null; }
 let currentGradient = 'linear-gradient(135deg,#ff6b6b,#ee5a24)';
 let currentStockBrand = '';
+let currentVariants = [];
+let stockPickerMode = 'primary';
 function svTitle(name, brand){
   brand = (brand || '').trim();
   name = name || '';
@@ -4286,8 +4310,10 @@ async function loadStockProductsFromDb(){
   refreshStockPickTrigger();
 }
 
-function openStockPicker(){
+function openStockPicker(mode){
+  stockPickerMode = mode === 'variant' ? 'variant' : 'primary';
   document.getElementById('stockPickerOverlay').classList.add('active');
+  document.getElementById('stockPickerTitle').textContent = stockPickerMode === 'variant' ? 'Add a Size / SKU' : 'Pick from Stock';
   renderStockPickerCatRow();
   renderStockPickerList();
 }
@@ -4329,6 +4355,7 @@ function renderStockPickerCatRow(){
 function renderStockPickerList(){
   const list = document.getElementById('stockPickerList');
   if(!list) return;
+  const listedMap = listedStockIdMap(currentEditId);
   let filtered = stockPickerCat === 'all' ? STOCK_PRODUCTS : STOCK_PRODUCTS.filter(p => p.category === stockPickerCat);
   if(stockPickerSearch){
     filtered = filtered.filter(p =>
@@ -4342,13 +4369,21 @@ function renderStockPickerList(){
   }
   list.innerHTML = filtered.map(p => {
     const stock = stockInfoFor(p.stock_qty);
-    return '<div class="prod-picker-item' + (stock.disabled ? ' out-of-stock' : '') + '" onclick="' + (stock.disabled ? '' : 'pickStockProduct(\'' + p.id + '\')') + '">' +
+    const listed = listedMap[String(p.id)];
+    const alreadyVariant = currentVariants.some(v => String(v.stockProductId) === String(p.id));
+    const isSelf = String(p.id) === String(currentStockProductId);
+    const blocked = alreadyVariant || (isSelf && stockPickerMode === 'variant');
+    const clickFn = stockPickerMode === 'variant' ? 'addVariantFromStock' : 'pickStockProduct';
+    return '<div class="prod-picker-item' + (stock.disabled || blocked ? ' out-of-stock' : '') + '" onclick="' + (stock.disabled || blocked ? '' : clickFn + '(\'' + p.id + '\')') + '">' +
       stockCatIconBadgeSVG(p.category) +
       '<div class="prod-info">' +
         '<div class="prod-info-name">' + escFaq(p.name) + '</div>' +
         '<div class="prod-info-sku">' + escFaq(p.sku || '') + '</div>' +
       '</div>' +
-      '<div class="prod-right"><span class="stock-badge ' + stock.cls + '">' + stock.label + '</span></div>' +
+      '<div class="prod-right">' +
+        (listed ? '<span class="prod-listed-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>Listed</span>' : '') +
+        '<span class="stock-badge ' + stock.cls + '">' + stock.label + '</span>' +
+      '</div>' +
     '</div>';
   }).join('');
 }
@@ -4374,8 +4409,44 @@ function refreshStockPickTrigger(){
   iconEl.outerHTML = '<div class="cat-icon-badge" id="stockPickIcon" style="background:linear-gradient(135deg,' + meta.color + ',' + meta.color2 + ')"><svg class="cat-icon cat-icon-' + p.category + '"><use href="#cat-icon-' + meta.icon + '"/></svg></div>';
 }
 function pickStockProduct(stockId){
+  const listed = listedStockIdMap(currentEditId)[String(stockId)];
+  if(listed){
+    const jump = confirm('This item is already listed as "' + listed.productName + '".\n\nOpen that listing instead of creating a duplicate?');
+    closeStockPicker();
+    if(jump){ document.getElementById('inpEditProduct').value = listed.productId; loadProductToEditor(listed.productId); }
+    return;
+  }
   loadStockProductIntoEditor(stockId);
   closeStockPicker();
+}
+function addVariantFromStock(stockId){
+  const p = STOCK_PRODUCTS.find(x => String(x.id) === String(stockId));
+  if(!p) return;
+  currentVariants.push({ stockProductId: p.id, sku: p.sku || '', price: p.price || 0, stock_qty: p.stock_qty || 0, label: p.sku || 'Variant' });
+  renderVariantChips();
+  updateAll();
+  closeStockPicker();
+}
+function removeVariant(idx){
+  currentVariants.splice(idx, 1);
+  renderVariantChips();
+  updateAll();
+}
+function renameVariant(idx, val){
+  if(currentVariants[idx]) currentVariants[idx].label = val;
+}
+function renderVariantChips(){
+  const strip = document.getElementById('variantChipStrip');
+  if(!strip) return;
+  strip.innerHTML = currentVariants.map((v, i) =>
+    '<div class="variant-chip">' +
+      '<div>' +
+        '<input value="' + escFaq(v.label || '') + '" oninput="renameVariant(' + i + ', this.value)" placeholder="Label e.g. 90 Capsules">' +
+        '<div class="variant-chip-sku">' + escFaq(v.sku || '') + '</div>' +
+      '</div>' +
+      '<div class="variant-chip-remove" onclick="removeVariant(' + i + ')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></div>' +
+    '</div>'
+  ).join('');
 }
 function loadStockProductIntoEditor(stockId){
   currentStockProductId = stockId || '';
@@ -4416,7 +4487,16 @@ function updateAll(){
   const displayName = svTitle(name, currentStockBrand);
   const pcardName = document.getElementById('pcardName');
   if(pcardName){
-    pcardName.textContent = displayName;
+    document.getElementById('pcardNameText').textContent = displayName;
+    const vtag = document.getElementById('pcardVariantTag');
+    if(vtag){
+      if(currentVariants.length){
+        vtag.style.display = 'inline-block';
+        vtag.textContent = (currentVariants.length + 1) + ' sizes';
+      } else {
+        vtag.style.display = 'none';
+      }
+    }
     document.getElementById('pcardCat').textContent = cat;
     document.getElementById('pcardRatingNum').textContent = rating.toFixed(1);
     document.getElementById('pcardStars').innerHTML = buildStars(rating);
@@ -4452,6 +4532,17 @@ function getProducts(){
 function saveProducts(list){
   localStorage.setItem('sv-products', JSON.stringify(list));
 }
+function listedStockIdMap(excludeProductId){
+  const map = {}; // stockProductId -> {productId, productName}
+  getProducts().forEach(p => {
+    if(p.id === excludeProductId) return;
+    if(p.stockProductId) map[String(p.stockProductId)] = { productId: p.id, productName: p.name };
+    (p.variants || []).forEach(v => {
+      if(v.stockProductId) map[String(v.stockProductId)] = { productId: p.id, productName: p.name };
+    });
+  });
+  return map;
+}
 function getHotDealsSelection(){
   try { return JSON.parse(localStorage.getItem('sv-hotdeals-selection') || '[]'); }
   catch(e){ return []; }
@@ -4478,7 +4569,7 @@ function saveProduct(publish, evt){
   const id = currentEditId || ('p' + Date.now());
   const product = { id, name, brand: currentStockBrand || '', cat, subcat, desc, rating, price, old, discount, stock, sale, hot, trending,
                      image: currentImg, images: currentImages.slice(), gradient: currentGradient, published: !!publish,
-                     stockProductId: currentStockProductId || null };
+                     stockProductId: currentStockProductId || null, variants: currentVariants.slice() };
   const idx = list.findIndex(p => p.id === id);
   if(idx >= 0) list[idx] = product; else list.push(product);
   saveProducts(list);
@@ -4518,6 +4609,8 @@ function loadProductToEditor(id){
     ['switchSale'].forEach(s => document.getElementById(s).classList.remove('on'));
     ['switchHot','switchTrending'].forEach(s => document.getElementById(s).classList.add('on'));
     resetImages();
+    currentVariants = [];
+    renderVariantChips();
     updateAll();
     return;
   }
@@ -4540,6 +4633,8 @@ function loadProductToEditor(id){
   document.getElementById('switchSale').classList.toggle('on', p.sale);
   document.getElementById('switchHot').classList.toggle('on', p.hot);
   document.getElementById('switchTrending').classList.toggle('on', p.trending);
+  currentVariants = (p.variants || []).slice();
+  renderVariantChips();
   currentImages = (p.images && p.images.length) ? p.images.slice() : (p.image ? [p.image] : []);
   syncCurrentImg();
   currentGradient = p.gradient || 'linear-gradient(135deg,#ff6b6b,#ee5a24)';
@@ -5815,7 +5910,7 @@ loadShipping();
   <div class="prod-picker-sheet" onclick="event.stopPropagation()">
     <div class="prod-picker-handle"></div>
     <div class="prod-picker-header">
-      <span class="prod-picker-title">Choose Product from Stock</span>
+      <span class="prod-picker-title" id="stockPickerTitle">Choose Product from Stock</span>
       <button class="prod-picker-close" onclick="closeStockPicker()">
         <svg fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
       </button>
