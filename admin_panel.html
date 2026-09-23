@@ -298,6 +298,16 @@ fieldset:disabled .faq-add-btn{pointer-events:none;opacity:.5}
 .img-preview-thumb{width:100%;height:140px;object-fit:cover;display:block}
 .img-remove{position:absolute;top:8px;right:8px;width:26px;height:26px;border-radius:50%;background:rgba(0,0,0,.6);color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:2}
 .img-remove svg{width:13px;height:13px}
+.img-thumb-strip{display:flex;gap:8px;margin-top:10px;overflow-x:auto;overflow-y:hidden;padding-bottom:4px;-webkit-overflow-scrolling:touch;scrollbar-width:thin}
+.img-thumb-strip:empty{display:none;margin:0}
+.img-thumb-item{position:relative;flex-shrink:0;width:64px;height:64px;border-radius:10px;overflow:hidden;border:1px solid var(--border);cursor:grab;background:var(--surface2);transition:opacity .15s ease,outline-color .15s ease}
+.img-thumb-item:active{cursor:grabbing}
+.img-thumb-item.dragging{opacity:.35}
+.img-thumb-item.drag-over{outline:2px solid var(--accent);outline-offset:-2px}
+.img-thumb-item img{width:100%;height:100%;object-fit:cover;display:block;pointer-events:none}
+.img-thumb-primary-badge{position:absolute;bottom:2px;left:2px;background:rgba(0,0,0,.65);color:#fff;font-size:8px;font-weight:700;padding:1px 5px;border-radius:5px;letter-spacing:.02em}
+.img-thumb-remove{position:absolute;top:2px;right:2px;width:18px;height:18px;border-radius:50%;background:rgba(0,0,0,.65);color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:2}
+.img-thumb-remove svg{width:10px;height:10px}
 .gradient-picker{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
 .gradient-swatch{width:30px;height:30px;border-radius:9px;cursor:pointer;border:2px solid transparent;flex-shrink:0}
 .rte-toolbar{display:flex;align-items:center;gap:4px;flex-wrap:wrap;background:var(--surface2);border:1px solid var(--border);border-radius:10px 10px 0 0;padding:8px;margin-bottom:-1px;position:relative}
@@ -2091,13 +2101,14 @@ fill="#ed1d24"><rect width="512" height="512" rx="15%" fill="#ed1d24"/><path d="
   <div class="form-card">
     <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>Product Image</h3>
     <div class="img-upload" id="imgUploadBox">
-      <input type="file" accept="image/*" id="imgInput" onchange="handleImage(event)">
+      <input type="file" accept="image/*" id="imgInput" multiple onchange="handleImage(event)">
       <div id="imgUploadEmpty">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>
         <p>Tap to upload product photo</p>
         <span>Recommended: 1000×1000px JPG or PNG, under 2MB</span>
       </div>
     </div>
+    <div class="img-thumb-strip" id="imgThumbStrip"></div>
   </div>
 
   <div class="form-card" style="display:none" aria-hidden="true">
@@ -4054,6 +4065,8 @@ function T(msg, icon){
 }
 let manualDiscount = false;
 let currentImg = null;
+let currentImages = [];
+function syncCurrentImg(){ currentImg = currentImages[0] || null; }
 let currentGradient = 'linear-gradient(135deg,#ff6b6b,#ee5a24)';
 let currentStockBrand = '';
 function svTitle(name, brand){
@@ -4094,25 +4107,79 @@ function setGradient(g, el){
   if(!currentImg) applyImageToCards();
 }
 function handleImage(e){
-  const file = e.target.files[0];
-  if(!file) return;
-  const reader = new FileReader();
-  reader.onload = function(ev){
-    currentImg = ev.target.result;
-    const box = document.getElementById('imgUploadBox');
-    box.classList.add('has-img');
-    box.innerHTML = '<img src="' + currentImg + '" class="img-preview-thumb"><div class="img-remove" onclick="removeImage(event)"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></div><input type="file" accept="image/*" id="imgInput" onchange="handleImage(event)">';
-    applyImageToCards();
-  };
-  reader.readAsDataURL(file);
+  const files = Array.from(e.target.files || []);
+  if(!files.length) return;
+  let remaining = files.length;
+  files.forEach(file => {
+    const reader = new FileReader();
+    reader.onload = function(ev){
+      currentImages.push(ev.target.result);
+      remaining--;
+      if(remaining === 0){
+        renderImgThumbStrip();
+        syncCurrentImg();
+        applyImageToCards();
+      }
+    };
+    reader.readAsDataURL(file);
+  });
+  e.target.value = '';
 }
-function removeImage(e){
-  e.stopPropagation();
-  currentImg = null;
-  const box = document.getElementById('imgUploadBox');
-  box.classList.remove('has-img');
-  box.innerHTML = '<input type="file" accept="image/*" id="imgInput" onchange="handleImage(event)"><div id="imgUploadEmpty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg><p>Tap to upload product photo</p><span>JPG, PNG — used on all 3 card types</span></div>';
+function removeImageAt(idx){
+  currentImages.splice(idx, 1);
+  renderImgThumbStrip();
+  syncCurrentImg();
   applyImageToCards();
+}
+function resetImages(){
+  currentImages = [];
+  renderImgThumbStrip();
+  syncCurrentImg();
+  applyImageToCards();
+}
+let _dragImgIdx = null;
+function imgThumbDragStart(e, idx){
+  _dragImgIdx = idx;
+  e.currentTarget.classList.add('dragging');
+  e.dataTransfer.effectAllowed = 'move';
+}
+function imgThumbDragEnd(e){
+  e.currentTarget.classList.remove('dragging');
+  document.querySelectorAll('.img-thumb-item.drag-over').forEach(el => el.classList.remove('drag-over'));
+}
+function imgThumbDragOver(e){
+  e.preventDefault();
+  e.currentTarget.classList.add('drag-over');
+}
+function imgThumbDragLeave(e){
+  e.currentTarget.classList.remove('drag-over');
+}
+function imgThumbDrop(e, idx){
+  e.preventDefault();
+  e.currentTarget.classList.remove('drag-over');
+  if(_dragImgIdx === null || _dragImgIdx === idx) return;
+  const [moved] = currentImages.splice(_dragImgIdx, 1);
+  currentImages.splice(idx, 0, moved);
+  _dragImgIdx = null;
+  renderImgThumbStrip();
+  syncCurrentImg();
+  applyImageToCards();
+}
+function renderImgThumbStrip(){
+  const strip = document.getElementById('imgThumbStrip');
+  if(!strip) return;
+  strip.innerHTML = currentImages.map((src, i) =>
+    '<div class="img-thumb-item" draggable="true"' +
+      ' ondragstart="imgThumbDragStart(event,' + i + ')"' +
+      ' ondragend="imgThumbDragEnd(event)"' +
+      ' ondragover="imgThumbDragOver(event)"' +
+      ' ondragleave="imgThumbDragLeave(event)"' +
+      ' ondrop="imgThumbDrop(event,' + i + ')">' +
+      '<img src="' + src + '">' +
+      (i === 0 ? '<span class="img-thumb-primary-badge">Cover</span>' : '') +
+      '<div class="img-thumb-remove" onclick="event.stopPropagation();removeImageAt(' + i + ')"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></div>' +
+    '</div>'
+  ).join('');
 }
 function applyImageToCards(){
   const pWrap = document.getElementById('pcardImgWrap');
@@ -4410,7 +4477,7 @@ function saveProduct(publish, evt){
   const list = getProducts();
   const id = currentEditId || ('p' + Date.now());
   const product = { id, name, brand: currentStockBrand || '', cat, subcat, desc, rating, price, old, discount, stock, sale, hot, trending,
-                     image: currentImg, gradient: currentGradient, published: !!publish,
+                     image: currentImg, images: currentImages.slice(), gradient: currentGradient, published: !!publish,
                      stockProductId: currentStockProductId || null };
   const idx = list.findIndex(p => p.id === id);
   if(idx >= 0) list[idx] = product; else list.push(product);
@@ -4450,7 +4517,7 @@ function loadProductToEditor(id){
     refreshStockPickTrigger();
     ['switchSale'].forEach(s => document.getElementById(s).classList.remove('on'));
     ['switchHot','switchTrending'].forEach(s => document.getElementById(s).classList.add('on'));
-    removeImage({stopPropagation(){}});
+    resetImages();
     updateAll();
     return;
   }
@@ -4473,15 +4540,10 @@ function loadProductToEditor(id){
   document.getElementById('switchSale').classList.toggle('on', p.sale);
   document.getElementById('switchHot').classList.toggle('on', p.hot);
   document.getElementById('switchTrending').classList.toggle('on', p.trending);
-  currentImg = p.image;
+  currentImages = (p.images && p.images.length) ? p.images.slice() : (p.image ? [p.image] : []);
+  syncCurrentImg();
   currentGradient = p.gradient || 'linear-gradient(135deg,#ff6b6b,#ee5a24)';
-  if(currentImg){
-    const box = document.getElementById('imgUploadBox');
-    box.classList.add('has-img');
-    box.innerHTML = '<img src="' + currentImg + '" class="img-preview-thumb"><div class="img-remove" onclick="removeImage(event)"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></div><input type="file" accept="image/*" id="imgInput" onchange="handleImage(event)">';
-  } else {
-    removeImage({stopPropagation(){}});
-  }
+  renderImgThumbStrip();
   applyImageToCards();
   updateAll();
 }
