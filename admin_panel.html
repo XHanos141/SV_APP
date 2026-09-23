@@ -4055,6 +4055,12 @@ function T(msg, icon){
 let manualDiscount = false;
 let currentImg = null;
 let currentGradient = 'linear-gradient(135deg,#ff6b6b,#ee5a24)';
+let currentStockBrand = '';
+function svTitle(name, brand){
+  brand = (brand || '').trim();
+  name = name || '';
+  return brand ? (brand + ' ' + name) : name;
+}
 const TYPE_ICON = {
   Supplement: {cls:'type-supplement', icon:'#cat-icon-supplement', vb:'0 0 512 512'},
   Gadget:     {cls:'type-gadget',     icon:'#cat-icon-gadget',     vb:'0 0 64 64'},
@@ -4202,7 +4208,7 @@ async function loadStockProductsFromDb(){
   if(!window.sb) return;
   const { data, error } = await sb
     .from('products')
-    .select('id,name,sku,price,category,subcategory,stock_qty,archived,is_active')
+    .select('id,name,brand,sku,price,category,subcategory,stock_qty,archived,is_active')
     .eq('is_active', true)
     .eq('archived', false)
     .order('name');
@@ -4313,6 +4319,7 @@ function loadStockProductIntoEditor(stockId){
   const p = STOCK_PRODUCTS.find(x => String(x.id) === String(stockId));
   if(!p) return;
   document.getElementById('apInpName').value = p.name;
+  currentStockBrand = p.brand || '';
   document.getElementById('inpCat').value = STOCK_CAT_LABEL[p.category] || 'General';
   document.getElementById('inpSubcat').value = p.subcategory || '';
   document.getElementById('inpPrice').value = p.price;
@@ -4339,9 +4346,10 @@ function updateAll(){
   const discountLong = pctNum + '% OFF';
   const discountShort = '-' + pctNum + '%';
 
+  const displayName = svTitle(name, currentStockBrand);
   const pcardName = document.getElementById('pcardName');
   if(pcardName){
-    pcardName.textContent = name;
+    pcardName.textContent = displayName;
     document.getElementById('pcardCat').textContent = cat;
     document.getElementById('pcardRatingNum').textContent = rating.toFixed(1);
     document.getElementById('pcardStars').innerHTML = buildStars(rating);
@@ -4352,7 +4360,7 @@ function updateAll(){
   }
   const tcardName = document.getElementById('tcardName');
   if(tcardName){
-    tcardName.textContent = name;
+    tcardName.textContent = displayName;
     document.getElementById('tcardCat').textContent = cat;
     document.getElementById('tcardPrice').textContent = price.toLocaleString();
     document.getElementById('tcardOld').textContent = old.toLocaleString();
@@ -4401,7 +4409,7 @@ function saveProduct(publish, evt){
 
   const list = getProducts();
   const id = currentEditId || ('p' + Date.now());
-  const product = { id, name, cat, subcat, desc, rating, price, old, discount, stock, sale, hot, trending,
+  const product = { id, name, brand: currentStockBrand || '', cat, subcat, desc, rating, price, old, discount, stock, sale, hot, trending,
                      image: currentImg, gradient: currentGradient, published: !!publish,
                      stockProductId: currentStockProductId || null };
   const idx = list.findIndex(p => p.id === id);
@@ -4438,6 +4446,7 @@ function loadProductToEditor(id){
     manualDiscount = false;
     document.getElementById('apInpStock').value = 'in';
     currentStockProductId = '';
+    currentStockBrand = '';
     refreshStockPickTrigger();
     ['switchSale'].forEach(s => document.getElementById(s).classList.remove('on'));
     ['switchHot','switchTrending'].forEach(s => document.getElementById(s).classList.add('on'));
@@ -4450,6 +4459,7 @@ function loadProductToEditor(id){
   if(!p) return;
   currentEditId = p.id;
   document.getElementById('apInpName').value = p.name;
+  currentStockBrand = p.brand || '';
   document.getElementById('inpCat').value = p.cat;
   document.getElementById('inpSubcat').value = p.subcat || '';
   document.getElementById('apInpDesc').innerHTML = p.desc || '';
@@ -4557,7 +4567,7 @@ function renderHotDealsRow(){
         '<span class="hd-add"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></span>' +
       '</div>' +
       '<div class="hd-info">' +
-        '<div class="hd-name">' + p.name + '</div>' +
+        '<div class="hd-name">' + svTitle(p.name, p.brand) + '</div>' +
         '<div class="hd-price-row"><span class="hd-price"><span class="taka">৳</span>' + p.price.toLocaleString() + '</span><span class="hd-price-old"><span class="taka">৳</span>' + p.old.toLocaleString() + '</span></div>' +
       '</div>' +
     '</div>';
