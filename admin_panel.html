@@ -238,7 +238,7 @@ fieldset:disabled .faq-add-btn{pointer-events:none;opacity:.5}
 
 .prod-picker-overlay{position:fixed;inset:0;z-index:9000;background:rgba(0,0,0,0.55);display:flex;align-items:flex-end;opacity:0;pointer-events:none;transition:opacity .25s ease}
 .prod-picker-overlay.active{opacity:1;pointer-events:auto}
-.prod-picker-sheet{width:100%;height:92vh;max-height:92vh;background:var(--surface);border-radius:20px 20px 0 0;display:flex;flex-direction:column;transform:translateY(100%);transition:transform .32s cubic-bezier(.4,0,.2,1)}
+.prod-picker-sheet{width:100%;height:92vh;max-height:92vh;background:var(--surface);border-radius:20px 20px 0 0;display:flex;flex-direction:column;transform:translateY(100%);transition:transform .32s cubic-bezier(.4,0,.2,1);will-change:transform;-webkit-overflow-scrolling:touch}
 .prod-picker-overlay.active .prod-picker-sheet{transform:translateY(0)}
 .prod-picker-handle{width:36px;height:4px;background:var(--border);border-radius:999px;margin:8px auto 0;flex-shrink:0}
 .prod-picker-header{display:flex;align-items:center;justify-content:space-between;padding:8px 18px 8px;flex-shrink:0;border-bottom:1px solid var(--border)}
@@ -257,15 +257,16 @@ fieldset:disabled .faq-add-btn{pointer-events:none;opacity:.5}
 .prod-picker-list{overflow-y:auto;flex:1;padding:8px 0 20px}
 .prod-picker-item{display:flex;align-items:center;gap:12px;padding:8px 18px;cursor:pointer;transition:background .15s ease;border-bottom:1px solid var(--border)}
 .prod-picker-item:last-child{border-bottom:none}
-.prod-picker-item:active{background:var(--accent-soft)}
+.prod-picker-item:active{background:rgba(124,111,247,0.06)}
 .prod-picker-item.out-of-stock{opacity:.45;pointer-events:none}
 .prod-info{flex:1;min-width:0}
 .prod-picker-item .cat-icon-badge{width:30px;height:30px;border-radius:9px;flex-shrink:0}
 .prod-picker-item .cat-icon-badge .cat-icon{width:16px;height:16px}
 .prod-info-name{font-size:14.5px;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.prod-info-sku{font-family:"Courier New",monospace;font-size:11px;font-weight:700;color:#0891b2;letter-spacing:.1em;margin-top:2px}
+.prod-info-sku{font-family:"Courier Prime","Courier New",monospace;font-size:11px;font-weight:700;color:#0891b2;letter-spacing:.1em;margin-top:2px}
 .prod-right{display:flex;align-items:center;flex-shrink:0}
 .cat-icon-badge{display:flex;align-items:center;justify-content:center;transition:background .2s ease}
+.cat-icon-badge .cat-icon{color:#fff !important}
 .cat-icon{width:17px;height:17px;flex-shrink:0;fill:currentColor;display:block}
 .stock-badge{font-size:9px;font-weight:700;padding:2px 7px;border-radius:999px;letter-spacing:.3px;white-space:nowrap}
 .stock-badge.stock-good{background:rgba(47,155,104,.12);color:#2f9b68;border:1px solid rgba(47,155,104,.3)}
@@ -273,11 +274,12 @@ fieldset:disabled .faq-add-btn{pointer-events:none;opacity:.5}
 .stock-badge.stock-out{background:rgba(217,83,83,.1);color:#d95353;border:1px solid rgba(217,83,83,.3)}
 .pp-search-input-wrap{position:relative;flex:1;min-width:0}
 .pp-search-input{width:100%;height:36px;background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:0 34px 0 38px;color:var(--text);font-family:var(--font-body);font-size:13px;font-weight:500;outline:none;transition:border-color .2s ease,box-shadow .2s ease}
-.pp-search-input:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.pp-search-input:focus{border-color:#7C6FF7;box-shadow:0 0 0 3px rgba(124,111,247,0.12)}
 .pp-search-input::placeholder{color:var(--text3)}
 .pp-search-icon{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--text3);pointer-events:none}
 .pp-search-icon svg{width:16px;height:16px}
-.pp-search-clear{position:absolute;right:10px;top:50%;transform:translateY(-50%);width:20px;height:20px;border-radius:50%;background:var(--surface2);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text2)}
+.pp-search-clear{position:absolute;right:10px;top:50%;transform:translateY(-50%);width:20px;height:20px;border-radius:50%;background:var(--surface2);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text2);transition:background .15s ease}
+.pp-search-clear:hover{background:var(--border)}
 .pp-search-clear svg{width:11px;height:11px}
 .field-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .img-upload{
