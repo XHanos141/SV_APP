@@ -5679,6 +5679,43 @@ html[data-theme="dark"] .prod-card-name { color: #ffffff; }
 }
 html[data-theme="dark"] .prod-card-sku { color: #22d3ee; text-shadow: 0 0 6px rgba(34,211,238,0.3); -webkit-text-stroke: 0.25px #22d3ee; }
 
+/* WEB publish switch (stock card): off = gray, draft = blue, live = glowing green */
+.prod-side { display: flex; flex-direction: column; align-items: center; gap: 7px; flex-shrink: 0; margin-top: -6px; }
+.web-sw {
+  position: relative; width: 50px; height: 20px; border-radius: 999px; padding: 0; flex-shrink: 0;
+  border: 1px solid rgba(140,146,161,0.35); background: #c9ced8; cursor: pointer;
+  transition: background 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+.web-sw::after { content: ''; position: absolute; inset: -9px -6px; }
+.web-sw:focus-visible { outline: 2px solid #7c6ff7; outline-offset: 2px; }
+.web-sw-txt {
+  position: absolute; top: 50%; right: 7px; transform: translateY(-50%);
+  font-family: "Plus Jakarta Sans", sans-serif; font-size: 8.5px; font-weight: 800; letter-spacing: 0.8px;
+  line-height: 1; color: #6b7280; transition: color 0.25s ease;
+}
+.web-sw-knob {
+  position: absolute; top: 2px; left: 2px; width: 14px; height: 14px; border-radius: 50%;
+  background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+  transition: transform 0.25s cubic-bezier(0.4,0,0.2,1);
+}
+html[data-theme="dark"] .web-sw-off { background: rgba(255,255,255,0.14); border-color: rgba(255,255,255,0.12); }
+html[data-theme="dark"] .web-sw-off .web-sw-txt { color: #8c92a1; }
+.web-sw-draft { background: linear-gradient(135deg,#0ea5e9,#0284c7); border-color: #38bdf8; box-shadow: 0 2px 8px rgba(2,132,199,0.35); }
+.web-sw-live {
+  background: linear-gradient(135deg,#22c55e,#16a34a); border-color: #4ade80;
+  box-shadow: 0 0 0 1px rgba(74,222,128,0.45), 0 0 12px rgba(34,197,94,0.75);
+  animation: webGlow 2.4s ease-in-out infinite;
+}
+.web-sw-draft .web-sw-knob, .web-sw-live .web-sw-knob { transform: translateX(30px); }
+.web-sw-draft .web-sw-txt, .web-sw-live .web-sw-txt { left: 7px; right: auto; color: #fff; }
+.web-sw-live .web-sw-txt { text-shadow: 0 0 6px rgba(255,255,255,0.9); }
+@keyframes webGlow {
+  0%, 100% { box-shadow: 0 0 0 1px rgba(74,222,128,0.45), 0 0 10px rgba(34,197,94,0.6); }
+  50% { box-shadow: 0 0 0 1px rgba(74,222,128,0.7), 0 0 18px rgba(34,197,94,0.95); }
+}
+@media (prefers-reduced-motion: reduce) { .web-sw-live { animation: none; } .web-sw, .web-sw-knob { transition: none; } }
+
 /* Glass Stock Badge */
 .stock-badge {
   padding: 8px 16px; border-radius: 10px;
@@ -24136,8 +24173,38 @@ function mapSupabaseProductToLocal(row) {
     variants: Array.isArray(row.variants) ? row.variants : [],
     archived: row.archived === true,
     archivedAt: row.archived_at || null,
+    webEnabled: row.web_enabled === true,
+    isWebPublished: row.is_web_published === true,
     meta: Object.assign({ brandName: row.brand, usdCost: row.usd_cost, weight: row.weight_cost || null }, row.meta || {})
   };
+}
+
+function svWebState(p) { return p.isWebPublished ? 'live' : (p.webEnabled ? 'draft' : 'off'); }
+function svWebSwitchHTML(p) {
+  const st = svWebState(p);
+  const label = st === 'live' ? 'Live on website' : st === 'draft' ? 'Sent to admin panel (draft)' : 'Not on website';
+  return `<button type="button" class="web-sw web-sw-${st}" role="switch" aria-checked="${st !== 'off'}" aria-label="${label}" title="${label}" onclick="toggleWebFlag('${String(p.sku).replace(/'/g, "\\'")}', event)"><span class="web-sw-txt">WEB</span><span class="web-sw-knob"></span></button>`;
+}
+async function toggleWebFlag(sku, ev) {
+  if (ev) ev.stopPropagation();
+  const p = PRODUCTS_DATA.find(x => x.sku === sku);
+  if (!p) return;
+  const st = svWebState(p);
+  if (st === 'live' && !confirm('Turn WEB off? This removes the product from the website.')) return;
+  try {
+    let id = p.id;
+    if (!id) {
+      const f = await sbFetch(`products?sku=eq.${encodeURIComponent(sku)}&select=id`);
+      id = f && f[0] && f[0].id;
+      if (!id) { alert('Product not synced to Supabase yet.'); return; }
+      p.id = id;
+    }
+    const r = await sbFetch(`products?id=eq.${id}`, 'PATCH', { web_enabled: st === 'off', updated_at: new Date().toISOString() });
+    const row = r && r[0];
+    p.webEnabled = row ? row.web_enabled === true : st === 'off';
+    p.isWebPublished = row ? row.is_web_published === true : false;
+    renderProductsTab();
+  } catch (err) { alert('WEB toggle failed: ' + err.message); }
 }
 
 async function loadProductsFromSupabase() {
@@ -24507,7 +24574,10 @@ function renderProductsTab(searchDisplayVal) {
           <div class="prod-card-name">${escapeHtml(p.name)}</div>
           <div class="prod-card-sku">${p.sku}</div>
         </div>
-        <div class="stock-badge ${sc}">${p.stock}</div>
+        <div class="prod-side">
+          <div class="stock-badge ${sc}">${p.stock}</div>
+          ${svWebSwitchHTML(p)}
+        </div>
       </div>
       <div class="prod-stats">
         <div class="prod-stat">
