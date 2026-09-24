@@ -1049,6 +1049,11 @@ body.dark-mode .pay-badge-bank svg path[style*="fill:#66cde7"]{fill:#fff!importa
 .wr-sub{font-size:10.5px;font-weight:700;color:#0284c7;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .wr-go{width:16px;height:16px;color:var(--text3);flex-shrink:0}
 .wr-empty{padding:2px 16px 4px;font-size:12px;font-weight:600;color:var(--text3)}
+.wr-pill{font-size:9.5px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;padding:2px 7px;border-radius:999px;border:1px solid transparent}
+.wr-pill.draft{color:#0284c7;background:#0284c71a;border-color:#0284c740}
+.wr-pill.live{color:#16a34a;background:#16a34a1a;border-color:#16a34a40}
+#webEditTrigger .wr-pill{margin-left:6px;vertical-align:middle}
+#webEditTrigger.empty .stock-pick-name{color:var(--text3)}
 </style>
 </head>
 <body>
@@ -2143,8 +2148,13 @@ fill="#ed1d24"><rect width="512" height="512" rx="15%" fill="#ed1d24"/><path d="
     </h3>
     <div class="field">
       <label>Editing</label>
-      <div style="display:flex;gap:8px">
-        <select id="inpEditProduct" style="flex:1" onchange="loadProductToEditor(this.value)">
+      <div style="display:flex;gap:8px;align-items:stretch">
+        <button type="button" class="stock-pick-trigger" id="webEditTrigger" style="flex:1;min-width:0" onclick="openStockPicker('request')">
+          <span id="webEditIcon"></span>
+          <span class="stock-pick-text"><span class="stock-pick-name" id="webEditName">No requests from app yet</span><span class="stock-pick-sub" id="webEditSub">Turn on WEB in Stock</span></span>
+          <svg class="stock-pick-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <select id="inpEditProduct" style="display:none" onchange="loadProductToEditor(this.value)">
           <option value="new" selected>No products sent from Stock yet</option>
         </select>
         <button type="button" class="ben-row-refresh" title="Refresh list" onclick="loadWebProducts(true)" style="width:42px;border:1px solid var(--border-strong);background:var(--surface2);border-radius:12px;font-size:17px;cursor:pointer;color:var(--text2)">↻</button>
@@ -4401,9 +4411,10 @@ async function loadStockProductsFromDb(){
 }
 
 function openStockPicker(mode){
-  stockPickerMode = mode === 'variant' ? 'variant' : 'primary';
+  stockPickerMode = mode === 'variant' ? 'variant' : mode === 'request' ? 'request' : 'primary';
+  if(stockPickerMode === 'request'){ stockPickerCat = 'all'; stockPickerSearch = ''; document.getElementById('stockPickerSearchInput').value = ''; document.getElementById('stockPickerSearchClear').style.display = 'none'; }
   document.getElementById('stockPickerOverlay').classList.add('active');
-  document.getElementById('stockPickerTitle').textContent = stockPickerMode === 'variant' ? 'Add a Size / SKU' : 'Pick from Stock';
+  document.getElementById('stockPickerTitle').textContent = stockPickerMode === 'variant' ? 'Add a Size / SKU' : stockPickerMode === 'request' ? 'Web Requests from App' : 'Pick from Stock';
   renderStockPickerCatRow();
   renderStockPickerList();
 }
@@ -4442,9 +4453,58 @@ function renderStockPickerCatRow(){
   }).join('');
   row.innerHTML = allPill + catPills;
 }
+function renderWebRequestPickerList(list){
+  let items = WEB_LIST.slice().sort((a, b) => (a.published - b.published) || a.name.localeCompare(b.name));
+  if(stockPickerCat !== 'all') items = items.filter(p => p.catKey === stockPickerCat);
+  if(stockPickerSearch){
+    items = items.filter(p => (p.name || '').toLowerCase().includes(stockPickerSearch) || (p.sku || '').toLowerCase().includes(stockPickerSearch));
+  }
+  if(!items.length){
+    list.innerHTML = '<div style="padding:40px 20px;text-align:center;color:var(--text3);font-size:13px;font-weight:600">' + (WEB_LIST.length ? 'No products found' : 'No requests yet. Turn on WEB for a product in Stock.') + '</div>';
+    return;
+  }
+  list.innerHTML = items.map(p => {
+    const stock = stockInfoFor(p.stockQty);
+    return '<div class="prod-picker-item" onclick="pickWebRequest(\'' + p.id + '\')">' +
+      stockCatIconBadgeSVG(p.catKey) +
+      '<div class="prod-info">' +
+        '<div class="prod-info-name">' + escFaq(svTitle(p.name, p.brand)) + '</div>' +
+        '<div class="prod-info-sku">' + escFaq(p.sku || '') + '</div>' +
+      '</div>' +
+      '<div class="prod-right">' +
+        '<span class="wr-pill ' + (p.published ? 'live' : 'draft') + '">' + (p.published ? 'Live' : 'Draft') + '</span>' +
+        '<span class="stock-badge ' + stock.cls + '">' + stock.label + '</span>' +
+      '</div>' +
+    '</div>';
+  }).join('');
+}
+function pickWebRequest(id){
+  closeStockPicker();
+  if(id === currentEditId && !document.getElementById('productFieldset').disabled) return;
+  openWebRequest(id);
+}
+function renderWebEditTrigger(){
+  const btn = document.getElementById('webEditTrigger');
+  if(!btn) return;
+  const icon = document.getElementById('webEditIcon'), nameEl = document.getElementById('webEditName'), subEl = document.getElementById('webEditSub');
+  const p = WEB_LIST.find(x => x.id === currentEditId);
+  btn.classList.toggle('empty', !p);
+  if(!p){
+    icon.innerHTML = '<span class="stock-pick-empty-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>';
+    const pending = WEB_LIST.filter(x => !x.published).length;
+    nameEl.textContent = WEB_LIST.length ? 'Choose a product' : 'No requests from app yet';
+    subEl.textContent = WEB_LIST.length ? (pending + ' waiting · tap to choose') : 'Turn on WEB in Stock';
+    return;
+  }
+  icon.innerHTML = stockCatIconBadgeSVG(p.catKey);
+  nameEl.innerHTML = escFaq(svTitle(p.name, p.brand)) + '<span class="wr-pill ' + (p.published ? 'live' : 'draft') + '">' + (p.published ? 'Live' : 'Draft') + '</span>';
+  subEl.textContent = 'SKU ' + (p.sku || '—') + '  ·  ' + p.stockQty + ' in stock';
+}
+
 function renderStockPickerList(){
   const list = document.getElementById('stockPickerList');
   if(!list) return;
+  if(stockPickerMode === 'request'){ renderWebRequestPickerList(list); return; }
   const listedMap = listedStockIdMap(currentEditId);
   let filtered = stockPickerCat === 'all' ? STOCK_PRODUCTS : STOCK_PRODUCTS.filter(p => p.category === stockPickerCat);
   if(stockPickerSearch){
@@ -4684,6 +4744,7 @@ function saveHotDealsSelection(ids){
 }
 
 function renderWebRequests(){
+  renderWebEditTrigger();
   const row = document.getElementById('wrRow'), cnt = document.getElementById('wrCount');
   if(!row || !cnt) return;
   const pending = WEB_LIST.filter(p => !p.published);
