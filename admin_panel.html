@@ -2261,28 +2261,6 @@ fill="#ed1d24"><rect width="512" height="512" rx="15%" fill="#ed1d24"/><path d="
   </div>
 
   <div class="form-card">
-    <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 010 20M12 2a15.3 15.3 0 000 20"/></svg>Website Details</h3>
-    <div class="field">
-      <label>Website Category</label>
-      <input type="text" id="inpWebCat" list="webCatList" placeholder="e.g. Protein" maxlength="60">
-      <datalist id="webCatList"><option value="Protein"><option value="Pre-Workout"><option value="Creatine"><option value="Vitamins &amp; Minerals"><option value="Amino Acids"><option value="Fat Burner"><option value="Omega &amp; Health"><option value="Gadgets"><option value="Skincare"></datalist>
-    </div>
-    <div class="field">
-      <label>Benefits</label>
-      <div id="benefitsList"></div>
-      <button type="button" class="web-add-btn" onclick="addBenefit()">+ Add benefit</button>
-    </div>
-    <div class="field">
-      <label>Usage</label>
-      <textarea class="web-ta" id="inpUsage" maxlength="600" placeholder="e.g. Mix 1 scoop with 250ml water after workout"></textarea>
-    </div>
-    <div class="field" style="margin-bottom:0">
-      <label>Caution</label>
-      <textarea class="web-ta" id="inpCaution" maxlength="600" placeholder="e.g. Keep out of reach of children. Consult a doctor if pregnant."></textarea>
-    </div>
-  </div>
-
-  <div class="form-card">
     <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>Pricing (BDT)</h3>
     <div class="field-row">
       <div class="field">
@@ -4627,8 +4605,6 @@ function webRowToProduct(r){
     sale: !!st.sale, hot: !!st.hot, trending: !!st.trending,
     image: images[0] || null, images, gradient: st.gradient || WEB_DEFAULT_GRADIENT,
     published: r.is_web_published === true, stockProductId: r.id, variants: [],
-    webCat: (w && w.web_category) || '', benefits: (w && Array.isArray(w.benefits)) ? w.benefits.slice() : [],
-    usage: (w && w.usage) || '', caution: (w && w.caution) || '',
     slug: (w && w.slug) || '', seoTitle: (w && w.seo_title) || '', seoDesc: (w && w.seo_description) || ''
   };
 }
@@ -4672,22 +4648,6 @@ function updateSeoCount(){
   const t = document.getElementById('inpSeoTitle'), d = document.getElementById('inpSeoDesc');
   if(t) document.getElementById('seoTitleCount').textContent = t.value.length + ' / 60';
   if(d) document.getElementById('seoDescCount').textContent = d.value.length + ' / 160';
-}
-function renderBenefits(list){
-  const el = document.getElementById('benefitsList');
-  const rows = (list && list.length) ? list : [''];
-  el.innerHTML = rows.map(v => '<div class="ben-row"><input type="text" maxlength="120" placeholder="e.g. Supports muscle recovery" value="' + escFaq(v) + '"><button type="button" onclick="removeBenefit(this)" aria-label="Remove">×</button></div>').join('');
-}
-function addBenefit(){
-  const el = document.getElementById('benefitsList');
-  if(el.querySelectorAll('.ben-row').length >= 8){ T('Max 8 benefits', '⚠️'); return; }
-  el.insertAdjacentHTML('beforeend', '<div class="ben-row"><input type="text" maxlength="120" placeholder="e.g. Supports muscle recovery"><button type="button" onclick="removeBenefit(this)" aria-label="Remove">×</button></div>');
-  el.lastElementChild.querySelector('input').focus();
-}
-function removeBenefit(btn){
-  const el = document.getElementById('benefitsList');
-  btn.parentElement.remove();
-  if(!el.children.length) renderBenefits([]);
 }
 function webPlainText(html){ return String(html || '').replace(/<[^>]*>/g, ' ').replace(/&nbsp;/g, ' ').trim(); }
 function webPublishMissing(p){
@@ -4771,15 +4731,11 @@ async function saveProduct(evt){
     }
     const price = parseInt(document.getElementById('inpPrice').value) || 0;
     const old = parseInt(document.getElementById('inpOld').value) || 0;
-    const benefits = Array.from(document.querySelectorAll('#benefitsList input')).map(i => i.value.trim()).filter(Boolean);
     const web = {
       product_id: id,
       slug: slugify(document.getElementById('inpSlug').value) || slugify(svTitle(cur.name, cur.brand)),
       web_description: desc,
-      web_category: document.getElementById('inpWebCat').value.trim() || null,
-      web_images: urls, benefits,
-      usage: document.getElementById('inpUsage').value.trim() || null,
-      caution: document.getElementById('inpCaution').value.trim() || null,
+      web_images: urls,
       seo_title: document.getElementById('inpSeoTitle').value.trim() || null,
       seo_description: document.getElementById('inpSeoDesc').value.trim() || null,
       settings: {
@@ -4828,8 +4784,7 @@ function loadProductToEditor(id){
     setV('apInpName', ''); setV('inpCat', 'Supplement'); setV('inpSubcat', ''); setV('inpRating', '0');
     document.getElementById('apInpDesc').innerHTML = '';
     setV('inpPrice', '0'); setV('inpOld', '0'); setV('inpDiscount', '0% OFF'); setV('apInpStock', 'in');
-    setV('inpWebCat', ''); setV('inpUsage', ''); setV('inpCaution', ''); setV('inpSlug', ''); setV('inpSeoTitle', ''); setV('inpSeoDesc', '');
-    renderBenefits([]);
+    setV('inpSlug', ''); setV('inpSeoTitle', ''); setV('inpSeoDesc', '');
     ['switchSale', 'switchHot', 'switchTrending'].forEach(x => document.getElementById(x).classList.remove('on'));
     currentStockProductId = ''; currentStockBrand = ''; currentVariants = [];
     refreshStockPickTrigger(); renderVariantChips(); resetImages();
@@ -4850,9 +4805,7 @@ function loadProductToEditor(id){
   document.getElementById('switchSale').classList.toggle('on', p.sale);
   document.getElementById('switchHot').classList.toggle('on', p.hot);
   document.getElementById('switchTrending').classList.toggle('on', p.trending);
-  setV('inpWebCat', p.webCat); setV('inpUsage', p.usage); setV('inpCaution', p.caution);
   setV('inpSlug', p.slug); setV('inpSeoTitle', p.seoTitle); setV('inpSeoDesc', p.seoDesc);
-  renderBenefits(p.benefits);
   currentImages = p.images.slice(); syncCurrentImg();
   currentGradient = p.gradient;
   renderImgThumbStrip(); applyImageToCards();
