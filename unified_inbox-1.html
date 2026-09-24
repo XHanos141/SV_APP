@@ -17,6 +17,7 @@
     --purple:#6761a8;
     --green:#009b72;
     --orange:#f26430;
+    --red:#d95353;
 
     --fb:#1877F2;
     --ig-a:#F58529;
@@ -429,9 +430,9 @@
   }
   #customersView:not([hidden]){
     display:flex;
-    position:absolute;
+    position:fixed;
     top:0; left:0; right:0; bottom:0;
-    height:auto;
+    height:100dvh;
   }
   .cust-list-header{
     display:flex;
@@ -887,6 +888,8 @@
   }
   .order-status-tag.pending{ background:rgba(244,169,34,0.15); color:var(--orange); }
   .order-status-tag.delivered{ background:rgba(47,155,104,0.15); color:var(--green); }
+  .order-status-tag.shipped{ background:rgba(0,157,220,0.15); color:var(--cyan); }
+  .order-status-tag.cancelled{ background:rgba(217,83,83,0.15); color:var(--red); }
   .order-card__items{ font-size:13px; color:var(--text-2); margin-bottom:4px; }
   .order-card__meta{
     display:flex;
@@ -895,6 +898,56 @@
     color:var(--text-3);
   }
   .order-card__amount{ font-weight:700; color:var(--text-1); }
+
+  /* ---------- Orders screen (all orders, tagged by customer) ---------- */
+  #ordersView{
+    display:none;
+    flex-direction:column;
+    background:var(--body-bg);
+    z-index:50;
+  }
+  #ordersView:not([hidden]){
+    display:flex;
+    position:fixed;
+    top:0; left:0; right:0; bottom:0;
+    height:100dvh;
+  }
+  .order-list-scroll{
+    flex:1 1 auto;
+    overflow-y:auto;
+    -webkit-overflow-scrolling:touch;
+    padding-bottom:24px;
+  }
+  .order-list-card{
+    background:var(--surface);
+    border:1px solid var(--hairline);
+    border-radius:14px;
+    padding:14px;
+    margin:12px 16px 0;
+  }
+  .order-list-card[role="button"]{ cursor:pointer; }
+  .order-list-card:active{ background:var(--surface-2); }
+  .order-list-card__customer{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    margin-top:10px;
+    padding-top:10px;
+    border-top:1px solid var(--hairline);
+  }
+  .order-list-card__avatar{
+    width:26px; height:26px; border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    font-family:var(--font-head); font-weight:700; font-size:11px; color:#fff;
+    flex:0 0 auto;
+  }
+  .order-list-card__customer-info{ flex:1; min-width:0; }
+  .order-list-card__customer-name{
+    font-size:13px; font-weight:600; color:var(--text-1);
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  }
+  .order-list-card__customer-id{ font-size:11px; color:var(--text-3); }
+  .order-list-card__chevron{ width:16px; height:16px; color:var(--text-3); flex:0 0 auto; }
 
   .empty-note{
     font-size:13px;
@@ -1226,6 +1279,17 @@
   <div class="cust-list-scroll" id="customersListScroll"></div>
 </div>
 
+<div id="ordersView" hidden>
+  <div class="cust-list-header">
+    <button class="cust-list-back" id="ordersBackBtn" aria-label="Back to inbox">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+    </button>
+    <h1>Orders</h1>
+    <span class="cust-list-count" id="ordersCount"></span>
+  </div>
+  <div class="order-list-scroll" id="ordersListScroll"></div>
+</div>
+
 </div>
 
 <script>
@@ -1280,7 +1344,10 @@
     noteToggleBtn: document.getElementById("noteToggleBtn"),
     customersView: document.getElementById("customersView"),
     customersListScroll: document.getElementById("customersListScroll"),
-    customersCount: document.getElementById("customersCount")
+    customersCount: document.getElementById("customersCount"),
+    ordersView: document.getElementById("ordersView"),
+    ordersListScroll: document.getElementById("ordersListScroll"),
+    ordersCount: document.getElementById("ordersCount")
   };
 
   /* ---------- Mock data (used only when Supabase isn't configured) ---------- */
@@ -1313,7 +1380,9 @@
       channels: ["whatsapp"],
       current_order: null,
       past_orders: [
-        { id:"SV-2150", amount:3200, status:"Delivered", placed_at:new Date(Date.now()-14*86400000).toISOString() }
+        { id:"SV-2150", amount:3200, status:"Delivered", placed_at:new Date(Date.now()-14*86400000).toISOString() },
+        { id:"SV-2233", amount:950, status:"Shipped", placed_at:new Date(Date.now()-2*86400000).toISOString() },
+        { id:"SV-2095", amount:1500, status:"Cancelled", placed_at:new Date(Date.now()-52*86400000).toISOString() }
       ]
     },
     guest_farzana: {
@@ -2022,6 +2091,11 @@
         openCustomersView();
         return;
       }
+      if(btn.dataset.nav === "orders"){
+        console.log("Opening Orders view...");
+        openOrdersView();
+        return;
+      }
       // TODO: wire to real navigation between admin panel sections.
       console.log("Navigate to:", btn.dataset.nav);
     });
@@ -2036,6 +2110,8 @@
       els.customersListScroll.innerHTML = `<div class="cust-list-empty">Couldn't load customers (${escapeHtml(err.message || "unknown error")}). Check console.</div>`;
     }
     els.customersView.hidden = false;
+    window.scrollTo(0, 0);
+    if(els.customersListScroll) els.customersListScroll.scrollTop = 0;
   }
   function closeCustomersView(){
     els.customersView.hidden = true;
@@ -2085,6 +2161,77 @@
         const conv = findConversationForCustomerKey(row.dataset.custKey);
         closeCustomersView();
         if(conv) openConversation(conv.id);
+      });
+    });
+  }
+
+  /* ---------- Orders screen (every order, tagged with its customer) ---------- */
+  function openCustomerPanelByKey(key){
+    const cust = MOCK_CUSTOMERS[key];
+    if(!cust) return;
+    openCustomerPanel({ customer_key:key, customer_name:cust.name, channel:cust.channels[0] });
+  }
+
+  function openOrdersView(){
+    try{
+      renderOrdersList();
+    }catch(err){
+      console.error("renderOrdersList failed:", err);
+      els.ordersListScroll.innerHTML = `<div class="cust-list-empty">Couldn't load orders (${escapeHtml(err.message || "unknown error")}). Check console.</div>`;
+    }
+    els.ordersView.hidden = false;
+    window.scrollTo(0, 0);
+    if(els.ordersListScroll) els.ordersListScroll.scrollTop = 0;
+  }
+  function closeOrdersView(){
+    els.ordersView.hidden = true;
+  }
+  document.getElementById("ordersBackBtn").addEventListener("click", closeOrdersView);
+
+  function renderOrdersList(){
+    // Flatten every current + past order across all customers into one list, each tagged with its customer.
+    const allOrders = [];
+    Object.entries(MOCK_CUSTOMERS).forEach(([key, cust]) => {
+      const orders = [...(cust.current_order ? [cust.current_order] : []), ...(cust.past_orders || [])];
+      orders.forEach(o => allOrders.push({ ...o, custKey:key, custName:cust.name, custId:cust.customer_id }));
+    });
+    allOrders.sort((a, b) => new Date(b.placed_at) - new Date(a.placed_at));
+
+    els.ordersCount.textContent = allOrders.length
+      ? `${allOrders.length} order${allOrders.length === 1 ? "" : "s"}`
+      : "";
+
+    if(!allOrders.length){
+      els.ordersListScroll.innerHTML = `<div class="cust-list-empty">No orders yet.</div>`;
+      return;
+    }
+
+    els.ordersListScroll.innerHTML = allOrders.map((o, i) => `
+      <div class="order-list-card" data-cust-key="${o.custKey}" role="button" tabindex="0">
+        <div class="order-card__top">
+          <span class="order-id-badge">${escapeHtml(o.id)}</span>
+          <span class="order-status-tag ${o.status.toLowerCase()}">${escapeHtml(o.status)}</span>
+        </div>
+        ${o.items ? `<div class="order-card__items">${escapeHtml(o.items)}</div>` : ""}
+        <div class="order-card__meta">
+          <span>${formatOrderDate(o.placed_at)}</span>
+          <span class="order-card__amount">৳${o.amount.toLocaleString()}</span>
+        </div>
+        <div class="order-list-card__customer">
+          <div class="order-list-card__avatar" style="background:${hashColor(o.custName)}">${initials(o.custName)}</div>
+          <div class="order-list-card__customer-info">
+            <div class="order-list-card__customer-name">${escapeHtml(o.custName)}</div>
+            <div class="order-list-card__customer-id">${escapeHtml(o.custId || "—")}</div>
+          </div>
+          <svg class="order-list-card__chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+        </div>
+      </div>
+    `).join("");
+
+    els.ordersListScroll.querySelectorAll("[data-cust-key]").forEach(card => {
+      card.addEventListener("click", () => {
+        closeOrdersView();
+        openCustomerPanelByKey(card.dataset.custKey);
       });
     });
   }
