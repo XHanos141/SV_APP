@@ -1007,6 +1007,28 @@ body.dark-mode .pay-badge-bank svg path[style*="fill:#66cde7"]{fill:#fff!importa
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script src="assets/js/supabase-config.js"></script>
+<style>
+.web-pill{margin-left:auto;font-size:10.5px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;padding:4px 10px;border-radius:999px}
+.web-pill.draft{background:rgba(2,132,199,.12);color:#0284c7}
+.web-pill.live{background:rgba(34,197,94,.14);color:#16a34a;box-shadow:0 0 10px rgba(34,197,94,.35)}
+.web-check{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600;color:var(--text2);padding:5px 0}
+.web-check i{width:18px;height:18px;border-radius:50%;border:2px solid var(--text3);flex-shrink:0;display:inline-block;position:relative}
+.web-check.ok{color:var(--text)}
+.web-check.ok i{background:var(--green);border-color:var(--green)}
+.web-check.ok i::after{content:'';position:absolute;left:4px;top:1px;width:4px;height:8px;border:solid #fff;border-width:0 2px 2px 0;transform:rotate(45deg)}
+.web-publish-btn{width:100%;margin-top:12px;padding:13px;border:none;border-radius:14px;font-family:var(--font-display);font-weight:800;font-size:14px;cursor:pointer;color:#fff;background:linear-gradient(135deg,#16a34a,#22c55e);box-shadow:0 4px 14px rgba(34,197,94,.35)}
+.web-publish-btn.off{background:var(--surface2);color:var(--text2);box-shadow:none;border:1px solid var(--border-strong)}
+.web-publish-btn:disabled{opacity:.5;cursor:not-allowed}
+.ben-row{display:flex;gap:8px;margin-bottom:8px}
+.ben-row input{flex:1}
+.ben-row button{width:38px;border:1px solid var(--border-strong);background:var(--surface2);border-radius:10px;font-size:18px;color:var(--text2);cursor:pointer}
+.web-add-btn{width:100%;padding:10px;border:1.5px dashed var(--border-strong);background:none;border-radius:12px;font-weight:700;font-size:12.5px;color:var(--accent);cursor:pointer}
+.web-count{font-size:11px;color:var(--text3);text-align:right;margin-top:4px}
+.web-ta{width:100%;min-height:74px;resize:vertical;font-family:inherit;font-size:14px;padding:11px 13px;border-radius:12px;border:1px solid var(--border-strong);background:var(--surface);color:var(--text)}
+.web-linked{display:flex;align-items:center;gap:12px}
+.web-linked-name{font-weight:800;font-size:15px;color:var(--text)}
+.web-linked-sub{font-size:12px;color:var(--text2);margin-top:2px}
+</style>
 </head>
 <body>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
@@ -2092,13 +2114,25 @@ fill="#ed1d24"><rect width="512" height="512" rx="15%" fill="#ed1d24"/><path d="
     </h3>
     <div class="field">
       <label>Editing</label>
-      <select id="inpEditProduct" onchange="loadProductToEditor(this.value)">
-        <option value="new" selected>+ New Product</option>
-      </select>
+      <div style="display:flex;gap:8px">
+        <select id="inpEditProduct" style="flex:1" onchange="loadProductToEditor(this.value)">
+          <option value="new" selected>No products sent from Stock yet</option>
+        </select>
+        <button type="button" class="ben-row-refresh" title="Refresh list" onclick="loadWebProducts(true)" style="width:42px;border:1px solid var(--border-strong);background:var(--surface2);border-radius:12px;font-size:17px;cursor:pointer;color:var(--text2)">↻</button>
+      </div>
+      <div class="hint-row" style="margin-top:8px">Products appear here when WEB is switched on in Stock.</div>
     </div>
   </div>
   <fieldset id="productFieldset" style="border:none;margin:0;padding:0">
-  <div class="form-card">
+  <div class="form-card" id="webLinkedCard">
+    <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>Inventory Item</h3>
+    <div class="web-linked">
+      <div id="webLinkedIcon"></div>
+      <div style="min-width:0"><div class="web-linked-name" id="webLinkedName">—</div><div class="web-linked-sub" id="webLinkedSub">Pick a product above</div></div>
+    </div>
+    <div class="hint-row" style="margin-top:10px">Name, price and stock are managed in Stock. The website reads this same record.</div>
+  </div>
+  <div class="form-card" style="display:none" aria-hidden="true">
     <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>Product (from Stock)</h3>
     <div class="field" style="margin-bottom:0">
       <label>Select listed inventory item</label>
@@ -2227,6 +2261,28 @@ fill="#ed1d24"><rect width="512" height="512" rx="15%" fill="#ed1d24"/><path d="
   </div>
 
   <div class="form-card">
+    <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 010 20M12 2a15.3 15.3 0 000 20"/></svg>Website Details</h3>
+    <div class="field">
+      <label>Website Category</label>
+      <input type="text" id="inpWebCat" list="webCatList" placeholder="e.g. Protein" maxlength="60">
+      <datalist id="webCatList"><option value="Protein"><option value="Pre-Workout"><option value="Creatine"><option value="Vitamins &amp; Minerals"><option value="Amino Acids"><option value="Fat Burner"><option value="Omega &amp; Health"><option value="Gadgets"><option value="Skincare"></datalist>
+    </div>
+    <div class="field">
+      <label>Benefits</label>
+      <div id="benefitsList"></div>
+      <button type="button" class="web-add-btn" onclick="addBenefit()">+ Add benefit</button>
+    </div>
+    <div class="field">
+      <label>Usage</label>
+      <textarea class="web-ta" id="inpUsage" maxlength="600" placeholder="e.g. Mix 1 scoop with 250ml water after workout"></textarea>
+    </div>
+    <div class="field" style="margin-bottom:0">
+      <label>Caution</label>
+      <textarea class="web-ta" id="inpCaution" maxlength="600" placeholder="e.g. Keep out of reach of children. Consult a doctor if pregnant."></textarea>
+    </div>
+  </div>
+
+  <div class="form-card">
     <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>Pricing (BDT)</h3>
     <div class="field-row">
       <div class="field">
@@ -2267,13 +2323,38 @@ fill="#ed1d24"><rect width="512" height="512" rx="15%" fill="#ed1d24"/><path d="
       <div class="switch on" id="switchTrending" onclick="toggleSwitch('switchTrending')"></div>
     </div>
   </div>
+  <div class="form-card">
+    <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>SEO &amp; URL</h3>
+    <div class="field">
+      <label>URL Slug</label>
+      <input type="text" id="inpSlug" placeholder="auto from product name" maxlength="80" oninput="this.value=slugify(this.value)">
+    </div>
+    <div class="field">
+      <label>SEO Title</label>
+      <input type="text" id="inpSeoTitle" maxlength="70" placeholder="Defaults to product name" oninput="updateSeoCount()">
+      <div class="web-count" id="seoTitleCount">0 / 60</div>
+    </div>
+    <div class="field" style="margin-bottom:0">
+      <label>SEO Description</label>
+      <textarea class="web-ta" id="inpSeoDesc" maxlength="200" placeholder="Shown in Google results" oninput="updateSeoCount()"></textarea>
+      <div class="web-count" id="seoDescCount">0 / 160</div>
+    </div>
+  </div>
   </fieldset>
 
   <div class="form-card" style="padding:0">
     <div class="save-bar" style="margin:0;border-radius:18px;border-top:none">
       <button class="btn-draft" id="productCancelBtn" style="display:none">Cancel</button>
-      <button class="btn-save" id="productSaveBtn" disabled onclick="saveProduct(true, event)">Save Changes</button>
+      <button class="btn-save" id="productSaveBtn" disabled onclick="saveProduct(event)">Save Changes</button>
     </div>
+  </div>
+
+  <div class="form-card" id="webPublishCard">
+    <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 010 20M12 2a15.3 15.3 0 000 20"/></svg>Website Status<span class="web-pill draft" id="webStatusPill">Draft</span></h3>
+    <div class="web-check" id="webCheckImg"><i></i>Product image</div>
+    <div class="web-check" id="webCheckDesc"><i></i>Description</div>
+    <div class="hint-row" style="margin-top:8px">Switching WEB off in Stock takes this product off the website.</div>
+    <button type="button" class="web-publish-btn" id="webPublishBtn" onclick="togglePublish()">Publish to Website</button>
   </div>
   </div>
 </div>
@@ -3562,7 +3643,7 @@ function initEditLock(fieldsetIds, btnId, saveBtnId, cancelBtnId, opts){
     backup = null;
     lock();
     if(typeof opts.onSave === 'function') opts.onSave();
-    T('Changes saved','✅');
+    if(!opts.silentSave) T('Changes saved','✅');
   });
   if(cancelBtn){
     cancelBtn.addEventListener('click', (e)=>{
@@ -3589,7 +3670,7 @@ initEditLock('catbadgeFieldset','catbadgeEditBtn','catbadgeSaveBtn','catbadgeCan
 initEditLock('faqFieldset','faqEditBtn','faqSaveBtn','faqCancelBtn');
 initEditLock('footerpayFieldset','footerpayEditBtn','footerpaySaveBtn','footerpayCancelBtn',{onSave:savePaymentBadges});
 initEditLock('paypageFieldset','paypageEditBtn','paypageSaveBtn','paypageCancelBtn',{onSave:function(){savePaymentPageBadges();savePaymentPageQr();}});
-initEditLock('productFieldset','productEditBtn','productSaveBtn','productCancelBtn');
+initEditLock('productFieldset','productEditBtn','productSaveBtn','productCancelBtn',{silentSave:true,onCancel:function(){loadProductToEditor(currentEditId||'new');}});
 initEditLock('shipFieldset','shipEditBtn','shipSaveBtn','shipCancelBtn');
 initEditLock(['bfmHeroFieldset','bfmBadgesFieldset'],'bfmHeroEditBtn','bfmHeroSaveBtn','bfmHeroCancelBtn');
 initEditLock('bfmStoresFieldset','bfmStoresEditBtn','bfmStoresSaveBtn','bfmStoresCancelBtn');
@@ -4525,13 +4606,49 @@ function updateAll(){
    ═══════════════════════════════════════════════════════════════ */
 let currentEditId = null;
 
-function getProducts(){
-  try { return JSON.parse(localStorage.getItem('sv-products') || '[]'); }
-  catch(e){ return []; }
+let WEB_LIST = [];
+const WEB_DEFAULT_GRADIENT = 'linear-gradient(135deg,#ff6b6b,#ee5a24)';
+function getProducts(){ return WEB_LIST; }
+function getPublishedProducts(){ return WEB_LIST.filter(p => p.published); }
+function saveProducts(){}
+function slugify(t){
+  return String(t || '').toLowerCase().normalize('NFKD').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 80);
 }
-function saveProducts(list){
-  localStorage.setItem('sv-products', JSON.stringify(list));
+function webRowToProduct(r){
+  const w = Array.isArray(r.product_web) ? r.product_web[0] : r.product_web;
+  const st = (w && w.settings) || {};
+  const price = Number(r.price) || 0, old = Number(r.old_price) || 0;
+  const images = (w && Array.isArray(w.web_images)) ? w.web_images.slice() : [];
+  return {
+    id: r.id, name: r.name || '', brand: r.brand || '', sku: r.sku || '',
+    catKey: r.category || 'general', cat: STOCK_CAT_LABEL[r.category] || 'General', subcat: r.subcategory || '',
+    desc: (w && w.web_description) || '', rating: st.rating != null ? Number(st.rating) : 0,
+    price, old: old > price ? old : 0, stock: deriveStockStatus(r.stock_qty), stockQty: r.stock_qty || 0,
+    sale: !!st.sale, hot: !!st.hot, trending: !!st.trending,
+    image: images[0] || null, images, gradient: st.gradient || WEB_DEFAULT_GRADIENT,
+    published: r.is_web_published === true, stockProductId: r.id, variants: [],
+    webCat: (w && w.web_category) || '', benefits: (w && Array.isArray(w.benefits)) ? w.benefits.slice() : [],
+    usage: (w && w.usage) || '', caution: (w && w.caution) || '',
+    slug: (w && w.slug) || '', seoTitle: (w && w.seo_title) || '', seoDesc: (w && w.seo_description) || ''
+  };
 }
+async function loadWebProducts(force){
+  if(!window.sb) return;
+  const fs = document.getElementById('productFieldset');
+  if(fs && !fs.disabled && !force) return;
+  const { data, error } = await sb.from('products')
+    .select('id,name,brand,sku,price,old_price,category,subcategory,stock_qty,is_web_published,product_web(*)')
+    .eq('web_enabled', true).eq('is_active', true).eq('archived', false).order('name');
+  if(error){ console.error('loadWebProducts error:', error.message); T('Could not load web products', '⚠️'); return; }
+  WEB_LIST = (data || []).map(webRowToProduct);
+  const keep = (currentEditId && WEB_LIST.some(p => p.id === currentEditId)) ? currentEditId : (WEB_LIST[0] ? WEB_LIST[0].id : 'new');
+  refreshProductEditorSelect();
+  document.getElementById('inpEditProduct').value = keep;
+  loadProductToEditor(keep);
+  renderHotDealsPicker();
+  renderHotDealsRow();
+}
+window.addEventListener('focus', () => { loadWebProducts(false); });
 function listedStockIdMap(excludeProductId){
   const map = {}; // stockProductId -> {productId, productName}
   getProducts().forEach(p => {
@@ -4551,96 +4668,195 @@ function saveHotDealsSelection(ids){
   localStorage.setItem('sv-hotdeals-selection', JSON.stringify(ids));
 }
 
-function saveProduct(publish, evt){
-  const name = document.getElementById('apInpName').value || 'Unnamed Product';
-  const cat = document.getElementById('inpCat').value;
-  const subcat = document.getElementById('inpSubcat').value || '';
-  const desc = document.getElementById('apInpDesc').innerHTML || '';
-  const rating = parseFloat(document.getElementById('inpRating').value) || 0;
-  const price = parseInt(document.getElementById('inpPrice').value) || 0;
-  const old = parseInt(document.getElementById('inpOld').value) || 0;
-  const discount = document.getElementById('inpDiscount').value;
-  const stock = document.getElementById('apInpStock').value;
-  const sale = document.getElementById('switchSale').classList.contains('on');
-  const hot = document.getElementById('switchHot').classList.contains('on');
-  const trending = document.getElementById('switchTrending').classList.contains('on');
-
-  const list = getProducts();
-  const id = currentEditId || ('p' + Date.now());
-  const product = { id, name, brand: currentStockBrand || '', cat, subcat, desc, rating, price, old, discount, stock, sale, hot, trending,
-                     image: currentImg, images: currentImages.slice(), gradient: currentGradient, published: !!publish,
-                     stockProductId: currentStockProductId || null, variants: currentVariants.slice() };
-  const idx = list.findIndex(p => p.id === id);
-  if(idx >= 0) list[idx] = product; else list.push(product);
-  saveProducts(list);
-  currentEditId = id;
-
+function updateSeoCount(){
+  const t = document.getElementById('inpSeoTitle'), d = document.getElementById('inpSeoDesc');
+  if(t) document.getElementById('seoTitleCount').textContent = t.value.length + ' / 60';
+  if(d) document.getElementById('seoDescCount').textContent = d.value.length + ' / 160';
+}
+function renderBenefits(list){
+  const el = document.getElementById('benefitsList');
+  const rows = (list && list.length) ? list : [''];
+  el.innerHTML = rows.map(v => '<div class="ben-row"><input type="text" maxlength="120" placeholder="e.g. Supports muscle recovery" value="' + escFaq(v) + '"><button type="button" onclick="removeBenefit(this)" aria-label="Remove">×</button></div>').join('');
+}
+function addBenefit(){
+  const el = document.getElementById('benefitsList');
+  if(el.querySelectorAll('.ben-row').length >= 8){ T('Max 8 benefits', '⚠️'); return; }
+  el.insertAdjacentHTML('beforeend', '<div class="ben-row"><input type="text" maxlength="120" placeholder="e.g. Supports muscle recovery"><button type="button" onclick="removeBenefit(this)" aria-label="Remove">×</button></div>');
+  el.lastElementChild.querySelector('input').focus();
+}
+function removeBenefit(btn){
+  const el = document.getElementById('benefitsList');
+  btn.parentElement.remove();
+  if(!el.children.length) renderBenefits([]);
+}
+function webPlainText(html){ return String(html || '').replace(/<[^>]*>/g, ' ').replace(/&nbsp;/g, ' ').trim(); }
+function webPublishMissing(p){
+  const miss = [];
+  if(!p.images.length) miss.push('image');
+  if(!webPlainText(p.desc)) miss.push('description');
+  return miss;
+}
+function renderLinkedCard(p){
+  const icon = document.getElementById('webLinkedIcon');
+  if(!p){
+    icon.innerHTML = '';
+    document.getElementById('webLinkedName').textContent = '—';
+    document.getElementById('webLinkedSub').textContent = 'Pick a product above';
+    return;
+  }
+  icon.innerHTML = stockCatIconBadgeSVG(p.catKey);
+  document.getElementById('webLinkedName').textContent = svTitle(p.name, p.brand);
+  document.getElementById('webLinkedSub').textContent = 'SKU ' + (p.sku || '—') + '  ·  ' + p.stockQty + ' in stock  ·  ৳' + p.price.toLocaleString();
+}
+function renderPublishCard(p){
+  const pill = document.getElementById('webStatusPill'), btn = document.getElementById('webPublishBtn');
+  const chkI = document.getElementById('webCheckImg'), chkD = document.getElementById('webCheckDesc');
+  if(!p){
+    pill.className = 'web-pill draft'; pill.textContent = 'Draft';
+    chkI.classList.remove('ok'); chkD.classList.remove('ok');
+    btn.disabled = true; btn.className = 'web-publish-btn'; btn.textContent = 'Publish to Website';
+    return;
+  }
+  pill.className = 'web-pill ' + (p.published ? 'live' : 'draft');
+  pill.textContent = p.published ? 'Live' : 'Draft';
+  chkI.classList.toggle('ok', p.images.length > 0);
+  chkD.classList.toggle('ok', !!webPlainText(p.desc));
+  btn.disabled = false;
+  btn.className = 'web-publish-btn' + (p.published ? ' off' : '');
+  btn.textContent = p.published ? 'Unpublish' : 'Publish to Website';
+}
+async function togglePublish(){
+  const p = WEB_LIST.find(x => x.id === currentEditId);
+  if(!p || !window.sb) return;
+  if(!document.getElementById('productFieldset').disabled){ T('Save your changes first', '⚠️'); return; }
+  const next = !p.published;
+  if(next){
+    const miss = webPublishMissing(p);
+    if(miss.length){ T('Add ' + miss.join(' + ') + ' first', '⚠️'); return; }
+  } else if(!confirm('Unpublish? This product will disappear from the website.')) return;
+  const btn = document.getElementById('webPublishBtn');
+  btn.disabled = true;
+  const { error } = await sb.from('products').update({ is_web_published: next, updated_at: new Date().toISOString() }).eq('id', p.id);
+  if(error){ T('Failed: ' + error.message, '⚠️'); renderPublishCard(p); return; }
+  p.published = next;
   refreshProductEditorSelect();
-  document.getElementById('inpEditProduct').value = id;
+  document.getElementById('inpEditProduct').value = p.id;
+  renderPublishCard(p);
   renderHotDealsPicker();
   renderHotDealsRow();
+  T(next ? 'Published to website' : 'Unpublished', next ? '🟢' : '⚪');
+}
+
+async function saveProduct(evt){
+  const reopen = () => { const b = document.getElementById('productEditBtn'); if(document.getElementById('productFieldset').disabled) b.click(); };
+  const id = currentEditId;
+  const cur = WEB_LIST.find(x => x.id === id);
+  if(!id || !cur || !window.sb){ T('Pick a product first', '⚠️'); reopen(); return; }
+  const desc = document.getElementById('apInpDesc').innerHTML.trim();
+  if(cur.published && (!currentImages.length || !webPlainText(desc))){
+    T('Live product needs image + description. Unpublish first.', '⚠️'); reopen(); return;
+  }
+  T('Saving…', '⏳');
+  try{
+    const urls = [];
+    for(const src of currentImages){
+      if(typeof src === 'string' && src.startsWith('data:')){
+        const blob = await (await fetch(src)).blob();
+        const ext = ((blob.type.split('/')[1] || 'jpg').replace('jpeg', 'jpg')).replace(/[^a-z0-9]/g, '') || 'jpg';
+        const path = 'products/' + id + '/' + Date.now() + '-' + Math.random().toString(36).slice(2, 7) + '.' + ext;
+        const { error: upErr } = await sb.storage.from('site-content-images').upload(path, blob, { contentType: blob.type, upsert: false });
+        if(upErr) throw upErr;
+        urls.push(sb.storage.from('site-content-images').getPublicUrl(path).data.publicUrl);
+      } else urls.push(src);
+    }
+    const price = parseInt(document.getElementById('inpPrice').value) || 0;
+    const old = parseInt(document.getElementById('inpOld').value) || 0;
+    const benefits = Array.from(document.querySelectorAll('#benefitsList input')).map(i => i.value.trim()).filter(Boolean);
+    const web = {
+      product_id: id,
+      slug: slugify(document.getElementById('inpSlug').value) || slugify(svTitle(cur.name, cur.brand)),
+      web_description: desc,
+      web_category: document.getElementById('inpWebCat').value.trim() || null,
+      web_images: urls, benefits,
+      usage: document.getElementById('inpUsage').value.trim() || null,
+      caution: document.getElementById('inpCaution').value.trim() || null,
+      seo_title: document.getElementById('inpSeoTitle').value.trim() || null,
+      seo_description: document.getElementById('inpSeoDesc').value.trim() || null,
+      settings: {
+        sale: document.getElementById('switchSale').classList.contains('on'),
+        hot: document.getElementById('switchHot').classList.contains('on'),
+        trending: document.getElementById('switchTrending').classList.contains('on'),
+        rating: parseFloat(document.getElementById('inpRating').value) || 0,
+        gradient: currentGradient
+      },
+      updated_at: new Date().toISOString()
+    };
+    let { error } = await sb.from('product_web').upsert(web, { onConflict: 'product_id' });
+    if(error && error.code === '23505'){
+      web.slug = web.slug + '-' + String(cur.sku || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+      ({ error } = await sb.from('product_web').upsert(web, { onConflict: 'product_id' }));
+    }
+    if(error) throw error;
+    const r2 = await sb.from('products').update({ old_price: (old > 0 && old > price) ? old : null, updated_at: new Date().toISOString() }).eq('id', id);
+    if(r2.error) throw r2.error;
+    await loadWebProducts(true);
+    T('Saved', '✅');
+  } catch(err){
+    console.error('saveProduct error:', err);
+    T('Save failed: ' + (err.message || err), '⚠️');
+    reopen();
+  }
 }
 
 function refreshProductEditorSelect(){
   const sel = document.getElementById('inpEditProduct');
   const current = sel.value;
   const list = getProducts();
-  sel.innerHTML = '<option value="new">+ New Product</option>' +
-    list.map(p => '<option value="' + p.id + '">' + p.name + '</option>').join('');
-  sel.value = list.some(p => p.id === current) ? current : 'new';
+  sel.innerHTML = list.length
+    ? list.map(p => '<option value="' + p.id + '">' + (p.published ? '● Live · ' : '○ Draft · ') + escFaq(svTitle(p.name, p.brand)) + '</option>').join('')
+    : '<option value="new">No products sent from Stock yet</option>';
+  sel.value = list.some(p => p.id === current) ? current : (list[0] ? list[0].id : 'new');
 }
 
 function loadProductToEditor(id){
-  if(id === 'new'){
+  const p = WEB_LIST.find(x => x.id === id);
+  const editBtn = document.getElementById('productEditBtn');
+  const setV = (i, v) => { document.getElementById(i).value = v; };
+  manualDiscount = false;
+  if(!p){
     currentEditId = null;
-    document.getElementById('apInpName').value = 'New Product';
-    document.getElementById('inpCat').value = 'Supplement';
-    document.getElementById('inpSubcat').value = '';
+    setV('apInpName', ''); setV('inpCat', 'Supplement'); setV('inpSubcat', ''); setV('inpRating', '0');
     document.getElementById('apInpDesc').innerHTML = '';
-    document.getElementById('inpRating').value = '4.8';
-    document.getElementById('inpPrice').value = '0';
-    document.getElementById('inpOld').value = '0';
-    document.getElementById('inpDiscount').value = '0% OFF';
-    manualDiscount = false;
-    document.getElementById('apInpStock').value = 'in';
-    currentStockProductId = '';
-    currentStockBrand = '';
-    refreshStockPickTrigger();
-    ['switchSale'].forEach(s => document.getElementById(s).classList.remove('on'));
-    ['switchHot','switchTrending'].forEach(s => document.getElementById(s).classList.add('on'));
-    resetImages();
-    currentVariants = [];
-    renderVariantChips();
-    updateAll();
+    setV('inpPrice', '0'); setV('inpOld', '0'); setV('inpDiscount', '0% OFF'); setV('apInpStock', 'in');
+    setV('inpWebCat', ''); setV('inpUsage', ''); setV('inpCaution', ''); setV('inpSlug', ''); setV('inpSeoTitle', ''); setV('inpSeoDesc', '');
+    renderBenefits([]);
+    ['switchSale', 'switchHot', 'switchTrending'].forEach(x => document.getElementById(x).classList.remove('on'));
+    currentStockProductId = ''; currentStockBrand = ''; currentVariants = [];
+    refreshStockPickTrigger(); renderVariantChips(); resetImages();
+    currentGradient = WEB_DEFAULT_GRADIENT;
+    editBtn.disabled = true;
+    renderLinkedCard(null); renderPublishCard(null); updateSeoCount(); updateAll();
     return;
   }
-  const list = getProducts();
-  const p = list.find(x => x.id === id);
-  if(!p) return;
+  editBtn.disabled = false;
   currentEditId = p.id;
-  document.getElementById('apInpName').value = p.name;
-  currentStockBrand = p.brand || '';
-  document.getElementById('inpCat').value = p.cat;
-  document.getElementById('inpSubcat').value = p.subcat || '';
-  document.getElementById('apInpDesc').innerHTML = p.desc || '';
-  document.getElementById('inpRating').value = p.rating;
-  document.getElementById('inpPrice').value = p.price;
-  document.getElementById('inpOld').value = p.old;
-  document.getElementById('inpDiscount').value = p.discount;
-  document.getElementById('apInpStock').value = p.stock;
-  currentStockProductId = p.stockProductId || '';
-  refreshStockPickTrigger();
+  setV('apInpName', p.name); currentStockBrand = p.brand;
+  setV('inpCat', p.cat); setV('inpSubcat', p.subcat);
+  document.getElementById('apInpDesc').innerHTML = p.desc;
+  setV('inpRating', p.rating); setV('inpPrice', p.price); setV('inpOld', p.old || 0);
+  setV('apInpStock', p.stock);
+  currentStockProductId = p.id; currentVariants = [];
+  refreshStockPickTrigger(); renderVariantChips();
   document.getElementById('switchSale').classList.toggle('on', p.sale);
   document.getElementById('switchHot').classList.toggle('on', p.hot);
   document.getElementById('switchTrending').classList.toggle('on', p.trending);
-  currentVariants = (p.variants || []).slice();
-  renderVariantChips();
-  currentImages = (p.images && p.images.length) ? p.images.slice() : (p.image ? [p.image] : []);
-  syncCurrentImg();
-  currentGradient = p.gradient || 'linear-gradient(135deg,#ff6b6b,#ee5a24)';
-  renderImgThumbStrip();
-  applyImageToCards();
-  updateAll();
+  setV('inpWebCat', p.webCat); setV('inpUsage', p.usage); setV('inpCaution', p.caution);
+  setV('inpSlug', p.slug); setV('inpSeoTitle', p.seoTitle); setV('inpSeoDesc', p.seoDesc);
+  renderBenefits(p.benefits);
+  currentImages = p.images.slice(); syncCurrentImg();
+  currentGradient = p.gradient;
+  renderImgThumbStrip(); applyImageToCards();
+  renderLinkedCard(p); renderPublishCard(p); updateSeoCount(); updateAll();
 }
 
 /* ═══════════════════════════════════════════════════════════════
@@ -4649,7 +4865,7 @@ function loadProductToEditor(id){
 function renderHotDealsPicker(){
   const el = document.getElementById('hotDealsPicker');
   if(!el) return;
-  const list = getProducts();
+  const list = getPublishedProducts();
   if(list.length === 0){
     el.innerHTML = '<div class="hint-row" style="margin:0"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>No products yet — add one in Store → Products</div>';
     return;
@@ -4695,7 +4911,7 @@ function moveHotDeal(id, dir){
 function renderHotDealsRow(){
   const el = document.getElementById('hdRowPreview');
   if(!el) return;
-  const list = getProducts();
+  const list = getPublishedProducts();
   const selection = getHotDealsSelection().filter(id => list.some(p => p.id === id));
   if(selection.length === 0){
     el.innerHTML = '<div class="hint-row" style="margin:0 34px;white-space:normal;text-align:center;justify-content:center;width:100%">No products selected yet — pick some in the form above</div>';
@@ -5890,6 +6106,7 @@ async function loadFooterSectionFromDb(){
 }
 loadFooterSectionFromDb();
 loadStockProductsFromDb();
+loadWebProducts(true);
 
 applyImageToCards();
 refreshProductEditorSelect();
