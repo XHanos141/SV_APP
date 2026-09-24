@@ -5679,40 +5679,45 @@ html[data-theme="dark"] .prod-card-name { color: #ffffff; }
 }
 html[data-theme="dark"] .prod-card-sku { color: #22d3ee; text-shadow: 0 0 6px rgba(34,211,238,0.3); -webkit-text-stroke: 0.25px #22d3ee; }
 
-/* WEB publish switch (stock card): off = gray, draft = blue, live = glowing green */
+/* WEB publish switch (stock card): off = gray, draft = blue, live = glowing green. Globe sits on the knob */
 .prod-side { display: flex; flex-direction: column; align-items: center; gap: 7px; flex-shrink: 0; margin-top: -6px; }
 .web-sw {
-  position: relative; width: 50px; height: 20px; border-radius: 999px; padding: 0; flex-shrink: 0;
-  border: 1px solid rgba(140,146,161,0.35); background: #c9ced8; cursor: pointer;
-  transition: background 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
-  -webkit-tap-highlight-color: transparent;
+  position: relative; width: 56px; height: 28px; border-radius: 999px; padding: 0; flex-shrink: 0;
+  border: 1px solid rgba(120,128,150,0.35);
+  background: linear-gradient(180deg,#cfd4e0,#dde1ea);
+  box-shadow: inset 0 2px 5px rgba(60,70,100,0.28), inset 0 -1px 1px rgba(255,255,255,0.6);
+  cursor: pointer; -webkit-tap-highlight-color: transparent;
+  transition: background 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
 }
-.web-sw::after { content: ''; position: absolute; inset: -9px -6px; }
+.web-sw::after { content: ''; position: absolute; inset: -8px -6px; }
 .web-sw:focus-visible { outline: 2px solid #7c6ff7; outline-offset: 2px; }
-.web-sw-txt {
-  position: absolute; top: 50%; right: 7px; transform: translateY(-50%);
-  font-family: "Plus Jakarta Sans", sans-serif; font-size: 8.5px; font-weight: 800; letter-spacing: 0.8px;
-  line-height: 1; color: #6b7280; transition: color 0.25s ease;
-}
 .web-sw-knob {
-  position: absolute; top: 2px; left: 2px; width: 14px; height: 14px; border-radius: 50%;
-  background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.3);
-  transition: transform 0.25s cubic-bezier(0.4,0,0.2,1);
+  position: absolute; top: 2px; left: 2px; width: 22px; height: 22px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  background: radial-gradient(circle at 35% 30%, #fff 0%, #f1f2f5 55%, #dfe2e8 100%);
+  box-shadow: 0 2px 5px rgba(30,40,70,0.35), inset 0 -2px 2px rgba(0,0,0,0.08), inset 0 1px 1px #fff;
+  transition: transform 0.3s cubic-bezier(0.4,0,0.2,1);
 }
-html[data-theme="dark"] .web-sw-off { background: rgba(255,255,255,0.14); border-color: rgba(255,255,255,0.12); }
-html[data-theme="dark"] .web-sw-off .web-sw-txt { color: #8c92a1; }
-.web-sw-draft { background: linear-gradient(135deg,#0ea5e9,#0284c7); border-color: #38bdf8; box-shadow: 0 2px 8px rgba(2,132,199,0.35); }
+.web-sw-ico { width: 13px; height: 13px; color: #8c92a1; transition: color 0.3s ease; }
+html[data-theme="dark"] .web-sw-off {
+  background: linear-gradient(180deg,#263245,#33405a); border-color: rgba(255,255,255,0.1);
+  box-shadow: inset 0 2px 6px rgba(0,0,0,0.5), inset 0 -1px 1px rgba(255,255,255,0.06);
+}
+.web-sw-draft {
+  background: linear-gradient(180deg,#0284c7,#38bdf8); border-color: #0284c7;
+  box-shadow: inset 0 2px 5px rgba(0,50,90,0.4), inset 0 -1px 1px rgba(255,255,255,0.25), 0 0 0 1px rgba(56,189,248,0.25);
+}
+.web-sw-draft .web-sw-ico { color: #0284c7; }
 .web-sw-live {
-  background: linear-gradient(135deg,#22c55e,#16a34a); border-color: #4ade80;
-  box-shadow: 0 0 0 1px rgba(74,222,128,0.45), 0 0 12px rgba(34,197,94,0.75);
+  background: linear-gradient(180deg,#16a34a,#4ade80); border-color: #22c55e;
+  box-shadow: inset 0 2px 5px rgba(0,60,20,0.35), inset 0 -1px 1px rgba(255,255,255,0.3), 0 0 12px rgba(34,197,94,0.75);
   animation: webGlow 2.4s ease-in-out infinite;
 }
-.web-sw-draft .web-sw-knob, .web-sw-live .web-sw-knob { transform: translateX(30px); }
-.web-sw-draft .web-sw-txt, .web-sw-live .web-sw-txt { left: 7px; right: auto; color: #fff; }
-.web-sw-live .web-sw-txt { text-shadow: 0 0 6px rgba(255,255,255,0.9); }
+.web-sw-live .web-sw-ico { color: #16a34a; }
+.web-sw-draft .web-sw-knob, .web-sw-live .web-sw-knob { transform: translateX(28px); }
 @keyframes webGlow {
-  0%, 100% { box-shadow: 0 0 0 1px rgba(74,222,128,0.45), 0 0 10px rgba(34,197,94,0.6); }
-  50% { box-shadow: 0 0 0 1px rgba(74,222,128,0.7), 0 0 18px rgba(34,197,94,0.95); }
+  0%, 100% { box-shadow: inset 0 2px 5px rgba(0,60,20,0.35), inset 0 -1px 1px rgba(255,255,255,0.3), 0 0 9px rgba(34,197,94,0.6); }
+  50% { box-shadow: inset 0 2px 5px rgba(0,60,20,0.35), inset 0 -1px 1px rgba(255,255,255,0.3), 0 0 18px rgba(34,197,94,0.95); }
 }
 @media (prefers-reduced-motion: reduce) { .web-sw-live { animation: none; } .web-sw, .web-sw-knob { transition: none; } }
 
@@ -24183,7 +24188,7 @@ function svWebState(p) { return p.isWebPublished ? 'live' : (p.webEnabled ? 'dra
 function svWebSwitchHTML(p) {
   const st = svWebState(p);
   const label = st === 'live' ? 'Live on website' : st === 'draft' ? 'Sent to admin panel (draft)' : 'Not on website';
-  return `<button type="button" class="web-sw web-sw-${st}" role="switch" aria-checked="${st !== 'off'}" aria-label="${label}" title="${label}" onclick="toggleWebFlag('${String(p.sku).replace(/'/g, "\\'")}', event)"><span class="web-sw-txt">WEB</span><span class="web-sw-knob"></span></button>`;
+  return `<button type="button" class="web-sw web-sw-${st}" role="switch" aria-checked="${st !== 'off'}" aria-label="${label}" title="${label}" onclick="toggleWebFlag('${String(p.sku).replace(/'/g, "\\'")}', event)"><span class="web-sw-knob"><svg class="web-sw-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 010 20M12 2a15.3 15.3 0 000 20"/></svg></span></button>`;
 }
 async function toggleWebFlag(sku, ev) {
   if (ev) ev.stopPropagation();
