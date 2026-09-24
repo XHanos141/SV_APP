@@ -5682,42 +5682,42 @@ html[data-theme="dark"] .prod-card-sku { color: #22d3ee; text-shadow: 0 0 6px rg
 /* WEB publish switch (stock card): off = gray, draft = blue, live = glowing green. Globe sits on the knob */
 .prod-side { display: flex; flex-direction: column; align-items: center; gap: 7px; flex-shrink: 0; margin-top: -6px; }
 .web-sw {
-  position: relative; width: 56px; height: 28px; border-radius: 999px; padding: 0; flex-shrink: 0;
+  position: relative; width: 46px; height: 24px; border-radius: 999px; padding: 0; flex-shrink: 0;
   border: 1px solid rgba(120,128,150,0.35);
   background: linear-gradient(180deg,#cfd4e0,#dde1ea);
-  box-shadow: inset 0 2px 5px rgba(60,70,100,0.28), inset 0 -1px 1px rgba(255,255,255,0.6);
+  box-shadow: inset 0 1px 3px rgba(60,70,100,0.18), inset 0 -1px 1px rgba(255,255,255,0.5);
   cursor: pointer; -webkit-tap-highlight-color: transparent;
   transition: background 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
 }
 .web-sw::after { content: ''; position: absolute; inset: -8px -6px; }
 .web-sw:focus-visible { outline: 2px solid #7c6ff7; outline-offset: 2px; }
 .web-sw-knob {
-  position: absolute; top: 2px; left: 2px; width: 22px; height: 22px; border-radius: 50%;
+  position: absolute; top: 1px; left: 1px; width: 20px; height: 20px; border-radius: 50%;
   display: flex; align-items: center; justify-content: center;
   background: radial-gradient(circle at 35% 30%, #fff 0%, #f1f2f5 55%, #dfe2e8 100%);
-  box-shadow: 0 2px 5px rgba(30,40,70,0.35), inset 0 -2px 2px rgba(0,0,0,0.08), inset 0 1px 1px #fff;
+  box-shadow: 0 1px 3px rgba(30,40,70,0.28), inset 0 -1px 2px rgba(0,0,0,0.06), inset 0 1px 1px #fff;
   transition: transform 0.3s cubic-bezier(0.4,0,0.2,1);
 }
-.web-sw-ico { width: 13px; height: 13px; color: #8c92a1; transition: color 0.3s ease; }
+.web-sw-ico { width: 12px; height: 12px; color: #8c92a1; transition: color 0.3s ease; }
 html[data-theme="dark"] .web-sw-off {
   background: linear-gradient(180deg,#263245,#33405a); border-color: rgba(255,255,255,0.1);
-  box-shadow: inset 0 2px 6px rgba(0,0,0,0.5), inset 0 -1px 1px rgba(255,255,255,0.06);
+  box-shadow: inset 0 1px 4px rgba(0,0,0,0.4), inset 0 -1px 1px rgba(255,255,255,0.05);
 }
 .web-sw-draft {
   background: linear-gradient(180deg,#0284c7,#38bdf8); border-color: #0284c7;
-  box-shadow: inset 0 2px 5px rgba(0,50,90,0.4), inset 0 -1px 1px rgba(255,255,255,0.25), 0 0 0 1px rgba(56,189,248,0.25);
+  box-shadow: inset 0 1px 3px rgba(0,50,90,0.28), inset 0 -1px 1px rgba(255,255,255,0.2), 0 0 0 1px rgba(56,189,248,0.2);
 }
 .web-sw-draft .web-sw-ico { color: #0284c7; }
 .web-sw-live {
   background: linear-gradient(180deg,#16a34a,#4ade80); border-color: #22c55e;
-  box-shadow: inset 0 2px 5px rgba(0,60,20,0.35), inset 0 -1px 1px rgba(255,255,255,0.3), 0 0 12px rgba(34,197,94,0.75);
+  box-shadow: inset 0 1px 3px rgba(0,60,20,0.25), inset 0 -1px 1px rgba(255,255,255,0.25), 0 0 9px rgba(34,197,94,0.65);
   animation: webGlow 2.4s ease-in-out infinite;
 }
 .web-sw-live .web-sw-ico { color: #16a34a; }
-.web-sw-draft .web-sw-knob, .web-sw-live .web-sw-knob { transform: translateX(28px); }
+.web-sw-draft .web-sw-knob, .web-sw-live .web-sw-knob { transform: translateX(22px); }
 @keyframes webGlow {
-  0%, 100% { box-shadow: inset 0 2px 5px rgba(0,60,20,0.35), inset 0 -1px 1px rgba(255,255,255,0.3), 0 0 9px rgba(34,197,94,0.6); }
-  50% { box-shadow: inset 0 2px 5px rgba(0,60,20,0.35), inset 0 -1px 1px rgba(255,255,255,0.3), 0 0 18px rgba(34,197,94,0.95); }
+  0%, 100% { box-shadow: inset 0 1px 3px rgba(0,60,20,0.25), inset 0 -1px 1px rgba(255,255,255,0.25), 0 0 7px rgba(34,197,94,0.5); }
+  50% { box-shadow: inset 0 1px 3px rgba(0,60,20,0.25), inset 0 -1px 1px rgba(255,255,255,0.25), 0 0 13px rgba(34,197,94,0.85); }
 }
 @media (prefers-reduced-motion: reduce) { .web-sw-live { animation: none; } .web-sw, .web-sw-knob { transition: none; } }
 
@@ -17298,6 +17298,30 @@ svLoadProducts();
 <script>
 window.__script6Started = true;
 
+/* WEB switch handler: defined first so the stock-card onclick never hits "not defined" */
+window.toggleWebFlag = async function(sku, ev) {
+  if (ev) ev.stopPropagation();
+  const p = PRODUCTS_DATA.find(x => x.sku === sku);
+  if (!p) return;
+  const st = svWebState(p);
+  if (st === 'live' && !confirm('Turn WEB off? This removes the product from the website.')) return;
+  try {
+    let id = p.id;
+    if (!id) {
+      const f = await sbFetch(`products?sku=eq.${encodeURIComponent(sku)}&select=id`);
+      id = f && f[0] && f[0].id;
+      if (!id) { alert('Product not synced to Supabase yet.'); return; }
+      p.id = id;
+    }
+    const r = await sbFetch(`products?id=eq.${id}`, 'PATCH', { web_enabled: st === 'off', updated_at: new Date().toISOString() });
+    const row = r && r[0];
+    p.webEnabled = row ? row.web_enabled === true : st === 'off';
+    p.isWebPublished = row ? row.is_web_published === true : false;
+    renderProductsTab();
+  } catch (err) { alert('WEB toggle failed: ' + err.message); }
+};
+
+
 /* Defined immediately, before any other startup code runs, so the
    Add Product / Restock button always has something to call — even
    if a later, unrelated startup step throws and stops the rest of
@@ -24190,28 +24214,6 @@ function svWebSwitchHTML(p) {
   const label = st === 'live' ? 'Live on website' : st === 'draft' ? 'Sent to admin panel (draft)' : 'Not on website';
   return `<button type="button" class="web-sw web-sw-${st}" role="switch" aria-checked="${st !== 'off'}" aria-label="${label}" title="${label}" onclick="toggleWebFlag('${String(p.sku).replace(/'/g, "\\'")}', event)"><span class="web-sw-knob"><svg class="web-sw-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 010 20M12 2a15.3 15.3 0 000 20"/></svg></span></button>`;
 }
-async function toggleWebFlag(sku, ev) {
-  if (ev) ev.stopPropagation();
-  const p = PRODUCTS_DATA.find(x => x.sku === sku);
-  if (!p) return;
-  const st = svWebState(p);
-  if (st === 'live' && !confirm('Turn WEB off? This removes the product from the website.')) return;
-  try {
-    let id = p.id;
-    if (!id) {
-      const f = await sbFetch(`products?sku=eq.${encodeURIComponent(sku)}&select=id`);
-      id = f && f[0] && f[0].id;
-      if (!id) { alert('Product not synced to Supabase yet.'); return; }
-      p.id = id;
-    }
-    const r = await sbFetch(`products?id=eq.${id}`, 'PATCH', { web_enabled: st === 'off', updated_at: new Date().toISOString() });
-    const row = r && r[0];
-    p.webEnabled = row ? row.web_enabled === true : st === 'off';
-    p.isWebPublished = row ? row.is_web_published === true : false;
-    renderProductsTab();
-  } catch (err) { alert('WEB toggle failed: ' + err.message); }
-}
-
 async function loadProductsFromSupabase() {
   try {
     const rows = await sbFetch('products?select=*&is_active=eq.true&order=created_at.desc');
