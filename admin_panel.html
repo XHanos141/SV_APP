@@ -341,22 +341,36 @@ fieldset:disabled .faq-add-btn{pointer-events:none;opacity:.5}
 .img-upload svg{width:26px;height:26px;color:var(--text3);margin-bottom:6px}
 .img-upload p{font-size:11.5px;color:var(--text2);font-weight:600}
 .img-upload span{font-size:10px;color:var(--text3)}
+.prod-img-upload{border-color:rgba(124,111,247,0.35);background:linear-gradient(180deg,rgba(124,111,247,0.05),rgba(124,111,247,0.02));padding:22px 16px}
+.prod-img-upload:hover{border-color:var(--purple);background:rgba(124,111,247,0.08)}
+.prod-img-upload-icon{width:48px;height:48px;border-radius:14px;margin:0 auto 10px;background:linear-gradient(135deg,#8f84fa,#7c6ff7);display:flex;align-items:center;justify-content:center;box-shadow:0 6px 16px rgba(124,111,247,0.35)}
+.prod-img-upload .prod-img-upload-icon svg{width:22px;height:22px;color:#fff;margin:0}
+.prod-img-upload p{font-size:13px;font-weight:800;color:var(--text);margin-bottom:3px}
+.prod-img-upload span{font-size:10.5px;color:var(--text3);font-weight:600}
 .banner-img-upload:not(.has-img){background:#0B0F18;border-color:rgba(255,255,255,0.12);min-height:120px}
 .banner-img-upload:not(.has-img):hover{background:#0B0F18;border-color:var(--accent)}
 .banner-img-upload:not(.has-img) .banner-img-empty{display:none}
 .img-preview-thumb{width:100%;height:140px;object-fit:cover;display:block}
 .img-remove{position:absolute;top:8px;right:8px;width:26px;height:26px;border-radius:50%;background:rgba(0,0,0,.6);color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:2}
 .img-remove svg{width:13px;height:13px}
-.img-thumb-strip{display:flex;gap:8px;margin-top:10px;overflow-x:auto;overflow-y:hidden;padding-bottom:4px;-webkit-overflow-scrolling:touch;scrollbar-width:thin}
+.img-thumb-strip{display:flex;gap:10px;margin-top:12px;overflow-x:auto;overflow-y:hidden;padding-bottom:4px;-webkit-overflow-scrolling:touch;scrollbar-width:thin}
 .img-thumb-strip:empty{display:none;margin:0}
-.img-thumb-item{position:relative;flex-shrink:0;width:64px;height:64px;border-radius:10px;overflow:hidden;border:1px solid var(--border);cursor:grab;background:var(--surface2);transition:opacity .15s ease,outline-color .15s ease}
-.img-thumb-item:active{cursor:grabbing}
+.img-thumb-item{position:relative;flex-shrink:0;width:72px;height:72px;border-radius:14px;overflow:hidden;border:1px solid var(--border);cursor:grab;background:var(--surface2);box-shadow:var(--shadow-sm);transition:opacity .15s ease,outline-color .15s ease,transform .15s ease}
+.img-thumb-item:active{cursor:grabbing;transform:scale(0.97)}
 .img-thumb-item.dragging{opacity:.35}
-.img-thumb-item.drag-over{outline:2px solid var(--accent);outline-offset:-2px}
+.img-thumb-item.drag-over{outline:2px solid var(--purple);outline-offset:-2px}
 .img-thumb-item img{width:100%;height:100%;object-fit:cover;display:block;pointer-events:none}
-.img-thumb-primary-badge{position:absolute;bottom:2px;left:2px;background:rgba(0,0,0,.65);color:#fff;font-size:8px;font-weight:700;padding:1px 5px;border-radius:5px;letter-spacing:.02em}
-.img-thumb-remove{position:absolute;top:2px;right:2px;width:18px;height:18px;border-radius:50%;background:rgba(0,0,0,.65);color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:2}
+.img-thumb-grip{position:absolute;top:3px;left:3px;width:16px;height:16px;border-radius:5px;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;pointer-events:none}
+.img-thumb-grip svg{width:9px;height:9px;color:#fff}
+.img-thumb-primary-badge{position:absolute;bottom:3px;left:3px;display:flex;align-items:center;gap:2px;background:linear-gradient(135deg,#8f84fa,#7c6ff7);color:#fff;font-size:8px;font-weight:800;padding:2px 6px 2px 4px;border-radius:6px;letter-spacing:.02em;box-shadow:0 2px 6px rgba(124,111,247,.4)}
+.img-thumb-primary-badge svg{width:8px;height:8px}
+.img-thumb-remove{position:absolute;top:3px;right:3px;width:19px;height:19px;border-radius:50%;background:rgba(0,0,0,.55);color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:2;transition:background .15s ease}
+.img-thumb-remove:active{background:var(--red)}
 .img-thumb-remove svg{width:10px;height:10px}
+.img-thumb-add{flex-shrink:0;width:72px;height:72px;border-radius:14px;border:2px dashed var(--border);background:var(--bg);display:flex;align-items:center;justify-content:center;color:var(--text3);cursor:pointer;transition:border-color .15s ease,color .15s ease}
+.img-thumb-add:active{border-color:var(--purple);color:var(--purple)}
+.img-thumb-add svg{width:18px;height:18px}
+.img-thumb-hint{font-size:10px;color:var(--text3);font-weight:600;margin-top:6px}
 .gradient-picker{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
 .gradient-swatch{width:30px;height:30px;border-radius:9px;cursor:pointer;border:2px solid transparent;flex-shrink:0}
 .rte-toolbar{display:flex;align-items:center;gap:4px;flex-wrap:wrap;background:var(--surface2);border:1px solid var(--border);border-radius:10px 10px 0 0;padding:8px;margin-bottom:-1px;position:relative}
@@ -2172,14 +2186,6 @@ fill="#ed1d24"><rect width="512" height="512" rx="15%" fill="#ed1d24"/><path d="
     </div>
   </div>
   <fieldset id="productFieldset" style="border:none;margin:0;padding:0">
-  <div class="form-card" id="webLinkedCard">
-    <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>Inventory Item</h3>
-    <div class="web-linked">
-      <div id="webLinkedIcon"></div>
-      <div style="min-width:0"><div class="web-linked-name" id="webLinkedName">—</div><div class="web-linked-sub" id="webLinkedSub">Pick a product above</div></div>
-    </div>
-    <div class="hint-row" style="margin-top:10px">Name, price and stock are managed in Stock. The website reads this same record.</div>
-  </div>
   <div class="form-card" style="display:none" aria-hidden="true">
     <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>Product (from Stock)</h3>
     <div class="field" style="margin-bottom:0">
@@ -2204,15 +2210,16 @@ fill="#ed1d24"><rect width="512" height="512" rx="15%" fill="#ed1d24"/><path d="
   </div>
   <div class="form-card">
     <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>Product Image</h3>
-    <div class="img-upload" id="imgUploadBox">
+    <div class="img-upload prod-img-upload" id="imgUploadBox">
       <input type="file" accept="image/*" id="imgInput" multiple onchange="handleImage(event)">
       <div id="imgUploadEmpty">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>
-        <p>Tap to upload product photo</p>
-        <span>Recommended: 1000×1000px JPG or PNG, under 2MB</span>
+        <div class="prod-img-upload-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="4"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg></div>
+        <p>Add product photos</p>
+        <span>JPG or PNG, up to 2MB each · first photo becomes the cover</span>
       </div>
     </div>
     <div class="img-thumb-strip" id="imgThumbStrip"></div>
+    <div class="img-thumb-hint" id="imgThumbHint" style="display:none">Drag to reorder · first photo is the cover</div>
   </div>
 
   <div class="form-card" style="display:none" aria-hidden="true">
@@ -4299,6 +4306,8 @@ function imgThumbDrop(e, idx){
 function renderImgThumbStrip(){
   const strip = document.getElementById('imgThumbStrip');
   if(!strip) return;
+  const hint = document.getElementById('imgThumbHint');
+  if(hint) hint.style.display = currentImages.length ? '' : 'none';
   strip.innerHTML = currentImages.map((src, i) =>
     '<div class="img-thumb-item" draggable="true"' +
       ' ondragstart="imgThumbDragStart(event,' + i + ')"' +
@@ -4307,10 +4316,11 @@ function renderImgThumbStrip(){
       ' ondragleave="imgThumbDragLeave(event)"' +
       ' ondrop="imgThumbDrop(event,' + i + ')">' +
       '<img src="' + src + '">' +
-      (i === 0 ? '<span class="img-thumb-primary-badge">Cover</span>' : '') +
+      '<div class="img-thumb-grip"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="9" cy="6" r="1.6"/><circle cx="15" cy="6" r="1.6"/><circle cx="9" cy="12" r="1.6"/><circle cx="15" cy="12" r="1.6"/><circle cx="9" cy="18" r="1.6"/><circle cx="15" cy="18" r="1.6"/></svg></div>' +
+      (i === 0 ? '<span class="img-thumb-primary-badge"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.9 6.26L22 9.27l-5 4.87L18.2 21 12 17.56 5.8 21 7 14.14l-5-4.87 7.1-1.01L12 2z"/></svg>Cover</span>' : '') +
       '<div class="img-thumb-remove" onclick="event.stopPropagation();removeImageAt(' + i + ')"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></div>' +
     '</div>'
-  ).join('');
+  ).join('') + (currentImages.length ? '<div class="img-thumb-add" onclick="document.getElementById(\'imgInput\').click()" aria-label="Add more photos"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></div>' : '');
 }
 function applyImageToCards(){
   const pWrap = document.getElementById('pcardImgWrap');
@@ -4897,18 +4907,7 @@ function webPublishMissing(p){
   if(!webPlainText(p.desc)) miss.push('description');
   return miss;
 }
-function renderLinkedCard(p){
-  const icon = document.getElementById('webLinkedIcon');
-  if(!p){
-    icon.innerHTML = '';
-    document.getElementById('webLinkedName').textContent = '—';
-    document.getElementById('webLinkedSub').textContent = 'Pick a product above';
-    return;
-  }
-  icon.innerHTML = stockCatIconBadgeSVG(p.catKey);
-  document.getElementById('webLinkedName').textContent = p.name;
-  document.getElementById('webLinkedSub').textContent = 'SKU ' + (p.sku || '—') + '  ·  ' + p.stockQty + ' in stock  ·  ৳' + p.price.toLocaleString();
-}
+function renderLinkedCard(p){ /* Inventory Item card removed — kept as no-op so existing call sites stay safe */ }
 function renderPublishCard(p){
   const pill = document.getElementById('webStatusPill'), btn = document.getElementById('webPublishBtn');
   const chkI = document.getElementById('webCheckImg'), chkD = document.getElementById('webCheckDesc');
