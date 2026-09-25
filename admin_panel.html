@@ -4476,7 +4476,7 @@ function renderWebRequestPickerList(list){
     return '<div class="prod-picker-item" onclick="pickWebRequest(\'' + p.id + '\')">' +
       stockCatIconBadgeSVG(p.catKey) +
       '<div class="prod-info">' +
-        '<div class="prod-info-name">' + escFaq(svTitle(p.name, p.brand)) + '</div>' +
+        '<div class="prod-info-name">' + escFaq(p.name) + '</div>' +
         '<div class="prod-info-sku">' + escFaq(p.sku || '') + '</div>' +
       '</div>' +
       '<div class="prod-right">' +
@@ -4508,7 +4508,7 @@ function renderWebEditTrigger(){
     return;
   }
   icon.innerHTML = stockCatIconBadgeSVG(p.catKey);
-  nameEl.textContent = svTitle(p.name, p.brand);
+  nameEl.textContent = p.name;
   subEl.textContent = p.sku || '—';
 }
 
@@ -4906,7 +4906,7 @@ function renderLinkedCard(p){
     return;
   }
   icon.innerHTML = stockCatIconBadgeSVG(p.catKey);
-  document.getElementById('webLinkedName').textContent = svTitle(p.name, p.brand);
+  document.getElementById('webLinkedName').textContent = p.name;
   document.getElementById('webLinkedSub').textContent = 'SKU ' + (p.sku || '—') + '  ·  ' + p.stockQty + ' in stock  ·  ৳' + p.price.toLocaleString();
 }
 function renderPublishCard(p){
@@ -5011,7 +5011,7 @@ function refreshProductEditorSelect(){
   const current = sel.value;
   const list = getProducts();
   sel.innerHTML = list.length
-    ? list.map(p => '<option value="' + p.id + '">' + (p.published ? '● Live · ' : '○ Draft · ') + escFaq(svTitle(p.name, p.brand)) + '</option>').join('')
+    ? list.map(p => '<option value="' + p.id + '">' + (p.published ? '● Live · ' : '○ Draft · ') + escFaq(p.name) + '</option>').join('')
     : '<option value="new">No products sent from Stock yet</option>';
   sel.value = list.some(p => p.id === current) ? current : (list[0] ? list[0].id : 'new');
 }
