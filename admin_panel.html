@@ -236,6 +236,41 @@ fieldset:disabled .faq-add-btn{pointer-events:none;opacity:.5}
 .stock-pick-sub{font-size:11px;font-weight:600;color:var(--text3);margin-top:2px}
 .stock-pick-chevron{color:var(--text3);flex-shrink:0}
 
+.webedit-info-btn{width:32px;height:32px;border-radius:9px;flex-shrink:0;padding:0;border:1.5px solid rgba(124,111,247,0.35);background:rgba(124,111,247,0.1);color:#7c6ff7;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.webedit-info-btn svg{width:17px;height:17px}
+.webedit-info-btn:active{background:rgba(124,111,247,0.22)}
+
+/* ─── Product Info modal (ported from app.html, view-only — no action buttons) ─── */
+.pinfo-backdrop{position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:10000;opacity:0;pointer-events:none;transition:opacity .2s ease}
+.pinfo-backdrop.show{opacity:1;pointer-events:auto}
+.pinfo-modal{position:fixed;left:50%;top:50%;z-index:10001;width:min(92vw,380px);max-height:min(68vh,560px);background:var(--surface);border-radius:18px;box-shadow:var(--shadow-lg);transform:translate(-50%,-50%) scale(0.94);opacity:0;pointer-events:none;transition:transform .22s cubic-bezier(0.4,0,0.2,1),opacity .18s ease;display:flex;flex-direction:column;overflow:hidden}
+.pinfo-modal.show{transform:translate(-50%,-50%) scale(1);opacity:1;pointer-events:auto}
+.pinfo-header{display:flex;align-items:center;gap:10px;padding:16px 16px 12px;flex-shrink:0;border-bottom:1px solid var(--border)}
+.pinfo-title-icon{width:30px;height:30px;border-radius:9px;background:linear-gradient(135deg,#0EA5E9,#0284C7);color:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.pinfo-title-icon svg{width:16px;height:16px}
+.pinfo-title{font-family:var(--font-display);font-size:15px;font-weight:800;color:var(--text);flex:1}
+.pinfo-close{width:28px;height:28px;border-radius:8px;border:none;background:var(--surface2);color:var(--text3);display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0;flex-shrink:0}
+.pinfo-close svg{width:14px;height:14px}
+.pinfo-body{overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;padding-bottom:8px;flex:1 1 auto;min-height:0}
+.pinfo-section-head{font-family:var(--font-display);font-size:10px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--purple);background:var(--purple-soft);padding:9px 16px;margin-top:2px}
+.pinfo-section-boundary{border-top:3px solid var(--border-strong)}
+.pinfo-row{display:flex;width:100%;border-bottom:1px solid var(--border)}
+.pinfo-cell{padding:10px 16px;box-sizing:border-box;display:flex;align-items:center}
+.pinfo-label{width:44%;flex:0 0 44%;font-size:12px;font-weight:600;color:var(--text2)}
+.pinfo-val{width:56%;flex:0 0 56%;font-family:var(--font-display);font-size:12.5px;font-weight:800;color:var(--text);justify-content:flex-end;text-align:right;word-break:break-word}
+.pinfo-val.empty{color:var(--text3);font-weight:600}
+.pinfo-val.green{color:var(--green)}
+.pinfo-val.amber{color:var(--yellow)}
+.pinfo-val.red{color:var(--red)}
+.pinfo-val.sku{font-family:"Courier Prime",monospace;letter-spacing:.1em;color:#0891b2}
+.pinfo-val.purple{color:var(--purple)}
+.pinfo-val.blue{color:var(--accent)}
+.pinfo-val.grey{color:var(--text3)}
+.pinfo-total-row{display:flex;width:100%}
+.pinfo-total-label{width:44%;flex:0 0 44%;box-sizing:border-box;padding:12px 16px;font-family:var(--font-display);font-size:13px;font-weight:800;color:var(--text);display:flex;align-items:center}
+.pinfo-total-val{width:56%;flex:0 0 56%;box-sizing:border-box;padding:12px 16px;font-family:var(--font-display);font-size:15px;font-weight:800;color:var(--green);display:flex;align-items:center;justify-content:flex-end;text-align:right}
+.pinfo-total-val.red{color:var(--red)}
+
 .prod-picker-overlay{position:fixed;inset:0;z-index:9000;background:rgba(0,0,0,0.55);display:flex;align-items:flex-end;opacity:0;pointer-events:none;transition:opacity .25s ease}
 .prod-picker-overlay.active{opacity:1;pointer-events:auto}
 .prod-picker-sheet{width:100%;height:92vh;max-height:92vh;background:var(--surface);border-radius:20px 20px 0 0;display:flex;flex-direction:column;transform:translateY(100%);transition:transform .32s cubic-bezier(.4,0,.2,1);will-change:transform;-webkit-overflow-scrolling:touch}
@@ -2126,6 +2161,9 @@ fill="#ed1d24"><rect width="512" height="512" rx="15%" fill="#ed1d24"/><path d="
           <span id="webEditIcon"></span>
           <span class="stock-pick-text"><span class="stock-pick-name" id="webEditName">No requests from app yet</span><span class="stock-pick-sub" id="webEditSub">Turn on WEB in Stock</span></span>
           <svg class="stock-pick-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <button type="button" class="webedit-info-btn" id="webEditInfoBtn" style="display:none" aria-label="Product details" onclick="openProductInfoModal(currentEditId)">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 22C6.477 22 2 17.523 2 12S6.477 2 12 2s10 4.477 10 10-4.477 10-10 10zm-.696-3.534c.63 0 1.332-.288 2.196-1.458l.911-1.22a.334.334 0 0 0-.074-.472.38.38 0 0 0-.505.06l-1.475 1.679a.241.241 0 0 1-.279.061.211.211 0 0 1-.12-.244l1.858-7.446a.499.499 0 0 0-.575-.613l-3.35.613a.35.35 0 0 0-.276.258l-.086.334a.25.25 0 0 0 .243.312h1.73l-1.476 5.922c-.054.234-.144.63-.144.918 0 .666.396 1.296 1.422 1.296zm1.83-10.536c.702 0 1.242-.414 1.386-1.044.036-.144.054-.306.054-.414 0-.504-.396-.972-1.134-.972-.702 0-1.242.414-1.386 1.044a1.868 1.868 0 0 0-.054.414c0 .504.396.972 1.134.972z"/></svg>
         </button>
         <select id="inpEditProduct" style="display:none" onchange="loadProductToEditor(this.value)">
           <option value="new" selected>No products sent from Stock yet</option>
@@ -4457,9 +4495,11 @@ function renderWebEditTrigger(){
   const btn = document.getElementById('webEditTrigger');
   if(!btn) return;
   const icon = document.getElementById('webEditIcon'), nameEl = document.getElementById('webEditName'), subEl = document.getElementById('webEditSub');
+  const infoBtn = document.getElementById('webEditInfoBtn');
   const p = WEB_LIST.find(x => x.id === currentEditId);
   btn.classList.toggle('empty', !p);
   subEl.classList.toggle('wr-sku', !!p);
+  if(infoBtn) infoBtn.style.display = p ? '' : 'none';
   if(!p){
     icon.innerHTML = '';
     const pending = WEB_LIST.filter(x => !x.published).length;
@@ -4470,6 +4510,124 @@ function renderWebEditTrigger(){
   icon.innerHTML = stockCatIconBadgeSVG(p.catKey);
   nameEl.textContent = svTitle(p.name, p.brand);
   subEl.textContent = p.sku || '—';
+}
+
+/* ─── Product Info modal (view-only, ported from app.html's Product Summary) ─── */
+const PINFO_CAT_COLOR = { supplement:'#009b72', gadget:'#0EA5E9', cosmetic:'#EC4899', clothing:'#6761a8', general:'#64748B' };
+function _pinfoRow(label, value, cls){
+  const isEmpty = value === null || value === undefined || value === '';
+  return '<div class="pinfo-row"><div class="pinfo-cell pinfo-label">' + label + '</div><div class="pinfo-cell pinfo-val ' + (isEmpty ? 'empty' : (cls || '')) + '">' + (isEmpty ? '—' : value) + '</div></div>';
+}
+function _pinfoFormatExpiry(dateStr){
+  if(!dateStr) return null;
+  const d = new Date(dateStr + 'T00:00:00');
+  return d.toLocaleDateString('en-GB', { day:'2-digit', month:'short', year:'numeric' });
+}
+function _pinfoMarginPct(p, c){ return p > 0 ? ((p - c) / p * 100).toFixed(1) : '0.0'; }
+function _pinfoMarginClass(p, c){ const m = p > 0 ? (p - c) / p * 100 : 0; return m >= 30 ? 'green' : m >= 20 ? 'amber' : 'red'; }
+function _ensurePinfoModal(){
+  if(document.getElementById('pinfoBackdrop')) return;
+  const backdrop = document.createElement('div');
+  backdrop.className = 'pinfo-backdrop'; backdrop.id = 'pinfoBackdrop';
+  backdrop.onclick = closePinfoModal;
+  const modal = document.createElement('div');
+  modal.className = 'pinfo-modal'; modal.id = 'pinfoModal';
+  modal.onclick = e => e.stopPropagation();
+  modal.innerHTML =
+    '<div class="pinfo-header">' +
+      '<span class="pinfo-title-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></span>' +
+      '<span class="pinfo-title">Product Summary</span>' +
+      '<button type="button" class="pinfo-close" onclick="closePinfoModal()" aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg></button>' +
+    '</div>' +
+    '<div class="pinfo-body" id="pinfoBody"></div>';
+  document.body.appendChild(backdrop);
+  document.body.appendChild(modal);
+}
+function closePinfoModal(){
+  const b = document.getElementById('pinfoBackdrop'), m = document.getElementById('pinfoModal');
+  if(b) b.classList.remove('show');
+  if(m) m.classList.remove('show');
+}
+async function openProductInfoModal(id){
+  if(!id || !window.sb) return;
+  _ensurePinfoModal();
+  const backdrop = document.getElementById('pinfoBackdrop'), modal = document.getElementById('pinfoModal'), body = document.getElementById('pinfoBody');
+  body.innerHTML = '<div style="padding:32px;text-align:center;color:var(--text3);font-size:12px;font-weight:600">Loading…</div>';
+  backdrop.classList.add('show'); modal.classList.add('show');
+
+  let full = null;
+  try{
+    const { data, error } = await sb.from('products').select('*').eq('id', id).single();
+    if(error) throw error;
+    full = data;
+  }catch(e){
+    body.innerHTML = '<div style="padding:32px;text-align:center;color:var(--text3);font-size:12px;font-weight:600">Could not load product details</div>';
+    return;
+  }
+
+  let batch = null, details = null;
+  try{
+    const { data: bRows } = await sb.from('product_batches').select('*').eq('product_id', id).order('expiry_date', { ascending:true }).limit(1);
+    batch = (bRows && bRows[0]) || null;
+  }catch(e){}
+  if(full.category === 'supplement'){
+    try{
+      const { data: dRows } = await sb.from('supplement_details').select('*').eq('product_id', id).limit(1);
+      details = (dRows && dRows[0]) || null;
+    }catch(e){}
+  }
+
+  const meta = full.meta || {};
+  const catColor = PINFO_CAT_COLOR[full.category] || PINFO_CAT_COLOR.general;
+  const catLabel = STOCK_CAT_LABEL[full.category] || 'General';
+  const needsExpiry = full.category === 'supplement' || full.category === 'cosmetic';
+  const hasVariants = Array.isArray(full.variants) && full.variants.length > 0;
+
+  const formCount = details ? [details.form_type, details.capsule_count ? (details.capsule_count + ' ct') : null].filter(Boolean).join(' · ') : null;
+  const potencyFlavor = details ? [
+    (details.potency_amount && details.potency_unit) ? (details.potency_amount + ' ' + details.potency_unit) : null,
+    details.flavor
+  ].filter(Boolean).join(' · ') : null;
+  const expiryStr = batch ? _pinfoFormatExpiry(batch.expiry_date) : null;
+  const originExpiry = [details && details.country_of_origin, expiryStr].filter(Boolean).join(' · ');
+
+  const weightG = full.weight_cost || 0;
+  const weightStr = weightG > 0 ? (weightG >= 1000 ? (weightG/1000).toFixed(2) + ' kg' : Math.round(weightG) + ' g') : null;
+  const usdStr = full.usd_cost ? ('$' + Number(full.usd_cost).toFixed(2)) : null;
+  const cost = Number(full.cost) || 0, price = Number(full.price) || 0;
+  const mPct = _pinfoMarginPct(price, cost), mCls = _pinfoMarginClass(price, cost);
+  const profitVal = price - cost;
+  let variantStr = null;
+  if(hasVariants){
+    const vs = full.variants;
+    variantStr = vs.length > 1 ? (vs.length + ' variants') : [vs[0].colorName || vs[0].color, vs[0].size].filter(Boolean).join(', ');
+  }
+
+  body.innerHTML =
+    '<div class="pinfo-section-head">Product Details</div>' +
+    '<div class="pinfo-table">' +
+      '<div class="pinfo-row"><div class="pinfo-cell pinfo-label">Category</div><div class="pinfo-cell pinfo-val" style="color:' + catColor + '">' + catLabel + '</div></div>' +
+      _pinfoRow('Sub-category', full.subcategory) +
+      _pinfoRow('Brand', full.brand) +
+      _pinfoRow('Product Name', escFaq(full.name)) +
+      _pinfoRow('SKU', full.sku, 'sku') +
+      (needsExpiry ? _pinfoRow('Form / Count', formCount, 'grey') : '') +
+      (needsExpiry ? _pinfoRow('Potency / Flavor', potencyFlavor, 'grey') : '') +
+      (needsExpiry ? _pinfoRow('Origin / Expiry', originExpiry, 'grey') : '') +
+      (hasVariants ? _pinfoRow('Colour / Size', escFaq(variantStr || '')) : '') +
+    '</div>' +
+    '<div class="pinfo-section-head pinfo-section-boundary">Payment Details</div>' +
+    '<div class="pinfo-table">' +
+      _pinfoRow('Buying Cost (USD)', usdStr, 'blue') +
+      _pinfoRow('Buying Cost (BDT)', '৳' + cost.toLocaleString('en-IN'), 'purple') +
+      _pinfoRow('Weight', weightStr, 'grey') +
+      _pinfoRow('Selling Price (BDT)', '৳' + price.toLocaleString('en-IN'), 'purple') +
+      _pinfoRow('Margin', mPct + '%', mCls) +
+    '</div>' +
+    '<div class="pinfo-total-row pinfo-section-boundary">' +
+      '<div class="pinfo-total-label">Profit</div>' +
+      '<div class="pinfo-total-val ' + (profitVal < 0 ? 'red' : '') + '">' + (profitVal >= 0 ? '+' : '') + '৳' + Math.round(profitVal).toLocaleString('en-IN') + '</div>' +
+    '</div>';
 }
 
 function renderStockPickerList(){
