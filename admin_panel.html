@@ -353,15 +353,16 @@ fieldset:disabled .faq-add-btn{pointer-events:none;opacity:.5}
 .img-preview-thumb{width:100%;height:140px;object-fit:cover;display:block}
 .img-remove{position:absolute;top:8px;right:8px;width:26px;height:26px;border-radius:50%;background:rgba(0,0,0,.6);color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:2}
 .img-remove svg{width:13px;height:13px}
-.img-thumb-strip{display:flex;gap:10px;margin-top:12px;overflow-x:auto;overflow-y:hidden;padding-bottom:4px;-webkit-overflow-scrolling:touch;scrollbar-width:thin}
+.img-thumb-strip{display:flex;gap:10px;margin-top:12px;overflow-x:auto;overflow-y:hidden;padding-bottom:4px;-webkit-overflow-scrolling:touch;scrollbar-width:thin;touch-action:pan-x;scroll-snap-type:x proximity}
 .img-thumb-strip:empty{display:none;margin:0}
-.img-thumb-item{position:relative;flex-shrink:0;width:72px;height:72px;border-radius:14px;overflow:hidden;border:1px solid var(--border);cursor:grab;background:var(--surface2);box-shadow:var(--shadow-sm);transition:opacity .15s ease,outline-color .15s ease,transform .15s ease}
-.img-thumb-item:active{cursor:grabbing;transform:scale(0.97)}
-.img-thumb-item.dragging{opacity:.35}
-.img-thumb-item.drag-over{outline:2px solid var(--purple);outline-offset:-2px}
+@keyframes imgThumbPop{0%{transform:scale(.92);opacity:.5}100%{transform:scale(1);opacity:1}}
+.img-thumb-item{position:relative;flex-shrink:0;width:72px;height:72px;border-radius:14px;overflow:hidden;border:1px solid var(--border);background:var(--surface2);box-shadow:var(--shadow-sm);transition:box-shadow .15s ease,outline-color .15s ease,transform .15s ease;scroll-snap-align:start;animation:imgThumbPop .18s ease}
+.img-thumb-item.dragging{box-shadow:0 10px 24px rgba(0,0,0,.28);z-index:5;animation:none}
+.img-thumb-item.drag-over{outline:2px solid var(--purple);outline-offset:-2px;transform:scale(1.04)}
 .img-thumb-item img{width:100%;height:100%;object-fit:cover;display:block;pointer-events:none}
-.img-thumb-grip{position:absolute;top:3px;left:3px;width:16px;height:16px;border-radius:5px;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;pointer-events:none}
-.img-thumb-grip svg{width:9px;height:9px;color:#fff}
+.img-thumb-grip{position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:6px;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;cursor:grab;touch-action:none}
+.img-thumb-grip:active{cursor:grabbing;background:rgba(124,111,247,.85)}
+.img-thumb-grip svg{width:10px;height:10px;color:#fff}
 .img-thumb-primary-badge{position:absolute;bottom:3px;left:3px;display:flex;align-items:center;gap:2px;background:linear-gradient(135deg,#8f84fa,#7c6ff7);color:#fff;font-size:8px;font-weight:800;padding:2px 6px 2px 4px;border-radius:6px;letter-spacing:.02em;box-shadow:0 2px 6px rgba(124,111,247,.4)}
 .img-thumb-primary-badge svg{width:8px;height:8px}
 .img-thumb-remove{position:absolute;top:3px;right:3px;width:19px;height:19px;border-radius:50%;background:rgba(0,0,0,.55);color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:2;transition:background .15s ease}
@@ -4275,33 +4276,58 @@ function resetImages(){
   syncCurrentImg();
   applyImageToCards();
 }
-let _dragImgIdx = null;
-function imgThumbDragStart(e, idx){
-  _dragImgIdx = idx;
-  e.currentTarget.classList.add('dragging');
-  e.dataTransfer.effectAllowed = 'move';
-}
-function imgThumbDragEnd(e){
-  e.currentTarget.classList.remove('dragging');
-  document.querySelectorAll('.img-thumb-item.drag-over').forEach(el => el.classList.remove('drag-over'));
-}
-function imgThumbDragOver(e){
+let _imgDrag = null;
+let _imgDragHintShown = false;
+function imgThumbPointerDown(e, idx){
   e.preventDefault();
-  e.currentTarget.classList.add('drag-over');
+  const strip = document.getElementById('imgThumbStrip');
+  const item = e.currentTarget.closest('.img-thumb-item');
+  if(!strip || !item) return;
+  if(!_imgDragHintShown){ _imgDragHintShown = true; T('Drag to reorder photos', '↕'); }
+  _imgDrag = { idx, item, strip, startX: e.clientX };
+  item.classList.add('dragging');
+  try{ e.currentTarget.setPointerCapture(e.pointerId); }catch(err){}
+  document.addEventListener('pointermove', imgThumbPointerMove);
+  document.addEventListener('pointerup', imgThumbPointerUp);
 }
-function imgThumbDragLeave(e){
-  e.currentTarget.classList.remove('drag-over');
+function imgThumbPointerMove(e){
+  if(!_imgDrag) return;
+  const { item, strip } = _imgDrag;
+  const dx = e.clientX - _imgDrag.startX;
+  item.style.transform = 'translateX(' + dx + 'px) scale(1.06)';
+  const stripRect = strip.getBoundingClientRect(), margin = 34;
+  if(e.clientX < stripRect.left + margin) strip.scrollLeft -= 10;
+  else if(e.clientX > stripRect.right - margin) strip.scrollLeft += 10;
+  const items = [...strip.querySelectorAll('.img-thumb-item')];
+  items.forEach(el => el.classList.remove('drag-over'));
+  const overEl = items.find(el => {
+    if(el === item) return false;
+    const r = el.getBoundingClientRect();
+    return e.clientX > r.left && e.clientX < r.right;
+  });
+  if(overEl) overEl.classList.add('drag-over');
 }
-function imgThumbDrop(e, idx){
-  e.preventDefault();
-  e.currentTarget.classList.remove('drag-over');
-  if(_dragImgIdx === null || _dragImgIdx === idx) return;
-  const [moved] = currentImages.splice(_dragImgIdx, 1);
-  currentImages.splice(idx, 0, moved);
-  _dragImgIdx = null;
-  renderImgThumbStrip();
-  syncCurrentImg();
-  applyImageToCards();
+function imgThumbPointerUp(){
+  if(!_imgDrag) return;
+  const { item, strip, idx } = _imgDrag;
+  document.removeEventListener('pointermove', imgThumbPointerMove);
+  document.removeEventListener('pointerup', imgThumbPointerUp);
+  const overEl = strip.querySelector('.img-thumb-item.drag-over');
+  strip.querySelectorAll('.img-thumb-item').forEach(el => el.classList.remove('drag-over'));
+  item.classList.remove('dragging');
+  item.style.transform = '';
+  _imgDrag = null;
+  if(overEl){
+    const newIdx = [...strip.querySelectorAll('.img-thumb-item')].indexOf(overEl);
+    if(newIdx !== -1 && newIdx !== idx){
+      const [moved] = currentImages.splice(idx, 1);
+      currentImages.splice(newIdx, 0, moved);
+      renderImgThumbStrip();
+      syncCurrentImg();
+      applyImageToCards();
+      return;
+    }
+  }
 }
 function renderImgThumbStrip(){
   const strip = document.getElementById('imgThumbStrip');
@@ -4309,14 +4335,9 @@ function renderImgThumbStrip(){
   const hint = document.getElementById('imgThumbHint');
   if(hint) hint.style.display = currentImages.length ? '' : 'none';
   strip.innerHTML = currentImages.map((src, i) =>
-    '<div class="img-thumb-item" draggable="true"' +
-      ' ondragstart="imgThumbDragStart(event,' + i + ')"' +
-      ' ondragend="imgThumbDragEnd(event)"' +
-      ' ondragover="imgThumbDragOver(event)"' +
-      ' ondragleave="imgThumbDragLeave(event)"' +
-      ' ondrop="imgThumbDrop(event,' + i + ')">' +
+    '<div class="img-thumb-item">' +
       '<img src="' + src + '">' +
-      '<div class="img-thumb-grip"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="9" cy="6" r="1.6"/><circle cx="15" cy="6" r="1.6"/><circle cx="9" cy="12" r="1.6"/><circle cx="15" cy="12" r="1.6"/><circle cx="9" cy="18" r="1.6"/><circle cx="15" cy="18" r="1.6"/></svg></div>' +
+      '<div class="img-thumb-grip" onpointerdown="imgThumbPointerDown(event,' + i + ')" title="Drag to reorder" aria-label="Drag to reorder"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="9" cy="6" r="1.6"/><circle cx="15" cy="6" r="1.6"/><circle cx="9" cy="12" r="1.6"/><circle cx="15" cy="12" r="1.6"/><circle cx="9" cy="18" r="1.6"/><circle cx="15" cy="18" r="1.6"/></svg></div>' +
       (i === 0 ? '<span class="img-thumb-primary-badge"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.9 6.26L22 9.27l-5 4.87L18.2 21 12 17.56 5.8 21 7 14.14l-5-4.87 7.1-1.01L12 2z"/></svg>Cover</span>' : '') +
       '<div class="img-thumb-remove" onclick="event.stopPropagation();removeImageAt(' + i + ')"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></div>' +
     '</div>'
