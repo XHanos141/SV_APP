@@ -361,9 +361,7 @@ fieldset:disabled .faq-add-btn{pointer-events:none;opacity:.5}
 .img-thumb-item.dragging{box-shadow:0 10px 24px rgba(0,0,0,.28);z-index:5;animation:none}
 .img-thumb-item.drag-over{outline:2px solid var(--purple);outline-offset:-2px;transform:scale(1.04)}
 .img-thumb-item img{width:100%;height:100%;object-fit:cover;display:block;pointer-events:none}
-.img-thumb-grip{position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:6px;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;cursor:grab;touch-action:none}
-.img-thumb-grip:active{cursor:grabbing;background:rgba(124,111,247,.85)}
-.img-thumb-grip svg{width:10px;height:10px;color:#fff}
+
 .img-thumb-primary-badge{position:absolute;bottom:3px;left:3px;display:flex;align-items:center;gap:2px;background:linear-gradient(135deg,#8f84fa,#7c6ff7);color:#fff;font-size:8px;font-weight:800;padding:2px 6px 2px 4px;border-radius:6px;letter-spacing:.02em;box-shadow:0 2px 6px rgba(124,111,247,.4)}
 .img-thumb-primary-badge svg{width:8px;height:8px}
 .img-thumb-remove{position:absolute;top:3px;right:3px;width:19px;height:19px;border-radius:50%;background:rgba(0,0,0,.55);color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:2;transition:background .15s ease}
@@ -4279,17 +4277,42 @@ function resetImages(){
 }
 let _imgDrag = null;
 let _imgDragHintShown = false;
+let _imgPressTimer = null;
+let _imgPressStart = null;
 function imgThumbPointerDown(e, idx){
-  e.preventDefault();
+  if(e.target.closest('.img-thumb-remove')) return;
   const strip = document.getElementById('imgThumbStrip');
-  const item = e.currentTarget.closest('.img-thumb-item');
+  const item = e.currentTarget;
   if(!strip || !item) return;
-  if(!_imgDragHintShown){ _imgDragHintShown = true; T('Drag to reorder photos', '↕'); }
-  _imgDrag = { idx, item, strip, startX: e.clientX };
-  item.classList.add('dragging');
-  try{ e.currentTarget.setPointerCapture(e.pointerId); }catch(err){}
-  document.addEventListener('pointermove', imgThumbPointerMove);
-  document.addEventListener('pointerup', imgThumbPointerUp);
+  _imgPressStart = { x: e.clientX, y: e.clientY, pointerId: e.pointerId };
+  clearTimeout(_imgPressTimer);
+  _imgPressTimer = setTimeout(() => {
+    _imgPressTimer = null;
+    if(!_imgPressStart) return;
+    if(navigator.vibrate) navigator.vibrate(12);
+    if(!_imgDragHintShown){ _imgDragHintShown = true; T('Drag to reorder photos', '↕'); }
+    item.style.touchAction = 'none';
+    _imgDrag = { idx, item, strip, startX: e.clientX };
+    item.classList.add('dragging');
+    try{ item.setPointerCapture(_imgPressStart.pointerId); }catch(err){}
+  }, 320);
+  document.addEventListener('pointermove', imgThumbPressWatch);
+  document.addEventListener('pointerup', imgThumbPressEnd);
+  document.addEventListener('pointercancel', imgThumbPressEnd);
+}
+function imgThumbPressWatch(e){
+  if(_imgDrag){ imgThumbPointerMove(e); return; }
+  if(!_imgPressStart) return;
+  const dx = Math.abs(e.clientX - _imgPressStart.x), dy = Math.abs(e.clientY - _imgPressStart.y);
+  if(dx > 6 || dy > 6){ clearTimeout(_imgPressTimer); _imgPressTimer = null; _imgPressStart = null; }
+}
+function imgThumbPressEnd(e){
+  if(_imgDrag){ imgThumbPointerUp(); }
+  clearTimeout(_imgPressTimer);
+  _imgPressTimer = null; _imgPressStart = null;
+  document.removeEventListener('pointermove', imgThumbPressWatch);
+  document.removeEventListener('pointerup', imgThumbPressEnd);
+  document.removeEventListener('pointercancel', imgThumbPressEnd);
 }
 function imgThumbPointerMove(e){
   if(!_imgDrag) return;
@@ -4311,12 +4334,11 @@ function imgThumbPointerMove(e){
 function imgThumbPointerUp(){
   if(!_imgDrag) return;
   const { item, strip, idx } = _imgDrag;
-  document.removeEventListener('pointermove', imgThumbPointerMove);
-  document.removeEventListener('pointerup', imgThumbPointerUp);
   const overEl = strip.querySelector('.img-thumb-item.drag-over');
   strip.querySelectorAll('.img-thumb-item').forEach(el => el.classList.remove('drag-over'));
   item.classList.remove('dragging');
   item.style.transform = '';
+  item.style.touchAction = '';
   _imgDrag = null;
   if(overEl){
     const newIdx = [...strip.querySelectorAll('.img-thumb-item')].indexOf(overEl);
@@ -4336,9 +4358,8 @@ function renderImgThumbStrip(){
   const hint = document.getElementById('imgThumbHint');
   if(hint) hint.style.display = currentImages.length ? '' : 'none';
   strip.innerHTML = currentImages.map((src, i) =>
-    '<div class="img-thumb-item">' +
+    '<div class="img-thumb-item" onpointerdown="imgThumbPointerDown(event,' + i + ')" title="Hold to drag">' +
       '<img src="' + src + '">' +
-      '<div class="img-thumb-grip" onpointerdown="imgThumbPointerDown(event,' + i + ')" title="Drag to reorder" aria-label="Drag to reorder"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="9" cy="6" r="1.6"/><circle cx="15" cy="6" r="1.6"/><circle cx="9" cy="12" r="1.6"/><circle cx="15" cy="12" r="1.6"/><circle cx="9" cy="18" r="1.6"/><circle cx="15" cy="18" r="1.6"/></svg></div>' +
       (i === 0 ? '<span class="img-thumb-primary-badge"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.9 6.26L22 9.27l-5 4.87L18.2 21 12 17.56 5.8 21 7 14.14l-5-4.87 7.1-1.01L12 2z"/></svg>Cover</span>' : '') +
       '<div class="img-thumb-remove" onclick="event.stopPropagation();removeImageAt(' + i + ')"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></div>' +
     '</div>'
