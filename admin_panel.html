@@ -1029,31 +1029,11 @@ body.dark-mode .pay-badge-bank svg path[style*="fill:#66cde7"]{fill:#fff!importa
 .web-linked-name{font-weight:800;font-size:15px;color:var(--text)}
 .web-linked-sub{font-size:12px;color:var(--text2);margin-top:2px}
 #storeProductGroup .form-card:not(:has(#descToolbar)){min-height:0;max-height:none;overflow:visible}
-.wr-bar{margin:0 0 14px;padding:14px 0 12px;background:linear-gradient(135deg,rgba(0,157,220,.10),rgba(34,197,94,.08));border:1px solid var(--border);border-radius:20px}
-.wr-head{display:flex;align-items:center;gap:8px;padding:0 16px 10px}
-.wr-head svg{width:16px;height:16px;color:var(--accent);flex-shrink:0}
-.wr-title{font-family:var(--font-display);font-size:13px;font-weight:800;color:var(--text);flex:1}
-.wr-count{min-width:22px;height:22px;padding:0 7px;border-radius:999px;background:#0284c7;color:#fff;font-size:11.5px;font-weight:800;display:flex;align-items:center;justify-content:center}
-.wr-count.zero{background:var(--surface2);color:var(--text3)}
-.wr-count.pulse{animation:wrPulse 2s ease-in-out infinite}
-@keyframes wrPulse{0%,100%{box-shadow:0 0 0 0 rgba(2,132,199,.5)}50%{box-shadow:0 0 0 6px rgba(2,132,199,0)}}
-.wr-row{display:flex;gap:10px;overflow-x:auto;padding:2px 16px 4px;scroll-snap-type:x proximity;scrollbar-width:none;-webkit-overflow-scrolling:touch}
-.wr-row::-webkit-scrollbar{display:none}
-.wr-chip{flex:0 0 auto;min-width:200px;max-width:250px;display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--surface);border:1px solid var(--border);border-left:4px solid #0284c7;border-radius:14px;cursor:pointer;text-align:left;font-family:inherit;scroll-snap-align:start;box-shadow:var(--shadow-sm);transition:transform .15s ease,box-shadow .15s ease}
-.wr-chip:active{transform:scale(.97)}
-.wr-chip.active{box-shadow:0 0 0 2px #0284c7,0 4px 14px rgba(2,132,199,.25)}
-.wr-ico{width:34px;height:34px;flex-shrink:0}
-.wr-ico .cat-icon-badge{width:34px;height:34px}
-.wr-txt{min-width:0;flex:1}
-.wr-name{font-size:12.5px;font-weight:800;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.wr-sub{font-size:10.5px;font-weight:700;color:#0284c7;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.wr-go{width:16px;height:16px;color:var(--text3);flex-shrink:0}
-.wr-empty{padding:2px 16px 4px;font-size:12px;font-weight:600;color:var(--text3)}
 .wr-pill{font-size:9.5px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;padding:2px 7px;border-radius:999px;border:1px solid transparent}
 .wr-pill.draft{color:#0284c7;background:#0284c71a;border-color:#0284c740}
 .wr-pill.live{color:#16a34a;background:#16a34a1a;border-color:#16a34a40}
-#webEditTrigger .wr-pill{margin-left:6px;vertical-align:middle}
-#webEditTrigger.empty .stock-pick-name{color:var(--text3)}
+#webEditTrigger.empty .stock-pick-name{color:var(--text2)}
+#webEditTrigger .wr-sku{font-family:"Roboto Mono",monospace;font-weight:700;letter-spacing:.04em;color:#0891b2}
 </style>
 </head>
 <body>
@@ -1498,14 +1478,6 @@ body.dark-mode .pay-badge-bank svg path[style*="fill:#66cde7"]{fill:#fff!importa
       <button class="carousel-dot" data-slide="9" aria-label="Slide 10"></button>
       <button class="carousel-dot" data-slide="10" aria-label="Slide 11"></button>
     </div>
-  </div>
-  <div class="wr-bar" id="webRequestsBar" style="display:none">
-    <div class="wr-head">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 010 20M12 2a15.3 15.3 0 000 20"/></svg>
-      <span class="wr-title">Web Requests from App</span>
-      <span class="wr-count zero" id="wrCount">0</span>
-    </div>
-    <div class="wr-row" id="wrRow"></div>
   </div>
   <div class="carousel-box" id="carouselBoxStore" style="display:none">
     <div class="slide-label" id="slideLabelStore">Vertical Card</div>
@@ -2157,9 +2129,7 @@ fill="#ed1d24"><rect width="512" height="512" rx="15%" fill="#ed1d24"/><path d="
         <select id="inpEditProduct" style="display:none" onchange="loadProductToEditor(this.value)">
           <option value="new" selected>No products sent from Stock yet</option>
         </select>
-        <button type="button" class="ben-row-refresh" title="Refresh list" onclick="loadWebProducts(true)" style="width:42px;border:1px solid var(--border-strong);background:var(--surface2);border-radius:12px;font-size:17px;cursor:pointer;color:var(--text2)">↻</button>
       </div>
-      <div class="hint-row" style="margin-top:8px">Products appear here when WEB is switched on in Stock.</div>
     </div>
   </div>
   <fieldset id="productFieldset" style="border:none;margin:0;padding:0">
@@ -3795,8 +3765,6 @@ function switchSection(section){
   }
   document.getElementById('carouselBoxLanding').style.display = section === 'landing' ? '' : 'none';
   document.getElementById('carouselBoxStore').style.display = section === 'store' ? '' : 'none';
-  const wrBar = document.getElementById('webRequestsBar');
-  if (wrBar) wrBar.style.display = section === 'store' ? '' : 'none';
   document.getElementById('landingForms').style.display = section === 'landing' ? '' : 'none';
   document.getElementById('storeForms').style.display = section === 'store' ? '' : 'none';
   const paypageBox = document.getElementById('carouselBoxPaymentPage');
@@ -4412,6 +4380,7 @@ async function loadStockProductsFromDb(){
 
 function openStockPicker(mode){
   stockPickerMode = mode === 'variant' ? 'variant' : mode === 'request' ? 'request' : 'primary';
+  if(stockPickerMode === 'request'){ loadWebProducts(false); }
   if(stockPickerMode === 'request'){ stockPickerCat = 'all'; stockPickerSearch = ''; document.getElementById('stockPickerSearchInput').value = ''; document.getElementById('stockPickerSearchClear').style.display = 'none'; }
   document.getElementById('stockPickerOverlay').classList.add('active');
   document.getElementById('stockPickerTitle').textContent = stockPickerMode === 'variant' ? 'Add a Size / SKU' : stockPickerMode === 'request' ? 'Web Requests from App' : 'Pick from Stock';
@@ -4489,16 +4458,17 @@ function renderWebEditTrigger(){
   const icon = document.getElementById('webEditIcon'), nameEl = document.getElementById('webEditName'), subEl = document.getElementById('webEditSub');
   const p = WEB_LIST.find(x => x.id === currentEditId);
   btn.classList.toggle('empty', !p);
+  subEl.classList.toggle('wr-sku', !!p);
   if(!p){
-    icon.innerHTML = '<span class="stock-pick-empty-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>';
+    icon.innerHTML = '';
     const pending = WEB_LIST.filter(x => !x.published).length;
-    nameEl.textContent = WEB_LIST.length ? 'Choose a product' : 'No requests from app yet';
-    subEl.textContent = WEB_LIST.length ? (pending + ' waiting · tap to choose') : 'Turn on WEB in Stock';
+    nameEl.textContent = 'Select a product';
+    subEl.textContent = WEB_LIST.length ? (pending ? pending + ' waiting from app' : 'All requests are live') : 'No requests from app yet';
     return;
   }
   icon.innerHTML = stockCatIconBadgeSVG(p.catKey);
-  nameEl.innerHTML = escFaq(svTitle(p.name, p.brand)) + '<span class="wr-pill ' + (p.published ? 'live' : 'draft') + '">' + (p.published ? 'Live' : 'Draft') + '</span>';
-  subEl.textContent = 'SKU ' + (p.sku || '—') + '  ·  ' + p.stockQty + ' in stock';
+  nameEl.textContent = svTitle(p.name, p.brand);
+  subEl.textContent = p.sku || '—';
 }
 
 function renderStockPickerList(){
@@ -4715,7 +4685,7 @@ async function loadWebProducts(force){
     .eq('web_enabled', true).eq('is_active', true).eq('archived', false).order('name');
   if(error){ console.error('loadWebProducts error:', error.message); T('Could not load web products', '⚠️'); return; }
   WEB_LIST = (data || []).map(webRowToProduct);
-  const keep = (currentEditId && WEB_LIST.some(p => p.id === currentEditId)) ? currentEditId : (WEB_LIST[0] ? WEB_LIST[0].id : 'new');
+  const keep = (currentEditId && WEB_LIST.some(p => p.id === currentEditId)) ? currentEditId : 'new';
   refreshProductEditorSelect();
   document.getElementById('inpEditProduct').value = keep;
   loadProductToEditor(keep);
@@ -4743,27 +4713,7 @@ function saveHotDealsSelection(ids){
   localStorage.setItem('sv-hotdeals-selection', JSON.stringify(ids));
 }
 
-function renderWebRequests(){
-  renderWebEditTrigger();
-  const row = document.getElementById('wrRow'), cnt = document.getElementById('wrCount');
-  if(!row || !cnt) return;
-  const pending = WEB_LIST.filter(p => !p.published);
-  cnt.textContent = pending.length;
-  cnt.classList.toggle('zero', !pending.length);
-  cnt.classList.toggle('pulse', pending.length > 0);
-  if(!pending.length){
-    row.innerHTML = '<div class="wr-empty">' + (WEB_LIST.length ? 'All requests are live on the website.' : 'No requests yet. Turn on WEB for a product in Stock.') + '</div>';
-    return;
-  }
-  const arrow = '<svg class="wr-go" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>';
-  row.innerHTML = pending.map(p => {
-    const miss = webPublishMissing(p);
-    const sub = miss.length ? 'Needs ' + miss.join(' + ') : 'Ready to publish';
-    return '<button type="button" class="wr-chip' + (p.id === currentEditId ? ' active' : '') + '" onclick="openWebRequest(\'' + p.id + '\')">' +
-      '<div class="wr-ico">' + stockCatIconBadgeSVG(p.catKey) + '</div>' +
-      '<div class="wr-txt"><div class="wr-name">' + escFaq(svTitle(p.name, p.brand)) + '</div><div class="wr-sub">' + sub + '</div></div>' + arrow + '</button>';
-  }).join('');
-}
+function renderWebRequests(){ renderWebEditTrigger(); }
 function openWebRequest(id){
   const fs = document.getElementById('productFieldset');
   if(!fs.disabled && id !== currentEditId && !confirm('Discard unsaved changes to the current product?')) return;
@@ -4907,6 +4857,10 @@ function refreshProductEditorSelect(){
   sel.value = list.some(p => p.id === current) ? current : (list[0] ? list[0].id : 'new');
 }
 
+function setWebFormsVisible(show){
+  const saveCard = document.getElementById('productSaveBtn') ? document.getElementById('productSaveBtn').closest('.form-card') : null;
+  [document.getElementById('productFieldset'), saveCard, document.getElementById('webPublishCard')].forEach(el => { if(el) el.style.display = show ? '' : 'none'; });
+}
 function loadProductToEditor(id){
   const p = WEB_LIST.find(x => x.id === id);
   const editBtn = document.getElementById('productEditBtn');
@@ -4923,10 +4877,12 @@ function loadProductToEditor(id){
     refreshStockPickTrigger(); renderVariantChips(); resetImages();
     currentGradient = WEB_DEFAULT_GRADIENT;
     editBtn.disabled = true;
+    setWebFormsVisible(false);
     renderLinkedCard(null); renderPublishCard(null); updateSeoCount(); updateAll(); renderWebRequests();
     return;
   }
   editBtn.disabled = false;
+  setWebFormsVisible(true);
   currentEditId = p.id;
   setV('apInpName', p.name); currentStockBrand = p.brand;
   setV('inpCat', p.cat); setV('inpSubcat', p.subcat);
@@ -6192,6 +6148,7 @@ async function loadFooterSectionFromDb(){
 }
 loadFooterSectionFromDb();
 loadStockProductsFromDb();
+setWebFormsVisible(false);
 loadWebProducts(true);
 
 applyImageToCards();
