@@ -343,8 +343,7 @@ fieldset:disabled .faq-add-btn{pointer-events:none;opacity:.5}
 .img-upload p{font-size:11.5px;color:var(--text2);font-weight:600}
 .img-upload span{font-size:10px;color:var(--text3)}
 .field-note{font-size:10px;font-weight:600;color:var(--text3);margin:2px 0 6px;line-height:1.3}
-.field-error{display:none;font-size:11px;font-weight:700;color:var(--red);margin-top:6px}
-.field-error.show{display:block}
+.field .field-label-row{display:flex;align-items:center;min-height:24px}
 input.input-error{border-color:var(--red)!important;background:var(--red-soft)!important;color:var(--red)}
 .prod-img-upload{border-color:rgba(124,111,247,0.35);background:linear-gradient(180deg,rgba(124,111,247,0.05),rgba(124,111,247,0.02));padding:14px}
 .prod-img-upload:hover{border-color:var(--purple);background:rgba(124,111,247,0.08)}
@@ -2237,23 +2236,28 @@ fill="#ed1d24"><rect width="512" height="512" rx="15%" fill="#ed1d24"/><path d="
     </div>
     <div class="field-row">
       <div class="field">
-        <label>Selling Price (৳) <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:12px;height:12px;vertical-align:-1px"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></label>
+        <label class="field-label-row">Selling Price (৳) <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:12px;height:12px;vertical-align:-1px"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></label>
         <div class="field-note">Linked to stock — locked</div>
         <input type="number" id="inpPrice" value="4200" disabled>
       </div>
       <div class="field">
-        <label style="display:flex;align-items:center;justify-content:space-between;gap:6px">
+        <label class="field-label-row" style="justify-content:space-between;gap:6px">
           <span>Old Price (৳)</span>
           <div class="switch on" id="switchOldPrice" onclick="toggleSwitch('switchOldPrice')" style="flex-shrink:0"></div>
         </label>
         <div class="field-note">&nbsp;</div>
         <input type="number" id="inpOld" value="5600" oninput="updateAll()">
-        <div class="field-error" id="oldPriceError">Must be higher than selling price</div>
       </div>
     </div>
-    <div class="field">
-      <label>Discount % <span style="font-weight:600;color:var(--text3);text-transform:none;letter-spacing:0">— auto-calculated</span></label>
-      <input type="text" id="inpDiscount" value="20% OFF" readonly>
+    <div class="field-row">
+      <div class="field">
+        <label>Discount Amount (৳) <span style="font-weight:600;color:var(--text3);text-transform:none;letter-spacing:0">— auto</span></label>
+        <input type="text" id="inpDiscountAmt" value="1400" readonly>
+      </div>
+      <div class="field">
+        <label>Discount % <span style="font-weight:600;color:var(--text3);text-transform:none;letter-spacing:0">— auto</span></label>
+        <input type="text" id="inpDiscount" value="20% OFF" readonly>
+      </div>
     </div>
   </div>
 
@@ -4833,13 +4837,14 @@ function updateAll(){
   const oldRaw = parseInt(oldInput.value) || 0;
   const oldInvalid = oldOn && oldRaw > 0 && oldRaw <= price;
   oldInput.classList.toggle('input-error', oldInvalid);
-  document.getElementById('oldPriceError').classList.toggle('show', oldInvalid);
   const old = (oldOn && !oldInvalid) ? oldRaw : 0;
   if(old > price && old > 0){
     const pct = Math.round(((old - price) / old) * 100);
     document.getElementById('inpDiscount').value = pct + '% OFF';
+    document.getElementById('inpDiscountAmt').value = (old - price);
   } else {
     document.getElementById('inpDiscount').value = '0% OFF';
+    document.getElementById('inpDiscountAmt').value = '0';
   }
   const pctMatch = document.getElementById('inpDiscount').value.match(/(\d+)/);
   const pctNum = pctMatch ? pctMatch[1] : '0';
@@ -5109,7 +5114,7 @@ function loadProductToEditor(id){
     currentEditId = null;
     setV('apInpName', ''); setV('inpCat', 'Supplement'); setV('inpSubcat', ''); setV('inpRating', '0');
     document.getElementById('apInpDesc').innerHTML = '';
-    setV('inpPrice', '0'); setV('inpOld', '0'); setV('inpDiscount', '0% OFF'); setV('apInpStock', 'in');
+    setV('inpPrice', '0'); setV('inpOld', '0'); setV('inpDiscount', '0% OFF'); setV('inpDiscountAmt', '0'); setV('apInpStock', 'in');
     document.getElementById('switchOldPrice').classList.remove('on');
     setV('inpSlug', ''); setV('inpSeoTitle', ''); setV('inpSeoDesc', '');
     ['switchSale', 'switchHot', 'switchTrending'].forEach(x => document.getElementById(x).classList.remove('on'));
