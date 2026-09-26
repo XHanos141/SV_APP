@@ -342,6 +342,12 @@ fieldset:disabled .faq-add-btn{pointer-events:none;opacity:.5}
 .img-upload svg{width:26px;height:26px;color:var(--text3);margin-bottom:6px}
 .img-upload p{font-size:11.5px;color:var(--text2);font-weight:600}
 .img-upload span{font-size:10px;color:var(--text3)}
+.prod-title-edit{margin-bottom:14px}
+.prod-title-brand,.prod-title-name{display:block;width:100%;border:none;border-bottom:1px solid transparent;background:none;padding:0 0 3px;font-family:var(--font-body);box-sizing:border-box;transition:border-color .15s ease}
+.prod-title-brand{font-size:11px;font-weight:800;color:var(--purple);text-transform:uppercase;letter-spacing:.04em;margin-bottom:2px}
+.prod-title-name{font-family:var(--font-display);font-size:17px;font-weight:800;color:var(--text)}
+.prod-title-brand:focus,.prod-title-name:focus{outline:none;border-bottom-color:var(--purple)}
+.prod-title-brand::placeholder,.prod-title-name::placeholder{color:var(--text3);font-weight:600;text-transform:none;letter-spacing:0}
 .prod-img-upload{border-color:rgba(124,111,247,0.35);background:linear-gradient(180deg,rgba(124,111,247,0.05),rgba(124,111,247,0.02));padding:14px}
 .prod-img-upload:hover{border-color:var(--purple);background:rgba(124,111,247,0.08)}
 .prod-img-upload-icon{width:34px;height:34px;border-radius:11px;margin:0 auto 7px;background:linear-gradient(135deg,#8f84fa,#7c6ff7);display:flex;align-items:center;justify-content:center;box-shadow:0 4px 10px rgba(124,111,247,0.3)}
@@ -2213,6 +2219,10 @@ fill="#ed1d24"><rect width="512" height="512" rx="15%" fill="#ed1d24"/><path d="
   </div>
   <div class="form-card">
     <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>Product Image</h3>
+    <div class="prod-title-edit">
+      <input type="text" id="apInpBrand" class="prod-title-brand" placeholder="Brand" oninput="currentStockBrand=this.value;updateAll();">
+      <input type="text" id="apInpName" class="prod-title-name" placeholder="Product name" oninput="updateAll()">
+    </div>
     <div class="img-upload prod-img-upload" id="imgUploadBox">
       <input type="file" accept="image/*" id="imgInput" multiple onchange="handleImage(event)">
       <div id="imgUploadEmpty">
@@ -2230,10 +2240,6 @@ fill="#ed1d24"><rect width="512" height="512" rx="15%" fill="#ed1d24"/><path d="
 
   <div class="form-card" style="display:none" aria-hidden="true">
     <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 7h-9M14 17H5M17 3v8M7 13v8"/></svg>Product Details</h3>
-    <div class="field">
-      <label>Product Name</label>
-      <input type="text" id="apInpName" value="Gold Standard Whey Protein 2lb" oninput="updateAll()">
-    </div>
     <div class="field-row">
       <div class="field">
         <label>Category</label>
@@ -4805,6 +4811,7 @@ function loadStockProductIntoEditor(stockId){
   const p = STOCK_PRODUCTS.find(x => String(x.id) === String(stockId));
   if(!p) return;
   document.getElementById('apInpName').value = p.name;
+  document.getElementById('apInpBrand').value = p.brand || '';
   currentStockBrand = p.brand || '';
   document.getElementById('inpCat').value = STOCK_CAT_LABEL[p.category] || 'General';
   document.getElementById('inpSubcat').value = p.subcategory || '';
@@ -5031,6 +5038,8 @@ async function saveProduct(evt){
     }
     const price = parseInt(document.getElementById('inpPrice').value) || 0;
     const old = parseInt(document.getElementById('inpOld').value) || 0;
+    const newName = document.getElementById('apInpName').value.trim() || cur.name;
+    const newBrand = document.getElementById('apInpBrand').value.trim();
     const web = {
       product_id: id,
       slug: slugify(document.getElementById('inpSlug').value) || slugify(svTitle(cur.name, cur.brand)),
@@ -5053,7 +5062,7 @@ async function saveProduct(evt){
       ({ error } = await sb.from('product_web').upsert(web, { onConflict: 'product_id' }));
     }
     if(error) throw error;
-    const r2 = await sb.from('products').update({ old_price: (old > 0 && old > price) ? old : null, updated_at: new Date().toISOString() }).eq('id', id);
+    const r2 = await sb.from('products').update({ name: newName, brand: newBrand, old_price: (old > 0 && old > price) ? old : null, updated_at: new Date().toISOString() }).eq('id', id);
     if(r2.error) throw r2.error;
     await loadWebProducts(true);
     T('Saved', '✅');
@@ -5085,7 +5094,7 @@ function loadProductToEditor(id){
   manualDiscount = false;
   if(!p){
     currentEditId = null;
-    setV('apInpName', ''); setV('inpCat', 'Supplement'); setV('inpSubcat', ''); setV('inpRating', '0');
+    setV('apInpName', ''); setV('apInpBrand', ''); setV('inpCat', 'Supplement'); setV('inpSubcat', ''); setV('inpRating', '0');
     document.getElementById('apInpDesc').innerHTML = '';
     setV('inpPrice', '0'); setV('inpOld', '0'); setV('inpDiscount', '0% OFF'); setV('apInpStock', 'in');
     setV('inpSlug', ''); setV('inpSeoTitle', ''); setV('inpSeoDesc', '');
@@ -5101,7 +5110,7 @@ function loadProductToEditor(id){
   editBtn.disabled = false;
   setWebFormsVisible(true);
   currentEditId = p.id;
-  setV('apInpName', p.name); currentStockBrand = p.brand;
+  setV('apInpName', p.name); setV('apInpBrand', p.brand || ''); currentStockBrand = p.brand;
   setV('inpCat', p.cat); setV('inpSubcat', p.subcat);
   document.getElementById('apInpDesc').innerHTML = p.desc;
   setV('inpRating', p.rating); setV('inpPrice', p.price); setV('inpOld', p.old || 0);
