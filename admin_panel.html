@@ -677,6 +677,7 @@ body.dark-mode .p-price{color:#ffffff}
 body.dark-mode .p-discount-inline{
   background:rgba(5,150,105,0.20);color:#34D399 !important;border-color:#059669;
 }
+.p-old-row{display:flex;align-items:center;gap:4px}
 .p-old-price{
   font-size:12px;font-weight:600;color:var(--red);
   text-decoration:none;position:relative;
@@ -1558,8 +1559,11 @@ body.dark-mode .pay-badge-bank svg path[style*="fill:#66cde7"]{fill:#fff!importa
               <div class="p-name" id="pcardName"><span id="pcardNameText">Gold Standard Whey Protein 2lb</span><span class="p-variant-tag" id="pcardVariantTag" style="display:none"></span></div>
               <div class="p-footer">
                 <div class="p-price-block">
-                  <div class="p-price"><span class="taka">&#2547;</span><span id="pcardPrice">4,200</span><span class="p-discount-inline" id="pcardDiscount">20% OFF</span></div>
-                  <div class="p-old-price"><span class="taka">&#2547;</span><span id="pcardOld">5,600</span></div>
+                  <div class="p-price"><span class="taka">&#2547;</span><span id="pcardPrice">4,200</span></div>
+                  <div class="p-old-row" id="pcardOldRow">
+                    <span class="p-old-price"><span class="taka">&#2547;</span><span id="pcardOld">5,600</span></span>
+                    <span class="p-discount-inline" id="pcardDiscount">20% OFF</span>
+                  </div>
                 </div>
                 <div class="p-actions" id="pcardActions">
                   <button class="p-add" aria-label="Add to cart"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6.29977 5H21L19 12H7.37671M20 16H8L6 3H3M9 20C9 20.5523 8.55228 21 8 21C7.44772 21 7 20.5523 7 20C7 19.4477 7.44772 19 8 19C8.55228 19 9 19.4477 9 20ZM20 20C20 20.5523 19.5523 21 19 21C18.4477 21 18 20.5523 18 20C18 19.4477 18.4477 19 19 19C19.5523 19 20 19.4477 20 20Z"/></svg></button>
@@ -4881,8 +4885,7 @@ function updateAll(){
     document.getElementById('pcardOld').textContent = old.toLocaleString();
     document.getElementById('pcardDiscount').textContent = discountLong;
     const hasOld = old > price && old > 0;
-    document.getElementById('pcardDiscount').style.display = hasOld ? '' : 'none';
-    document.getElementById('pcardOld').parentElement.style.display = hasOld ? '' : 'none';
+    document.getElementById('pcardOldRow').style.display = hasOld ? '' : 'none';
     document.getElementById('pcardRatingNum').parentElement.style.display = rating > 0 ? '' : 'none';
     updateStockAndSale();
   }
