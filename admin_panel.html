@@ -677,7 +677,7 @@ body.dark-mode .p-price{color:#ffffff}
 body.dark-mode .p-discount-inline{
   background:rgba(5,150,105,0.20);color:#34D399 !important;border-color:#059669;
 }
-.p-old-row{display:flex;align-items:center;gap:4px}
+.p-old-row{display:flex;flex-direction:column;align-items:flex-start;gap:1px}
 .p-old-price{
   font-size:12px;font-weight:600;color:var(--red);
   text-decoration:none;position:relative;
@@ -1561,8 +1561,8 @@ body.dark-mode .pay-badge-bank svg path[style*="fill:#66cde7"]{fill:#fff!importa
                 <div class="p-price-block">
                   <div class="p-price"><span class="taka">&#2547;</span><span id="pcardPrice">4,200</span></div>
                   <div class="p-old-row" id="pcardOldRow">
-                    <span class="p-old-price"><span class="taka">&#2547;</span><span id="pcardOld">5,600</span></span>
                     <span class="p-discount-inline" id="pcardDiscount">20% OFF</span>
+                    <span class="p-old-price"><span class="taka">&#2547;</span><span id="pcardOld">5,600</span></span>
                   </div>
                 </div>
                 <div class="p-actions" id="pcardActions">
