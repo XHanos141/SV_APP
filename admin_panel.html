@@ -342,6 +342,10 @@ fieldset:disabled .faq-add-btn{pointer-events:none;opacity:.5}
 .img-upload svg{width:26px;height:26px;color:var(--text3);margin-bottom:6px}
 .img-upload p{font-size:11.5px;color:var(--text2);font-weight:600}
 .img-upload span{font-size:10px;color:var(--text3)}
+.field-note{font-size:10px;font-weight:600;color:var(--text3);margin:2px 0 6px;line-height:1.3}
+.field-error{display:none;font-size:11px;font-weight:700;color:var(--red);margin-top:6px}
+.field-error.show{display:block}
+input.input-error{border-color:var(--red)!important;background:var(--red-soft)!important;color:var(--red)}
 .prod-img-upload{border-color:rgba(124,111,247,0.35);background:linear-gradient(180deg,rgba(124,111,247,0.05),rgba(124,111,247,0.02));padding:14px}
 .prod-img-upload:hover{border-color:var(--purple);background:rgba(124,111,247,0.08)}
 .prod-img-upload-icon{width:34px;height:34px;border-radius:11px;margin:0 auto 7px;background:linear-gradient(135deg,#8f84fa,#7c6ff7);display:flex;align-items:center;justify-content:center;box-shadow:0 4px 10px rgba(124,111,247,0.3)}
@@ -373,7 +377,6 @@ fieldset:disabled .faq-add-btn{pointer-events:none;opacity:.5}
 .img-thumb-add{flex-shrink:0;width:72px;height:72px;border-radius:14px;border:2px dashed var(--border);background:var(--bg);display:flex;align-items:center;justify-content:center;color:var(--text3);cursor:pointer;transition:border-color .15s ease,color .15s ease}
 .img-thumb-add:active{border-color:var(--purple);color:var(--purple)}
 .img-thumb-add svg{width:18px;height:18px}
-.img-thumb-hint{font-size:10px;color:var(--text3);font-weight:600;margin-top:6px}
 .gradient-picker{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
 .gradient-swatch{width:30px;height:30px;border-radius:9px;cursor:pointer;border:2px solid transparent;flex-shrink:0}
 .rte-toolbar{display:flex;align-items:center;gap:4px;flex-wrap:wrap;background:var(--surface2);border:1px solid var(--border);border-radius:10px 10px 0 0;padding:8px;margin-bottom:-1px;position:relative}
@@ -2232,18 +2235,20 @@ fill="#ed1d24"><rect width="512" height="512" rx="15%" fill="#ed1d24"/><path d="
       <div class="img-thumb-strip" id="imgThumbStrip"></div>
       <div class="img-thumb-fade" id="imgThumbFade" aria-hidden="true"></div>
     </div>
-    <div class="img-thumb-hint" id="imgThumbHint" style="display:none;margin-bottom:14px">Drag to reorder · first photo is the cover</div>
     <div class="field-row">
       <div class="field">
-        <label>Selling Price (৳) <span style="font-weight:600;color:var(--text3);text-transform:none;letter-spacing:0">— linked to stock</span></label>
-        <input type="number" id="inpPrice" value="4200" readonly>
+        <label>Selling Price (৳) <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:12px;height:12px;vertical-align:-1px"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></label>
+        <div class="field-note">Linked to stock — locked</div>
+        <input type="number" id="inpPrice" value="4200" disabled>
       </div>
       <div class="field">
         <label style="display:flex;align-items:center;justify-content:space-between;gap:6px">
           <span>Old Price (৳)</span>
           <div class="switch on" id="switchOldPrice" onclick="toggleSwitch('switchOldPrice')" style="flex-shrink:0"></div>
         </label>
+        <div class="field-note">&nbsp;</div>
         <input type="number" id="inpOld" value="5600" oninput="updateAll()">
+        <div class="field-error" id="oldPriceError">Must be higher than selling price</div>
       </div>
     </div>
     <div class="field">
@@ -4363,8 +4368,6 @@ function imgThumbPointerUp(){
 function renderImgThumbStrip(){
   const strip = document.getElementById('imgThumbStrip');
   if(!strip) return;
-  const hint = document.getElementById('imgThumbHint');
-  if(hint) hint.style.display = currentImages.length ? '' : 'none';
   strip.innerHTML = currentImages.map((src, i) =>
     '<div class="img-thumb-item" onpointerdown="imgThumbPointerDown(event,' + i + ')" title="Hold to drag">' +
       '<img src="' + src + '">' +
@@ -4827,7 +4830,11 @@ function updateAll(){
   const oldOn = document.getElementById('switchOldPrice').classList.contains('on');
   const oldInput = document.getElementById('inpOld');
   oldInput.disabled = !oldOn;
-  const old = oldOn ? (parseInt(oldInput.value) || 0) : 0;
+  const oldRaw = parseInt(oldInput.value) || 0;
+  const oldInvalid = oldOn && oldRaw > 0 && oldRaw <= price;
+  oldInput.classList.toggle('input-error', oldInvalid);
+  document.getElementById('oldPriceError').classList.toggle('show', oldInvalid);
+  const old = (oldOn && !oldInvalid) ? oldRaw : 0;
   if(old > price && old > 0){
     const pct = Math.round(((old - price) / old) * 100);
     document.getElementById('inpDiscount').value = pct + '% OFF';
@@ -5022,6 +5029,12 @@ async function saveProduct(evt){
   const desc = document.getElementById('apInpDesc').innerHTML.trim();
   if(cur.published && (!currentImages.length || !webPlainText(desc))){
     T('Live product needs image + description. Unpublish first.', '⚠️'); reopen(); return;
+  }
+  const price0 = parseInt(document.getElementById('inpPrice').value) || 0;
+  const oldOn0 = document.getElementById('switchOldPrice').classList.contains('on');
+  const oldRaw0 = parseInt(document.getElementById('inpOld').value) || 0;
+  if(oldOn0 && oldRaw0 > 0 && oldRaw0 <= price0){
+    T('Old price must be higher than selling price', '⚠️'); return;
   }
   T('Saving…', '⏳');
   try{
