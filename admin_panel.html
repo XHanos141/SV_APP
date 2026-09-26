@@ -354,7 +354,10 @@ fieldset:disabled .faq-add-btn{pointer-events:none;opacity:.5}
 .img-preview-thumb{width:100%;height:140px;object-fit:cover;display:block}
 .img-remove{position:absolute;top:8px;right:8px;width:26px;height:26px;border-radius:50%;background:rgba(0,0,0,.6);color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:2}
 .img-remove svg{width:13px;height:13px}
-.img-thumb-strip{display:flex;gap:10px;margin-top:12px;overflow-x:auto;overflow-y:hidden;padding-bottom:4px;padding-right:14px;-webkit-overflow-scrolling:touch;scrollbar-width:thin;touch-action:pan-x;scroll-snap-type:x proximity;overscroll-behavior-x:contain;-webkit-mask-image:linear-gradient(to right,#000 calc(100% - 26px),transparent 100%);mask-image:linear-gradient(to right,#000 calc(100% - 26px),transparent 100%)}
+.img-thumb-strip-wrap{position:relative}
+.img-thumb-strip{display:flex;gap:10px;margin-top:12px;overflow-x:auto;overflow-y:hidden;padding-bottom:4px;padding-right:14px;-webkit-overflow-scrolling:touch;scrollbar-width:thin;touch-action:pan-x;scroll-snap-type:x proximity;overscroll-behavior-x:contain}
+.img-thumb-fade{position:absolute;top:0;right:0;bottom:4px;width:36px;background:linear-gradient(to right,transparent,var(--surface) 65%);pointer-events:none;border-radius:0 14px 14px 0;opacity:0;transition:opacity .15s ease}
+.img-thumb-fade.show{opacity:1}
 .img-thumb-strip:empty{display:none;margin:0}
 @keyframes imgThumbPop{0%{transform:scale(.92);opacity:.5}100%{transform:scale(1);opacity:1}}
 .img-thumb-item{position:relative;flex-shrink:0;width:72px;height:72px;border-radius:14px;overflow:hidden;border:1px solid var(--border);background:var(--surface2);box-shadow:var(--shadow-sm);transition:box-shadow .15s ease,outline-color .15s ease,transform .15s ease;scroll-snap-align:start;animation:imgThumbPop .18s ease}
@@ -2218,7 +2221,10 @@ fill="#ed1d24"><rect width="512" height="512" rx="15%" fill="#ed1d24"/><path d="
         <span>JPG or PNG, up to 2MB each · first photo becomes the cover</span>
       </div>
     </div>
-    <div class="img-thumb-strip" id="imgThumbStrip"></div>
+    <div class="img-thumb-strip-wrap">
+      <div class="img-thumb-strip" id="imgThumbStrip"></div>
+      <div class="img-thumb-fade" id="imgThumbFade" aria-hidden="true"></div>
+    </div>
     <div class="img-thumb-hint" id="imgThumbHint" style="display:none">Drag to reorder · first photo is the cover</div>
   </div>
 
@@ -4364,6 +4370,16 @@ function renderImgThumbStrip(){
       '<div class="img-thumb-remove" onclick="event.stopPropagation();removeImageAt(' + i + ')"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></div>' +
     '</div>'
   ).join('') + (currentImages.length ? '<div class="img-thumb-add" onclick="document.getElementById(\'imgInput\').click()" aria-label="Add more photos"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></div>' : '');
+  strip.removeEventListener('scroll', updateImgThumbFade);
+  strip.addEventListener('scroll', updateImgThumbFade, { passive: true });
+  requestAnimationFrame(updateImgThumbFade);
+}
+function updateImgThumbFade(){
+  const strip = document.getElementById('imgThumbStrip');
+  const fade = document.getElementById('imgThumbFade');
+  if(!strip || !fade) return;
+  const hasMore = strip.scrollWidth - strip.clientWidth - strip.scrollLeft > 4;
+  fade.classList.toggle('show', hasMore);
 }
 function applyImageToCards(){
   const pWrap = document.getElementById('pcardImgWrap');
