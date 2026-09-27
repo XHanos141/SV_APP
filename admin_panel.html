@@ -368,7 +368,7 @@ input.input-error{border-color:var(--red)!important;background:var(--red-soft)!i
 .img-thumb-fade.show{opacity:1}
 .img-thumb-strip:empty{display:none;margin:0}
 @keyframes imgThumbPop{0%{transform:scale(.92);opacity:.5}100%{transform:scale(1);opacity:1}}
-.img-thumb-item{position:relative;flex-shrink:0;width:72px;height:72px;border-radius:14px;overflow:hidden;border:1px solid var(--border);background:var(--surface2);box-shadow:var(--shadow-sm);transition:box-shadow .15s ease,outline-color .15s ease,transform .15s ease;scroll-snap-align:start;animation:imgThumbPop .18s ease;touch-action:none}
+.img-thumb-item{position:relative;flex-shrink:0;width:72px;height:72px;border-radius:14px;overflow:hidden;border:1px solid var(--border);background:var(--surface2);box-shadow:var(--shadow-sm);transition:box-shadow .15s ease,outline-color .15s ease,transform .15s ease;scroll-snap-align:start;animation:imgThumbPop .18s ease}
 .img-thumb-item.dragging{box-shadow:0 10px 24px rgba(0,0,0,.28);z-index:5;animation:none}
 .img-thumb-item.drag-over{outline:2px solid var(--purple);outline-offset:-2px;transform:scale(1.04)}
 .img-thumb-item img{width:100%;height:100%;object-fit:cover;display:block;pointer-events:none}
@@ -1097,7 +1097,7 @@ body.dark-mode .pay-badge-bank svg path[style*="fill:#66cde7"]{fill:#fff!importa
 .web-linked{display:flex;align-items:center;gap:12px}
 .web-linked-name{font-weight:800;font-size:15px;color:var(--text)}
 .web-linked-sub{font-size:12px;color:var(--text2);margin-top:2px}
-#storeProductGroup .form-card:not(:has(#descToolbar)){min-height:0;max-height:none;overflow-y:visible;overflow-x:hidden}
+#storeProductGroup .form-card:not(:has(#descToolbar)){min-height:0;max-height:none;overflow:visible}
 .wr-pill{font-size:9.5px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;padding:2px 7px;border-radius:999px;border:1px solid transparent}
 .wr-pill.draft{color:#0284c7;background:#0284c71a;border-color:#0284c740}
 .wr-pill.live{color:#16a34a;background:#16a34a1a;border-color:#16a34a40}
@@ -2208,7 +2208,7 @@ fill="#ed1d24"><rect width="512" height="512" rx="15%" fill="#ed1d24"/><path d="
       </div>
     </div>
   </div>
-  <fieldset id="productFieldset" style="border:none;margin:0;padding:0;min-width:0">
+  <fieldset id="productFieldset" style="border:none;margin:0;padding:0">
   <div class="form-card" style="display:none" aria-hidden="true">
     <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>Product (from Stock)</h3>
     <div class="field" style="margin-bottom:0">
@@ -3766,21 +3766,44 @@ initEditLock('bfmFeesFieldset','bfmFeesEditBtn','bfmFeesSaveBtn','bfmFeesCancelB
 initEditLock('bfmPoFieldset','bfmPoEditBtn','bfmPoSaveBtn','bfmPoCancelBtn');
 initEditLock('bfmFaqFieldset','bfmFaqEditBtn','bfmFaqSaveBtn','bfmFaqCancelBtn');
 
+const PV_LIVE = { brand: null, country: null, expiry: null };
+function _pvFormatExpiry(dateStr){
+  if(!dateStr) return null;
+  const d = new Date(dateStr);
+  if(isNaN(d)) return null;
+  return String(d.getMonth()+1).padStart(2,'0') + '/' + d.getFullYear();
+}
+async function loadPvLiveSpecData(stockProductId){
+  PV_LIVE.brand = currentStockBrand || null;
+  PV_LIVE.country = null;
+  PV_LIVE.expiry = null;
+  if(stockProductId && window.sb){
+    try{
+      const { data: bRows } = await sb.from('product_batches').select('expiry_date').eq('product_id', stockProductId).order('expiry_date', { ascending:true }).limit(1);
+      if(bRows && bRows[0]) PV_LIVE.expiry = _pvFormatExpiry(bRows[0].expiry_date);
+    }catch(e){}
+    try{
+      const { data: dRows } = await sb.from('supplement_details').select('country_of_origin').eq('product_id', stockProductId).limit(1);
+      if(dRows && dRows[0]) PV_LIVE.country = dRows[0].country_of_origin || null;
+    }catch(e){}
+  }
+  renderPvSpecPicker(); renderPvSpecPreview();
+}
 const PV_SPEC_DATA = [
   {
     label: 'Expiry date',
     icon: '<svg xmlns="http://www.w3.org/2000/svg" fill="none" style="width:23px;height:23px" viewBox="0 0 24 24"><path fill="currentColor" d="M7.75 2.5c0-.41421-.33579-.75-.75-.75s-.75.33579-.75.75v1.57926c-1.43933.11525-2.38423.39811-3.07843 1.09231S2.19451 6.81067 2.07926 8.25H21.9207c-.1152-1.43933-.3981-2.38423-1.0923-3.07843s-1.6391-.97706-3.0784-1.09231V2.5c0-.41421-.3358-.75-.75-.75s-.75.33579-.75.75v1.5129C15.5847 4 14.839 4 14 4h-4c-.83903 0-1.58473 0-2.25.0129z"/><path fill="currentColor" fill-rule="evenodd" d="M22 12c0-.839 0-1.5847-.0129-2.25H2.0129C2 10.4153 2 11.161 2 12v2c0 3.7712 0 5.6569 1.17157 6.8284C4.34315 22 6.22876 22 10 22h4c3.7712 0 5.6569 0 6.8284-1.1716C22 19.6569 22 17.7712 22 14zm-8 .25c-.9665 0-1.75.7835-1.75 1.75v2c0 .9665.7835 1.75 1.75 1.75s1.75-.7835 1.75-1.75v-2c0-.9665-.7835-1.75-1.75-1.75m0 1.5c-.1381 0-.25.1119-.25.25v2c0 .1381.1119.25.25.25s.25-.1119.25-.25v-2c0-.1381-.1119-.25-.25-.25m-3.213-1.4429c.2803.1161.463.3896.463.6929v4c0 .4142-.3358.75-.75.75s-.75-.3358-.75-.75v-2.1893l-.21967.2196c-.29289.2929-.76777.2929-1.06066 0s-.29289-.7677 0-1.0606l1.5-1.5c.21453-.2145.53713-.2787.81733-.1626" clip-rule="evenodd"/></svg>',
-    text: 'Expiry date: <b>09/2028</b>'
+    getText: () => PV_LIVE.expiry ? ('Expiry date: <b>' + PV_LIVE.expiry + '</b>') : 'Expiry date: <b>Not set</b>'
   },
   {
     label: 'Brand',
     icon: '<svg xmlns="http://www.w3.org/2000/svg" fill="none" style="transform:scaleX(-1);width:23px;height:23px" viewBox="0 0 24 24"><path fill="currentColor" fill-rule="evenodd" d="M2.678 11.422a2.5 2.5 0 0 0 0 3.536l6.364 6.364a2.5 2.5 0 0 0 3.536 0l7.69-7.69A2.5 2.5 0 0 0 21 11.864V4.5A1.5 1.5 0 0 0 19.5 3h-7.365a2.5 2.5 0 0 0-1.768.732l-7.69 7.69zM14.988 7C13.878 7 13 7.832 13 8.988c0 1.157.878 2.012 1.988 2.012C16.121 11 17 10.145 17 8.988 17 7.832 16.12 7 14.988 7" clip-rule="evenodd"/></svg>',
-    text: 'Brand: <b>Optimum Nutrition</b>'
+    getText: () => PV_LIVE.brand ? ('Brand: <b>' + PV_LIVE.brand + '</b>') : 'Brand: <b>Not set</b>'
   },
   {
     label: 'Country of Origin',
     icon: '<svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" style="width:21px;height:21px" viewBox="0 0 471.461 471.461"><path d="M235.735 471.456c129.984 0 235.726-105.752 235.726-235.726C471.461 105.757 365.709.005 235.735.005S0 105.747 0 235.73c0 129.984 105.751 235.726 235.735 235.726m185.417-277.514c-19.662-11.465-14.746 1.635-14.746 1.635l13.109 11.465c13.111 11.466 22.941 16.39 18.025 32.445-4.914 16.057-13.109 1.961-29.49 15.072-16.391 13.109 19.66 16.389 21.295 36.049 1.637 19.662-19.66 9.832-29.49 29.492s-1.635 40.965-6.551 58.99c-4.914 18.025-45.881 42.602-60.76 50.797s-4.781-18.025 0-36.051-11.34-37.686-11.34-70.457-9.83-22.939-39.322-22.939c-29.49 0-42.6-16.391-45.88-47.518-3.28-31.135 24.576-62.261 37.685-72.091C286.798 171 304.824 161.17 322.839 171c18.025 9.831 24.576 19.661 44.236 19.661s19.66-6.55 31.135-14.746c11.465-8.195-16.391-18.025-32.77-16.313-16.381 1.712-13.111-9.897-34.406-18.092-21.297-8.195-29.492 8.195-36.051 11.465-6.551 3.28-29.49 13.11-31.787 0-2.285-13.11 12.117-14.745 26.871-14.745 14.746 0 1.635-11.465-3.279-19.661-4.916-8.195-14.746-8.195-21.85-14.592-7.096-6.397 8.74-18.178 25.119-14.267 16.381 3.911 9.83 15.75 27.855 14.114s0-18.025 0-33.899 19.662-15.262 32.771-21.592c13.109-6.331 29.49 27.635 40.965 41.377 3.797 4.552 9.219 2.534 14.766-2.113 28.984 33.354 48.367 75.228 53.836 121.338-23.426 8.76-21.904-4.962-39.098-14.993M235.735 9.567c9.046 0 17.949.593 26.718 1.635-3.213 8.941-8.436 15.616-8.436 15.616s-6.549 21.295-21.304 22.94-32.771 0-40.966 13.11-6.55 36.051-19.66 22.94c-13.11-13.11-1.635-14.114-14.746-27.54-13.11-13.425-16.39-13.425-22.94-13.425-1.932 0-4.122-3.337-5.862-8.214 31.929-17.251 68.429-27.062 107.196-27.062M98.991 55.735c-.364 2.362 1.711 5.795 11.781 9.993 19.661 8.195 24.193 24.423 15.138 23.782-9.056-.641-45.853 4.379-12.011 14.209 33.851 9.831 31.059 21.353 16.008 26.268-15.052 4.916-11.829-16.361-15.109 4.944s-6.579 19.67-17.231 22.95c-10.653 3.28-30.323 19.67-30.323 31.136 0 11.465-6.56 17.882 6.55 27.712s-4.103 27.809-10.299 14.708c-7.44-15.721-12.642-24.395-20.837-26.039-8.195-1.635-18.752 11.465 0 24.575s19.661 21.305 19.661 31.135 13.569 9.83 23.992 8.195c10.414-1.635 31.805 26.221 39.14 37.686 7.325 11.467 20.435 22.941 38.46 27.855 18.025 4.916 24.576 16.391 14.746 24.576-9.83 8.195-11.465 27.855-22.94 32.771-11.475 4.914-13.11 19.66-19.661 26.221-3.844 3.844-7.573 8.834-10.691 14.602-9.782-5.498-19.115-11.705-27.941-18.543-.268-1.453-.564-2.926-.698-4.254-1.635-16.391-3.28-36.051-13.11-44.236-9.831-8.195-16.39-19.66-19.661-32.771-3.271-13.109 4.915-32.77-1.635-45.881-6.55-13.109-6.55-.822-19.661-19.248-13.11-18.428-13.11-18.438-21.305-33.183-4.379-7.889-7.334-20.463-9.151-33.708 9.093-59.106 41.184-110.724 86.788-145.455"/></svg>',
-    text: 'Country of Origin: 🇺🇸 <b>USA</b>'
+    getText: () => PV_LIVE.country ? ('Country of Origin: <b>' + PV_LIVE.country + '</b>') : 'Country of Origin: <b>Not set</b>'
   },
   {
     label: '100% authentic',
@@ -3827,7 +3850,7 @@ function renderPvSpecPreview(){
   const item = PV_SPEC_DATA[pvSpecIdx];
   document.getElementById('pvSpecPreviewIcon').innerHTML = item.icon;
   const threshold = document.getElementById('inpShipFree') ? document.getElementById('inpShipFree').value : '6800';
-  const text = item.text !== null ? item.text : 'Free shipping over <b id="pvcardThreshold">৳' + parseInt(threshold, 10).toLocaleString() + '</b>';
+  const text = item.getText ? item.getText() : (item.text !== null ? item.text : 'Free shipping over <b id="pvcardThreshold">৳' + parseInt(threshold, 10).toLocaleString() + '</b>');
   document.getElementById('pvSpecPreviewText').innerHTML = text;
 }
 function selectPvSpec(i){
@@ -4334,20 +4357,19 @@ let _imgDrag = null;
 let _imgDragHintShown = false;
 let _imgPressTimer = null;
 let _imgPressStart = null;
-let _imgManualScroll = null;
 function imgThumbPointerDown(e, idx){
   if(e.target.closest('.img-thumb-remove')) return;
   const strip = document.getElementById('imgThumbStrip');
   const item = e.currentTarget;
   if(!strip || !item) return;
   _imgPressStart = { x: e.clientX, y: e.clientY, pointerId: e.pointerId };
-  _imgManualScroll = null;
   clearTimeout(_imgPressTimer);
   _imgPressTimer = setTimeout(() => {
     _imgPressTimer = null;
     if(!_imgPressStart) return;
     if(navigator.vibrate) navigator.vibrate(12);
     if(!_imgDragHintShown){ _imgDragHintShown = true; T('Drag to reorder photos', '↕'); }
+    item.style.touchAction = 'none';
     _imgDrag = { idx, item, strip, startX: e.clientX };
     item.classList.add('dragging');
     try{ item.setPointerCapture(_imgPressStart.pointerId); }catch(err){}
@@ -4359,20 +4381,11 @@ function imgThumbPointerDown(e, idx){
 function imgThumbPressWatch(e){
   if(_imgDrag){ imgThumbPointerMove(e); return; }
   if(!_imgPressStart) return;
-  const strip = document.getElementById('imgThumbStrip');
-  if(_imgManualScroll){
-    strip.scrollLeft = _imgManualScroll.startScrollLeft - (e.clientX - _imgManualScroll.startX);
-    return;
-  }
-  const dx = e.clientX - _imgPressStart.x, dy = e.clientY - _imgPressStart.y;
-  if(Math.abs(dx) > 6 || Math.abs(dy) > 6){
-    clearTimeout(_imgPressTimer); _imgPressTimer = null;
-    _imgManualScroll = { startScrollLeft: strip.scrollLeft, startX: e.clientX };
-  }
+  const dx = Math.abs(e.clientX - _imgPressStart.x), dy = Math.abs(e.clientY - _imgPressStart.y);
+  if(dx > 6 || dy > 6){ clearTimeout(_imgPressTimer); _imgPressTimer = null; _imgPressStart = null; }
 }
 function imgThumbPressEnd(e){
   if(_imgDrag){ imgThumbPointerUp(); }
-  _imgManualScroll = null;
   clearTimeout(_imgPressTimer);
   _imgPressTimer = null; _imgPressStart = null;
   document.removeEventListener('pointermove', imgThumbPressWatch);
@@ -4403,6 +4416,7 @@ function imgThumbPointerUp(){
   strip.querySelectorAll('.img-thumb-item').forEach(el => el.classList.remove('drag-over'));
   item.classList.remove('dragging');
   item.style.transform = '';
+  item.style.touchAction = '';
   _imgDrag = null;
   if(overEl){
     const newIdx = [...strip.querySelectorAll('.img-thumb-item')].indexOf(overEl);
@@ -5173,6 +5187,7 @@ function loadProductToEditor(id){
     editBtn.disabled = true;
     setWebFormsVisible(false);
     renderLinkedCard(null); renderPublishCard(null); updateSeoCount(); updateAll(); renderWebRequests();
+    loadPvLiveSpecData('');
     return;
   }
   editBtn.disabled = false;
@@ -5186,6 +5201,7 @@ function loadProductToEditor(id){
   setV('apInpStock', p.stock);
   currentStockProductId = p.id; currentVariants = [];
   refreshStockPickTrigger(); renderVariantChips();
+  loadPvLiveSpecData(p.id);
   document.getElementById('switchSale').classList.toggle('on', p.sale);
   document.getElementById('switchHot').classList.toggle('on', p.hot);
   document.getElementById('switchTrending').classList.toggle('on', p.trending);
