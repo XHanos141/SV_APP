@@ -665,6 +665,7 @@ body.dark-mode .trending-off{
   background:var(--surface2);border:1px solid var(--border);
   border-radius:var(--radius-sm);overflow:hidden;
 }
+#seoFieldsClip{overflow:hidden;transition:max-height .3s ease,opacity .25s ease}
 .pv-spec-chevron{
   width:16px;height:16px;
   color:var(--text3);flex-shrink:0;
@@ -2284,7 +2285,7 @@ fill="#ed1d24"><rect width="512" height="512" rx="15%" fill="#ed1d24"/><path d="
         <span style="display:flex;align-items:center;gap:8px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>SEO &amp; URL</span>
         <svg id="seoChevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px;color:var(--text3);flex-shrink:0;transition:transform .25s"><polyline points="6 9 12 15 18 9"/></svg>
       </h3>
-      <div id="seoFieldsClip" style="max-height:0;opacity:0;overflow:hidden;transition:max-height .3s ease,opacity .25s ease">
+      <div id="seoFieldsClip" style="max-height:0;opacity:0">
       <div id="seoFields" style="margin-top:12px">
       <div class="field">
         <label>URL Slug</label>
