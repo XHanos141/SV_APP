@@ -363,12 +363,12 @@ input.input-error{border-color:var(--red)!important;background:var(--red-soft)!i
 .img-remove{position:absolute;top:8px;right:8px;width:26px;height:26px;border-radius:50%;background:rgba(0,0,0,.6);color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:2}
 .img-remove svg{width:13px;height:13px}
 .img-thumb-strip-wrap{position:relative}
-.img-thumb-strip{display:flex;gap:10px;margin-top:12px;overflow-x:auto;overflow-y:hidden;padding-bottom:4px;padding-right:14px;-webkit-overflow-scrolling:touch;scrollbar-width:thin;touch-action:pan-x;scroll-snap-type:x proximity;overscroll-behavior-x:contain}
+.img-thumb-strip{display:flex;gap:10px;margin-top:12px;overflow-x:auto;overflow-y:hidden;padding-bottom:4px;padding-right:14px;-webkit-overflow-scrolling:touch;scrollbar-width:thin;touch-action:pan-x;overscroll-behavior-x:contain}
 .img-thumb-fade{position:absolute;top:0;right:0;bottom:4px;width:36px;background:linear-gradient(to right,transparent,var(--surface) 65%);pointer-events:none;border-radius:0 14px 14px 0;opacity:0;transition:opacity .15s ease}
 .img-thumb-fade.show{opacity:1}
 .img-thumb-strip:empty{display:none;margin:0}
 @keyframes imgThumbPop{0%{transform:scale(.92);opacity:.5}100%{transform:scale(1);opacity:1}}
-.img-thumb-item{position:relative;flex-shrink:0;width:72px;height:72px;border-radius:14px;overflow:hidden;border:1px solid var(--border);background:var(--surface2);box-shadow:var(--shadow-sm);transition:box-shadow .15s ease,outline-color .15s ease,transform .15s ease;scroll-snap-align:start;animation:imgThumbPop .18s ease;touch-action:none}
+.img-thumb-item{position:relative;flex-shrink:0;width:72px;height:72px;border-radius:14px;overflow:hidden;border:1px solid var(--border);background:var(--surface2);box-shadow:var(--shadow-sm);transition:box-shadow .15s ease,outline-color .15s ease,transform .15s ease;animation:imgThumbPop .18s ease;touch-action:none}
 .img-thumb-item.dragging{transition:box-shadow .15s ease,outline-color .15s ease}
 .img-thumb-item.dragging{box-shadow:0 10px 24px rgba(0,0,0,.28);z-index:5;animation:none}
 .img-thumb-item.drag-over{outline:2px solid var(--purple);outline-offset:-2px;transform:scale(1.04)}
