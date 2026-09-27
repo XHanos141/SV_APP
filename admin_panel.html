@@ -651,11 +651,11 @@ body.dark-mode .trending-off{
   gap:8px;
 }
 .pv-spec-text{
-  font-size:13px;font-weight:500;color:var(--text2);
+  font-size:13px;font-weight:500;color:var(--text);opacity:.82;
   line-height:1.4;
 }
 .pv-spec-text b{
-  font-family:var(--font-display);font-weight:800;color:var(--text);
+  font-family:var(--font-display);font-weight:800;color:var(--text);opacity:1;
 }
 .pv-spec-pick{cursor:pointer;background:transparent;border:none;border-bottom:1px solid var(--border);border-radius:0;margin-bottom:0;transition:background .15s}
 .pv-spec-pick:last-child{border-bottom:none}
@@ -2162,11 +2162,11 @@ fill="#ed1d24"><rect width="512" height="512" rx="15%" fill="#ed1d24"/><path d="
     <div class="field-row">
       <div class="field">
         <label>Flat Shipping Fee (৳)</label>
-        <input type="number" id="inpShipFlat" value="120" min="0" step="10" oninput="updateShipping()">
+        <input type="number" id="inpShipFlat" value="20" min="0" step="10" oninput="updateShipping()">
       </div>
       <div class="field">
         <label>Free Shipping Over (৳)</label>
-        <input type="number" id="inpShipFree" value="6800" min="0" step="50" oninput="updateShipping()">
+        <input type="number" id="inpShipFree" value="10000" min="0" step="50" oninput="updateShipping()">
       </div>
     </div>
     <div class="hint-row" style="margin-top:2px">
@@ -5400,6 +5400,11 @@ function loadShipping(){
   try {
     const saved = JSON.parse(localStorage.getItem('sv-shipping') || 'null');
     if(saved){
+      // one-time migration: previous defaults (120 / 6800) -> new defaults (20 / 10000)
+      if(saved.flat === 120 && saved.freeThreshold === 6800){
+        saved.flat = 20; saved.freeThreshold = 10000;
+        localStorage.setItem('sv-shipping', JSON.stringify(saved));
+      }
       document.getElementById('inpShipFlat').value = saved.flat;
       document.getElementById('inpShipFree').value = saved.freeThreshold;
     }
