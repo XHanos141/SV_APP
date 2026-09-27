@@ -1091,7 +1091,7 @@ body.dark-mode .pay-badge-bank svg path[style*="fill:#66cde7"]{fill:#fff!importa
 .web-linked{display:flex;align-items:center;gap:12px}
 .web-linked-name{font-weight:800;font-size:15px;color:var(--text)}
 .web-linked-sub{font-size:12px;color:var(--text2);margin-top:2px}
-#storeProductGroup .form-card:not(:has(#descToolbar)){min-height:0;max-height:none;overflow-y:visible;overflow-x:hidden}
+#storeProductGroup .form-card:not(:has(#descToolbar)){min-height:0;max-height:none;overflow:visible}
 .wr-pill{font-size:9.5px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;padding:2px 7px;border-radius:999px;border:1px solid transparent}
 .wr-pill.draft{color:#0284c7;background:#0284c71a;border-color:#0284c740}
 .wr-pill.live{color:#16a34a;background:#16a34a1a;border-color:#16a34a40}
@@ -1544,8 +1544,21 @@ body.dark-mode .pay-badge-bank svg path[style*="fill:#66cde7"]{fill:#fff!importa
     </div>
   </div>
   <div class="carousel-box" id="carouselBoxStore" style="display:none">
-    <div class="slide-label" id="slideLabelStore">Vertical Card</div>
+    <div class="slide-label" id="slideLabelStore">Product Page Badge</div>
     <div class="carousel-track" id="carouselTrackStore" style="width:300%">
+      <div class="carousel-slide">
+        <div class="card-wrap" style="width:100%">
+          <div class="pv-specs" id="pvSpecsBox" style="width:100%">
+            <div class="pv-spec" id="pvSpecPreview">
+              <div class="pv-spec-icon" id="pvSpecPreviewIcon"></div>
+              <div class="pv-spec-body">
+                <div class="pv-spec-text" id="pvSpecPreviewText">Expiry date: <b>09/2028</b></div>
+                <svg class="pv-spec-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
       <div class="carousel-slide">
         <div class="card-wrap" style="width:172px">
           <div class="p-card" id="pcard">
@@ -1595,19 +1608,6 @@ body.dark-mode .pay-badge-bank svg path[style*="fill:#66cde7"]{fill:#fff!importa
                 <svg width="12" height="12" viewBox="0 0 512 512"><use href="#cat-icon-supplement" fill="#fff" stroke="#fff"/></svg>
               </div>
               <button class="trending-link">Explore<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></button>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="carousel-slide">
-        <div class="card-wrap" style="width:100%">
-          <div class="pv-specs" id="pvSpecsBox" style="width:100%">
-            <div class="pv-spec" id="pvSpecPreview">
-              <div class="pv-spec-icon" id="pvSpecPreviewIcon"></div>
-              <div class="pv-spec-body">
-                <div class="pv-spec-text" id="pvSpecPreviewText">Expiry date: <b>09/2028</b></div>
-                <svg class="pv-spec-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
-              </div>
             </div>
           </div>
         </div>
@@ -2202,7 +2202,7 @@ fill="#ed1d24"><rect width="512" height="512" rx="15%" fill="#ed1d24"/><path d="
       </div>
     </div>
   </div>
-  <fieldset id="productFieldset" style="border:none;margin:0;padding:0;min-width:0">
+  <fieldset id="productFieldset" style="border:none;margin:0;padding:0">
   <div class="form-card" style="display:none" aria-hidden="true">
     <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>Product (from Stock)</h3>
     <div class="field" style="margin-bottom:0">
@@ -3394,10 +3394,10 @@ landingCarousel.goToSlide(0);
 const storeCarousel = makeCarousel({
   trackId:'carouselTrackStore', dotsId:'carouselDotsStore', labelId:'slideLabelStore',
   prevId:'carouselPrevStore', nextId:'carouselNextStore', boxId:'carouselBoxStore',
-  total:3, labels:['Vertical Card','Horizontal Card','Product Page Badge'],
+  total:3, labels:['Product Page Badge','Vertical Card','Horizontal Card'],
   onSlide: function(i){
-    document.getElementById('storeShippingGroup').style.display = i === 2 ? '' : 'none';
-    document.getElementById('storeProductGroup').style.display = i === 2 ? 'none' : '';
+    document.getElementById('storeShippingGroup').style.display = i === 0 ? '' : 'none';
+    document.getElementById('storeProductGroup').style.display = i === 0 ? 'none' : '';
   }
 });
 storeCarousel.goToSlide(0);
