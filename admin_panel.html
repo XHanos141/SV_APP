@@ -2203,6 +2203,28 @@ fill="#ed1d24"><rect width="512" height="512" rx="15%" fill="#ed1d24"/><path d="
     </div>
   </div>
   <fieldset id="productFieldset" style="border:none;margin:0;padding:0">
+  <div class="form-card">
+    <h3 onclick="toggleSeoSection()" style="cursor:pointer;display:flex;align-items:center;justify-content:space-between">
+      <span style="display:flex;align-items:center;gap:8px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>SEO &amp; URL</span>
+      <svg id="seoChevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px;color:var(--text3);flex-shrink:0;transition:transform .25s"><polyline points="6 9 12 15 18 9"/></svg>
+    </h3>
+    <div id="seoFields" style="display:none;margin-top:12px">
+    <div class="field">
+      <label>URL Slug</label>
+      <input type="text" id="inpSlug" placeholder="auto from product name" maxlength="80" oninput="this.value=slugify(this.value)">
+    </div>
+    <div class="field">
+      <label>SEO Title</label>
+      <input type="text" id="inpSeoTitle" maxlength="70" placeholder="Defaults to product name" oninput="updateSeoCount()">
+      <div class="web-count" id="seoTitleCount">0 / 60</div>
+    </div>
+    <div class="field" style="margin-bottom:0">
+      <label>SEO Description</label>
+      <textarea class="web-ta" id="inpSeoDesc" maxlength="200" placeholder="Shown in Google results" oninput="updateSeoCount()"></textarea>
+      <div class="web-count" id="seoDescCount">0 / 160</div>
+    </div>
+    </div>
+  </div>
   <div class="form-card" style="display:none" aria-hidden="true">
     <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>Product (from Stock)</h3>
     <div class="field" style="margin-bottom:0">
@@ -2386,28 +2408,6 @@ fill="#ed1d24"><rect width="512" height="512" rx="15%" fill="#ed1d24"/><path d="
     <div class="toggle-row">
       <label>Show in Trending row</label>
       <div class="switch on" id="switchTrending" onclick="toggleSwitch('switchTrending')"></div>
-    </div>
-  </div>
-  <div class="form-card">
-    <h3 onclick="toggleSeoSection()" style="cursor:pointer;display:flex;align-items:center;justify-content:space-between">
-      <span style="display:flex;align-items:center;gap:8px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>SEO &amp; URL</span>
-      <svg id="seoChevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px;color:var(--text3);flex-shrink:0;transition:transform .25s"><polyline points="6 9 12 15 18 9"/></svg>
-    </h3>
-    <div id="seoFields" style="display:none;margin-top:12px">
-    <div class="field">
-      <label>URL Slug</label>
-      <input type="text" id="inpSlug" placeholder="auto from product name" maxlength="80" oninput="this.value=slugify(this.value)">
-    </div>
-    <div class="field">
-      <label>SEO Title</label>
-      <input type="text" id="inpSeoTitle" maxlength="70" placeholder="Defaults to product name" oninput="updateSeoCount()">
-      <div class="web-count" id="seoTitleCount">0 / 60</div>
-    </div>
-    <div class="field" style="margin-bottom:0">
-      <label>SEO Description</label>
-      <textarea class="web-ta" id="inpSeoDesc" maxlength="200" placeholder="Shown in Google results" oninput="updateSeoCount()"></textarea>
-      <div class="web-count" id="seoDescCount">0 / 160</div>
-    </div>
     </div>
   </div>
   <script>
