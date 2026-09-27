@@ -3837,18 +3837,32 @@ const PV_SPEC_DATA = [
   }
 ];
 let pvSpecIdx = 0;
+let currentPvCatKey = 'supplement';
+const PV_CAT_COLOR = { supplement:'#009b72', gadget:'#0EA5E9', cosmetic:'#EC4899', clothing:'#6761a8', general:'#64748B' };
+function _pvHexToRgba(hex, alpha){
+  const h = hex.replace('#','');
+  const r = parseInt(h.substring(0,2),16), g = parseInt(h.substring(2,4),16), b = parseInt(h.substring(4,6),16);
+  return 'rgba(' + r + ',' + g + ',' + b + ',' + alpha + ')';
+}
+function _pvCatColor(){
+  return PV_CAT_COLOR[currentPvCatKey] || PV_CAT_COLOR.general;
+}
 function renderPvSpecPicker(){
   const el = document.getElementById('pvSpecPicker');
+  const color = _pvCatColor(), soft = _pvHexToRgba(color, 0.1);
   el.innerHTML = PV_SPEC_DATA.map((item, i) =>
     '<div class="pv-spec pv-spec-pick' + (i===pvSpecIdx ? ' active' : '') + '" onclick="selectPvSpec(' + i + ')">' +
-      '<div class="pv-spec-icon">' + item.icon + '</div>' +
+      '<div class="pv-spec-icon" style="background:' + soft + ';color:' + color + '">' + item.icon + '</div>' +
       '<div class="pv-spec-body"><div class="pv-spec-text"><b>' + item.label + '</b></div></div>' +
     '</div>'
   ).join('');
 }
 function renderPvSpecPreview(){
   const item = PV_SPEC_DATA[pvSpecIdx];
+  const color = _pvCatColor(), soft = _pvHexToRgba(color, 0.1);
   document.getElementById('pvSpecPreviewIcon').innerHTML = item.icon;
+  document.getElementById('pvSpecPreviewIcon').style.background = soft;
+  document.getElementById('pvSpecPreviewIcon').style.color = color;
   const threshold = document.getElementById('inpShipFree') ? document.getElementById('inpShipFree').value : '6800';
   const text = item.getText ? item.getText() : (item.text !== null ? item.text : 'Free shipping over <b id="pvcardThreshold">৳' + parseInt(threshold, 10).toLocaleString() + '</b>');
   document.getElementById('pvSpecPreviewText').innerHTML = text;
@@ -5195,6 +5209,7 @@ function loadProductToEditor(id){
   currentEditId = p.id;
   setV('apInpName', p.name); currentStockBrand = p.brand;
   setV('inpCat', p.cat); setV('inpSubcat', p.subcat);
+  currentPvCatKey = p.catKey || 'general';
   document.getElementById('apInpDesc').innerHTML = p.desc;
   setV('inpRating', p.rating); setV('inpPrice', p.price); setV('inpOld', p.old || 0);
   document.getElementById('switchOldPrice').classList.toggle('on', !!(p.old > 0));
