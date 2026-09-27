@@ -4441,12 +4441,10 @@ function imgThumbPointerMove(e){
   else if(e.clientX > stripRect.right - margin) strip.scrollLeft += 10;
   const items = [...strip.querySelectorAll('.img-thumb-item')];
   const fromIdx = items.indexOf(_imgDrag.item);
-  let overIdx = fromIdx, minDist = Infinity;
-  items.forEach((el, i) => {
-    const r = el.getBoundingClientRect();
-    const dist = Math.abs(e.clientX - (r.left + r.width/2));
-    if(dist < minDist){ minDist = dist; overIdx = i; }
-  });
+  const slotSize = 82;
+  const stripLeft = strip.getBoundingClientRect().left - strip.scrollLeft;
+  let overIdx = Math.round((e.clientX - stripLeft - 36) / slotSize);
+  overIdx = Math.max(0, Math.min(items.length - 1, overIdx));
   if(overIdx !== fromIdx && fromIdx !== -1){
     const pointerX = e.clientX;
     const firstRects = new Map();
