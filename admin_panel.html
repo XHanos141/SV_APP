@@ -5181,7 +5181,7 @@ function loadProductToEditor(id){
   document.getElementById('switchTrending').classList.toggle('on', p.trending);
   setV('inpSlug', p.slug); setV('inpSeoTitle', p.seoTitle); setV('inpSeoDesc', p.seoDesc);
   const seoClip = document.getElementById('seoFieldsClip');
-  if(p.slug || p.seoTitle || p.seoDesc){
+  if(p.seoTitle || p.seoDesc){
     seoClip.style.transition = 'none';
     seoClip.style.maxHeight = '500px';
     seoClip.style.opacity = '1';
