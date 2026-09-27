@@ -2279,7 +2279,8 @@ fill="#ed1d24"><rect width="512" height="512" rx="15%" fill="#ed1d24"/><path d="
         <span style="display:flex;align-items:center;gap:8px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>SEO &amp; URL</span>
         <svg id="seoChevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px;color:var(--text3);flex-shrink:0;transition:transform .25s"><polyline points="6 9 12 15 18 9"/></svg>
       </h3>
-      <div id="seoFields" style="display:none;margin-top:12px">
+      <div id="seoFieldsClip" style="max-height:0;opacity:0;overflow:hidden;transition:max-height .3s ease,opacity .25s ease">
+      <div id="seoFields" style="margin-top:12px">
       <div class="field">
         <label>URL Slug</label>
         <input type="text" id="inpSlug" placeholder="auto from product name" maxlength="80" oninput="this.value=slugify(this.value)">
@@ -2293,6 +2294,7 @@ fill="#ed1d24"><rect width="512" height="512" rx="15%" fill="#ed1d24"/><path d="
         <label>SEO Description</label>
         <textarea class="web-ta" id="inpSeoDesc" maxlength="200" placeholder="Shown in Google results" oninput="updateSeoCount()"></textarea>
         <div class="web-count" id="seoDescCount">0 / 160</div>
+      </div>
       </div>
       </div>
     </div>
@@ -2412,10 +2414,11 @@ fill="#ed1d24"><rect width="512" height="512" rx="15%" fill="#ed1d24"/><path d="
   </div>
   <script>
   function toggleSeoSection(){
-    const f = document.getElementById('seoFields');
+    const clip = document.getElementById('seoFieldsClip');
     const c = document.getElementById('seoChevron');
-    const open = f.style.display !== 'none';
-    f.style.display = open ? 'none' : 'block';
+    const open = clip.style.maxHeight !== '0px' && clip.style.maxHeight !== '';
+    clip.style.maxHeight = open ? '0px' : '500px';
+    clip.style.opacity = open ? '0' : '1';
     c.style.transform = open ? 'rotate(0deg)' : 'rotate(180deg)';
   }
   </script>
@@ -5172,9 +5175,19 @@ function loadProductToEditor(id){
   document.getElementById('switchHot').classList.toggle('on', p.hot);
   document.getElementById('switchTrending').classList.toggle('on', p.trending);
   setV('inpSlug', p.slug); setV('inpSeoTitle', p.seoTitle); setV('inpSeoDesc', p.seoDesc);
+  const seoClip = document.getElementById('seoFieldsClip');
   if(p.slug || p.seoTitle || p.seoDesc){
-    document.getElementById('seoFields').style.display = 'block';
+    seoClip.style.transition = 'none';
+    seoClip.style.maxHeight = '500px';
+    seoClip.style.opacity = '1';
     document.getElementById('seoChevron').style.transform = 'rotate(180deg)';
+    requestAnimationFrame(() => { seoClip.style.transition = ''; });
+  } else {
+    seoClip.style.transition = 'none';
+    seoClip.style.maxHeight = '0px';
+    seoClip.style.opacity = '0';
+    document.getElementById('seoChevron').style.transform = 'rotate(0deg)';
+    requestAnimationFrame(() => { seoClip.style.transition = ''; });
   }
   currentImages = p.images.slice(); syncCurrentImg();
   currentGradient = p.gradient;
