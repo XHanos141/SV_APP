@@ -3855,6 +3855,12 @@ function _pvHexToRgba(hex, alpha){
 function _pvCatColor(){
   return PV_CAT_COLOR[currentPvCatKey] || PV_CAT_COLOR.general;
 }
+function _pvSpecText(item){
+  if(item.getText) return item.getText();
+  if(item.text !== null) return item.text;
+  const threshold = document.getElementById('inpShipFree') ? document.getElementById('inpShipFree').value : '6800';
+  return 'Free shipping over <b id="pvcardThreshold">৳' + parseInt(threshold, 10).toLocaleString() + '</b>';
+}
 function renderPvSpecPicker(){
   const el = document.getElementById('pvSpecPicker');
   const color = _pvCatColor(), soft = _pvHexToRgba(color, 0.1);
@@ -3863,7 +3869,7 @@ function renderPvSpecPicker(){
   el.innerHTML = visible.map(({ item, i }) =>
     '<div class="pv-spec pv-spec-pick' + (i===pvSpecIdx ? ' active' : '') + '" onclick="selectPvSpec(' + i + ')">' +
       '<div class="pv-spec-icon" style="background:' + soft + ';color:' + color + '">' + item.icon + '</div>' +
-      '<div class="pv-spec-body"><div class="pv-spec-text"><b>' + item.label + '</b></div></div>' +
+      '<div class="pv-spec-body"><div class="pv-spec-text">' + _pvSpecText(item) + '</div></div>' +
     '</div>'
   ).join('');
 }
@@ -3873,9 +3879,7 @@ function renderPvSpecPreview(){
   document.getElementById('pvSpecPreviewIcon').innerHTML = item.icon;
   document.getElementById('pvSpecPreviewIcon').style.background = soft;
   document.getElementById('pvSpecPreviewIcon').style.color = color;
-  const threshold = document.getElementById('inpShipFree') ? document.getElementById('inpShipFree').value : '6800';
-  const text = item.getText ? item.getText() : (item.text !== null ? item.text : 'Free shipping over <b id="pvcardThreshold">৳' + parseInt(threshold, 10).toLocaleString() + '</b>');
-  document.getElementById('pvSpecPreviewText').innerHTML = text;
+  document.getElementById('pvSpecPreviewText').innerHTML = _pvSpecText(item);
 }
 function selectPvSpec(i){
   pvSpecIdx = i;
