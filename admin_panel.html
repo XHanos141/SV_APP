@@ -369,6 +369,7 @@ input.input-error{border-color:var(--red)!important;background:var(--red-soft)!i
 .img-thumb-strip:empty{display:none;margin:0}
 @keyframes imgThumbPop{0%{transform:scale(.92);opacity:.5}100%{transform:scale(1);opacity:1}}
 .img-thumb-item{position:relative;flex-shrink:0;width:72px;height:72px;border-radius:14px;overflow:hidden;border:1px solid var(--border);background:var(--surface2);box-shadow:var(--shadow-sm);transition:box-shadow .15s ease,outline-color .15s ease,transform .15s ease;scroll-snap-align:start;animation:imgThumbPop .18s ease;touch-action:none}
+.img-thumb-item.dragging{transition:box-shadow .15s ease,outline-color .15s ease}
 .img-thumb-item.dragging{box-shadow:0 10px 24px rgba(0,0,0,.28);z-index:5;animation:none}
 .img-thumb-item.drag-over{outline:2px solid var(--purple);outline-offset:-2px;transform:scale(1.04)}
 .img-thumb-item img{width:100%;height:100%;object-fit:cover;display:block;pointer-events:none}
@@ -4436,17 +4437,35 @@ function imgThumbPointerMove(e){
   });
   if(overIdx !== fromIdx && fromIdx !== -1){
     const pointerX = e.clientX;
+    const firstRects = new Map();
+    items.forEach(el => { if(el !== _imgDrag.item) firstRects.set(el, el.getBoundingClientRect()); });
+
     const [moved] = currentImages.splice(fromIdx, 1);
     currentImages.splice(overIdx, 0, moved);
-    renderImgThumbStrip();
-    const newItem = strip.querySelectorAll('.img-thumb-item')[overIdx];
-    if(newItem){
-      newItem.classList.add('dragging');
-      const r2 = newItem.getBoundingClientRect();
-      _imgDrag = { idx: overIdx, item: newItem, strip, naturalCenter: r2.left + r2.width/2 };
-      try{ newItem.setPointerCapture(_imgPressStart.pointerId); }catch(err){}
-      newItem.style.transform = 'translateX(' + (pointerX - _imgDrag.naturalCenter) + 'px) scale(1.06)';
-    }
+
+    const refNode = items[overIdx];
+    if(fromIdx < overIdx) strip.insertBefore(_imgDrag.item, refNode.nextSibling);
+    else strip.insertBefore(_imgDrag.item, refNode);
+
+    firstRects.forEach((first, el) => {
+      const last = el.getBoundingClientRect();
+      const deltaX = first.left - last.left;
+      if(Math.abs(deltaX) > 0.5){
+        el.style.transition = 'none';
+        el.style.transform = 'translateX(' + deltaX + 'px)';
+        void el.offsetWidth;
+        el.style.transition = '';
+        el.style.transform = '';
+      }
+    });
+
+    const prevTransform = _imgDrag.item.style.transform;
+    _imgDrag.item.style.transform = '';
+    const naturalRect = _imgDrag.item.getBoundingClientRect();
+    _imgDrag.item.style.transform = prevTransform;
+    _imgDrag.idx = overIdx;
+    _imgDrag.naturalCenter = naturalRect.left + naturalRect.width/2;
+    _imgDrag.item.style.transform = 'translateX(' + (pointerX - _imgDrag.naturalCenter) + 'px) scale(1.06)';
   }
 }
 function imgThumbPointerUp(){
