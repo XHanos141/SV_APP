@@ -177,6 +177,57 @@ input:focus{box-shadow:var(--sh-in-md),0 0 0 2px var(--brand-soft);}
 .btn.ghost .spinner{border-color:color-mix(in srgb,var(--dim) 35%,transparent);border-top-color:var(--dim);}
 @keyframes spin{to{transform:rotate(360deg);}}
 .note{font-size:var(--fs-2xs);color:var(--faint);margin-top:9px;line-height:1.55;}
+
+/* overview v3 */
+.metric-btn{display:block;width:100%;text-align:left;}
+.metric-btn .go{display:none;}
+.status-card.act{padding:2px 0;}
+.status-card .grow{flex:1;min-width:0;}
+.mini-btn{flex-shrink:0;font-size:var(--fs-xs);font-weight:700;color:var(--brand);padding:9px 14px;border-radius:99px;background:var(--bg);box-shadow:var(--sh-out-sm);transition:box-shadow .16s var(--ease-out),transform .16s var(--ease-out);}
+.mini-btn:active{box-shadow:var(--sh-in-sm);transform:scale(.96);}
+.card.tight{padding:16px 18px;}
+.lasttx{display:flex;align-items:center;gap:13px;width:100%;text-align:left;}
+.lasttx .prov-ic{width:42px;height:42px;}
+.lasttx .lt-b{flex:1;min-width:0;}
+.lasttx .amt{font-family:'Plus Jakarta Sans';font-weight:800;font-size:var(--fs-lg);letter-spacing:-.01em;font-variant-numeric:tabular-nums;line-height:1.2;}
+.lasttx .meta{font-size:var(--fs-2xs);color:var(--faint);font-family:'Roboto Mono';margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.lasttx .lt-r{text-align:right;flex-shrink:0;display:flex;flex-direction:column;align-items:flex-end;gap:6px;}
+.lasttx .ago{font-size:var(--fs-2xs);color:var(--faint);font-weight:500;}
+.card h2 .cnt{font-family:'Roboto Mono';font-size:var(--fs-2xs);font-weight:700;padding:2px 8px;border-radius:99px;background:var(--red-soft);color:var(--red);}
+.att{display:flex;align-items:center;gap:12px;padding:11px 0;width:100%;text-align:left;border-bottom:1px solid color-mix(in srgb,var(--shadow-d) 55%,transparent);}
+.att:last-child{border:none;padding-bottom:0;}
+.att:first-of-type{padding-top:0;}
+.att .ev-ic{width:32px;height:32px;}
+.att .ab{flex:1;min-width:0;}
+.att .at{font-size:var(--fs-sm);font-weight:600;line-height:1.3;}
+.att .as{font-size:var(--fs-2xs);color:var(--faint);margin-top:2px;line-height:1.4;}
+.att .go{font-size:var(--fs-xs);font-weight:700;color:var(--brand);flex-shrink:0;padding-left:6px;}
+.rate{margin-top:14px;padding-top:14px;border-top:1px solid color-mix(in srgb,var(--shadow-d) 55%,transparent);}
+.rate-h{display:flex;align-items:baseline;justify-content:space-between;font-size:var(--fs-sm);font-weight:600;}
+.rate-h b{font-family:'Plus Jakarta Sans';font-weight:800;font-size:var(--fs-md);color:var(--green);font-variant-numeric:tabular-nums;}
+.rate-body{display:flex;align-items:flex-end;gap:14px;margin-top:10px;}
+.track{flex:1;height:8px;border-radius:99px;background:var(--bg);box-shadow:var(--sh-in-sm);overflow:hidden;align-self:center;}
+.track i{display:block;height:100%;width:0;border-radius:99px;background:var(--green);animation:fill 1s .35s var(--ease-out) forwards;}
+@keyframes fill{to{width:var(--w);}}
+.spark{display:flex;align-items:flex-end;gap:3px;height:26px;color:var(--green);}
+.spark i{display:block;width:5px;border-radius:2px;background:currentColor;opacity:.75;}
+.spark i.w{color:var(--amber);opacity:1;}
+.mini-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px;}
+.mini-stat{border-radius:var(--r-sm);padding:10px 12px;box-shadow:var(--sh-in-sm);}
+.mini-stat .mv{font-family:'Plus Jakarta Sans';font-weight:800;font-size:var(--fs-md);font-variant-numeric:tabular-nums;}
+.mini-stat .ml{font-size:var(--fs-2xs);color:var(--dim);margin-top:1px;font-weight:500;}
+.dh-head{width:100%;display:flex;align-items:center;gap:10px;text-align:left;padding:0;}
+.dh-head h2{margin:0;flex:1;}
+.dh .chev{width:16px;height:16px;color:var(--mute);transition:transform .35s var(--ease-spring);flex-shrink:0;}
+.dh.open .chev{transform:rotate(180deg);}
+.dh-wrap{display:grid;grid-template-rows:0fr;transition:grid-template-rows .38s var(--ease-spring);}
+.dh.open .dh-wrap{grid-template-rows:1fr;}
+.dh-inner{overflow:hidden;min-height:0;opacity:0;transform:translateY(-6px);transition:opacity .25s var(--ease-out),transform .35s var(--ease-spring);}
+.dh.open .dh-inner{opacity:1;transform:none;transition-delay:.05s;}
+.dh-body{padding-top:6px;}
+.dh-body .row:first-child{padding-top:10px;}
+.row .label svg.i-ok{color:var(--green);} .row .label svg.i-warn{color:var(--amber);} .row .label svg.i-off{color:var(--red);}
+@media (prefers-reduced-motion:reduce){.dh-wrap,.dh-inner,.dh .chev{transition:none;}}
 .vstack .btn{margin-bottom:10px;} .vstack .btn:last-child{margin-bottom:0;}
 
 .navbar{position:fixed;bottom:0;left:0;right:0;display:flex;justify-content:center;z-index:10;pointer-events:none;}
@@ -304,6 +355,13 @@ const S = {
     {id:'cellfin',abbr:'Ce',name:'CellFin',configured:false,soon:true}
   ],
   metrics:{received:128,delivered:124,pending:3,failed:1,range:'Today'},
+  extra:{
+    oldestPending:'6 min', dupes:6, unparsed:2,
+    trend:[6,9,8,12,14,10,13,15,11,12,16,12],   // deliveries per hour, last 12h (sample)
+    lastTx:{provider:'bkash',amount:'৳1,850',trx:'ABC••234',sender:'017••••••41',ago:'4 min ago',ev:'ev1'},
+    wallet:{provider:'bKash',receiver:'018••••••22',state:'Listening'},
+    device:{battery:'82%',version:'v2.0.3'}
+  },
   health:[
     {id:'sms',label:'SMS permission',icon:'sms',state:'ok',value:'Granted'},
     {id:'batt',label:'Battery optimization',icon:'battery',state:'ok',value:'Exempted'},
@@ -367,6 +425,11 @@ function toast(msg,tone='g'){
 }
 
 /* ---------- render: overview ---------- */
+function ico(h,st){return svg(I[h.icon],16).replace('<svg ','<svg class="i-'+st+'" ');}
+function battIcon(pct){
+  const c=pct<=15?'off':pct<=30?'warn':'ok', w=Math.max(1,Math.round(pct/100*14));
+  return `<svg class="i-${c}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px"><rect x="2" y="7" width="17" height="10" rx="2.5"/><path d="M22 10.5v3"/><rect x="4.2" y="9.2" width="${w}" height="5.6" rx="1" fill="currentColor" stroke="none"/></svg>`;
+}
 function viewOverview(){
   if(S.demo==='offline') return `
   <div class="card status-card">
@@ -380,32 +443,98 @@ function viewOverview(){
     <div class="btn-row" style="margin-top:10px;"><button class="btn ghost" data-toast="Retrying queued events…|a">Retry now</button></div>
   </div>
   <div class="note">Nothing is lost — the retry queue persists locally until the server acknowledges each event.</div>`;
-  const m=S.metrics;
+  const m=S.metrics, x=S.extra, lt=x.lastTx;
+  const rate=Math.round(m.delivered/m.received*100);
+  const chevron='<svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>';
+  const failedEv=S.events.find(e=>e.kind==='failed');
+  const net=S.health.find(h=>h.id==='net');
+  const smsDenied=(S.demo==='denied');
+  const att=[];
+  if(smsDenied) att.push({ic:'off',mark:'cross',t:'SMS permission denied',s:'The relay cannot read payment SMS until this is granted.',go:'Grant',act:'fix-sms'});
+  if(failedEv) att.push({ic:'off',mark:'cross',t:'1 event failed — server rejected (401)',s:'Token may be expired. Update it in Settings, then retry.',go:'View',sheet:'event:'+failedEv.id});
+  if(x.unparsed) att.push({ic:'warn',mark:'retry',t:x.unparsed+' SMS could not be parsed',s:'Received but not submitted — check the format.',go:'View',sheet:'unparsed'});
+  if(net&&net.state==='warn') att.push({ic:'warn',mark:'retry',t:'Internet connection unstable',s:'Retries are slower until the connection recovers.',go:'Fix',act:'fix-net'});
+  const okCount=S.health.filter(h=>h.state==='ok').length-(smsDenied?1:0);
+  const total=S.health.filter(h=>h.state!=='na').length;
+  const attn=(h)=>(smsDenied&&h.id==='sms')||h.state==='warn';
   return `
-  <div class="card status-card">
-    <div class="dot deg"></div>
-    <div><div class="t">Degraded</div><div class="s">Server reachable · 3 events pending retry</div></div>
-  </div>
   <div class="card">
-    <h2>Key metrics <span class="range">${m.range} · sample</span></h2>
+    <h2>Key metrics <span class="range">${m.range}</span></h2>
     <div class="metric-grid">
-      <div class="metric" style="--i:0"><div class="v">${odo(m.received,0)}</div><div class="l">Events received</div></div>
-      <div class="metric g" style="--i:1"><div class="v">${odo(m.delivered,1)}</div><div class="l">Delivered (ack'd)</div></div>
-      <div class="metric a" style="--i:2"><div class="v">${odo(m.pending,2)}</div><div class="l">Pending / retrying</div></div>
-      <div class="metric r" style="--i:3"><div class="v">${odo(m.failed,3)}</div><div class="l">Failed</div></div>
+      <button class="metric metric-btn pressable" data-filter="received" style="--i:0"><div class="v">${odo(m.received,0)}</div><div class="l">Events received</div></button>
+      <button class="metric metric-btn g pressable" data-filter="delivered" style="--i:1"><div class="v">${odo(m.delivered,1)}</div><div class="l">Delivered (ack'd)</div></button>
+      <button class="metric metric-btn a pressable" data-filter="pending" style="--i:2"><div class="v">${odo(m.pending,2)}</div><div class="l">Pending / retrying</div></button>
+      <button class="metric metric-btn r pressable" data-filter="failed" style="--i:3"><div class="v">${odo(m.failed,3)}</div><div class="l">Failed</div></button>
+    </div>
+    <div class="rate">
+      <div class="rate-h"><span>Delivery rate</span><b>${rate}%</b></div>
+      <div class="rate-body">
+        <div class="track"><i style="--w:${rate}%"></i></div>
+        <div class="spark" aria-label="Deliveries per hour, last 12 hours">${x.trend.map((n,k)=>`<i class="${k===x.trend.length-1&&m.pending?'w':''}" style="height:${Math.round(n/16*100)}%"></i>`).join('')}</div>
+      </div>
+    </div>
+    <div class="mini-row">
+      <div class="mini-stat"><div class="mv">${x.dupes}</div><div class="ml">Duplicates blocked</div></div>
+      <div class="mini-stat"><div class="mv">${x.oldestPending}</div><div class="ml">Oldest pending</div></div>
     </div>
   </div>
+
+  <div class="card status-card act">
+    <div class="dot deg"></div>
+    <div class="grow"><div class="t">${m.pending} events waiting to retry</div><div class="s">Server reachable · oldest waiting ${x.oldestPending}</div></div>
+    <button class="mini-btn" data-toast="Retrying ${m.pending} queued events…|a">Retry now</button>
+  </div>
+
+  <div class="card tight">
+    <h2>Monitored wallet</h2>
+    <div class="row" style="padding-top:0;"><div class="label">${svg(I.sms)}${x.wallet.provider} · ${x.wallet.receiver}</div><div class="chip ok">${x.wallet.state}</div></div>
+  </div>
+
+  <div class="card dh${(S.dhOpen||smsDenied)?' open':''}" id="dh">
+    <button class="dh-head" data-toggle="dh" aria-expanded="${(S.dhOpen||smsDenied)?'true':'false'}">
+      <h2>Device health</h2>
+      <span class="chip ${okCount===total?'ok':'warn'}">${okCount} of ${total} healthy</span>
+      ${chevron}
+    </button>
+    <div class="dh-wrap"><div class="dh-inner"><div class="dh-body">
+      ${S.health.map(h=>{
+        const st=(smsDenied&&h.id==='sms')?'off':h.state==='ok'?'ok':h.state==='warn'?'warn':'na';
+        return `
+        <div class="row">
+          <div class="label">${ico(h,st)}${h.label}</div>
+          ${st==='off'?`<div class="chip off">Denied</div><button class="fix" data-act="fix-sms">Grant</button>`
+            :st==='ok'?`<div class="chip ok">${h.value}</div>`
+            :st==='warn'?`<div class="chip warn">${h.value}</div><button class="fix" data-act="fix-net">Fix</button>`
+            :`<span class="val">${h.value}</span>`}
+        </div>`;}).join('')}
+      <div class="row"><div class="label">${battIcon(parseInt(x.device.battery))}Device battery</div><span class="val">${x.device.battery}</span></div>
+      <div class="row"><div class="label">${svg(I.service)}App version</div><span class="val">${x.device.version}</span></div>
+    </div></div></div>
+  </div>
+
+  <div class="card tight">
+    <h2>Last transaction detected</h2>
+    <button class="lasttx pressable" data-sheet="event:${lt.ev}">
+      <div class="prov-ic on">bK</div>
+      <div class="lt-b">
+        <div class="amt">${lt.amount}</div>
+        <div class="meta">${lt.sender} · ${lt.trx}</div>
+      </div>
+      <div class="lt-r"><div class="chip ok">Delivered</div><div class="ago">${lt.ago}</div></div>
+    </button>
+    <div class="note" style="margin-top:12px;">Detected by this device. Verification and order status are handled by the backend.</div>
+  </div>
+
+  ${att.length?`
   <div class="card">
-    <h2>Device health</h2>
-    ${S.health.map(h=>`
-      <div class="row">
-        <div class="label">${svg(I[h.icon])}${h.label}</div>
-        ${(S.demo==='denied'&&h.id==='sms')?`<div class="chip off">Denied</div><button class="fix" data-act="fix-sms">Grant</button>`
-          :h.state==='ok'?`<div class="chip ok">${h.value}</div>`
-          :h.state==='warn'?`<div class="chip warn">${h.value}</div><button class="fix" data-act="fix-net">Fix</button>`
-          :`<span class="val">${h.value}</span>`}
-      </div>`).join('')}
-  </div>`;
+    <h2>Needs attention <span class="cnt">${att.length}</span></h2>
+    ${att.map(a=>`
+      <button class="att pressable" ${a.sheet?`data-sheet="${a.sheet}"`:`data-act="${a.act}"`}>
+        <div class="ev-ic ${a.ic}">${svg(I[a.mark],14)}</div>
+        <div class="ab"><div class="at">${a.t}</div><div class="as">${a.s}</div></div>
+        <span class="go">${a.go}</span>
+      </button>`).join('')}
+  </div>`:''}`;
 }
 
 /* ---------- render: providers ---------- */
@@ -504,6 +633,10 @@ const SHEETS={
   'event:ev1':{title:'Event ABC1234',body:()=>eventBody(S.events[0])},
   'event:ev2':{title:'Event DEF5678',body:()=>eventBody(S.events[1])},
   'event:ev3':{title:'Event — 401 rejected',body:()=>eventBody(S.events[2])},
+  'unparsed':{title:'Unparsed SMS',body:()=>`
+    <div class="row"><div class="label">bKash · 13:27</div><div class="chip warn">Format not recognized</div></div>
+    <div class="row"><div class="label">bKash · 11:04</div><div class="chip warn">Format not recognized</div></div>
+    <div class="note">These messages arrived from a payment sender but the parser could not read a transaction from them. They were not submitted. Common causes: a new SMS template or a non-payment notice.</div>`},
   'confirm-clear':{title:'Clear local history?',body:()=>`
     <div class="note" style="margin:0 0 14px;">Removes locally stored event history on this device. Already-delivered events on the server are unaffected.</div>
     <div class="btn-row">
@@ -575,6 +708,8 @@ function animateCounts(){
 
 /* ---------- global delegated events ---------- */
 document.addEventListener('click',e=>{
+  const tg=e.target.closest('[data-toggle="dh"]');
+  if(tg){const c=tg.closest('.dh'); const o=c.classList.toggle('open'); tg.setAttribute('aria-expanded',o); S.dhOpen=o; viewCache.overview=null; return;}
   const close=e.target.closest('[data-close]');
   if(close){closeSheet();return;}
   if(e.target===overlay){closeSheet();return;}
