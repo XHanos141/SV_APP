@@ -2637,9 +2637,8 @@ fill="#ed1d24"><rect width="512" height="512" rx="15%" fill="#ed1d24"/><path d="
         <div class="bfm-quote-card" style="width:100%;max-width:280px">
           <div class="bfm-quote-title">Order Summary</div>
           <div class="bfm-quote-line"><span>Product price</span><span id="bfmQuoteProduct">$50.00</span></div>
-          <div class="bfm-quote-line"><span id="bfmQuoteShipLabel">Shipping (12%)</span><span id="bfmQuoteShip">$6.00</span></div>
-          <div class="bfm-quote-line"><span id="bfmQuoteDutyLabel">Import duty (15%)</span><span id="bfmQuoteDuty">$7.50</span></div>
-          <div class="bfm-quote-line"><span id="bfmQuoteMarkupLabel">Service markup (20%)</span><span id="bfmQuoteMarkup">$10.00</span></div>
+          <div class="bfm-quote-line"><span id="bfmQuoteTaxLabel">US Sales Tax (8.87%)</span><span id="bfmQuoteTax">$4.44</span></div>
+          <div class="bfm-quote-line"><span id="bfmQuoteSvcLabel">Service Charge (2.25%)</span><span id="bfmQuoteSvc">$1.13</span></div>
           <div class="bfm-quote-total">
             <span>Total</span>
             <span id="bfmQuoteTotalBdt">৳8,282</span>
@@ -2750,27 +2749,19 @@ fill="#ed1d24"><rect width="512" height="512" rx="15%" fill="#ed1d24"/><path d="
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>Fee &amp; Markup Rules
       <button type="button" class="edit-lock-btn" id="bfmFeesEditBtn" style="margin-left:auto"></button>
     </h3>
-    <p style="font-size:12px;color:var(--text3);margin:-6px 0 12px">These apply to every proxy quote, regardless of store.</p>
+    <p style="font-size:12px;color:var(--text3);margin:-6px 0 12px">Applied to every Buy For Me order on the website. The preview uses a $50 sample.</p>
     <fieldset id="bfmFeesFieldset" style="border:none;margin:0;padding:0">
     <div class="field">
-      <label>Shipping (%)</label>
-      <input type="number" id="inpBfmShip" value="12" min="0" step="0.5" oninput="updateBfmFees()">
+      <label>US Sales Tax (%)</label>
+      <input type="number" id="inpBfmTax" value="8.87" min="0" max="100" step="0.01" inputmode="decimal" oninput="updateBfmFees()">
     </div>
     <div class="field">
-      <label>Import Duty (%)</label>
-      <input type="number" id="inpBfmDuty" value="15" min="0" step="0.5" oninput="updateBfmFees()">
-    </div>
-    <div class="field">
-      <label>Service Markup (%)</label>
-      <input type="number" id="inpBfmMarkup" value="20" min="0" step="0.5" oninput="updateBfmFees()">
+      <label>Service Charge (%)</label>
+      <input type="number" id="inpBfmSvc" value="2.25" min="0" max="100" step="0.01" inputmode="decimal" oninput="updateBfmFees()">
     </div>
     <div class="field">
       <label>USD → BDT Rate</label>
-      <input type="number" id="inpBfmRate" value="122.5" min="0" step="0.1" oninput="updateBfmFees()">
-    </div>
-    <div class="field">
-      <label>Sample Product Price (USD) — preview only</label>
-      <input type="number" id="inpBfmSampleUsd" value="50" min="0" step="1" oninput="updateBfmFees()">
+      <input type="number" id="inpBfmRate" value="122.5" min="0" step="0.01" inputmode="decimal" oninput="updateBfmFees()">
     </div>
     </fieldset>
     <div class="save-bar" style="margin:14px 0 0;border-radius:14px">
@@ -3775,7 +3766,7 @@ initEditLock('productFieldset','productEditBtn','productSaveBtn','productCancelB
 initEditLock('shipFieldset','shipEditBtn','shipSaveBtn','shipCancelBtn');
 initEditLock(['bfmHeroFieldset','bfmBadgesFieldset'],'bfmHeroEditBtn','bfmHeroSaveBtn','bfmHeroCancelBtn',{onSave:saveBfmHero,onCancel:function(){updateBfmHero();}});
 initEditLock('bfmStoresFieldset','bfmStoresEditBtn','bfmStoresSaveBtn','bfmStoresCancelBtn',{onSave:saveBfmStoresDb,onCancel:cancelBfmStores,silentSave:true});
-initEditLock('bfmFeesFieldset','bfmFeesEditBtn','bfmFeesSaveBtn','bfmFeesCancelBtn');
+initEditLock('bfmFeesFieldset','bfmFeesEditBtn','bfmFeesSaveBtn','bfmFeesCancelBtn',{onSave:saveBfmFeesDb,onCancel:cancelBfmFees,silentSave:true});
 initEditLock('bfmPoFieldset','bfmPoEditBtn','bfmPoSaveBtn','bfmPoCancelBtn');
 initEditLock('bfmFaqFieldset','bfmFaqEditBtn','bfmFaqSaveBtn','bfmFaqCancelBtn',{onSave:saveBfmFaqsDb,onCancel:cancelBfmFaqs,silentSave:true});
 
@@ -4136,48 +4127,73 @@ renderBfmStores();
 renderBfmPreview();
 loadBfmStoresContent();
 /* ─── Buy For Me: Fee & Markup Rules ─── */
-function loadBfmFees(){
-  try {
-    const saved = JSON.parse(localStorage.getItem('sv-bfm-fees') || 'null');
-    if (saved && typeof saved.ship === 'number') return saved;
-  } catch(e){}
-  return { ship:12, duty:15, markup:20, rate:122.5, sampleUsd:50 };
+const BFM_FEES_DEFAULT = { tax:8.87, svc:2.25, rate:122.5 };
+let bfmFeesSnap = { ...BFM_FEES_DEFAULT };
+function readBfmFees(){
+  const n = id => { const v = parseFloat(document.getElementById(id).value); return Number.isFinite(v) && v >= 0 ? v : 0; };
+  return { tax:n('inpBfmTax'), svc:n('inpBfmSvc'), rate:n('inpBfmRate') };
 }
-function saveBfmFees(fees){
-  localStorage.setItem('sv-bfm-fees', JSON.stringify(fees));
+function setBfmFeesInputs(f){
+  document.getElementById('inpBfmTax').value = f.tax;
+  document.getElementById('inpBfmSvc').value = f.svc;
+  document.getElementById('inpBfmRate').value = f.rate;
 }
 function updateBfmFees(){
-  const ship = parseFloat(document.getElementById('inpBfmShip').value) || 0;
-  const duty = parseFloat(document.getElementById('inpBfmDuty').value) || 0;
-  const markup = parseFloat(document.getElementById('inpBfmMarkup').value) || 0;
-  const rate = parseFloat(document.getElementById('inpBfmRate').value) || 0;
-  const sampleUsd = parseFloat(document.getElementById('inpBfmSampleUsd').value) || 0;
-  saveBfmFees({ ship, duty, markup, rate, sampleUsd });
-
-  const shipUsd = sampleUsd * (ship / 100);
-  const dutyUsd = sampleUsd * (duty / 100);
-  const markupUsd = sampleUsd * (markup / 100);
-  const totalUsd = sampleUsd + shipUsd + dutyUsd + markupUsd;
-  const totalBdt = totalUsd * rate;
-
-  document.getElementById('bfmQuoteProduct').textContent = '$' + sampleUsd.toFixed(2);
-  document.getElementById('bfmQuoteShipLabel').textContent = 'Shipping (' + ship + '%)';
-  document.getElementById('bfmQuoteShip').textContent = '$' + shipUsd.toFixed(2);
-  document.getElementById('bfmQuoteDutyLabel').textContent = 'Import duty (' + duty + '%)';
-  document.getElementById('bfmQuoteDuty').textContent = '$' + dutyUsd.toFixed(2);
-  document.getElementById('bfmQuoteMarkupLabel').textContent = 'Service markup (' + markup + '%)';
-  document.getElementById('bfmQuoteMarkup').textContent = '$' + markupUsd.toFixed(2);
-  document.getElementById('bfmQuoteTotalBdt').textContent = '৳' + totalBdt.toLocaleString('en-US', {maximumFractionDigits:0});
+  const { tax, svc, rate } = readBfmFees();
+  const sample = 50;
+  const taxUsd = sample * tax / 100;
+  const svcUsd = sample * svc / 100;
+  const totalUsd = sample + taxUsd + svcUsd;
+  document.getElementById('bfmQuoteProduct').textContent = '$' + sample.toFixed(2);
+  document.getElementById('bfmQuoteTaxLabel').textContent = 'US Sales Tax (' + tax + '%)';
+  document.getElementById('bfmQuoteTax').textContent = '$' + taxUsd.toFixed(2);
+  document.getElementById('bfmQuoteSvcLabel').textContent = 'Service Charge (' + svc + '%)';
+  document.getElementById('bfmQuoteSvc').textContent = '$' + svcUsd.toFixed(2);
+  document.getElementById('bfmQuoteTotalBdt').textContent = '৳' + (totalUsd * rate).toLocaleString('en-US', {maximumFractionDigits:0});
   document.getElementById('bfmQuoteTotalUsd').textContent = '($' + totalUsd.toFixed(2) + ')';
 }
-(function initBfmFees(){
-  const saved = loadBfmFees();
-  document.getElementById('inpBfmShip').value = saved.ship;
-  document.getElementById('inpBfmDuty').value = saved.duty;
-  document.getElementById('inpBfmMarkup').value = saved.markup;
-  document.getElementById('inpBfmRate').value = saved.rate;
-  document.getElementById('inpBfmSampleUsd').value = saved.sampleUsd;
+function cancelBfmFees(){
+  setBfmFeesInputs(bfmFeesSnap);
   updateBfmFees();
+}
+async function saveBfmFeesDb(){
+  if(!window.sb) { T('Not connected to database','⚠️'); return; }
+  const f = readBfmFees();
+  if(f.rate <= 0 || f.tax > 100 || f.svc > 100){
+    T('Check values — rate must be above 0, % max 100','⚠️');
+    unlockBfmFees();
+    return;
+  }
+  const { error } = await sb.from('site_content').upsert({
+    page: 'buy_for_me',
+    section: 'fees',
+    content: { sales_tax: f.tax, service_charge: f.svc, usd_rate: f.rate },
+    updated_at: new Date().toISOString()
+  }, { onConflict: 'page,section' });
+  if(error){ console.error('saveBfmFeesDb error:', error.message); T('Save failed — check connection','❌'); return; }
+  bfmFeesSnap = f;
+  T('Fees & rate published','🚀');
+}
+function unlockBfmFees(){
+  const btn = document.getElementById('bfmFeesEditBtn');
+  if(btn) btn.click();
+}
+async function loadBfmFeesContent(){
+  if(!window.sb) return;
+  const { data, error } = await sb.from('site_content').select('content')
+    .eq('page','buy_for_me').eq('section','fees').maybeSingle();
+  if(error){ console.error('loadBfmFeesContent error:', error.message); return; }
+  const c = data && data.content;
+  if(!c) return;
+  const num = (v, d) => (typeof v === 'number' && Number.isFinite(v)) ? v : d;
+  bfmFeesSnap = { tax:num(c.sales_tax, BFM_FEES_DEFAULT.tax), svc:num(c.service_charge, BFM_FEES_DEFAULT.svc), rate:num(c.usd_rate, BFM_FEES_DEFAULT.rate) };
+  setBfmFeesInputs(bfmFeesSnap);
+  updateBfmFees();
+}
+(function initBfmFees(){
+  setBfmFeesInputs(BFM_FEES_DEFAULT);
+  updateBfmFees();
+  loadBfmFeesContent();
 })();
 /* ─── Buy For Me: How Pre-Order Works ─── */
 const BFM_PO_ICONS = [
