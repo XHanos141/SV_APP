@@ -423,6 +423,11 @@ input.input-error{border-color:var(--red)!important;background:var(--red-soft)!i
 body.dark-mode .toggle-row{border-bottom-color:rgba(240,244,250,0.5)}
 .bfm-store-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)}
 .bfm-store-row:last-child{border-bottom:none}
+.bfm-store-row{flex-wrap:wrap}
+.bfm-store-ctrls{flex-basis:100%;display:flex;justify-content:flex-end;gap:6px;padding-left:44px}
+.bfm-store-ctrls .faq-ctrl-btn{width:28px;height:28px;border-radius:8px}
+fieldset:disabled .bfm-store-ctrls{display:none}
+.bfm-store-add{margin-top:10px}
 .bfm-store-icon{flex-shrink:0;width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#009ddc,#006daa)}
 .bfm-store-icon svg{width:16px;height:16px;stroke:#fff}
 .bfm-store-row input{flex:1;min-width:0;border:1.5px solid var(--border);background:var(--bg);border-radius:9px;padding:8px 10px;font-family:var(--font-display);font-size:13px;font-weight:600;color:var(--text);transition:border-color .15s}
@@ -2727,9 +2732,13 @@ fill="#ed1d24"><rect width="512" height="512" rx="15%" fill="#ed1d24"/><path d="
     <h3 id="bfmStoresHeading" style="display:flex;align-items:center">Supported Stores
       <button type="button" class="edit-lock-btn" id="bfmStoresEditBtn" style="margin-left:auto"></button>
     </h3>
-    <p id="bfmStoresSub" style="font-size:12px;color:var(--text3);margin:-6px 0 12px">Toggle a store off to hide it from the customer dropdown on buy_for_me.html. Rename labels as needed.</p>
+    <p id="bfmStoresSub" style="font-size:12px;color:var(--text3);margin:-6px 0 12px">Toggle a store off to hide it from the customer dropdown. Rename, reorder, add or delete stores. Custom stores are pick-only (no link auto-detect).</p>
     <fieldset id="bfmStoresFieldset" style="border:none;margin:0;padding:0">
     <div id="bfmStoresList"></div>
+    <button class="faq-add-btn bfm-store-add" onclick="addBfmStore()" type="button">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+      Add Store
+    </button>
     </fieldset>
     <div class="save-bar" style="margin:14px 0 0;border-radius:14px">
       <button class="btn-draft" id="bfmStoresCancelBtn" style="display:none">Cancel</button>
@@ -3765,10 +3774,10 @@ initEditLock('paypageFieldset','paypageEditBtn','paypageSaveBtn','paypageCancelB
 initEditLock('productFieldset','productEditBtn','productSaveBtn','productCancelBtn',{silentSave:true,onCancel:function(){loadProductToEditor(currentEditId||'new');}});
 initEditLock('shipFieldset','shipEditBtn','shipSaveBtn','shipCancelBtn');
 initEditLock(['bfmHeroFieldset','bfmBadgesFieldset'],'bfmHeroEditBtn','bfmHeroSaveBtn','bfmHeroCancelBtn',{onSave:saveBfmHero,onCancel:function(){updateBfmHero();}});
-initEditLock('bfmStoresFieldset','bfmStoresEditBtn','bfmStoresSaveBtn','bfmStoresCancelBtn');
+initEditLock('bfmStoresFieldset','bfmStoresEditBtn','bfmStoresSaveBtn','bfmStoresCancelBtn',{onSave:saveBfmStoresDb,onCancel:cancelBfmStores,silentSave:true});
 initEditLock('bfmFeesFieldset','bfmFeesEditBtn','bfmFeesSaveBtn','bfmFeesCancelBtn');
 initEditLock('bfmPoFieldset','bfmPoEditBtn','bfmPoSaveBtn','bfmPoCancelBtn');
-initEditLock('bfmFaqFieldset','bfmFaqEditBtn','bfmFaqSaveBtn','bfmFaqCancelBtn');
+initEditLock('bfmFaqFieldset','bfmFaqEditBtn','bfmFaqSaveBtn','bfmFaqCancelBtn',{onSave:saveBfmFaqsDb,onCancel:cancelBfmFaqs,silentSave:true});
 
 const PV_LIVE = { brand: null, country: null, expiry: null };
 function _pvFormatExpiry(dateStr){
@@ -4022,26 +4031,25 @@ const BFM_DEFAULT_STORES = [
   { key:'nike',    label:'Nike' },
   { key:'other',   label:'Other' }
 ];
-function loadBfmStores(){
-  try {
-    const saved = JSON.parse(localStorage.getItem('sv-bfm-stores') || 'null');
-    if (Array.isArray(saved) && saved.length) return saved;
-  } catch(e){}
-  return BFM_DEFAULT_STORES.map(s => ({ ...s, enabled: true }));
-}
-function saveBfmStores(stores){
-  localStorage.setItem('sv-bfm-stores', JSON.stringify(stores));
-}
-let bfmStores = loadBfmStores();
+function cloneBfmStores(list){ return list.map(s => ({ key:s.key, label:s.label, enabled:s.enabled !== false })); }
+let bfmStores = BFM_DEFAULT_STORES.map(s => ({ ...s, enabled: true }));
+let bfmStoresSnap = cloneBfmStores(bfmStores);
 const BFM_STORE_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l1.5-5h15L21 9M3 9v11h18V9M3 9h18M9 21v-6h6v6"/></svg>';
+const BFM_TRASH_ICON = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0-1 14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2L4 6"/></svg>';
 function renderBfmStores(){
   const el = document.getElementById('bfmStoresList');
   if (!el) return;
+  const last = bfmStores.length - 1;
   el.innerHTML = bfmStores.map((s, i) =>
     '<div class="bfm-store-row">' +
       '<div class="bfm-store-icon">' + BFM_STORE_ICON + '</div>' +
-      '<input type="text" value="' + s.label.replace(/"/g,'&quot;') + '" ' + (s.enabled ? '' : 'disabled') + ' onchange="renameBfmStore(' + i + ', this.value)">' +
+      '<input type="text" value="' + escFaq(s.label) + '" ' + (s.enabled ? '' : 'disabled') + ' oninput="renameBfmStore(' + i + ', this.value)">' +
       '<div class="switch' + (s.enabled ? ' on' : '') + '" onclick="toggleBfmStore(' + i + ')"></div>' +
+      '<div class="bfm-store-ctrls">' +
+        '<button type="button" class="faq-ctrl-btn" onclick="moveBfmStore(' + i + ',-1)"' + (i===0?' disabled':'') + ' aria-label="Move up">↑</button>' +
+        '<button type="button" class="faq-ctrl-btn" onclick="moveBfmStore(' + i + ',1)"' + (i===last?' disabled':'') + ' aria-label="Move down">↓</button>' +
+        '<button type="button" class="faq-ctrl-btn danger" onclick="removeBfmStore(' + i + ')" aria-label="Delete">' + BFM_TRASH_ICON + '</button>' +
+      '</div>' +
     '</div>'
   ).join('');
 }
@@ -4056,17 +4064,77 @@ function renderBfmPreview(){
 }
 function toggleBfmStore(i){
   bfmStores[i].enabled = !bfmStores[i].enabled;
-  saveBfmStores(bfmStores);
   renderBfmStores();
   renderBfmPreview();
 }
 function renameBfmStore(i, value){
-  bfmStores[i].label = value.trim() || bfmStores[i].label;
-  saveBfmStores(bfmStores);
+  bfmStores[i].label = value;
+  renderBfmPreview();
+}
+function addBfmStore(){
+  const key = 'custom-' + Date.now().toString(36);
+  const item = { key, label:'New Store', enabled:true };
+  const oi = bfmStores.findIndex(s => s.key === 'other');
+  if (oi === bfmStores.length - 1) bfmStores.splice(oi, 0, item); else bfmStores.push(item);
+  renderBfmStores();
+  renderBfmPreview();
+  const idx = bfmStores.indexOf(item);
+  const inp = document.querySelectorAll('#bfmStoresList .bfm-store-row input')[idx];
+  if (inp){ inp.scrollIntoView({block:'center'}); inp.focus(); inp.select(); }
+}
+function removeBfmStore(i){
+  const s = bfmStores[i];
+  if (!s) return;
+  if (s.key === 'other'){ T('"Other" is required', '⚠️'); return; }
+  if (bfmStores.length <= 1){ T('Keep at least one store', '⚠️'); return; }
+  bfmStores.splice(i, 1);
+  renderBfmStores();
+  renderBfmPreview();
+  T('Store removed', '🗑️');
+}
+function moveBfmStore(i, dir){
+  const j = i + dir;
+  if (j < 0 || j >= bfmStores.length) return;
+  [bfmStores[i], bfmStores[j]] = [bfmStores[j], bfmStores[i]];
+  renderBfmStores();
+  renderBfmPreview();
+}
+function cancelBfmStores(){
+  bfmStores = cloneBfmStores(bfmStoresSnap);
+  renderBfmStores();
+  renderBfmPreview();
+}
+async function saveBfmStoresDb(){
+  if(!window.sb) { T('Not connected to database','⚠️'); return; }
+  bfmStores.forEach(x => { x.label = (x.label || '').trim() || 'Store'; });
+  const stores = cloneBfmStores(bfmStores);
+  const { error } = await sb.from('site_content').upsert({
+    page: 'buy_for_me',
+    section: 'stores',
+    content: { stores },
+    updated_at: new Date().toISOString()
+  }, { onConflict: 'page,section' });
+  if(error){ console.error('saveBfmStoresDb error:', error.message); T('Save failed — check connection','❌'); return; }
+  bfmStoresSnap = cloneBfmStores(stores);
+  renderBfmStores();
+  renderBfmPreview();
+  T('Supported stores published','🚀');
+}
+async function loadBfmStoresContent(){
+  if(!window.sb) return;
+  const { data, error } = await sb.from('site_content').select('content')
+    .eq('page','buy_for_me').eq('section','stores').maybeSingle();
+  if(error){ console.error('loadBfmStoresContent error:', error.message); return; }
+  const list = data && data.content && data.content.stores;
+  if(!Array.isArray(list) || !list.length) return;
+  bfmStores = list.filter(x => x && x.key && typeof x.label === 'string').map(x => ({ key:x.key, label:x.label, enabled:x.enabled !== false }));
+  bfmStoresSnap = cloneBfmStores(bfmStores);
+  renderBfmStores();
   renderBfmPreview();
 }
 renderBfmStores();
 renderBfmPreview();
+loadBfmStoresContent();
 /* ─── Buy For Me: Fee & Markup Rules ─── */
 function loadBfmFees(){
   try {
@@ -4192,23 +4260,40 @@ const BFM_DEFAULT_FAQS = [
   { q:'How do I pay?', a:"bKash, Nagad, bank transfer, or card, you'll get a payment link once you approve the quote." },
   { q:'How long does delivery take?', a:'Delivery usually takes 15–20 business days after your order is confirmed. In some cases, delays may occur due to customs clearance, international shipping, or unexpected global events.' }
 ];
-function getBfmFaqs(){
-  try {
-    const saved = JSON.parse(localStorage.getItem('sv-bfm-faqs') || 'null');
-    if(saved && Array.isArray(saved) && saved.length){
-      let changed = false;
-      saved.forEach(item => { if(!item._uid){ item._uid = faqUid(); changed = true; } });
-      if(changed) saveBfmFaqs(saved);
-      return saved;
-    }
-  } catch(e){}
-  const fresh = JSON.parse(JSON.stringify(BFM_DEFAULT_FAQS));
-  fresh.forEach(item => item._uid = faqUid());
-  saveBfmFaqs(fresh);
-  return fresh;
+let bfmFaqList = JSON.parse(JSON.stringify(BFM_DEFAULT_FAQS)).map(x => ({ ...x, _uid: faqUid() }));
+let bfmFaqSnap = JSON.parse(JSON.stringify(bfmFaqList));
+function getBfmFaqs(){ return bfmFaqList; }
+function saveBfmFaqs(list){ bfmFaqList = list; }
+function cancelBfmFaqs(){
+  bfmFaqList = JSON.parse(JSON.stringify(bfmFaqSnap));
+  refreshBfmFaq();
 }
-function saveBfmFaqs(list){
-  localStorage.setItem('sv-bfm-faqs', JSON.stringify(list));
+async function saveBfmFaqsDb(){
+  if(!window.sb) { T('Not connected to database','⚠️'); return; }
+  const faqs = bfmFaqList.map(x => ({ q:(x.q || '').trim(), a:(x.a || '').trim() })).filter(x => x.q && x.a);
+  if(!faqs.length){ T('Add at least one complete FAQ','⚠️'); return; }
+  const { error } = await sb.from('site_content').upsert({
+    page: 'buy_for_me',
+    section: 'faq',
+    content: { faqs },
+    updated_at: new Date().toISOString()
+  }, { onConflict: 'page,section' });
+  if(error){ console.error('saveBfmFaqsDb error:', error.message); T('Save failed — check connection','❌'); return; }
+  bfmFaqList = faqs.map(x => ({ ...x, _uid: faqUid() }));
+  bfmFaqSnap = JSON.parse(JSON.stringify(bfmFaqList));
+  refreshBfmFaq();
+  T('Buy For Me FAQ published','🚀');
+}
+async function loadBfmFaqsContent(){
+  if(!window.sb) return;
+  const { data, error } = await sb.from('site_content').select('content')
+    .eq('page','buy_for_me').eq('section','faq').maybeSingle();
+  if(error){ console.error('loadBfmFaqsContent error:', error.message); return; }
+  const list = data && data.content && data.content.faqs;
+  if(!Array.isArray(list) || !list.length) return;
+  bfmFaqList = list.filter(x => x && typeof x.q === 'string').map(x => ({ q:x.q, a:x.a || '', _uid: faqUid() }));
+  bfmFaqSnap = JSON.parse(JSON.stringify(bfmFaqList));
+  refreshBfmFaq();
 }
 let bfmFaqSelectedIdx = parseInt(localStorage.getItem('sv-bfm-faq-selected') || '0', 10) || 0;
 function setBfmFaqSelected(i){
@@ -4300,6 +4385,7 @@ function moveBfmFaq(i, dir){
   refreshBfmFaq();
 }
 refreshBfmFaq();
+loadBfmFaqsContent();
 // Theme priority: parent-injected data-theme (set at srcdoc build time) > standalone localStorage fallback
 const _apInjectedTheme = document.documentElement.getAttribute('data-theme');
 const themeState = { theme: _apInjectedTheme || localStorage.getItem('sv-theme-editor') || 'light' };
