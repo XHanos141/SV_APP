@@ -559,6 +559,7 @@ body.dark-mode .trending-off{
   box-shadow:var(--shadow-sm);
   cursor:pointer;
   position:relative;
+  display:flex;flex-direction:column;
   animation:cardIn 0.5s var(--ease) forwards;
 }
 .p-card:active{transform:scale(0.98)}
@@ -580,9 +581,9 @@ body.dark-mode .trending-off{
 }
 .p-img-wrap img{width:100%;height:100%;object-fit:cover;display:block;position:relative;z-index:1}
 .p-badge-stock{
-  position:absolute;top:10px;left:10px;
-  font-family:var(--font-display);font-size:8px;font-weight:800;
-  padding:4px 7px;border-radius:7px;z-index:3;
+  position:absolute;top:7px;left:7px;
+  font-family:var(--font-display);font-size:6px;font-weight:800;
+  padding:3px 6px;border-radius:6px;z-index:3;
   backdrop-filter:blur(10px) saturate(1.2);
   border:1px solid rgba(255,255,255,0.18);
   box-shadow:0 2px 8px rgba(0,0,0,0.08);
@@ -591,14 +592,14 @@ body.dark-mode .trending-off{
 .p-badge-stock.low{background:var(--yellow-soft);color:var(--yellow)}
 .p-badge-stock.out{background:rgba(225,67,67,0.18);color:var(--red)}
 .p-badge-ribbon{
-  position:absolute;top:10px;right:10px;
+  position:absolute;top:7px;right:10px;
   background:linear-gradient(135deg,var(--orange),#D94E20);
   color:#fff;font-family:var(--font-display);font-size:7px;font-weight:800;
   padding:3px 8px;border-radius:6px;z-index:3;
   text-transform:uppercase;letter-spacing:0.6px;
   box-shadow:0 3px 10px rgba(242,100,48,0.35);
 }
-.p-body{padding:2px 12px 10px}
+.p-body{padding:2px 12px 10px;flex:1;display:flex;flex-direction:column}
 .p-meta{
   display:flex;align-items:center;justify-content:space-between;
   margin-bottom:3px;
@@ -620,8 +621,8 @@ body.dark-mode .trending-off{
   -webkit-box-orient:vertical;overflow:hidden;min-height:32px;
 }
 .p-footer{
-  display:flex;align-items:center;justify-content:space-between;
-  padding-top:2px;margin-top:0;
+  display:flex;align-items:flex-end;justify-content:space-between;
+  padding-top:2px;margin-top:auto;
 }
 .p-price-block{display:flex;flex-direction:column;gap:2px;margin-top:2px}
 .p-price{
@@ -631,6 +632,7 @@ body.dark-mode .trending-off{
   transition:font-size .15s;
 }
 .p-price-block.no-discount .p-price{font-size:17px}
+.p-price-block.no-discount{align-self:center;margin-top:0}
 .taka{font-family:var(--font-taka)}
 .pv-specs{
   background:var(--surface2);border:1px solid var(--border);
