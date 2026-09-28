@@ -4423,6 +4423,8 @@ function addBfmFaq(){
   saveBfmFaqs(list);
   setBfmFaqSelected(list.length - 1);
   refreshBfmFaq();
+  const q = document.getElementById('inpBfmFaqQ');
+  if(q){ q.scrollIntoView({block:'center', behavior:'smooth'}); q.focus(); q.select(); }
 }
 function removeBfmFaq(i){
   const list = getBfmFaqs();
