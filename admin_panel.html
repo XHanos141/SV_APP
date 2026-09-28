@@ -3764,7 +3764,7 @@ initEditLock('footerpayFieldset','footerpayEditBtn','footerpaySaveBtn','footerpa
 initEditLock('paypageFieldset','paypageEditBtn','paypageSaveBtn','paypageCancelBtn',{onSave:function(){savePaymentPageBadges();savePaymentPageQr();}});
 initEditLock('productFieldset','productEditBtn','productSaveBtn','productCancelBtn',{silentSave:true,onCancel:function(){loadProductToEditor(currentEditId||'new');}});
 initEditLock('shipFieldset','shipEditBtn','shipSaveBtn','shipCancelBtn');
-initEditLock(['bfmHeroFieldset','bfmBadgesFieldset'],'bfmHeroEditBtn','bfmHeroSaveBtn','bfmHeroCancelBtn');
+initEditLock(['bfmHeroFieldset','bfmBadgesFieldset'],'bfmHeroEditBtn','bfmHeroSaveBtn','bfmHeroCancelBtn',{onSave:saveBfmHero,onCancel:function(){updateBfmHero();}});
 initEditLock('bfmStoresFieldset','bfmStoresEditBtn','bfmStoresSaveBtn','bfmStoresCancelBtn');
 initEditLock('bfmFeesFieldset','bfmFeesEditBtn','bfmFeesSaveBtn','bfmFeesCancelBtn');
 initEditLock('bfmPoFieldset','bfmPoEditBtn','bfmPoSaveBtn','bfmPoCancelBtn');
@@ -3954,10 +3954,6 @@ function toggleStoreBadge(evt){
 }
 /* ─── Buy For Me: Hero ─── */
 function loadBfmHero(){
-  try {
-    const saved = JSON.parse(localStorage.getItem('sv-bfm-hero') || 'null');
-    if (saved && saved.eyebrow) return saved;
-  } catch(e){}
   return { eyebrow:'Global Import', h1:'Shop Worldwide', h2:'From Any International Store', steps:['Paste Link','Get Quote','Confirm Order','Delivered'] };
 }
 function updateBfmHero(){
@@ -3970,7 +3966,40 @@ function updateBfmHero(){
   steps.forEach((s, i) => {
     document.getElementById('bfmStepLabel' + (i+1)).innerHTML = s.replace(' ', '<br>');
   });
-  localStorage.setItem('sv-bfm-hero', JSON.stringify({ eyebrow, h1, h2, steps }));
+}
+async function saveBfmHero(){
+  if(!window.sb) { T('Not connected to database','⚠️'); return; }
+  const content = {
+    eyebrow: document.getElementById('inpBfmEyebrow').value.trim() || 'Global Import',
+    h1: document.getElementById('inpBfmH1').value.trim(),
+    h2: document.getElementById('inpBfmH2').value.trim(),
+    steps: [1,2,3,4].map(n => document.getElementById('inpBfmStep' + n).value.trim())
+  };
+  const { error } = await sb.from('site_content').upsert({
+    page: 'buy_for_me',
+    section: 'hero',
+    content,
+    updated_at: new Date().toISOString()
+  }, { onConflict: 'page,section' });
+  if(error){ console.error('saveBfmHero error:', error.message); T('Save failed — check connection','❌'); return; }
+  T('Buy For Me hero published','🚀');
+}
+async function loadBfmHeroContent(){
+  if(!window.sb) return;
+  const { data, error } = await sb
+    .from('site_content')
+    .select('content')
+    .eq('page', 'buy_for_me')
+    .eq('section', 'hero')
+    .maybeSingle();
+  if(error){ console.error('loadBfmHeroContent error:', error.message); return; }
+  if(!data || !data.content) return;
+  const c = data.content;
+  if(c.eyebrow !== undefined) document.getElementById('inpBfmEyebrow').value = c.eyebrow;
+  if(c.h1 !== undefined) document.getElementById('inpBfmH1').value = c.h1;
+  if(c.h2 !== undefined) document.getElementById('inpBfmH2').value = c.h2;
+  if(Array.isArray(c.steps)) c.steps.forEach((t, i) => { const el = document.getElementById('inpBfmStep' + (i+1)); if(el && t !== undefined) el.value = t; });
+  updateBfmHero();
 }
 (function initBfmHero(){
   const saved = loadBfmHero();
@@ -3980,6 +4009,7 @@ function updateBfmHero(){
   saved.steps.forEach((s, i) => { document.getElementById('inpBfmStep' + (i+1)).value = s; });
   updateBfmHero();
 })();
+loadBfmHeroContent();
 const BFM_DEFAULT_STORES = [
   { key:'amazon',  label:'Amazon' },
   { key:'iherb',   label:'iHerb' },
