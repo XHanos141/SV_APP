@@ -3767,7 +3767,7 @@ initEditLock('shipFieldset','shipEditBtn','shipSaveBtn','shipCancelBtn');
 initEditLock(['bfmHeroFieldset','bfmBadgesFieldset'],'bfmHeroEditBtn','bfmHeroSaveBtn','bfmHeroCancelBtn',{onSave:saveBfmHero,onCancel:function(){updateBfmHero();}});
 initEditLock('bfmStoresFieldset','bfmStoresEditBtn','bfmStoresSaveBtn','bfmStoresCancelBtn',{onSave:saveBfmStoresDb,onCancel:cancelBfmStores,silentSave:true});
 initEditLock('bfmFeesFieldset','bfmFeesEditBtn','bfmFeesSaveBtn','bfmFeesCancelBtn',{onSave:saveBfmFeesDb,onCancel:cancelBfmFees,silentSave:true});
-initEditLock('bfmPoFieldset','bfmPoEditBtn','bfmPoSaveBtn','bfmPoCancelBtn');
+initEditLock('bfmPoFieldset','bfmPoEditBtn','bfmPoSaveBtn','bfmPoCancelBtn',{onSave:saveBfmPoDb,onCancel:cancelBfmPo,silentSave:true});
 initEditLock('bfmFaqFieldset','bfmFaqEditBtn','bfmFaqSaveBtn','bfmFaqCancelBtn',{onSave:saveBfmFaqsDb,onCancel:cancelBfmFaqs,silentSave:true});
 
 const PV_LIVE = { brand: null, country: null, expiry: null };
@@ -4204,10 +4204,6 @@ const BFM_PO_ICONS = [
   '<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>'
 ];
 function loadBfmPreorder(){
-  try {
-    const saved = JSON.parse(localStorage.getItem('sv-bfm-preorder') || 'null');
-    if (saved && saved.title) return saved;
-  } catch(e){}
   return {
     title: 'How Pre-Order Works?',
     steps: [
@@ -4221,10 +4217,10 @@ function loadBfmPreorder(){
 }
 let bfmPoData = null;
 let bfmPoIdx = 0;
+let bfmPoSnap = null;
 function updateBfmPreorderTitle(){
   const title = document.getElementById('inpBfmPreorderTitle').value.trim() || 'How Pre-Order Works?';
   bfmPoData.title = title;
-  localStorage.setItem('sv-bfm-preorder', JSON.stringify(bfmPoData));
   document.getElementById('bfmPreorderTitlePreview').textContent = title;
 }
 function renderBfmPoPicker(){
@@ -4257,7 +4253,6 @@ function selectBfmPo(i){
 }
 function updateBfmPoField(key, val){
   bfmPoData.steps[bfmPoIdx][key] = val;
-  localStorage.setItem('sv-bfm-preorder', JSON.stringify(bfmPoData));
   const s = bfmPoData.steps[bfmPoIdx];
   document.querySelector('#bfmPreorderSinglePreview h4').innerHTML = s.h.replace(/</g,'&lt;');
   document.querySelector('#bfmPreorderSinglePreview p').innerHTML = s.d.replace(/</g,'&lt;');
@@ -4269,7 +4264,55 @@ function updateBfmPoField(key, val){
   document.getElementById('bfmPreorderTitlePreview').textContent = bfmPoData.title;
   renderBfmPoPicker();
   renderBfmPoPreview();
+  bfmPoSnap = JSON.parse(JSON.stringify(bfmPoData));
+  loadBfmPoContent();
 })();
+function refreshBfmPo(){
+  document.getElementById('inpBfmPreorderTitle').value = bfmPoData.title;
+  document.getElementById('bfmPreorderTitlePreview').textContent = bfmPoData.title;
+  renderBfmPoPicker();
+  renderBfmPoPreview();
+}
+function cancelBfmPo(){
+  bfmPoData = JSON.parse(JSON.stringify(bfmPoSnap));
+  refreshBfmPo();
+}
+async function saveBfmPoDb(){
+  if(!window.sb) { T('Not connected to database','⚠️'); return; }
+  const content = {
+    title: (bfmPoData.title || '').trim() || 'How Pre-Order Works?',
+    steps: bfmPoData.steps.map(x => ({ h:(x.h || '').trim(), d:(x.d || '').trim() }))
+  };
+  const { error } = await sb.from('site_content').upsert({
+    page: 'buy_for_me',
+    section: 'preorder',
+    content,
+    updated_at: new Date().toISOString()
+  }, { onConflict: 'page,section' });
+  if(error){ console.error('saveBfmPoDb error:', error.message); T('Save failed — check connection','❌'); return; }
+  bfmPoData = JSON.parse(JSON.stringify(content));
+  bfmPoSnap = JSON.parse(JSON.stringify(content));
+  refreshBfmPo();
+  T('How Pre-Order Works published','🚀');
+}
+async function loadBfmPoContent(){
+  if(!window.sb) return;
+  const { data, error } = await sb.from('site_content').select('content')
+    .eq('page','buy_for_me').eq('section','preorder').maybeSingle();
+  if(error){ console.error('loadBfmPoContent error:', error.message); return; }
+  const c = data && data.content;
+  if(!c || !Array.isArray(c.steps)) return;
+  const base = bfmPoData.steps;
+  bfmPoData = {
+    title: typeof c.title === 'string' && c.title ? c.title : bfmPoData.title,
+    steps: base.map((b, i) => {
+      const x = c.steps[i] || {};
+      return { h: typeof x.h === 'string' ? x.h : b.h, d: typeof x.d === 'string' ? x.d : b.d };
+    })
+  };
+  bfmPoSnap = JSON.parse(JSON.stringify(bfmPoData));
+  refreshBfmPo();
+}
 /* ─── Buy For Me: FAQ ─── */
 const BFM_DEFAULT_FAQS = [
   { q:'How long until I get a quote?', a:"Most quotes are sent via WhatsApp within 24 hours. You'll receive one final price including product cost, shipping, taxes, customs fees, and service charge." },
