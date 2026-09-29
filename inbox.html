@@ -739,17 +739,19 @@
   .cust-sheet{
     position:fixed;
     left:0; right:0; bottom:0;
-    max-height:86vh;
+    max-height:88vh;
+    max-height:88dvh;
     background:var(--surface);
     border-radius:20px 20px 0 0;
     z-index:61;
     display:flex;
     flex-direction:column;
     transform:translateY(100%);
-    transition:transform 0.28s cubic-bezier(.2,.8,.25,1);
+    visibility:hidden;
+    transition:transform 0.28s cubic-bezier(.2,.8,.25,1), visibility 0s linear 0.28s;
     box-shadow:0 -8px 30px rgba(0,0,0,0.35);
   }
-  .cust-sheet.open{ transform:translateY(0); }
+  .cust-sheet.open{ transform:translateY(0); visibility:visible; transition-delay:0s; }
   .cust-sheet__handle{
     width:36px;
     height:4px;
@@ -758,8 +760,12 @@
     margin:10px auto 4px;
   }
   .cust-sheet__scroll{
+    flex:1 1 auto;
+    min-height:0;
     overflow-y:auto;
-    padding:8px 18px 24px;
+    overscroll-behavior:contain;
+    -webkit-overflow-scrolling:touch;
+    padding:14px 18px calc(28px + env(safe-area-inset-bottom, 0px));
   }
   .cust-sheet__head{
     display:flex;
@@ -915,18 +921,24 @@
     justify-content:space-between;
     margin-bottom:6px;
   }
-  .order-id-badge{
-    font-family:var(--font-head);
-    font-weight:700;
-    font-size:12px;
-    color:var(--purple);
-    background:rgba(124,111,247,0.1);
-    border:1px solid rgba(124,111,247,0.25);
-    border-radius:7px;
-    padding:3px 8px;
-    letter-spacing:-0.01em;
-    line-height:1;
+  /* ID badges — copied exactly from SV_APP app.html (LOCKED specs). Dark = base, light = override. */
+  .order-id-badge, .return-id-badge{
+    font-family:'Plus Jakarta Sans', sans-serif; font-weight:800; font-size:11px;
+    letter-spacing:0.3px; line-height:1; border-radius:6px; padding:3px 8px;
+    display:inline-flex; align-items:center; justify-content:center; flex-shrink:0;
   }
+  .order-id-badge{ color:#0A9BDC; background:rgba(10,155,220,0.18); border:1px solid rgba(10,155,220,0.5); }
+  .return-id-badge{ color:#D95353; background:rgba(217,83,83,0.18); border:1px solid rgba(217,83,83,0.5); }
+  html[data-theme="light"] .order-id-badge{ background:rgba(10,155,220,0.12); border-color:rgba(10,155,220,0.38); }
+  html[data-theme="light"] .return-id-badge{ background:rgba(217,83,83,0.12); border-color:rgba(217,83,83,0.38); }
+  .tracking-tag{
+    display:inline-flex; align-items:center; gap:5px; flex-shrink:0; line-height:1;
+    background:rgba(255,255,255,0.06); border:1.5px dashed rgba(251,202,185,0.4);
+    border-radius:6px; padding:2px 7px;
+  }
+  html[data-theme="light"] .tracking-tag{ background:rgba(255,255,255,0.55); border-color:rgba(198,82,39,0.45); }
+  .tracking-tag .tt-val{ font-family:'Plus Jakarta Sans', sans-serif; font-size:11px; font-weight:800; color:#FF9466; letter-spacing:0.3px; line-height:1; }
+  html[data-theme="light"] .tracking-tag .tt-val{ color:#E15A26; }
   .order-status-tag{
     font-size:11px;
     font-weight:700;
@@ -937,6 +949,7 @@
   .order-status-tag.delivered{ background:rgba(47,155,104,0.15); color:var(--green); }
   .order-status-tag.shipped{ background:rgba(0,157,220,0.15); color:var(--cyan); }
   .order-status-tag.cancelled{ background:rgba(217,83,83,0.15); color:var(--red); }
+  .order-status-tag.returned{ background:rgba(217,83,83,0.15); color:var(--red); }
   .order-card__items{ font-size:13px; color:var(--text-2); margin-bottom:4px; }
   .order-card__meta{
     display:flex;
@@ -1018,6 +1031,255 @@
   .guest-callout svg{ width:17px; height:17px; color:var(--orange); flex:0 0 auto; margin-top:1px; }
   .guest-callout p{ font-size:12.5px; color:var(--text-2); line-height:1.5; }
   .guest-callout strong{ color:var(--text-1); }
+
+
+  /* ---------- Customer profile sheet v2 (header, stats, actions, contact, orders, tags, notes) ---------- */
+  body.sheet-open{ overflow:hidden; }
+  .cs-head{
+    flex:0 0 auto; display:flex; align-items:center; gap:12px;
+    padding:4px 10px 12px 18px; background:var(--surface);
+    border-bottom:1px solid var(--hairline); border-radius:20px 20px 0 0;
+  }
+  .cs-head__avatar{
+    width:44px; height:44px; border-radius:50%; flex:0 0 auto;
+    display:flex; align-items:center; justify-content:center;
+    font-family:var(--font-head); font-weight:700; font-size:16px; color:#fff;
+  }
+  .cs-head__text{ flex:1; min-width:0; }
+  .cs-head__name, .cs-head__title{
+    display:flex; align-items:center; gap:5px; margin:0; min-width:0;
+    font-family:var(--font-head); font-weight:700; font-size:16px; color:var(--text-1);
+  }
+  .cs-head__name .txt, .cs-head__title{ overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .cs-head__name:focus, .cs-head__title:focus{ outline:none; }
+  .cs-head__meta{ display:flex; flex-wrap:wrap; align-items:center; gap:4px 8px; margin-top:4px; }
+  .cs-head__meta .cust-sheet__id-row{ margin-top:0; padding:2px 8px; }
+  .cs-head__meta .status-pill{ margin-top:0; }
+  .cs-head__since{ font-size:11.5px; color:var(--text-3); }
+  .cs-head__sub{ font-size:12px; color:var(--text-3); margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .cs-iconbtn{
+    width:44px; height:44px; border-radius:12px; flex:0 0 auto;
+    display:flex; align-items:center; justify-content:center; color:var(--text-2);
+  }
+  .cs-iconbtn svg{ width:20px; height:20px; }
+  .cs-iconbtn:hover{ background:var(--surface-2); color:var(--text-1); }
+  .cs-iconbtn:active{ transform:scale(.94); }
+
+
+  /* ---------- ID card — ported from SV-Web profile.html (.id-card / .cid-*) ---------- */
+  .cs-idcard{
+    position:relative; overflow:hidden; border-radius:18px; padding:18px 16px; color:#fff; margin-bottom:14px;
+    background:radial-gradient(ellipse 80% 60% at 50% -10%,rgba(255,255,255,0.06) 0%,transparent 65%),radial-gradient(ellipse 60% 80% at -10% 0%,rgba(124,111,247,0.22) 0%,transparent 55%),linear-gradient(135deg,#0f3258 0%,#002248 28%,#001f3c 60%,#000d20 100%);
+    box-shadow:0 10px 30px rgba(0,20,50,0.28);
+  }
+  .cs-idcard::after{ content:''; position:absolute; inset:0; pointer-events:none;
+    background:repeating-linear-gradient(115deg,transparent 0 26px,rgba(255,255,255,0.03) 26px 27px); }
+  .idc-top{ display:flex; align-items:center; gap:12px; position:relative; z-index:1; }
+  .idc-avatar{
+    width:52px; height:52px; border-radius:50%; flex-shrink:0;
+    background:linear-gradient(135deg,#0A9BDC,#4fb7ea);
+    display:flex; align-items:center; justify-content:center;
+    font-family:var(--font-head); font-weight:800; font-size:18px; color:#fff;
+    box-shadow:0 4px 14px rgba(45,190,245,0.35),inset 0 1px 0 rgba(255,255,255,0.25);
+  }
+  .idc-main{ flex:1; min-width:0; }
+  .idc-name-row{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+  .idc-name{ font-family:var(--font-head); font-size:17px; font-weight:800; letter-spacing:-.2px; overflow-wrap:anywhere; }
+  .idc-verified{
+    font-family:var(--font-head); font-size:11px; font-weight:800; letter-spacing:.3px; color:#7cf0c2;
+    display:flex; align-items:center; gap:3px;
+  }
+  .idc-verified svg{ width:14px; height:14px; color:#2fd88a; }
+  .idc-email{ font-size:11.5px; color:rgba(255,255,255,0.55); margin-top:2px; font-weight:600; overflow-wrap:anywhere; }
+  .idc-since{ font-size:11px; color:rgba(255,255,255,0.45); margin-top:2px; font-weight:600; }
+  .cid-wrap{ display:flex; align-items:center; gap:8px; margin-top:11px; position:relative; z-index:1; flex-wrap:wrap; }
+  .cid-label{ font-size:13px; font-weight:700; color:rgba(255,255,255,0.7); }
+  .cid-row{
+    display:inline-flex; align-items:center; gap:6px; padding:4px 9px; border-radius:9px; width:fit-content;
+    background:rgba(124,111,247,0.18); border:1.5px solid rgba(124,111,247,0.4);
+  }
+  .cid-value{ font-family:var(--font-head); font-size:12px; font-weight:800; color:#c4bdfd; letter-spacing:.2px; }
+  .cid-copy{
+    position:relative; width:22px; height:22px; border:none; flex-shrink:0; cursor:pointer; background:transparent;
+    display:flex; align-items:center; justify-content:center; color:#c4bdfd; transition:opacity .15s;
+  }
+  .cid-copy::before{ content:''; position:absolute; inset:-11px; }   /* 44px touch target */
+  .cid-copy:active{ opacity:.6; }
+  .cid-copy svg{ width:16px; height:16px; }
+  .cid-copy.copied{ color:#7cf0c2; }
+  .cid-copy .cs-done{ display:none; }
+  .cid-copy.copied .cs-idle{ display:none !important; }
+  .cid-copy.copied .cs-done{ display:inline-flex; }
+  .cs-head--slim{ align-items:center; padding-top:2px; padding-bottom:6px; }
+  .cs-head--slim .cs-head__text{ display:flex; align-items:center; gap:10px; min-height:44px; }
+  .cs-head__mini{ display:none; align-items:center; gap:8px; min-width:0; }
+  .cs-head__mini .a{ width:28px; height:28px; border-radius:50%; flex:0 0 auto; display:flex; align-items:center; justify-content:center;
+    background:linear-gradient(135deg,#0A9BDC,#4fb7ea); color:#fff; font-family:var(--font-head); font-weight:800; font-size:12px; }
+  .cs-head__mini .n{ font-family:var(--font-head); font-weight:800; font-size:14px; color:var(--text-1); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .cs-head__mini .c{ font-family:var(--font-head); font-weight:800; font-size:11px; color:var(--purple); background:rgba(124,111,247,.14); border:1px solid rgba(124,111,247,.4); border-radius:7px; padding:1px 7px; flex:0 0 auto; }
+  html:not([data-theme="light"]) .cs-head__mini .c{ color:#c4bdfd; }
+  .cs-head--slim.is-condensed .cs-head__title{ display:none; }
+  .cs-head--slim.is-condensed .cs-head__mini{ display:flex; }
+
+  .cs-stats{ display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px; }
+  .cs-stat{ background:var(--surface-2); border:1px solid var(--hairline); border-radius:12px; padding:10px 10px 9px; min-width:0; }
+  .cs-stat__val{
+    font-family:var(--font-head); font-weight:800; font-size:17px; line-height:1.15; color:var(--text-1);
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  }
+  .cs-stat__lbl{ font-size:11px; font-weight:700; color:var(--text-2); margin-top:3px; }
+  .cs-stat__sub{ font-size:10.5px; color:var(--text-3); margin-top:1px; min-height:13px; }
+
+  .cs-actions{ display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px; margin-top:12px; }
+  .cs-action{
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:5px;
+    min-height:58px; padding:8px 4px; border-radius:12px; text-align:center; cursor:pointer;
+    background:var(--surface-2); border:1px solid var(--hairline); color:var(--text-1);
+    font-size:11.5px; font-weight:700; text-decoration:none; line-height:1.2;
+    transition:border-color .15s, background .15s, transform .1s;
+  }
+  .cs-action svg{ width:18px; height:18px; color:var(--cyan); }
+  .cs-action:hover{ border-color:rgba(0,157,220,.5); }
+  .cs-action:active{ transform:scale(.97); }
+  .cs-action[aria-disabled="true"]{ opacity:.5; cursor:not-allowed; }
+  .cs-action[aria-pressed="true"]{ border-color:var(--cyan); background:rgba(0,157,220,.12); }
+  .cs-action.copied{ border-color:var(--green); }
+  .cs-action.copied svg{ color:var(--green); }
+  .cs-done{ display:none; }
+  .copied .cs-idle{ display:none !important; }
+  .copied .cs-done{ display:inline-flex; align-items:center; gap:4px; }
+
+  .cs-contact{
+    display:flex; align-items:center; gap:10px; min-height:54px;
+    background:var(--surface-2); border:1px solid var(--hairline); border-radius:12px; padding:7px 8px 7px 12px;
+  }
+  .cs-contact + .cs-contact{ margin-top:8px; }
+  .cs-contact__icon svg{ width:16px; height:16px; color:var(--text-3); display:block; }
+  .cs-contact__main{ flex:1; min-width:0; }
+  .cs-contact__lbl{ font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:.04em; color:var(--text-3); }
+  .cs-contact__val{ font-size:13.5px; color:var(--text-1); overflow-wrap:anywhere; }
+  .cs-contact.is-empty .cs-contact__val{ color:var(--text-3); font-style:italic; }
+  .cs-copy{
+    display:inline-flex; align-items:center; gap:5px; min-height:40px; padding:0 12px; border-radius:10px;
+    background:rgba(0,157,220,.12); color:var(--cyan); font-size:12px; font-weight:700; flex:0 0 auto;
+  }
+  .cs-copy svg{ width:14px; height:14px; }
+  .cs-copy:active{ transform:scale(.96); }
+  .cs-copy.copied{ background:rgba(0,155,114,.14); color:var(--green); }
+
+  .platform-row.active{ background:rgba(0,157,220,.07); }
+  .platform-row__text{ flex:1; min-width:0; display:flex; flex-direction:column; gap:1px; }
+  .platform-row__text .platform-row__label{ flex:none; }
+  .platform-row__ident{ font-size:11.5px; color:var(--text-3); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+
+  .order-card--btn{ display:block; width:100%; text-align:left; cursor:pointer; color:inherit; transition:border-color .15s, background .15s; }
+  .order-card--btn:hover{ border-color:rgba(0,157,220,.45); }
+  .order-card--btn:active{ background:var(--surface); }
+  .cs-trail{ display:inline-flex; align-items:center; gap:6px; }
+  .cs-trail svg{ width:15px; height:15px; color:var(--text-3); }
+  .cs-meta-left{ display:inline-flex; align-items:center; flex-wrap:wrap; gap:4px 8px; }
+  .pay-tag{
+    display:inline-flex; align-items:center; gap:4px; font-size:10.5px; font-weight:700; line-height:1.5;
+    padding:0 7px; border-radius:100px; border:1px solid currentColor; background:transparent;
+  }
+  .pay-tag svg{ width:11px; height:11px; }
+  .pay-tag.paid{ color:var(--green); }
+  .pay-tag.unpaid{ color:var(--orange); }
+  .pay-tag.refunded{ color:var(--red); }
+  .pay-tag.none{ color:var(--text-3); border-style:dashed; }
+
+  .order-row{
+    display:block; width:100%; text-align:left; cursor:pointer; color:inherit;
+    background:var(--surface-2); border:1px solid var(--hairline); border-radius:12px; padding:10px 12px; margin-bottom:8px;
+    transition:border-color .15s;
+  }
+  .order-row:hover{ border-color:rgba(0,157,220,.45); }
+  .order-row__top, .order-row__bot{ display:flex; align-items:center; justify-content:space-between; gap:8px; }
+  .order-row__bot{ margin-top:6px; font-size:12px; color:var(--text-2); }
+  .order-row__bot b{ color:var(--text-1); font-weight:700; }
+  .cs-linkbtn{
+    display:flex; align-items:center; justify-content:center; gap:6px; width:100%; min-height:44px;
+    border-radius:12px; border:1px dashed rgba(0,157,220,.45); background:rgba(0,157,220,.06);
+    color:var(--cyan); font-weight:700; font-size:13px;
+  }
+  .cs-linkbtn svg{ width:15px; height:15px; }
+  .cs-linkbtn:active{ transform:scale(.99); }
+
+  .cs-tags{ display:flex; flex-wrap:wrap; align-items:center; gap:8px; }
+  .cs-chip{
+    display:inline-flex; align-items:center; gap:2px; min-height:34px; padding:0 4px 0 12px; border-radius:100px;
+    background:rgba(124,111,247,.16); border:1px solid rgba(124,111,247,.4); color:#c4bdfd; font-size:12.5px; font-weight:700;
+    max-width:100%;
+  }
+  html[data-theme="light"] .cs-chip, html[data-theme="light"] .cust-sheet__id-value{ color:var(--purple); }
+  .cs-chip .txt{ overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .cs-chip button{ width:28px; height:28px; border-radius:50%; display:flex; align-items:center; justify-content:center; color:inherit; opacity:.85; flex:0 0 auto; }
+  .cs-chip button:hover{ background:rgba(124,111,247,.25); opacity:1; }
+  .cs-chip button svg{ width:13px; height:13px; }
+  .cs-chip--add{ padding:0 13px; background:transparent; border-style:dashed; color:var(--text-2); cursor:pointer; gap:5px; }
+  .cs-chip--add svg{ width:13px; height:13px; }
+  .cs-chip--add:hover{ color:var(--text-1); border-color:rgba(124,111,247,.7); }
+  .cs-chip--input{ padding:0 4px 0 12px; background:var(--surface-2); }
+  .cs-chip--input:focus-within{ border-color:var(--cyan); }
+  .cs-chip--input input{ background:transparent; border:none; color:var(--text-1); font:inherit; font-size:16px; font-weight:600; width:120px; min-width:0; padding:0; }
+  .cs-chip--input input:focus-visible{ outline:none; }
+  .cs-inline-empty{ font-size:12.5px; color:var(--text-3); }
+
+  .cs-notes__head{ display:flex; align-items:center; justify-content:space-between; gap:8px; margin:18px 0 8px; }
+  .cs-notes__head .cust-sheet__section-label{ margin:0; }
+  .cs-private{
+    display:inline-flex; align-items:center; gap:4px; font-size:10.5px; font-weight:700; color:var(--orange);
+    background:rgba(242,100,48,.12); padding:3px 9px; border-radius:100px;
+  }
+  .cs-private svg{ width:11px; height:11px; }
+  .cs-note{ background:rgba(244,169,34,.08); border:1px solid rgba(244,169,34,.25); border-radius:12px; padding:10px 12px; margin-bottom:8px; }
+  .cs-note__text{ font-size:13px; color:var(--text-1); white-space:pre-wrap; overflow-wrap:anywhere; line-height:1.45; }
+  .cs-note__time{ font-size:11px; color:var(--text-3); margin-top:6px; }
+  .cs-note-form textarea{
+    width:100%; min-height:88px; resize:vertical; border-radius:12px; padding:10px 12px;
+    background:var(--surface-2); border:1px solid var(--hairline); color:var(--text-1); font:inherit; font-size:16px; line-height:1.4;
+  }
+  .cs-note-form textarea:focus-visible{ outline:none; border-color:var(--cyan); }
+  .cs-note-form__row{ display:flex; align-items:center; justify-content:flex-end; gap:8px; margin-top:8px; }
+  .cs-note-form__count{ margin-right:auto; font-size:11px; color:var(--text-3); }
+  .cs-btn{
+    display:inline-flex; align-items:center; justify-content:center; gap:6px; min-height:40px; padding:0 16px; border-radius:10px;
+    font-weight:700; font-size:13px; border:1px solid var(--hairline); background:var(--surface-2); color:var(--text-1);
+  }
+  .cs-btn svg{ width:15px; height:15px; }
+  .cs-btn--primary{ background:var(--cyan); border-color:var(--cyan); color:#fff; }
+  .cs-btn--block{ width:100%; }
+  .cs-btn[disabled]{ opacity:.5; cursor:not-allowed; }
+  .cs-btn.copied{ border-color:var(--green); color:var(--green); }
+
+  .cs-detail__hero{ display:flex; align-items:flex-start; justify-content:space-between; gap:12px; margin-bottom:14px; }
+  .cs-detail__kind{ font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.04em; color:var(--text-3); margin-bottom:6px; }
+  .cs-detail__amount{ font-family:var(--font-head); font-weight:800; font-size:26px; line-height:1.1; color:var(--text-1); text-align:right; }
+  .cs-dl{ background:var(--surface-2); border:1px solid var(--hairline); border-radius:14px; overflow:hidden; margin-bottom:14px; }
+  .cs-dl__row{ display:flex; align-items:center; justify-content:space-between; gap:12px; padding:12px 14px; border-top:1px solid var(--hairline); font-size:13px; }
+  .cs-dl__row:first-child{ border-top:none; }
+  .cs-dl__k{ color:var(--text-3); font-weight:600; flex:0 0 auto; }
+  .cs-dl__v{ color:var(--text-1); text-align:right; min-width:0; overflow-wrap:anywhere; }
+  .cs-dl__v.muted{ color:var(--text-3); font-style:italic; }
+  .cs-stack{ display:flex; flex-direction:column; gap:8px; }
+  .cs-fineprint{ font-size:11.5px; color:var(--text-3); text-align:center; margin-top:10px; line-height:1.4; }
+
+  .cust-sheet.is-full{ max-height:100vh; max-height:100dvh; height:100vh; height:100dvh; border-radius:0; }
+  .cust-sheet.is-full .cs-head{ border-radius:0; padding-top:calc(6px + env(safe-area-inset-top, 0px)); }
+  @media (min-width:720px){
+    .cust-sheet{ left:50%; right:auto; width:min(520px,100vw); transform:translate(-50%,100%); }
+    .cust-sheet.open{ transform:translate(-50%,0); }
+    .cust-sheet.is-full{ width:min(680px,100vw); border-radius:0; }
+  }
+
+  .sv-toast{
+    position:fixed; left:50%; bottom:calc(20px + env(safe-area-inset-bottom, 0px));
+    transform:translate(-50%,12px); opacity:0; pointer-events:none; z-index:80;
+    background:var(--text-1); color:var(--body-bg); padding:9px 16px; border-radius:100px;
+    font-size:13px; font-weight:600; max-width:calc(100vw - 32px); text-align:center;
+    transition:opacity .18s ease, transform .18s ease;
+  }
+  .sv-toast.show{ opacity:1; transform:translate(-50%,0); }
 
   .thread-messages{
     flex:1;
@@ -1318,8 +1580,9 @@
 </div><!-- /threadView -->
 
 <div class="cust-sheet-backdrop" id="custSheetBackdrop"></div>
-<div class="cust-sheet" id="custSheet" aria-hidden="true">
+<div class="cust-sheet" id="custSheet" role="dialog" aria-modal="true" aria-labelledby="custSheetTitle" aria-hidden="true">
   <div class="cust-sheet__handle"></div>
+  <div class="cs-head" id="custSheetHead"></div>
   <div class="cust-sheet__scroll" id="custSheetScroll"></div>
 </div>
 
@@ -1397,6 +1660,7 @@
     custSheetBackdrop: document.getElementById("custSheetBackdrop"),
     custSheet: document.getElementById("custSheet"),
     custSheetScroll: document.getElementById("custSheetScroll"),
+    custSheetHead: document.getElementById("custSheetHead"),
     composerForm: document.getElementById("composerForm"),
     composerInput: document.getElementById("composerInput"),
     sendBtn: document.getElementById("sendBtn"),
@@ -1422,11 +1686,12 @@
       match_confidence: "strong",   // matched by phone number across channels
       phone: "01712-345678",
       email: "tanvir.ahmed@gmail.com",
+      customer_since: "2025-11-08T00:00:00.000Z",   // mock
       channels: ["messenger", "whatsapp"],
-      current_order: { id:"SV-2214", amount:1800, status:"Pending", items:"Magnesium Glycinate", placed_at:new Date(Date.now()-6*86400000).toISOString() },
+      current_order: { id:"SV-1014", payment_status:"Unpaid", amount:1800, status:"Pending", items:"Magnesium Glycinate", placed_at:new Date(Date.now()-6*86400000).toISOString() },
       past_orders: [
-        { id:"SV-2198", amount:2400, status:"Delivered", placed_at:new Date(Date.now()-32*86400000).toISOString() },
-        { id:"SV-2071", amount:1200, status:"Delivered", placed_at:new Date(Date.now()-68*86400000).toISOString() }
+        { id:"SV-1012", payment_status:"Paid", amount:2400, status:"Delivered", placed_at:new Date(Date.now()-32*86400000).toISOString() },
+        { id:"SV-1006", payment_status:"Paid", amount:1200, status:"Delivered", placed_at:new Date(Date.now()-68*86400000).toISOString() }
       ]
     },
     cu1103: {
@@ -1436,12 +1701,15 @@
       match_confidence: "strong",
       phone: "01818-902233",
       email: "rakibul.islam@yahoo.com",
+      customer_since: "2026-02-19T00:00:00.000Z",   // mock
       channels: ["whatsapp"],
       current_order: null,
       past_orders: [
-        { id:"SV-2150", amount:3200, status:"Delivered", placed_at:new Date(Date.now()-14*86400000).toISOString() },
-        { id:"SV-2233", amount:950, status:"Shipped", placed_at:new Date(Date.now()-2*86400000).toISOString() },
-        { id:"SV-2095", amount:1500, status:"Cancelled", placed_at:new Date(Date.now()-52*86400000).toISOString() }
+        { id:"SV-1013", payment_status:"Paid", amount:3200, status:"Delivered", placed_at:new Date(Date.now()-14*86400000).toISOString() },
+        { id:"SV-1015", payment_status:"Paid", amount:950, status:"Shipped", placed_at:new Date(Date.now()-2*86400000).toISOString() },
+        { id:"SV-1016", payment_status:"Unpaid", amount:1500, status:"Cancelled", placed_at:new Date(Date.now()-52*86400000).toISOString() },
+        { id:"PX-1011", payment_status:"Paid", amount:36050, status:"Pending", placed_at:new Date(Date.now()-9*86400000).toISOString() },
+        { id:"RT-1001", payment_status:"Refunded", amount:950, status:"Returned", placed_at:new Date(Date.now()-1*86400000).toISOString() }
       ]
     },
     guest_farzana: {
@@ -1459,7 +1727,7 @@
 
   const MOCK_CONVERSATIONS = [
     { id:"m1", customer_name:"Nusrat Jahan", customer_avatar:"", customer_key:null, channel:"whatsapp", last_message:"Is the whey protein back in stock?", updated_at:new Date(Date.now()-2*60000).toISOString(), unread_count:2, convo_status:"waiting", assigned_to:null },
-    { id:"m2", customer_name:"Tanvir Ahmed", customer_avatar:"", customer_key:"cu1042", channel:"messenger", last_message:"Order #SV-2214 hasn't arrived yet", updated_at:new Date(Date.now()-58*60000).toISOString(), unread_count:1, convo_status:"assigned", assigned_to:"Shuvo" },
+    { id:"m2", customer_name:"Tanvir Ahmed", customer_avatar:"", customer_key:"cu1042", channel:"messenger", last_message:"Order #SV-1014 hasn't arrived yet", updated_at:new Date(Date.now()-58*60000).toISOString(), unread_count:1, convo_status:"assigned", assigned_to:"Shuvo" },
     { id:"m3", customer_name:"Farzana Akter", customer_avatar:"", customer_key:"guest_farzana", channel:"instagram", last_message:"Can I get a discount on bulk order?", updated_at:new Date(Date.now()-3*3600000).toISOString(), unread_count:0, convo_status:"waiting", assigned_to:null },
     { id:"m4", customer_name:"Rakibul Islam", customer_avatar:"", customer_key:"cu1103", channel:"whatsapp", last_message:"Thanks, received it in good condition!", updated_at:new Date(Date.now()-26*3600000).toISOString(), unread_count:0, convo_status:"done", assigned_to:"Shuvo" },
     { id:"m5", customer_name:"Sadia Islam", customer_avatar:"", customer_key:null, channel:"messenger", last_message:"Do you ship to Chattogram?", updated_at:new Date(Date.now()-3*86400000).toISOString(), unread_count:3, convo_status:"waiting", assigned_to:null },
@@ -1478,8 +1746,8 @@
     m2: [
       { sender_type:"customer", content:"Hello, I placed an order last week", created_at:new Date(Date.now()-3*3600000).toISOString() },
       { sender_type:"admin", content:"Hi Tanvir, could you share your order ID?", created_at:new Date(Date.now()-2*3600000).toISOString() },
-      { sender_type:"customer", content:"It's SV-2214", created_at:new Date(Date.now()-70*60000).toISOString() },
-      { sender_type:"customer", content:"Order #SV-2214 hasn't arrived yet", created_at:new Date(Date.now()-58*60000).toISOString() }
+      { sender_type:"customer", content:"It's SV-1014", created_at:new Date(Date.now()-70*60000).toISOString() },
+      { sender_type:"customer", content:"Order #SV-1014 hasn't arrived yet", created_at:new Date(Date.now()-58*60000).toISOString() }
     ],
     m3: [
       { sender_type:"customer", content:"Hi! Love your products", created_at:new Date(Date.now()-1*86400000).toISOString() },
@@ -1571,6 +1839,13 @@
     return AVATAR_PALETTE[Math.abs(hash) % AVATAR_PALETTE.length];
   }
 
+  // ID badge by prefix — SV-#### order, PX-#### proxy, RT-#### return (same as app.html / SV-Web)
+  function idBadgeHtml(id){
+    const v = escapeHtml(id);
+    if(/^PX-/.test(id)) return `<span class="tracking-tag"><span class="tt-val">${v}</span></span>`;
+    if(/^RT-/.test(id)) return `<span class="return-id-badge">${v}</span>`;
+    return `<span class="order-id-badge">${v}</span>`;
+  }
   function escapeHtml(str){
     const div = document.createElement("div");
     div.textContent = str;
@@ -1768,51 +2043,344 @@
     els.identityChipBtn.onclick = () => openCustomerPanel(conv);
   }
 
-  function openCustomerPanel(conv){
-    els.custSheetScroll.innerHTML = buildCustomerPanelHtml(conv);
-    els.custSheetBackdrop.classList.add("open");
-    els.custSheet.classList.add("open");
-    els.custSheet.setAttribute("aria-hidden", "false");
+  /* ---------- Customer profile sheet (frontend-only; tags/notes live in local mock state) ---------- */
+  const profileLocal = {};            // { [customer_key]: { tags:[], notes:[{text, at}] } }
+  const sheet = { conv:null, view:"profile", orderId:null, full:false, tagInput:false, noteForm:false, lastFocus:null };
+  const TAG_MAX = 8, TAG_LEN = 24, NOTE_LEN = 300;
+
+  const ICONS = {
+    close:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>',
+    back:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>',
+    chevron:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>',
+    phone:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6 19.8 19.8 0 0 1-3.1-8.7A2 2 0 0 1 4 2h3a2 2 0 0 1 2 1.7c.1.9.3 1.8.6 2.7a2 2 0 0 1-.5 2.1L8 9.6a16 16 0 0 0 6 6l1.1-1.1a2 2 0 0 1 2.1-.5c.9.3 1.8.5 2.7.6a2 2 0 0 1 1.7 2Z"/></svg>',
+    mail:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 6L2 7"/></svg>',
+    copy:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>',
+    check:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5L20 7"/></svg>',
+    expand:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>',
+    collapse:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14h6v6M20 10h-6V4M14 10l7-7M3 21l7-7"/></svg>',
+    list:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>',
+    plus:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>',
+    lock:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>'
+  };
+
+  function escAttr(str){ return escapeHtml(String(str)).replace(/"/g, "&quot;").replace(/'/g, "&#39;"); }
+
+  let toastTimer = null;
+  function showToast(msg){
+    let t = document.getElementById("svToast");
+    if(!t){
+      t = document.createElement("div");
+      t.id = "svToast"; t.className = "sv-toast"; t.setAttribute("role", "status"); t.setAttribute("aria-live", "polite");
+      document.body.appendChild(t);
+    }
+    t.textContent = msg;
+    void t.offsetWidth;
+    t.classList.add("show");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => t.classList.remove("show"), 1800);
   }
 
-  function closeCustomerPanel(){
-    els.custSheetBackdrop.classList.remove("open");
-    els.custSheet.classList.remove("open");
-    els.custSheet.setAttribute("aria-hidden", "true");
+  async function copyText(text){
+    try{
+      if(navigator.clipboard && window.isSecureContext){ await navigator.clipboard.writeText(text); return true; }
+    }catch(e){ /* fall through to legacy path */ }
+    try{
+      const ta = document.createElement("textarea");
+      ta.value = text; ta.setAttribute("readonly", ""); ta.style.cssText = "position:fixed;top:0;left:0;opacity:0;";
+      document.body.appendChild(ta); ta.select(); ta.setSelectionRange(0, text.length);
+      const ok = document.execCommand("copy");
+      document.body.removeChild(ta);
+      return ok;
+    }catch(e){ return false; }
   }
 
-  els.custSheetBackdrop.addEventListener("click", closeCustomerPanel);
-
-  function formatOrderDate(iso){
-    return new Date(iso).toLocaleDateString(undefined, { month:"short", day:"numeric", year:"numeric" });
+  function flashCopied(btn){
+    btn.classList.add("copied");
+    clearTimeout(btn._t);
+    btn._t = setTimeout(() => btn.classList.remove("copied"), 1600);
   }
 
-  function buildCustomerPanelHtml(conv){
-    const cust = getCustomerRecord(conv) || {
+  function getSheetCustomer(){
+    const conv = sheet.conv;
+    return getCustomerRecord(conv) || {
       customer_id:null, name:conv.customer_name, status:"guest",
       phone:null, email:null, channels:[conv.channel], current_order:null, past_orders:[]
     };
-    const isRegistered = cust.status === "registered";
-    const avatarBg = hashColor(cust.name || "?");
+  }
+  function localFor(){
+    const key = sheet.conv && sheet.conv.customer_key;
+    if(!key) return null;
+    return profileLocal[key] || (profileLocal[key] = { tags:[], notes:[] });
+  }
+  function allOrdersOf(cust){
+    return [...(cust.current_order ? [cust.current_order] : []), ...(cust.past_orders || [])];
+  }
+  const isOrderRecord = (o) => /^(SV|PX)-/.test(o.id);
+  function orderKind(id){ return /^PX-/.test(id) ? "Proxy order" : /^RT-/.test(id) ? "Return" : "Order"; }
+  function money(n){ return "৳" + Number(n).toLocaleString(); }
+  function formatMonthYear(iso){ return new Date(iso).toLocaleDateString(undefined, { month:"short", year:"numeric" }); }
 
-    const statusPillHtml = isRegistered
-      ? ""
-      : `<span class="status-pill guest"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>Guest — no account</span>`;
+  function payTagHtml(o){
+    const v = o.payment_status;
+    if(!v) return `<span class="pay-tag none" title="Payment status not recorded">Payment: not recorded</span>`;
+    const cls = String(v).toLowerCase();
+    return `<span class="pay-tag ${escAttr(cls)}"><span class="sr-only" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);">Payment: </span>${escapeHtml(v)}</span>`;
+  }
 
-    const custIdHtml = cust.customer_id
-      ? `<div class="cust-sheet__id-row"><span class="cust-sheet__id-value">${escapeHtml(cust.customer_id)}</span></div>`
-      : "";
+  /* ---------- open / close / navigation ---------- */
+  function openCustomerPanel(conv){
+    sheet.conv = conv; sheet.view = "profile"; sheet.orderId = null;
+    sheet.full = false; sheet.tagInput = false; sheet.noteForm = false;
+    sheet.lastFocus = document.activeElement;
+    els.custSheet.classList.remove("is-full");
+    renderSheet();
+    els.custSheetScroll.scrollTop = 0;
+    els.custSheetBackdrop.classList.add("open");
+    els.custSheet.classList.add("open");
+    els.custSheet.setAttribute("aria-hidden", "false");
+    document.body.classList.add("sheet-open");
+    const t = document.getElementById("custSheetTitle");   // focus only once the sheet is visible
+    if(t) t.focus({ preventScroll:true });
+  }
 
-    const platformsHtml = cust.channels.map(ch => {
-      const isActive = ch === conv.channel;
-      return `<div class="platform-row${isActive ? " active" : ""}">
+  function closeCustomerPanel(){
+    if(!els.custSheet.classList.contains("open")) return;
+    els.custSheetBackdrop.classList.remove("open");
+    els.custSheet.classList.remove("open", "is-full");
+    els.custSheet.setAttribute("aria-hidden", "true");
+    document.body.classList.remove("sheet-open");
+    sheet.full = false;
+    const back = sheet.lastFocus;
+    sheet.lastFocus = null;
+    if(back && back.isConnected && typeof back.focus === "function") back.focus({ preventScroll:true });
+  }
+  els.custSheetBackdrop.addEventListener("click", closeCustomerPanel);
+  els.custSheetScroll.addEventListener("scroll", () => {
+    if(!els.custSheetHead.classList.contains("cs-head--slim")) return;
+    const card = document.getElementById("csIdCard"); if(!card) return;
+    els.custSheetHead.classList.toggle("is-condensed", els.custSheetScroll.scrollTop > card.offsetTop + card.offsetHeight - 24);
+  }, { passive:true });
+
+  function goView(view, orderId){
+    sheet.view = view; sheet.orderId = orderId || null;
+    sheet.tagInput = false; sheet.noteForm = false;
+    renderSheet({ focus:true });
+    els.custSheetScroll.scrollTop = 0;
+  }
+
+  /* ---------- rendering ---------- */
+  function renderSheet(opts){
+    const cust = getSheetCustomer();
+    els.custSheetHead.innerHTML = buildSheetHead(cust);
+    els.custSheetHead.classList.toggle("cs-head--slim", sheet.view === "profile" && cust.status === "registered");
+    els.custSheetHead.classList.remove("is-condensed");
+    els.custSheetScroll.innerHTML = sheet.view === "order" ? buildOrderDetail(cust)
+      : sheet.view === "orders" ? buildAllOrders(cust)
+      : buildCustomerPanelHtml(sheet.conv);
+    if(opts && opts.focus){
+      const t = document.getElementById("custSheetTitle");
+      if(t) t.focus({ preventScroll:true });
+    }
+  }
+
+  function buildSheetHead(cust){
+    const closeBtn = `<button type="button" class="cs-iconbtn" data-act="close" aria-label="Close customer profile">${ICONS.close}</button>`;
+    if(sheet.view !== "profile"){
+      const title = sheet.view === "order" ? "Order details" : "All orders";
+      return `<button type="button" class="cs-iconbtn" data-act="back" aria-label="Back to customer profile">${ICONS.back}</button>
+        <div class="cs-head__text">
+          <h2 class="cs-head__title" id="custSheetTitle" tabindex="-1">${title}</h2>
+          <div class="cs-head__sub">${escapeHtml(cust.name || "Unknown")}${cust.customer_id ? " · " + escapeHtml(cust.customer_id) : ""}</div>
+        </div>${closeBtn}`;
+    }
+    const isReg = cust.status === "registered";
+    if(isReg){
+      const ini = escapeHtml((cust.name || "?").trim().charAt(0).toUpperCase());
+      return `<div class="cs-head__text">
+          <h2 class="cs-head__title" id="custSheetTitle" tabindex="-1">Customer profile</h2>
+          <div class="cs-head__mini" aria-hidden="true"><span class="a">${ini}</span><span class="n">${escapeHtml(cust.name || "Unknown")}</span>${cust.customer_id ? `<span class="c">${escapeHtml(cust.customer_id)}</span>` : ""}</div>
+        </div>${closeBtn}`;
+    }
+    const idPill = cust.customer_id ? `<span class="cust-sheet__id-row"><span class="cust-sheet__id-value">${escapeHtml(cust.customer_id)}</span></span>` : "";
+    const guestPill = `<span class="status-pill guest"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>Guest — no account</span>`;
+    const since = "", verified = "";
+    return `<div class="cs-head__avatar" style="background:${hashColor(cust.name || "?")}" aria-hidden="true">${initials(cust.name)}</div>
+      <div class="cs-head__text">
+        <h2 class="cs-head__name" id="custSheetTitle" tabindex="-1"><span class="txt">${escapeHtml(cust.name || "Unknown")}</span>${verified}</h2>
+        <div class="cs-head__meta">${idPill}${guestPill}${since}</div>
+      </div>${closeBtn}`;
+  }
+
+  function platformsHtmlFor(cust){
+    return cust.channels.map(ch => {
+      const isActive = sheet.conv.channel && ch === sheet.conv.channel;
+      const ident = ch === "whatsapp" && cust.phone ? cust.phone : "";
+      return `<div class="platform-row${isActive ? " active" : ""}"${isActive ? ' aria-current="true"' : ""}>
         <span class="platform-row__icon ${CHANNEL_ICON_CLASS[ch]}">${channelBadgeSvg(ch)}</span>
-        <span class="platform-row__label">${(CHANNEL_META[ch] && CHANNEL_META[ch].label) || ch}</span>
+        <span class="platform-row__text">
+          <span class="platform-row__label">${(CHANNEL_META[ch] && CHANNEL_META[ch].label) || ch}</span>
+          ${ident ? `<span class="platform-row__ident">${escapeHtml(ident)}</span>` : ""}
+        </span>
         ${isActive ? `<span class="platform-row__tag">Viewing now</span>` : ""}
       </div>`;
     }).join("");
+  }
 
-    let bodyHtml = "";
+  function statsHtml(cust){
+    const recs = allOrdersOf(cust);
+    const orders = recs.filter(isOrderRecord);
+    const returns = recs.length - orders.length;
+    const spent = orders.filter(o => o.status === "Delivered").reduce((n, o) => n + o.amount, 0);
+    const active = orders.filter(o => o.status === "Pending" || o.status === "Shipped").length;
+    return `<div class="cs-stats" role="list">
+      <div class="cs-stat" role="listitem"><div class="cs-stat__val">${orders.length}</div><div class="cs-stat__lbl">Total orders</div><div class="cs-stat__sub">${returns ? returns + (returns === 1 ? " return" : " returns") : ""}</div></div>
+      <div class="cs-stat" role="listitem"><div class="cs-stat__val">${money(spent)}</div><div class="cs-stat__lbl">Lifetime spend</div><div class="cs-stat__sub">delivered orders</div></div>
+      <div class="cs-stat" role="listitem"><div class="cs-stat__val">${active}</div><div class="cs-stat__lbl">Active orders</div><div class="cs-stat__sub">pending or shipped</div></div>
+    </div>`;
+  }
+
+  function actionsHtml(cust){
+    const tel = cust.phone ? String(cust.phone).replace(/[^\d+]/g, "") : "";
+    const call = tel
+      ? `<a class="cs-action" href="tel:${escAttr(tel)}" aria-label="Call customer at ${escAttr(cust.phone)}">${ICONS.phone}<span>Call</span></a>`
+      : `<button type="button" class="cs-action" data-act="no-phone" aria-disabled="true" aria-label="Call customer (no phone number on file)">${ICONS.phone}<span>Call</span></button>`;
+    return `<div class="cs-actions">
+      ${call}
+      <button type="button" class="cs-action" data-act="copy" data-copy="${escAttr(cust.customer_id || "")}" data-what="Customer ID" aria-label="Copy Customer ID ${escAttr(cust.customer_id || "")}">
+        <span class="cs-idle" style="display:contents">${ICONS.copy}<span>Copy ID</span></span>
+        <span class="cs-done">${ICONS.check}<span>Copied</span></span>
+      </button>
+      <button type="button" class="cs-action" data-act="expand" aria-pressed="${sheet.full}">
+        ${sheet.full ? ICONS.collapse : ICONS.expand}<span>${sheet.full ? "Collapse" : "Full profile"}</span>
+      </button>
+    </div>`;
+  }
+
+  function contactRowHtml(icon, label, value, emptyMsg){
+    if(!value){
+      return `<div class="cs-contact is-empty"><span class="cs-contact__icon">${icon}</span><div class="cs-contact__main"><div class="cs-contact__lbl">${label}</div><div class="cs-contact__val">${emptyMsg}</div></div></div>`;
+    }
+    return `<div class="cs-contact"><span class="cs-contact__icon">${icon}</span>
+      <div class="cs-contact__main"><div class="cs-contact__lbl">${label}</div><div class="cs-contact__val">${escapeHtml(value)}</div></div>
+      <button type="button" class="cs-copy" data-act="copy" data-copy="${escAttr(value)}" data-what="${label}" aria-label="Copy ${label.toLowerCase()} ${escAttr(value)}">
+        <span class="cs-idle" style="display:inline-flex;align-items:center;gap:5px">${ICONS.copy}Copy</span>
+        <span class="cs-done">${ICONS.check}Copied</span>
+      </button></div>`;
+  }
+
+  function orderCardHtml(o, current){
+    return `<button type="button" class="order-card order-card--btn" data-act="open-order" data-oid="${escAttr(o.id)}" aria-label="${orderKind(o.id)} ${escAttr(o.id)}, ${escAttr(o.status)}. Open details">
+      <span class="order-card__top" style="display:flex">
+        ${idBadgeHtml(o.id)}
+        <span class="cs-trail"><span class="order-status-tag ${escAttr(o.status.toLowerCase())}">${escapeHtml(o.status)}</span>${ICONS.chevron}</span>
+      </span>
+      ${o.items ? `<span class="order-card__items" style="display:block">${escapeHtml(o.items)}</span>` : ""}
+      <span class="order-card__meta"><span class="cs-meta-left"><span>${formatOrderDate(o.placed_at)}</span>${payTagHtml(o)}</span><span class="order-card__amount">${money(o.amount)}</span></span>
+    </button>`;
+  }
+  function orderRowHtml(o){
+    return `<button type="button" class="order-row" data-act="open-order" data-oid="${escAttr(o.id)}" aria-label="${orderKind(o.id)} ${escAttr(o.id)}, ${escAttr(o.status)}. Open details">
+      <span class="order-row__top">${idBadgeHtml(o.id)}<span class="cs-trail"><span class="order-status-tag ${escAttr(o.status.toLowerCase())}">${escapeHtml(o.status)}</span>${ICONS.chevron}</span></span>
+      <span class="order-row__bot"><span class="cs-meta-left"><span>${formatOrderDate(o.placed_at)}</span>${payTagHtml(o)}</span><b>${money(o.amount)}</b></span>
+    </button>`;
+  }
+
+  function tagsSectionHtml(){
+    const loc = localFor();
+    const chips = loc.tags.map((t, i) => `<span class="cs-chip"><span class="txt">${escapeHtml(t)}</span><button type="button" data-act="tag-remove" data-i="${i}" aria-label="Remove tag ${escAttr(t)}">${ICONS.close}</button></span>`).join("");
+    const adder = sheet.tagInput
+      ? `<span class="cs-chip cs-chip--input"><input type="text" id="csTagInput" maxlength="${TAG_LEN}" placeholder="New tag" aria-label="New tag name" enterkeyhint="done" autocomplete="off"><button type="button" data-act="tag-commit" aria-label="Add tag">${ICONS.check}</button></span>`
+      : (loc.tags.length >= TAG_MAX ? "" : `<button type="button" class="cs-chip cs-chip--add" data-act="tag-add">${ICONS.plus}Add tag</button>`);
+    return `<div class="cs-tags">${chips}${loc.tags.length ? "" : (sheet.tagInput ? "" : '<span class="cs-inline-empty">No tags yet.</span>')}${adder}</div>`;
+  }
+
+  function notesSectionHtml(){
+    const loc = localFor();
+    const list = loc.notes.length
+      ? loc.notes.map(n => `<div class="cs-note"><div class="cs-note__text">${escapeHtml(n.text)}</div><div class="cs-note__time">${escapeHtml(new Date(n.at).toLocaleString(undefined, { month:"short", day:"numeric", hour:"numeric", minute:"2-digit" }))}</div></div>`).join("")
+      : `<div class="empty-note" style="margin-bottom:8px">No private notes yet.</div>`;
+    const form = sheet.noteForm
+      ? `<div class="cs-note-form">
+           <textarea id="csNoteInput" maxlength="${NOTE_LEN}" placeholder="Write a private note about this customer…" aria-label="Private note"></textarea>
+           <div class="cs-note-form__row"><span class="cs-note-form__count" id="csNoteCount">0/${NOTE_LEN}</span>
+             <button type="button" class="cs-btn" data-act="note-cancel">Cancel</button>
+             <button type="button" class="cs-btn cs-btn--primary" data-act="note-save" id="csNoteSave" disabled>Save note</button></div>
+         </div>`
+      : `<button type="button" class="cs-linkbtn" data-act="note-add">${ICONS.plus}Add note</button>`;
+    return list + form;
+  }
+
+  function refreshTags(focusInput){
+    const box = document.getElementById("csTags"); if(!box) return;
+    box.innerHTML = tagsSectionHtml();
+    const inp = document.getElementById("csTagInput");
+    if(inp && focusInput){ inp.focus(); inp.scrollIntoView({ block:"nearest" }); }
+  }
+  function refreshNotes(focusForm){
+    const box = document.getElementById("csNotes"); if(!box) return;
+    box.innerHTML = notesSectionHtml();
+    const ta = document.getElementById("csNoteInput");
+    if(ta && focusForm){ ta.focus(); ta.scrollIntoView({ block:"nearest" }); }
+  }
+
+  function buildOrderDetail(cust){
+    const o = allOrdersOf(cust).find(x => x.id === sheet.orderId);
+    if(!o) return `<div class="empty-note">This order is no longer available.</div>`;
+    const row = (k, v, muted) => `<div class="cs-dl__row"><span class="cs-dl__k">${k}</span><span class="cs-dl__v${muted ? " muted" : ""}">${v}</span></div>`;
+    return `
+      <div class="cs-detail__hero">
+        <div><div class="cs-detail__kind">${orderKind(o.id)}</div>${idBadgeHtml(o.id)}</div>
+        <div class="cs-detail__amount">${money(o.amount)}</div>
+      </div>
+      <div class="cs-dl">
+        ${row("Fulfillment", `<span class="order-status-tag ${escAttr(o.status.toLowerCase())}">${escapeHtml(o.status)}</span>`)}
+        ${row("Payment", payTagHtml(o))}
+        ${o.items ? row("Item", escapeHtml(o.items)) : row("Item", "Not recorded", true)}
+        ${row("Placed", escapeHtml(formatOrderDate(o.placed_at)))}
+        ${row("Customer", escapeHtml(cust.name || "Unknown") + (cust.customer_id ? " · " + escapeHtml(cust.customer_id) : ""))}
+      </div>
+      <div class="cs-stack">
+        <button type="button" class="cs-btn cs-btn--block" data-act="copy" data-copy="${escAttr(o.id)}" data-what="Order ID">
+          <span class="cs-idle" style="display:inline-flex;align-items:center;gap:6px">${ICONS.copy}Copy ${orderKind(o.id).toLowerCase()} ID</span>
+          <span class="cs-done">${ICONS.check}Copied</span>
+        </button>
+        <button type="button" class="cs-btn cs-btn--block" data-act="back">Back to profile</button>
+      </div>
+      <p class="cs-fineprint">Preview only — order editing and status changes aren't connected yet.</p>`;
+  }
+
+  function buildAllOrders(cust){
+    const recs = allOrdersOf(cust).slice().sort((a, b) => new Date(b.placed_at) - new Date(a.placed_at));
+    if(!recs.length) return `<div class="empty-note">No orders on file.</div>`;
+    return `<div class="cust-sheet__section-label" style="margin-top:0">${recs.length} record${recs.length === 1 ? "" : "s"} · newest first</div>` + recs.map(orderRowHtml).join("");
+  }
+
+  const VERIFIED_SVG_WEB = '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="m21.5609 10.7386-1.36-1.58001c-.26-.3-.47-.86-.47-1.26v-1.7c0-1.06-.87-1.93-1.93-1.93h-1.7c-.39 0-.96-.21-1.26-.47l-1.58-1.36c-.69-.59-1.82-.59-2.52 0l-1.57004 1.37c-.3.25-.87.46-1.26.46h-1.73c-1.06 0-1.93.87-1.93 1.93v1.71c0 .39-.21.95-.46 1.25l-1.35 1.59001c-.58.69-.58 1.81 0 2.5l1.35 1.59c.25.3.46.86.46 1.25v1.71c0 1.06.87 1.93 1.93 1.93h1.73c.39 0 .96.21 1.26.47l1.58004 1.36c.69.59 1.82.59 2.52 0l1.58-1.36c.3-.26.86-.47 1.26-.47h1.7c1.06 0 1.93-.87 1.93-1.93v-1.7c0-.39.21-.96.47-1.26l1.36-1.58c.58-.69.58-1.83-.01-2.52m-5.4-.63-4.83 4.83c-.14.14-.33.22-.53.22s-.39-.08-.53-.22l-2.42004-2.42c-.29-.29-.29-.77 0-1.06s.77-.29 1.06 0l1.89004 1.89 4.3-4.30001c.29-.29.77-.29 1.06 0s.29.77 0 1.06001"/></svg>';
+  function idCardHtml(cust){
+    const ini = escapeHtml((cust.name || "?").trim().charAt(0).toUpperCase());
+    return `<section class="cs-idcard" id="csIdCard" aria-label="Customer ID card">
+      <div class="idc-top">
+        <div class="idc-avatar" aria-hidden="true">${ini}</div>
+        <div class="idc-main">
+          <div class="idc-name-row"><span class="idc-name">${escapeHtml(cust.name || "SuppVerse Customer")}</span><span class="idc-verified">${VERIFIED_SVG_WEB}Verified</span></div>
+          ${cust.email ? `<div class="idc-email">${escapeHtml(cust.email)}</div>` : ""}
+          ${cust.customer_since ? `<div class="idc-since">Customer since ${escapeHtml(formatMonthYear(cust.customer_since))}</div>` : ""}
+        </div>
+      </div>
+      <div class="cid-wrap">
+        <span class="cid-label">Customer ID</span>
+        <div class="cid-row"><span class="cid-value">${escapeHtml(cust.customer_id || "")}</span>
+          <button type="button" class="cid-copy" data-act="copy" data-copy="${escAttr(cust.customer_id || "")}" data-what="Customer ID" aria-label="Copy Customer ID ${escAttr(cust.customer_id || "")}">
+            <span class="cs-idle" style="display:inline-flex">${ICONS.copy}</span><span class="cs-done">${ICONS.check}</span>
+          </button></div>
+      </div>
+    </section>`;
+  }
+
+  function buildCustomerPanelHtml(conv){
+    const cust = getSheetCustomer();
+    const isRegistered = cust.status === "registered";
+    const platformsHtml = platformsHtmlFor(cust);
 
     if(!isRegistered){
       const weakMatchHtml = cust.match_confidence === "weak"
@@ -1821,73 +2389,160 @@
             <p><strong>Possible match only</strong> — these platforms are linked by name alone, not confirmed. Verify with the customer before treating them as the same person.</p>
           </div>`
         : "";
-      bodyHtml = `
+      return `
         ${weakMatchHtml}
         <div class="guest-callout">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4M12 17h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/></svg>
           <p><strong>No SuppVerse account found</strong> for this person yet — order history isn't available. If they've ordered before under a different contact, use "Link to existing customer" to connect them.</p>
         </div>
         <div class="cust-sheet__section-label">Chatting from</div>
-        <div class="platform-list">${platformsHtml}</div>
-      `;
-    }else{
-      const currentOrderHtml = cust.current_order
-        ? `<div class="order-card">
-            <div class="order-card__top">
-              <span class="order-id-badge">${escapeHtml(cust.current_order.id)}</span>
-              <span class="order-status-tag ${cust.current_order.status.toLowerCase()}">${cust.current_order.status}</span>
-            </div>
-            <div class="order-card__items">${escapeHtml(cust.current_order.items)}</div>
-            <div class="order-card__meta">
-              <span>${formatOrderDate(cust.current_order.placed_at)}</span>
-              <span class="order-card__amount">৳${cust.current_order.amount.toLocaleString()}</span>
-            </div>
-          </div>`
-        : `<div class="empty-note">No order currently in progress.</div>`;
-
-      const pastOrdersHtml = cust.past_orders.length
-        ? cust.past_orders.map(o => `
-            <div class="order-card">
-              <div class="order-card__top">
-                <span class="order-id-badge">${escapeHtml(o.id)}</span>
-                <span class="order-status-tag ${o.status.toLowerCase()}">${o.status}</span>
-              </div>
-              <div class="order-card__meta">
-                <span>${formatOrderDate(o.placed_at)}</span>
-                <span class="order-card__amount">৳${o.amount.toLocaleString()}</span>
-              </div>
-            </div>`).join("")
-        : `<div class="empty-note">No previous orders.</div>`;
-
-      bodyHtml = `
-        <div class="cust-sheet__section-label">Contact</div>
-        <div class="contact-list">
-          <div class="contact-row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6 19.8 19.8 0 0 1-3.1-8.7A2 2 0 0 1 4 2h3a2 2 0 0 1 2 1.7c.1.9.3 1.8.6 2.7a2 2 0 0 1-.5 2.1L8 9.6a16 16 0 0 0 6 6l1.1-1.1a2 2 0 0 1 2.1-.5c.9.3 1.8.5 2.7.6a2 2 0 0 1 1.7 2Z"/></svg>${cust.phone || "—"}</div>
-          <div class="contact-row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 6L2 7"/></svg>${cust.email || "—"}</div>
-        </div>
-
-        <div class="cust-sheet__section-label">Chatting from</div>
-        <div class="platform-list">${platformsHtml}</div>
-
-        <div class="cust-sheet__section-label">Current order</div>
-        ${currentOrderHtml}
-
-        <div class="cust-sheet__section-label">Previous orders</div>
-        ${pastOrdersHtml}
-      `;
+        <div class="platform-list">${platformsHtml}</div>`;
     }
 
+    const recs = allOrdersOf(cust);
+    const currentHtml = cust.current_order
+      ? orderCardHtml(cust.current_order, true)
+      : `<div class="empty-note">No order currently in progress.</div>`;
+    const prev = cust.past_orders || [];
+    const PREV_MAX = 3;
+    const prevHtml = prev.length
+      ? prev.slice(0, PREV_MAX).map(orderRowHtml).join("")
+      : `<div class="empty-note">No previous orders.</div>`;
+    const viewAll = recs.length
+      ? `<button type="button" class="cs-linkbtn" data-act="all-orders">${ICONS.list}View all orders (${recs.length})</button>`
+      : "";
+
     return `
-      <div class="cust-sheet__head">
-        <div class="cust-sheet__avatar" style="background:${avatarBg}">${initials(cust.name)}</div>
-        <div>
-          <div class="cust-sheet__name" style="display:flex;align-items:center;gap:5px;">${escapeHtml(cust.name || "Unknown")}${isRegistered ? VERIFIED_BADGE_SVG : ""}</div>
-          ${custIdHtml}
-          ${statusPillHtml}
-        </div>
+      ${idCardHtml(cust)}
+      ${statsHtml(cust)}
+      ${actionsHtml(cust)}
+
+      <div class="cust-sheet__section-label">Contact</div>
+      ${contactRowHtml(ICONS.phone, "Phone", cust.phone, "No phone number on file")}
+      ${contactRowHtml(ICONS.mail, "Email", cust.email, "No email on file")}
+
+      <div class="cust-sheet__section-label">Connected channels</div>
+      <div class="platform-list">${platformsHtml}</div>
+
+      <div class="cust-sheet__section-label">Current order</div>
+      ${currentHtml}
+
+      <div class="cust-sheet__section-label">Previous orders</div>
+      ${prevHtml}
+      ${viewAll}
+
+      <div class="cust-sheet__section-label">Customer tags</div>
+      <div id="csTags">${tagsSectionHtml()}</div>
+
+      <div class="cs-notes__head">
+        <div class="cust-sheet__section-label">Customer notes</div>
+        <span class="cs-private">${ICONS.lock}Private · staff only</span>
       </div>
-      ${bodyHtml}
-    `;
+      <div id="csNotes">${notesSectionHtml()}</div>`;
+  }
+
+  /* ---------- interactions (delegated) ---------- */
+  function commitTag(){
+    const inp = document.getElementById("csTagInput"); if(!inp) return;
+    const v = inp.value.trim().replace(/\s+/g, " ");
+    const loc = localFor();
+    if(!v){ sheet.tagInput = false; refreshTags(); return; }
+    if(loc.tags.some(t => t.toLowerCase() === v.toLowerCase())){ showToast("Tag already added"); inp.select(); return; }
+    if(loc.tags.length >= TAG_MAX){ showToast("Tag limit reached (" + TAG_MAX + ")"); return; }
+    loc.tags.push(v);
+    sheet.tagInput = false;
+    refreshTags();
+    showToast("Tag added");
+  }
+
+  els.custSheet.addEventListener("click", (e) => {
+    const el = e.target.closest("[data-act]");
+    if(!el || !els.custSheet.contains(el)) return;
+    const act = el.dataset.act;
+    switch(act){
+      case "close": closeCustomerPanel(); break;
+      case "back": goView("profile"); break;
+      case "open-order": goView("order", el.dataset.oid); break;
+      case "all-orders": goView("orders"); break;
+      case "no-phone": showToast("No phone number on file"); break;
+      case "expand": {
+        sheet.full = !sheet.full;
+        els.custSheet.classList.toggle("is-full", sheet.full);
+        el.setAttribute("aria-pressed", String(sheet.full));
+        el.innerHTML = (sheet.full ? ICONS.collapse : ICONS.expand) + "<span>" + (sheet.full ? "Collapse" : "Full profile") + "</span>";
+        break;
+      }
+      case "copy": {
+        const val = el.dataset.copy;
+        if(!val){ showToast("Nothing to copy"); break; }
+        copyText(val).then(ok => {
+          if(ok){ flashCopied(el); showToast(el.dataset.what === "Customer ID" ? "Customer ID " + val + " copied" : (el.dataset.what || "Value") + " copied"); }
+          else showToast("Couldn't copy — select and copy manually");
+        });
+        break;
+      }
+      case "tag-add": sheet.tagInput = true; refreshTags(true); break;
+      case "tag-commit": commitTag(); break;
+      case "tag-remove": {
+        const loc = localFor(); const i = Number(el.dataset.i);
+        const [gone] = loc.tags.splice(i, 1);
+        refreshTags();
+        const nxt = els.custSheetScroll.querySelector("#csTags .cs-chip button, #csTags .cs-chip--add");
+        if(nxt) nxt.focus();
+        showToast("Removed “" + gone + "”");
+        break;
+      }
+      case "note-add": sheet.noteForm = true; refreshNotes(true); break;
+      case "note-cancel": sheet.noteForm = false; refreshNotes(); {
+        const b = els.custSheetScroll.querySelector('[data-act="note-add"]'); if(b) b.focus();
+      } break;
+      case "note-save": {
+        const ta = document.getElementById("csNoteInput"); if(!ta) break;
+        const text = ta.value.trim(); if(!text) break;
+        localFor().notes.unshift({ text, at:new Date().toISOString() });
+        sheet.noteForm = false; refreshNotes();
+        const b = els.custSheetScroll.querySelector('[data-act="note-add"]'); if(b) b.focus();
+        showToast("Private note saved");
+        break;
+      }
+    }
+  });
+
+  els.custSheet.addEventListener("input", (e) => {
+    if(e.target.id !== "csNoteInput") return;
+    const n = e.target.value.length;
+    document.getElementById("csNoteCount").textContent = n + "/" + NOTE_LEN;
+    document.getElementById("csNoteSave").disabled = !e.target.value.trim();
+  });
+
+  els.custSheet.addEventListener("keydown", (e) => {
+    if(e.target.id === "csTagInput"){
+      if(e.key === "Enter"){ e.preventDefault(); e.stopPropagation(); commitTag(); return; }
+      if(e.key === "Escape"){
+        e.preventDefault(); e.stopPropagation();
+        sheet.tagInput = false; refreshTags();
+        const b = els.custSheetScroll.querySelector('[data-act="tag-add"]'); if(b) b.focus();
+        return;
+      }
+    }
+    if(e.key === "Tab"){
+      const f = [...els.custSheet.querySelectorAll('a[href],button:not([disabled]),input,textarea,[tabindex]:not([tabindex="-1"])')].filter(x => x.offsetParent !== null);
+      if(!f.length) return;
+      const first = f[0], last = f[f.length - 1];
+      if(e.shiftKey && (document.activeElement === first || document.activeElement === els.custSheet)){ e.preventDefault(); last.focus(); }
+      else if(!e.shiftKey && document.activeElement === last){ e.preventDefault(); first.focus(); }
+    }
+  });
+
+  document.addEventListener("keydown", (e) => {
+    if(e.key !== "Escape" || !els.custSheet.classList.contains("open") || e.defaultPrevented) return;
+    if(sheet.noteForm){ sheet.noteForm = false; refreshNotes(); return; }
+    if(sheet.view !== "profile"){ goView("profile"); return; }
+    closeCustomerPanel();
+  });
+
+  function formatOrderDate(iso){
+    return new Date(iso).toLocaleDateString(undefined, { month:"short", day:"numeric", year:"numeric" });
   }
 
   async function loadMessages(conv){
@@ -2240,7 +2895,7 @@
   function openCustomerPanelByKey(key){
     const cust = MOCK_CUSTOMERS[key];
     if(!cust) return;
-    openCustomerPanel({ customer_key:key, customer_name:cust.name, channel:cust.channels[0] });
+    openCustomerPanel({ customer_key:key, customer_name:cust.name, channel:null });
   }
 
   function openOrdersView(){
@@ -2279,7 +2934,7 @@
     els.ordersListScroll.innerHTML = allOrders.map((o, i) => `
       <div class="order-list-card" data-cust-key="${o.custKey}" role="button" tabindex="0">
         <div class="order-card__top">
-          <span class="order-id-badge">${escapeHtml(o.id)}</span>
+          ${idBadgeHtml(o.id)}
           <span class="order-status-tag ${o.status.toLowerCase()}">${escapeHtml(o.status)}</span>
         </div>
         ${o.items ? `<div class="order-card__items">${escapeHtml(o.items)}</div>` : ""}
