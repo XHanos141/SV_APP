@@ -1028,6 +1028,13 @@ body.dark-mode .wb-label{color:var(--text)}
 .faq-edit-row .faq-chevron.open{transform:rotate(180deg);color:var(--accent)}
 .faq-edit-panel{max-height:0;overflow:hidden;transition:max-height .35s cubic-bezier(.4,0,.2,1),padding .35s}
 .faq-edit-row.open .faq-edit-panel{max-height:400px;padding:0 12px 12px}
+/* FAQ overflow fix: fieldset defaults to min-width:min-content, so nowrap rows pushed buttons outside the card */
+.form-card fieldset{min-width:0;max-width:100%}
+#faqPicker,#faqEditor{min-width:0;max-width:100%}
+.faq-picker-row{box-sizing:border-box;max-width:100%;min-width:0}
+.faq-picker-row-text{min-width:0}
+.carousel-slide .faq-item{width:calc(100% - 44px);margin-inline:auto}
+.faq-item.open .faq-a{max-height:600px}
 
 /* ═══════════════════════════════════════════════════════════════
    9) FOOTER PAYMENT BADGES — EXACT FROM REFERENCE (index.html .pay-badge)
