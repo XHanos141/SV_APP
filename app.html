@@ -17354,7 +17354,7 @@ window.__script6Started = true;
 /* WEB switch handler: defined first so the stock-card onclick never hits "not defined" */
 window.toggleWebFlag = function(sku, ev) {
   if (ev) ev.stopPropagation();
-  if (typeof window.__toggleWebFlagImpl === 'function') return window.__toggleWebFlagImpl(sku);
+  if (typeof window.__toggleWebFlagImpl === 'function') return window.__toggleWebFlagImpl(sku, ev);
   alert('App is still starting, try again in a second.');
 };
 
@@ -24251,25 +24251,44 @@ function svWebSwitchHTML(p) {
   const label = st === 'live' ? 'Live on website' : st === 'draft' ? 'Sent to admin panel (draft)' : 'Not on website';
   return `<button type="button" class="web-sw web-sw-${st}" role="switch" aria-checked="${st !== 'off'}" aria-label="${label}" title="${label}" onclick="toggleWebFlag('${String(p.sku).replace(/'/g, "\\'")}', event)"><span class="web-sw-knob"><svg class="web-sw-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 010 20M12 2a15.3 15.3 0 000 20"/></svg></span></button>`;
 }
-window.__toggleWebFlagImpl = async function(sku) {
+function svSetWebSwitchState(btn, st) {
+  if (!btn) return;
+  btn.classList.remove('web-sw-off', 'web-sw-draft', 'web-sw-live');
+  btn.classList.add('web-sw-' + st);
+  btn.setAttribute('aria-checked', String(st !== 'off'));
+}
+window.__toggleWebFlagImpl = async function(sku, ev) {
   const p = PRODUCTS_DATA.find(x => x.sku === sku);
   if (!p) return;
+  const btn = ev && ev.currentTarget && ev.currentTarget.classList && ev.currentTarget.classList.contains('web-sw') ? ev.currentTarget : null;
+  if (btn && btn.dataset.busy === '1') return;
   const st = svWebState(p);
   if (st === 'live' && !confirm('Turn WEB off? This removes the product from the website.')) return;
+  // Optimistic flip: animate the existing element immediately instead of waiting on the network + full re-render
+  if (btn) { btn.dataset.busy = '1'; svSetWebSwitchState(btn, st === 'off' ? 'draft' : 'off'); }
   try {
     let id = p.id;
     if (!id) {
       const f = await sbFetch(`products?sku=eq.${encodeURIComponent(sku)}&select=id`);
       id = f && f[0] && f[0].id;
-      if (!id) { alert('Product not synced to Supabase yet.'); return; }
+      if (!id) { if (btn) { svSetWebSwitchState(btn, st); btn.dataset.busy = ''; } alert('Product not synced to Supabase yet.'); return; }
       p.id = id;
     }
     const r = await sbFetch(`products?id=eq.${id}`, 'PATCH', { web_enabled: st === 'off', updated_at: new Date().toISOString() });
     const row = r && r[0];
     p.webEnabled = row ? row.web_enabled === true : st === 'off';
     p.isWebPublished = row ? row.is_web_published === true : false;
-    renderProductsTab();
-  } catch (err) { alert('WEB toggle failed: ' + err.message); }
+    if (btn && btn.isConnected) {
+      svSetWebSwitchState(btn, svWebState(p));
+      // re-render only after the slide finishes so the transition is never cut off
+      setTimeout(() => { btn.dataset.busy = ''; renderProductsTab(); }, 650);
+    } else {
+      renderProductsTab();
+    }
+  } catch (err) {
+    if (btn && btn.isConnected) { svSetWebSwitchState(btn, st); btn.dataset.busy = ''; }
+    alert('WEB toggle failed: ' + err.message);
+  }
 };
 
 async function loadProductsFromSupabase() {
