@@ -1091,6 +1091,46 @@ body.dark-mode .pay-badge-bank svg path[style*="fill:#66cde7"]{fill:#fff!importa
 #svAdminGate2 .sv-gate-spin{width:34px;height:34px;border-radius:50%;border:3px solid rgba(255,255,255,0.18);border-top-color:#009ddc;animation:svGate2Spin .8s linear infinite}
 #svAdminGate2 .sv-gate-txt{color:rgba(255,255,255,0.65);font-size:13px;font-weight:600}
 @keyframes svGate2Spin{to{transform:rotate(360deg)}}
+
+/* ═══════════ MOTION LAYER — one set of tokens, applied everywhere ═══════════ */
+:root{--mo-fast:.16s;--mo:.26s;--mo-slow:.4s;--mo-ease:cubic-bezier(.4,0,.2,1);--mo-out:cubic-bezier(.16,1,.3,1);--mo-spring:cubic-bezier(.34,1.56,.64,1)}
+html{scroll-behavior:smooth}
+/* zero-specificity defaults: only fill in where a component has no transition of its own */
+:where(button,[role="button"],a,summary,label,select,.form-card,.carousel-box,.save-bar,.faq-item,.faq-edit-row,.faq-picker-row,.stock-pick-trigger,.prod-picker-item,.section-dd-option,.page-picker-btn,.svc-item-pick,.stat-card,.pinfo-row){transition:background-color var(--mo) var(--mo-ease),border-color var(--mo) var(--mo-ease),color var(--mo) var(--mo-ease),fill var(--mo) var(--mo-ease),stroke var(--mo) var(--mo-ease),box-shadow var(--mo) var(--mo-ease),opacity var(--mo) var(--mo-ease),scale var(--mo-fast) var(--mo-ease),filter var(--mo) var(--mo-ease)}
+:where(input:not([type="checkbox"]):not([type="radio"]),textarea,.rte-box,.name-input-group){transition:background-color var(--mo) var(--mo-ease),border-color var(--mo) var(--mo-ease),color var(--mo) var(--mo-ease),box-shadow var(--mo) var(--mo-ease),opacity var(--mo) var(--mo-ease)}
+:where(svg){transition:transform var(--mo) var(--mo-ease),color var(--mo) var(--mo-ease),fill var(--mo) var(--mo-ease),stroke var(--mo) var(--mo-ease)}
+body{transition:background-color var(--mo-slow) var(--mo-ease),color var(--mo-slow) var(--mo-ease)}
+/* press feedback (uses the independent `scale` property so it never fights existing transforms) */
+:where(button,[role="button"],.faq-picker-row,.stock-pick-trigger,.prod-picker-item,.section-dd-option,.page-picker-btn,.svc-item-pick,.switch):not(:disabled):active{scale:.97}
+:where(.faq-picker-row,.stock-pick-trigger,.prod-picker-item,.svc-item-pick):not(:disabled):active{scale:.985}
+.carousel-nav:active,.carousel-dot:active{scale:.9}
+/* focus ring glides in instead of snapping */
+:where(input:not([type="checkbox"]):not([type="radio"]),textarea,select):focus{box-shadow:0 0 0 3px color-mix(in srgb,var(--accent,var(--cyan)) 16%,transparent)}
+/* switches: colour fade, spring knob, stretch on press */
+.switch{transition:background-color var(--mo) var(--mo-ease),box-shadow var(--mo) var(--mo-ease),opacity var(--mo) var(--mo-ease),scale var(--mo-fast) var(--mo-ease)}
+.switch::after{transition:transform .34s var(--mo-spring),width var(--mo-fast) var(--mo-ease),box-shadow var(--mo) var(--mo-ease)}
+.switch.on{box-shadow:0 0 0 3px color-mix(in srgb,var(--green) 16%,transparent)}
+.switch:active::after{width:24px}
+.switch.on:active::after{transform:translateX(14px)}
+/* slides: taller "Pages" slide eases its height, track gets its own layer */
+.carousel-box{transition:height var(--mo-slow) var(--mo-ease),background-color var(--mo) var(--mo-ease),border-color var(--mo) var(--mo-ease),box-shadow var(--mo) var(--mo-ease)}
+.carousel-track{will-change:transform}
+.carousel-nav,.carousel-dot{transition:background-color var(--mo) var(--mo-ease),width var(--mo) var(--mo-ease),opacity var(--mo) var(--mo-ease),scale var(--mo-fast) var(--mo-ease)}
+/* chevrons rotate smoothly wherever a control opens */
+.section-dd.open .section-dd-trigger svg,.stock-pick-trigger[aria-expanded="true"] .stock-pick-chevron{transform:rotate(180deg)}
+/* colour popovers: were display:none↔block (instant) — now fade + lift */
+.rte-color-pop{display:block!important;opacity:0;visibility:hidden;pointer-events:none;transform:translateY(-6px) scale(.97);transform-origin:top left;transition:opacity var(--mo) var(--mo-ease),transform var(--mo) var(--mo-out),visibility 0s linear var(--mo)}
+.rte-color-pop.open{opacity:1;visibility:visible;pointer-events:auto;transform:none;transition:opacity var(--mo) var(--mo-ease),transform var(--mo) var(--mo-out),visibility 0s}
+/* expand / collapse panels: height + padding + opacity together */
+.faq-a,.faq-edit-panel{transition:max-height var(--mo-slow) var(--mo-ease),padding var(--mo-slow) var(--mo-ease),opacity var(--mo) var(--mo-ease);opacity:0}
+.faq-item.open .faq-a,.faq-edit-row.open .faq-edit-panel{opacity:1}
+/* anything that gets shown (display none → shown) fades + rises in; class added by the observer below */
+@keyframes moEnter{from{opacity:0;transform:translateY(8px) scale(.985)}to{opacity:1;transform:none}}
+.mo-enter{animation:moEnter var(--mo-slow) var(--mo-out) both}
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  *,*::before,*::after{transition-duration:.01ms!important;transition-delay:0s!important;animation-duration:.01ms!important;animation-iteration-count:1!important}
+}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script src="assets/js/supabase-config.js"></script>
@@ -3363,6 +3403,23 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
 </html></textarea>
 <div id="apToast"></div>
 <script>
+/* MOTION: animate any element whose inline display flips from none to visible (tab switches, forms, cancel buttons, cards) */
+(function(){
+  if(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const SKIP = '#svAdminGate2, .no-mo';
+  const mo = new MutationObserver(list => {
+    for(const m of list){
+      const el = m.target;
+      if(!(el instanceof HTMLElement) || el.matches(SKIP)) continue;
+      const was = m.oldValue || '';
+      if(!/display\s*:\s*none/.test(was) || el.style.display === 'none') continue;
+      el.classList.remove('mo-enter'); void el.offsetWidth; el.classList.add('mo-enter');
+      el.addEventListener('animationend', () => el.classList.remove('mo-enter'), {once:true});
+    }
+  });
+  const start = () => mo.observe(document.body, {subtree:true, attributes:true, attributeFilter:['style'], attributeOldValue:true});
+  document.body ? start() : document.addEventListener('DOMContentLoaded', start);
+})();
 function makeCarousel(opts){
   const S = {
     track: document.getElementById(opts.trackId),
