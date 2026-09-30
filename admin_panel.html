@@ -1124,6 +1124,12 @@ body{transition:background-color var(--mo-slow) var(--mo-ease),color var(--mo-sl
 /* expand / collapse panels: height + padding + opacity together */
 .faq-a,.faq-edit-panel{transition:max-height var(--mo-slow) var(--mo-ease),padding var(--mo-slow) var(--mo-ease),opacity var(--mo) var(--mo-ease);opacity:0}
 .faq-item.open .faq-a,.faq-edit-row.open .faq-edit-panel{opacity:1}
+/* EDIT LOCK: locked (disabled) forms read as muted and refuse taps; Edit button nudges when a blocked control is touched */
+fieldset:disabled :is(button,.switch,.qr-toggle-btn,.img-thumb-item,.img-thumb-add,.img-thumb-remove,.gradient-swatch,.faq-add-btn,.faq-ctrl-btn){cursor:not-allowed}
+fieldset:disabled :is(.img-thumb-item,.img-thumb-add,.gradient-swatch,.faq-ctrl-btn,.banner-item-delete,.testi-item-delete){filter:saturate(.55);opacity:.72}
+fieldset:disabled :is(.img-thumb-item,.img-thumb-add,.img-thumb-remove){touch-action:auto}
+@keyframes lockNudge{0%,100%{transform:none}20%{transform:translateX(-4px)}40%{transform:translateX(4px)}60%{transform:translateX(-3px)}80%{transform:translateX(2px)}}
+.edit-lock-btn.lock-nudge{animation:lockNudge .42s var(--mo-ease);box-shadow:0 0 0 4px color-mix(in srgb,var(--accent,var(--cyan)) 22%,transparent)}
 /* anything that gets shown (display none → shown) fades + rises in; class added by the observer below */
 @keyframes moEnter{from{opacity:0;transform:translateY(8px) scale(.985)}to{opacity:1;transform:none}}
 .mo-enter{animation:moEnter var(--mo-slow) var(--mo-out) both}
@@ -3403,6 +3409,36 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
 </html></textarea>
 <div id="apToast"></div>
 <script>
+/* EDIT LOCK GUARD: native inputs/buttons are disabled by <fieldset disabled>, but div/span handlers, chips,
+   thumbnail drag and pickers are not. Block every state-changing interaction inside a locked form. */
+(function(){
+  const MUTATING = /^\s*(toggle(?!FaqPreview|BfmFaqPreview|RteColorPicker|PageRteColorPicker|SectionDd|StoreBadge|SeoSection|Wish)|remove|delete|add|move|rename|set[A-Z]|clear(?!StockPickerSearch)|reset|apply|upload|imgThumb|rte|pageRte|update|save)/;
+  const MUTATING_CLS = '.switch,.qr-toggle-btn,.img-thumb-item,.img-thumb-add,.img-thumb-remove,.banner-item-delete,.testi-item-delete,.gradient-swatch,.faq-ctrl-btn,.faq-add-btn';
+  let lastToast = 0;
+  function blocked(target){
+    if(!(target instanceof Element)) return null;
+    const fs = target.closest('fieldset:disabled');
+    if(!fs) return null;
+    for(let n = target; n && n !== fs; n = n.parentElement){
+      const h = (n.getAttribute('onclick') || '') + ' ' + (n.getAttribute('onpointerdown') || '');
+      if(MUTATING.test(h.trim()) || n.matches(MUTATING_CLS)) return fs;
+    }
+    return null;
+  }
+  function stop(e){
+    const fs = blocked(e.target);
+    if(!fs) return;
+    e.preventDefault(); e.stopImmediatePropagation();
+    const btn = (fs.closest('.form-card') || document).querySelector('.edit-lock-btn');
+    if(btn){ btn.classList.remove('lock-nudge'); void btn.offsetWidth; btn.classList.add('lock-nudge'); setTimeout(() => btn.classList.remove('lock-nudge'), 500); }
+    const now = Date.now();
+    if(now - lastToast > 1400 && typeof T === 'function'){ lastToast = now; T('Tap the edit icon to make changes', '🔒'); }
+  }
+  ['click','pointerdown','dragstart','drop','paste'].forEach(t => document.addEventListener(t, stop, true));
+  document.addEventListener('keydown', e => {
+    if((e.key === 'Enter' || e.key === ' ') && blocked(e.target)) stop(e);
+  }, true);
+})();
 /* MOTION: animate any element whose inline display flips from none to visible (tab switches, forms, cancel buttons, cards) */
 (function(){
   if(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
