@@ -389,6 +389,7 @@ html[data-theme="light"] .hub-header {
 .card-icon-wrap.event      { background: rgba(244,197,90,0.12); }
 .card-icon-wrap.product    { background: rgba(34,197,94,0.12); }
 .card-icon-wrap.newcustomer{ background: rgba(168,85,247,0.12); }
+.card-icon-wrap.freeship   { background: rgba(20,184,166,0.14); }
 .card-info { flex: 1; min-width: 0; }
 .card-code {
   font-family: "Roboto Mono", monospace;
@@ -633,6 +634,41 @@ html[data-theme="dark"] .stat-item-val.offer-value {
   color: #c084fc;
   opacity: 0.7;
 }
+
+.stat-item.type-freeship {
+  background: rgba(20,184,166,0.08);
+  border-color: rgba(20,184,166,0.28);
+  text-indent: 32px;
+  position: relative;
+}
+.stat-item.type-freeship::before {
+  content: '';
+  position: absolute;
+  left: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 18px;
+  height: 18px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none'%3E%3Cpath d='M2 6.5A1.5 1.5 0 0 1 3.5 5H14v11H2z' fill='%2314b8a6'/%3E%3Cpath d='M14 8h4l3 3.5V16h-7z' fill='%230d9488'/%3E%3Ccircle cx='7' cy='17.5' r='2.2' fill='%23fff' stroke='%230f766e' stroke-width='1.6'/%3E%3Ccircle cx='17.5' cy='17.5' r='2.2' fill='%23fff' stroke='%230f766e' stroke-width='1.6'/%3E%3C/svg%3E");
+  background-size: contain;
+  background-repeat: no-repeat;
+  opacity: 0.9;
+}
+.stat-item.type-freeship .stat-item-val { color: #2dd4bf !important; }
+.stat-item.type-freeship .stat-item-lbl { color: #2dd4bf; opacity: 0.7; }
+html[data-theme="light"] .stat-item.type-freeship {
+  background: rgba(20,184,166,0.16);
+  border-color: rgba(20,184,166,0.45);
+}
+html[data-theme="light"] .stat-item.type-freeship .stat-item-val { color: #0f766e !important; }
+html[data-theme="light"] .stat-item.type-freeship .stat-item-lbl { color: #0f766e; opacity: 0.75; }
+html[data-theme="dark"] .stat-item.type-freeship {
+  background: rgba(20,184,166,0.08);
+  border-color: rgba(20,184,166,0.28);
+}
+html[data-theme="dark"] .stat-item.type-freeship .stat-item-val { color: #2dd4bf !important; }
+html[data-theme="dark"] .stat-item.type-freeship .stat-item-lbl { color: #2dd4bf; opacity: 0.7; }
+.mini-voucher .discount-label.is-ship { font-size: 21px; letter-spacing: 0.14em; }
 
 .stat-item.type-regular {
   background: rgba(56,189,248,0.08);
@@ -2142,7 +2178,7 @@ const HUB_THEMES = {
   green: { bg: 'linear-gradient(135deg,#14532d 0%,#0d3320 100%)', w1: '#166534', w2: '#22c55e', w3: '#86efac', pill: 'rgba(74,222,128,0.9)', pillText: '#0d2118', stripe: 'stripe-green' },
   vault: { bg: 'linear-gradient(135deg,#1a2a3a 0%,#243b4d 50%,#1e3345 100%)', w1: '#94a3b8', w2: '#bacee0', w3: '#dce8f4', pill: 'rgba(255,255,255,0.88)', pillText: '#1a2a3a', stripe: 'stripe-vault' }
 };
-const HUB_TYPE_LABEL = { regular: 'Regular', event: 'Event', product: 'Product', newcustomer: 'New Customer' };
+const HUB_TYPE_LABEL = { regular: 'Regular', event: 'Event', product: 'Product', newcustomer: 'New Customer', freeship: 'Free Shipping' };
 const HUB_CHANNELS = {
   facebook: { cls: 'fb', label: 'FB' }, instagram: { cls: 'ig', label: 'IG' },
   website: { cls: 'web', label: 'Web' }, whatsapp: { cls: 'wp', label: 'WP' },
@@ -2177,6 +2213,9 @@ function hubTabOf(v) {
 function hubTypeIcon(type, n) {
   if (type === 'event') {
     return '<svg viewBox="0 0 24 24" width="17" height="17" fill="none"><defs><linearGradient id="star3d-' + n + '" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#f4c55a"/><stop offset="100%" stop-color="#a16207"/></linearGradient></defs><path d="M12 1.5l3 7 7.5 1.5-5.5 5 1.5 7.5-6.5-4-6.5 4 1.5-7.5-5.5-5L9 8.5z" fill="url(#star3d-' + n + ')" stroke="#d4a017" stroke-width="2.5" stroke-linejoin="round"/><circle cx="12" cy="11" r="2.5" fill="#fff" stroke="#d4a017" stroke-width="1.5"/></svg>';
+  }
+  if (type === 'freeship') {
+    return '<svg viewBox="0 0 24 24" width="22" height="22" fill="none"><path d="M2 6.5A1.5 1.5 0 0 1 3.5 5H14v11H2z" fill="#14b8a6"/><path d="M14 8h4l3 3.5V16h-7z" fill="#0d9488"/><circle cx="7" cy="17.5" r="2.2" fill="#fff" stroke="#0f766e" stroke-width="1.6"/><circle cx="17.5" cy="17.5" r="2.2" fill="#fff" stroke="#0f766e" stroke-width="1.6"/></svg>';
   }
   if (type === 'newcustomer') {
     return '<svg viewBox="0 0 24 24" width="20" height="20" fill="none"><defs><linearGradient id="newCustGrad-' + n + '" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#c084fc"/><stop offset="100%" stop-color="#7c3aed"/></linearGradient></defs><circle cx="10" cy="8" r="4" fill="url(#newCustGrad-' + n + ')" stroke="#9333ea" stroke-width="1.5"/><path d="M2 20c0-3.31 3.58-6 8-6" stroke="url(#newCustGrad-' + n + ')" stroke-width="2" stroke-linecap="round"/><circle cx="19" cy="16" r="3" fill="none" stroke="#c084fc" stroke-width="2"/><path d="M19 14.5v3M17.5 16h3" stroke="#c084fc" stroke-width="1.8" stroke-linecap="round"/></svg>';
@@ -2213,7 +2252,7 @@ function hubDaysTile(v) {
 function hubRules(v) {
   const r = [];
   if (Number(v.min_order_amount) > 0) r.push('Min order ' + fmtBDT(v.min_order_amount));
-  if (v.max_discount != null) r.push('Max ' + fmtBDT(v.max_discount));
+  if (v.max_discount != null) r.push((v.type === 'freeship' ? 'Delivery cap ' : 'Max ') + fmtBDT(v.max_discount));
   if (v.type === 'newcustomer') r.push('First order only');
   else if (v.per_customer_once) r.push('Once per customer');
   if (v.type === 'product' && v.product_skus) r.push(v.product_skus.length + (v.product_skus.length === 1 ? ' product' : ' products'));
@@ -2245,10 +2284,11 @@ function hubActions(v) {
 function hubCardHtml(v, idx) {
   const c = esc(v.code);
   const t = HUB_THEMES[v.theme] || HUB_THEMES.blue;
+  const ship = v.type === 'freeship';
   const pct = v.discount_type === 'percent';
   const val = Number(v.discount_value);
-  const offerNum = pct ? val + '%' : fmtBDT(val);
-  const offerText = pct ? val + '% OFF' : fmtBDT(val) + ' OFF';
+  const offerNum = ship ? 'FREE' : pct ? val + '%' : fmtBDT(val);
+  const offerText = ship ? 'FREE DELIVERY' : pct ? val + '% OFF' : fmtBDT(val) + ' OFF';
   const validText = v.no_expiry ? 'No Expiry' : fmtDateLong(v.expiry_date);
   const uses = Number(v.uses) || 0;
   const max = v.max_uses == null ? null : Number(v.max_uses);
@@ -2258,7 +2298,7 @@ function hubCardHtml(v, idx) {
   const days = hubDaysTile(v);
   const tab = hubTabOf(v);
   const cardCls = tab === 0 ? 'active-card' : tab === 1 ? 'inactive-card' : 'archived-card';
-  const offerLbl = pct ? (v.type === 'product' ? 'OFF Selected Products' : 'OFF All Products') : 'Flat Discount';
+  const offerLbl = ship ? 'Delivery Fee' : pct ? (v.type === 'product' ? 'OFF Selected Products' : 'OFF All Products') : 'Flat Discount';
 
   let channels = '';
   if (uses > 0 && v.by_channel && v.by_channel.length) {
@@ -2276,12 +2316,12 @@ function hubCardHtml(v, idx) {
     '<div class="card-top"><div class="card-icon-wrap ' + esc(v.type) + '">' + hubTypeIcon(v.type, idx) + '</div>' +
     '<div class="card-info"><div class="card-code">' + c + '<button class="copy-btn" onclick="copyCode(\'' + c + '\')" title="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><use href="#icon-copy"/></svg></button></div>' +
     '<div class="card-name">' + esc(v.title) + ' · ' + esc(v.subtitle) + '</div></div>' + hubBadge(v) + '</div>' +
-    HUB_MINI_TPL(v, c, t, offerNum, offerText, validText) +
+    HUB_MINI_TPL(v, c, t, offerNum, offerText, validText, ship) +
     '<div class="card-stripe ' + t.stripe + '"></div>' +
     '<div class="card-stats">' +
       '<div class="stat-item type-' + esc(v.type) + '"><div class="stat-item-val">' + (HUB_TYPE_LABEL[v.type] || esc(v.type)) + '</div><div class="stat-item-lbl">Type</div></div>' +
       '<div class="stat-item ' + days.cls + '"><div class="stat-item-val">' + days.val + '</div><div class="stat-item-lbl">' + days.lbl + '</div></div>' +
-      '<div class="stat-item"><div class="stat-item-val offer-value">' + (pct ? val + '%' : fmtBDT(val)) + '</div><div class="stat-item-lbl">' + offerLbl + '</div></div>' +
+      '<div class="stat-item"><div class="stat-item-val offer-value">' + (ship ? 'FREE' : pct ? val + '%' : fmtBDT(val)) + '</div><div class="stat-item-lbl">' + offerLbl + '</div></div>' +
       '<div class="stat-item"><div class="stat-item-val">' + usesTxt + '</div><div class="stat-item-lbl">Uses</div></div>' +
     '</div>' + hubRules(v) +
     '<div class="usage-bar-wrap"><div class="usage-bar-header"><span class="usage-bar-label">Usage Limit</span><span class="center-group"><span class="divider"></span><span class="usage-bar-pct ' + usageCls + '">' + (max == null ? '—' : usagePct + '%') + '</span><span class="divider"></span></span><span class="usage-bar-count">' + usesTxt + '</span></div>' +
@@ -2359,7 +2399,7 @@ async function hubDoStatus(code, status, okMsg, okType) {
   }
 }
 
-function HUB_MINI_TPL(v, c, t, offerNum, offerText, validText) {
+function HUB_MINI_TPL(v, c, t, offerNum, offerText, validText, ship) {
   return `<div class="mini-voucher-wrap" id="mini-wrap-${c}">
           <div class="mini-voucher-scaler">
             <div class="mini-voucher" id="mini-${c}" data-code="${c}">
@@ -2409,7 +2449,7 @@ function HUB_MINI_TPL(v, c, t, offerNum, offerText, validText) {
               <div class="right-panel">
                 <div class="discount-box">
                   <div class="discount-amount">${offerNum}</div>
-                  <div class="discount-label">OFF</div>
+                  <div class="discount-label${ship ? ' is-ship' : ''}">${ship ? 'SHIPPING' : 'OFF'}</div>
                 </div>
                 <div class="barcode-code-area">
                   <canvas class="bar-canvas" id="bar-${c}"></canvas>
