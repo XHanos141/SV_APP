@@ -14073,6 +14073,9 @@ html[data-theme="dark"] .type-chip.selected-newcustomer{color:#c084fc}
 .type-card.selected[data-type="event"]{border-color:#f4c55a;background:rgba(244,197,90,0.1);box-shadow:0 0 0 3px rgba(244,197,90,0.15)}
 .type-card.selected[data-type="product"]{border-color:#22c55e;background:rgba(34,197,94,0.1);box-shadow:0 0 0 3px rgba(34,197,94,0.15)}
 .type-card.selected[data-type="newcustomer"]{border-color:#a855f7;background:rgba(168,85,247,0.1);box-shadow:0 0 0 3px rgba(168,85,247,0.15)}
+.type-card.selected[data-type="freeship"]{border-color:#14b8a6;background:rgba(20,184,166,0.1);box-shadow:0 0 0 3px rgba(20,184,166,0.15)}
+.type-icon-wrap.freeship{background:rgba(20,184,166,0.12)}
+.badge-freeship{background:rgba(20,184,166,0.12);color:#0d9488}
 .type-icon-wrap{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:20px}
 .type-icon-wrap.regular{background:rgba(56,189,248,0.1)}
 .type-icon-wrap.event{background:rgba(244,197,90,0.12)}
@@ -14257,6 +14260,9 @@ html[data-theme="light"] .type-card.selected{border-color:#38bdf8;background:rgb
 html[data-theme="light"] .type-card.selected[data-type="event"]{border-color:#f4c55a;background:rgba(244,197,90,0.1);box-shadow:0 0 0 3px rgba(244,197,90,0.15)}
 html[data-theme="light"] .type-card.selected[data-type="product"]{border-color:#22c55e;background:rgba(34,197,94,0.08);box-shadow:0 0 0 3px rgba(34,197,94,0.15)}
 html[data-theme="light"] .type-card.selected[data-type="newcustomer"]{border-color:#a855f7;background:rgba(168,85,247,0.08);box-shadow:0 0 0 3px rgba(168,85,247,0.15)}
+html[data-theme="light"] .type-card.selected[data-type="freeship"]{border-color:#14b8a6;background:rgba(20,184,166,0.08);box-shadow:0 0 0 3px rgba(20,184,166,0.15)}
+html[data-theme="light"] .type-icon-wrap.freeship{background:rgba(20,184,166,0.1)}
+html[data-theme="light"] .badge-freeship{background:rgba(20,184,166,0.12);color:#0d9488}
 html[data-theme="light"] .type-name{color:#1a2a3a}
 html[data-theme="light"] .type-desc{color:#64748b}
 html[data-theme="light"] .fs-label{color:#475569}
@@ -14570,6 +14576,7 @@ html[data-theme="light"] .vc-float-close{background:rgba(240,244,248,0.95);borde
         <div class="type-card" id="card-event" onclick="selectType('event',this,'card')"><div class="type-icon-wrap event"><svg width="24" height="24" viewBox="0 0 24 24"><defs><linearGradient id="star3d" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#f4c55a"/><stop offset="100%" stop-color="#a16207"/></linearGradient></defs><path d="M12 1.5l3 7 7.5 1.5-5.5 5 1.5 7.5-6.5-4-6.5 4 1.5-7.5-5.5-5L9 8.5z" fill="url(#star3d)" stroke="#d4a017" stroke-width="2.5" stroke-linejoin="round"/><circle cx="12" cy="11" r="2.5" fill="#fff" stroke="#d4a017" stroke-width="1.5"/></svg></div><div class="type-text"><div class="type-name">Event</div><div class="type-desc">Seasonal — Eid, Ramadan, flash sales &amp; limited time.</div></div></div>
         <div class="type-card" id="card-product" onclick="selectType('product',this,'card')"><div class="type-icon-wrap product"><svg width="24" height="24" viewBox="0 0 24 24"><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" fill="#22c55e" stroke="#16a34a" stroke-width="2.5" stroke-linejoin="round" opacity="0.9"/><path d="M3.3 7L12 12l8.7-5" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" opacity="0.8"/><path d="M12 22V12" stroke="#fff" stroke-width="2" stroke-linecap="round" opacity="0.6"/></svg></div><div class="type-text"><div class="type-name">Specific Product</div><div class="type-desc">Only valid for selected product(s). Strict validation on apply.</div></div></div>
         <div class="type-card" id="card-newcustomer" onclick="selectType('newcustomer',this,'card')"><div class="type-icon-wrap newcustomer"><svg width="24" height="24" viewBox="0 0 24 24"><defs><linearGradient id="newCustGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#c084fc"/><stop offset="100%" stop-color="#7c3aed"/></linearGradient></defs><circle cx="10" cy="8" r="4" fill="url(#newCustGrad)" stroke="#9333ea" stroke-width="1.5"/><path d="M2 20c0-3.31 3.58-6 8-6" stroke="url(#newCustGrad)" stroke-width="2" stroke-linecap="round"/><circle cx="19" cy="16" r="3" fill="none" stroke="#c084fc" stroke-width="2"/><path d="M19 14.5v3M17.5 16h3" stroke="#c084fc" stroke-width="1.8" stroke-linecap="round"/></svg></div><div class="type-text"><div class="type-name">New Customer</div><div class="type-desc">First-time buyer offer. Single use, non-stackable. Auto-expires after first order.</div></div></div>
+        <div class="type-card" id="card-freeship" onclick="selectType('freeship',this,'card')"><div class="type-icon-wrap freeship"><svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M2 6.5A1.5 1.5 0 0 1 3.5 5H14v11H2z" fill="#14b8a6" opacity="0.9"/><path d="M14 8h4l3 3.5V16h-7z" fill="#0d9488"/><circle cx="7" cy="17.5" r="2.2" fill="#fff" stroke="#0f766e" stroke-width="1.6"/><circle cx="17.5" cy="17.5" r="2.2" fill="#fff" stroke="#0f766e" stroke-width="1.6"/></svg></div><div class="type-text"><div class="type-name">Free Shipping</div><div class="type-desc">Waives the delivery fee on the order. Optional cap on how much shipping is covered.</div></div></div>
       </div>
     </div>
 
@@ -14577,14 +14584,15 @@ html[data-theme="light"] .vc-float-close{background:rgba(240,244,248,0.95);borde
       <div class="step-heading">Discount &amp; Limits</div>
       <div class="step-subheading">Set how much discount and usage rules.</div>
       <div class="discount-lock-group" id="discount-lock-group">
-        <div class="fs-field">
+        <p class="field-hint" id="freeship-hint" style="display:none;margin-bottom:12px">Waives the customer's delivery fee on the order. Set a cap to cover only part of the fee; leave it empty to waive the full fee.</p>
+        <div class="fs-field" id="f-disctype">
           <label class="fs-label">Discount Type</label>
           <div class="pill-row">
             <div class="pill-opt" id="pill-flat" onclick="selectDiscType('flat',this)"><span class="pill-icon">৳</span><span class="pill-label">Flat Amount</span></div>
             <div class="pill-opt" id="pill-pct" onclick="selectDiscType('percent',this)"><span class="pill-icon">%</span><span class="pill-label">Percentage</span></div>
           </div>
         </div>
-        <div class="fs-field">
+        <div class="fs-field" id="f-discamount">
           <label class="fs-label" id="amount-label">Discount Amount</label>
           <div class="input-prefix-wrap">
             <span class="input-prefix" id="amount-prefix">৳</span>
@@ -14593,7 +14601,7 @@ html[data-theme="light"] .vc-float-close{background:rgba(240,244,248,0.95);borde
         </div>
         <div class="cond-section" id="cond-maxdisc">
           <div class="fs-field">
-            <label class="fs-label">Max Discount (৳) <span style="opacity:.55;font-weight:500">optional</span></label>
+            <label class="fs-label" id="maxdisc-label">Max Discount (৳) <span style="opacity:.55;font-weight:500">optional</span></label>
             <div class="input-prefix-wrap">
               <span class="input-prefix">৳</span>
               <input type="number" class="fs-input" id="max-discount" placeholder="e.g. 300 - caps the % discount" min="1" oninput="render()">
@@ -14894,7 +14902,7 @@ const themes = {
   vault: { name: 'Vault', leftBg: 'linear-gradient(135deg,#1a2a3a 0%,#243b4d 50%,#1e3345 100%)', wave1: '#94a3b8', wave2: '#bacee0', wave3: '#dce8f4', pill: 'rgba(255,255,255,0.88)', pillText: '#1a2a3a' }
 };
 
-const typeMap = { regular: 'SUP-REG', event: 'SUP-EVT', product: 'SUP-PRD', newcustomer: 'SUP-NEW' };
+const typeMap = { regular: 'SUP-REG', event: 'SUP-EVT', product: 'SUP-PRD', newcustomer: 'SUP-NEW', freeship: 'SUP-SHP' };
 
 function toggleDark() {
   const html = document.documentElement;
@@ -14944,7 +14952,7 @@ function validateStep() {
     case 3: {
       const amtEl = document.getElementById('disc-amount');
       const amt   = parseFloat(amtEl.value);
-      if (!amt || amt <= 0) {
+      if (S.type !== 'freeship' && (!amt || amt <= 0)) {
         amtEl.classList.add('invalid');
         setTimeout(() => amtEl.classList.remove('invalid'), 700);
         showToast('Enter a valid discount amount.', null, true);
@@ -14973,7 +14981,7 @@ function validateStep() {
         return false;
       }
       const maxDEl = document.getElementById('max-discount');
-      if (S.discType === 'percent' && maxDEl.value !== '' && !(parseFloat(maxDEl.value) > 0)) {
+      if ((S.discType === 'percent' || S.discType === 'shipping') && maxDEl.value !== '' && !(parseFloat(maxDEl.value) > 0)) {
         maxDEl.classList.add('invalid');
         setTimeout(() => maxDEl.classList.remove('invalid'), 700);
         showToast('Max discount must be more than 0.', null, true);
@@ -15062,7 +15070,8 @@ function selectType(type, el, source) {
     B128.drawPlaceholder('bar-canvas', 101);
   }
   S.type = type;
-  ['regular', 'event', 'product', 'newcustomer'].forEach(t => {
+  applyTypeUI(type);
+  ['regular', 'event', 'product', 'newcustomer', 'freeship'].forEach(t => {
     const chip = document.getElementById('chip-' + t);
     const card = document.getElementById('card-' + t);
     if (chip) { chip.className = 'type-chip'; chip.removeAttribute('data-type'); }
@@ -15080,6 +15089,26 @@ function selectType(type, el, source) {
     if (chip) { chip.classList.add('selected-' + type); chip.setAttribute('data-type', type); }
   }
   render();
+}
+
+function applyTypeUI(type) {
+  const fs = type === 'freeship';
+  const lbl = document.getElementById('maxdisc-label');
+  const inp = document.getElementById('max-discount');
+  document.getElementById('f-disctype').style.display = fs ? 'none' : '';
+  document.getElementById('f-discamount').style.display = fs ? 'none' : '';
+  document.getElementById('freeship-hint').style.display = fs ? '' : 'none';
+  if (fs) {
+    S.discType = 'shipping';
+    document.getElementById('disc-amount').value = '';
+    document.getElementById('cond-maxdisc').classList.add('show');
+    lbl.innerHTML = 'Max Delivery Discount (৳) <span style="opacity:.55;font-weight:500">optional</span>';
+    inp.placeholder = 'e.g. 100 - empty waives the full fee';
+  } else {
+    lbl.innerHTML = 'Max Discount (৳) <span style="opacity:.55;font-weight:500">optional</span>';
+    inp.placeholder = 'e.g. 300 - caps the % discount';
+    if (S.discType === 'shipping') selectDiscType('flat', document.getElementById('pill-flat'));
+  }
 }
 
 function selectDiscType(type, el) {
@@ -15351,8 +15380,8 @@ function collectVoucherFields() {
     subtitle: document.getElementById('v-subtitle').value.trim(),
     description: document.getElementById('v-desc').value.trim() || null,
     discount_type: S.discType,
-    discount_value: parseFloat(document.getElementById('disc-amount').value) || 0,
-    max_discount: S.discType === 'percent' ? num('max-discount') : null,
+    discount_value: S.type === 'freeship' ? 100 : (parseFloat(document.getElementById('disc-amount').value) || 0),
+    max_discount: (S.discType === 'percent' || S.discType === 'shipping') ? num('max-discount') : null,
     min_order_amount: num('min-order') || 0,
     usage_mode: S.usage,
     per_customer_once: S.perCustomer === 'yes',
@@ -15463,8 +15492,10 @@ function prefillVoucherFields(data) {
   document.getElementById('v-expiry').value   = data.expiry_date || '';
   if (data.no_expiry || !data.expiry_date) selectExpiryMode('none', document.getElementById('pill-exp-none'));
 
-  selectDiscType(data.discount_type, document.getElementById(data.discount_type === 'flat' ? 'pill-flat' : 'pill-pct'));
-  document.getElementById('disc-amount').value = data.discount_amount || '';
+  if (data.type !== 'freeship') {
+    selectDiscType(data.discount_type, document.getElementById(data.discount_type === 'flat' ? 'pill-flat' : 'pill-pct'));
+    document.getElementById('disc-amount').value = data.discount_amount || '';
+  }
   document.getElementById('min-order').value = data.min_order_amount > 0 ? data.min_order_amount : '';
   document.getElementById('max-discount').value = data.max_discount > 0 ? data.max_discount : '';
   document.getElementById('v-start').value = data.start_date || '';
@@ -15650,7 +15681,12 @@ function updatePreview() {
     startCd.classList.remove('show');
   }
 
-  if (amt) {
+  document.getElementById('vp-off').style.transform = S.type === 'freeship' ? 'scale(0.8)' : '';
+  if (S.type === 'freeship') {
+    document.getElementById('vp-amount').textContent = 'FREE';
+    document.getElementById('vp-off').textContent    = 'SHIPPING';
+    document.getElementById('vp-pill').textContent   = 'FREE DELIVERY';
+  } else if (amt) {
     const val = S.discType === 'flat' ? '৳' + amt : amt + '%';
     document.getElementById('vp-amount').textContent = S.discType === 'flat' ? '৳' + amt : amt + '%';
     document.getElementById('vp-off').textContent    = 'OFF';
@@ -15740,11 +15776,11 @@ function updateSummary() {
   const t = themes[S.theme];
   document.getElementById('s-theme').textContent = t ? t.name : '—';
   document.getElementById('s-type').textContent  = S.type
-    ? (S.type === 'newcustomer' ? 'New Customer' : S.type.charAt(0).toUpperCase() + S.type.slice(1))
+    ? (S.type === 'freeship' ? 'Free Shipping' : S.type === 'newcustomer' ? 'New Customer' : S.type.charAt(0).toUpperCase() + S.type.slice(1))
     : '—';
 
   const amt = document.getElementById('disc-amount').value;
-  document.getElementById('s-discount').textContent = amt
+  document.getElementById('s-discount').textContent = S.type === 'freeship' ? 'Free delivery' : amt
     ? (S.discType === 'flat' ? '৳' : '%') + amt
     : '—';
 
@@ -15775,7 +15811,7 @@ function updateSummary() {
   document.getElementById('s-minorder-row').style.display = minV > 0 ? 'flex' : 'none';
   if (minV > 0) document.getElementById('s-minorder').textContent = '৳' + minV;
   const maxV = parseFloat(document.getElementById('max-discount').value);
-  document.getElementById('s-maxdisc-row').style.display = (S.discType === 'percent' && maxV > 0) ? 'flex' : 'none';
+  document.getElementById('s-maxdisc-row').style.display = ((S.discType === 'percent' || S.discType === 'shipping') && maxV > 0) ? 'flex' : 'none';
   if (maxV > 0) document.getElementById('s-maxdisc').textContent = '৳' + maxV;
   const startV = document.getElementById('v-start').value;
   document.getElementById('s-start-row').style.display = startV ? 'flex' : 'none';
