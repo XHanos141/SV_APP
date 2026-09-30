@@ -5608,7 +5608,6 @@ html[data-theme="dark"] .pinfo-total-label { color: #F0F4FA; }
   transition: transform 0.25s ease, box-shadow 0.25s ease, background 0.4s ease, border-color 0.35s ease;
 }
 html[data-theme="dark"] .prod-card { background: #1b2738; border-color: rgba(255,255,255,0.08); }
-.prod-card:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.1); }
 .prod-card.sv-sort-out, .tx-card-expand.sv-sort-out {
   animation: svSortOut 0.22s cubic-bezier(.4,0,.2,1) forwards;
 }
@@ -5623,7 +5622,6 @@ html[data-theme="dark"] .prod-card { background: #1b2738; border-color: rgba(255
   from { opacity: 0; transform: scale(0.92) translateY(18px); }
   to { opacity: 1; transform: scale(1) translateY(0); }
 }
-html[data-theme="dark"] .prod-card:hover { box-shadow: 0 8px 28px rgba(124,111,247,0.15), 0 0 0 1px rgba(124,111,247,0.1); }
 
 /* Sort animation */
 .prod-card.sort-out { animation: sortOut 0.22s cubic-bezier(0.4,0,0.2,1) forwards; }
@@ -5722,21 +5720,13 @@ html[data-theme="dark"] .prod-card-sku { color: #22d3ee; text-shadow: 0 0 6px rg
 
 .web-sw-draft { --sw-tint: 14,165,233; border-color: rgba(186,230,253,0.9); }
 .web-sw-draft .web-sw-ico { color: #0284c7; }
-.web-sw-live {
-  --sw-tint: 22,163,74; border-color: rgba(187,247,208,0.95);
-  box-shadow:
-    inset 0 2px 5px rgba(var(--sw-tint),0.42),
-    inset 0 -1px 1px rgba(255,255,255,0.75),
-    inset 0 0 0 1px rgba(var(--sw-tint),0.16),
-    0 0 12px rgba(34,197,94,0.55);
-  animation: webGlow 2.6s ease-in-out infinite;
-}
-.web-sw-live .web-sw-ico { color: #15803d; }
+.web-sw-live { --sw-tint: 22,163,74; border-color: rgba(187,247,208,0.95); }
+.web-sw-live .web-sw-ico { color: #16a34a; filter: drop-shadow(0 0 3px rgba(34,197,94,0.95)) drop-shadow(0 0 7px rgba(34,197,94,0.6)); animation: webIcoGlow 2.4s ease-in-out infinite; }
 .web-sw-draft .web-sw-knob, .web-sw-live .web-sw-knob { transform: translateX(22px); }
 .web-sw-draft:active .web-sw-knob, .web-sw-live:active .web-sw-knob { transform: translateX(16px); }
-@keyframes webGlow {
-  0%, 100% { box-shadow: inset 0 2px 5px rgba(22,163,74,0.42), inset 0 -1px 1px rgba(255,255,255,0.75), inset 0 0 0 1px rgba(22,163,74,0.16), 0 0 8px rgba(34,197,94,0.4); }
-  50%      { box-shadow: inset 0 2px 5px rgba(22,163,74,0.42), inset 0 -1px 1px rgba(255,255,255,0.75), inset 0 0 0 1px rgba(22,163,74,0.16), 0 0 15px rgba(34,197,94,0.75); }
+@keyframes webIcoGlow {
+  0%, 100% { filter: drop-shadow(0 0 2px rgba(34,197,94,0.75)) drop-shadow(0 0 4px rgba(34,197,94,0.35)); }
+  50%      { filter: drop-shadow(0 0 4px rgba(34,197,94,1)) drop-shadow(0 0 9px rgba(34,197,94,0.75)); }
 }
 
 /* dark theme glass */
@@ -5755,7 +5745,7 @@ html[data-theme="dark"] .web-sw-knob {
   background: radial-gradient(circle at 32% 24%, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.65) 36%, rgba(255,255,255,0.3) 72%, rgba(255,255,255,0.42) 100%);
   border-color: rgba(255,255,255,0.6);
 }
-@media (prefers-reduced-motion: reduce) { .web-sw-live { animation: none; } .web-sw, .web-sw-knob { transition: none; } }
+@media (prefers-reduced-motion: reduce) { .web-sw-live .web-sw-ico { animation: none; } .web-sw, .web-sw-knob { transition: none; } }
 
 /* Glass Stock Badge */
 .stock-badge {
