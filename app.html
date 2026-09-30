@@ -5681,7 +5681,7 @@ html[data-theme="dark"] .prod-card-sku { color: #22d3ee; text-shadow: 0 0 6px rg
 .prod-side { display: flex; flex-direction: column; align-items: center; gap: 7px; flex-shrink: 0; margin-top: -6px; }
 .web-sw {
   --sw-ring: 160,168,186; --sw-fill: 214,219,229;
-  position: relative; width: 48px; height: 26px; border-radius: 999px; padding: 0; flex-shrink: 0;
+  position: relative; width: 42px; height: 23px; border-radius: 999px; padding: 0; flex-shrink: 0;
   border: 0;
   background: linear-gradient(180deg, rgba(var(--sw-fill),1), rgba(var(--sw-fill),0.72));
   box-shadow:
@@ -5689,18 +5689,18 @@ html[data-theme="dark"] .prod-card-sku { color: #22d3ee; text-shadow: 0 0 6px rg
     inset 0 -1px 2px rgba(255,255,255,0.9),
     0 1px 0 rgba(255,255,255,0.9);
   cursor: pointer; -webkit-tap-highlight-color: transparent;
-  transition: background 0.35s ease, box-shadow 0.35s ease;
+  transition: background 0.5s cubic-bezier(0.4,0,0.2,1), box-shadow 0.5s cubic-bezier(0.4,0,0.2,1);
 }
 /* tick marks inside groove */
 .web-sw::before {
-  content: ''; position: absolute; right: 9px; top: 50%; width: 10px; height: 6px; margin-top: -3px;
+  content: ''; position: absolute; right: 8px; top: 50%; width: 10px; height: 6px; margin-top: -3px;
   background: radial-gradient(circle, rgba(var(--sw-ring),0.7) 1.2px, transparent 1.6px) 0 0 / 5px 6px repeat-x;
-  transition: opacity 0.3s ease; pointer-events: none;
+  transition: opacity 0.4s ease; pointer-events: none;
 }
 .web-sw::after { content: ''; position: absolute; inset: -8px -6px; }
 .web-sw:focus-visible { outline: 2px solid #7c6ff7; outline-offset: 3px; }
 .web-sw-knob {
-  position: absolute; top: 2px; left: 2px; width: 22px; height: 22px; border-radius: 50%;
+  position: absolute; top: 2px; left: 2px; width: 19px; height: 19px; border-radius: 50%;
   display: flex; align-items: center; justify-content: center;
   background: linear-gradient(145deg, #ffffff 0%, #eef0f5 55%, #d9dde6 100%);
   box-shadow:
@@ -5708,17 +5708,18 @@ html[data-theme="dark"] .prod-card-sku { color: #22d3ee; text-shadow: 0 0 6px rg
     0 0 0 2px rgba(var(--sw-ring),0.55),
     inset 0 1px 1px #fff,
     inset 0 -2px 3px rgba(60,70,100,0.14);
-  transition: transform 0.38s cubic-bezier(0.5,1.5,0.5,1), box-shadow 0.3s ease;
+  transition: transform 0.5s cubic-bezier(0.34,1.25,0.4,1), box-shadow 0.4s ease;
 }
 .web-sw:active .web-sw-knob { box-shadow: 0 1px 3px rgba(30,40,70,0.3), 0 0 0 2px rgba(var(--sw-ring),0.55), inset 0 2px 3px rgba(60,70,100,0.2); }
-.web-sw-ico { width: 13px; height: 13px; color: #8a92a6; transition: color 0.3s ease, filter 0.3s ease; }
+.web-sw-ico { width: 11px; height: 11px; color: #8a92a6; transform: rotate(0deg) scale(1); transition: color 0.4s ease, filter 0.5s ease, transform 0.6s cubic-bezier(0.34,1.25,0.4,1); }
+.web-sw-draft .web-sw-ico, .web-sw-live .web-sw-ico { transform: rotate(360deg) scale(1.08); }
 
 .web-sw-draft { --sw-ring: 14,165,233; --sw-fill: 186,224,247; }
 .web-sw-draft .web-sw-ico { color: #0284c7; }
 .web-sw-live { --sw-ring: 34,197,94; --sw-fill: 178,232,199; }
 .web-sw-live .web-sw-ico { color: #16a34a; filter: drop-shadow(0 0 3px rgba(34,197,94,0.95)) drop-shadow(0 0 7px rgba(34,197,94,0.6)); animation: webIcoGlow 2.4s ease-in-out infinite; }
-.web-sw-draft .web-sw-knob, .web-sw-live .web-sw-knob { transform: translateX(22px); }
-.web-sw-draft::before, .web-sw-live::before { right: auto; left: 9px; }
+.web-sw-draft .web-sw-knob, .web-sw-live .web-sw-knob { transform: translateX(19px); }
+.web-sw-draft::before, .web-sw-live::before { right: auto; left: 8px; }
 @keyframes webIcoGlow {
   0%, 100% { filter: drop-shadow(0 0 2px rgba(34,197,94,0.75)) drop-shadow(0 0 4px rgba(34,197,94,0.35)); }
   50%      { filter: drop-shadow(0 0 4px rgba(34,197,94,1)) drop-shadow(0 0 9px rgba(34,197,94,0.75)); }
