@@ -3363,30 +3363,44 @@ function makeCarousel(opts){
     S.label.textContent = S.labels[S.current];
     if(opts.onSlide) opts.onSlide(S.current);
   }
+  let lastNav = 0;
+  function guardNav(fn){ const t = Date.now(); if(t - lastNav < 350) return; lastNav = t; fn(); }
   function nextSlide(){ goToSlide(S.current + 1); }
   function prevSlide(){ goToSlide(S.current - 1); }
-  document.getElementById(opts.prevId).addEventListener('click', () => prevSlide());
-  document.getElementById(opts.nextId).addEventListener('click', () => nextSlide());
+  document.getElementById(opts.prevId).addEventListener('click', () => guardNav(prevSlide));
+  document.getElementById(opts.nextId).addEventListener('click', () => guardNav(nextSlide));
   S.dots.forEach(d => d.addEventListener('click', () => goToSlide(parseInt(d.dataset.slide))));
   const box = document.getElementById(opts.boxId);
+  const NO_SWIPE = '.carousel-nav, .carousel-dot, input, textarea, select, [contenteditable="true"]';
+  let startY = 0, axis = null;
   box.addEventListener('touchstart', e => {
-    S.isDragging = true; S.startX = e.touches[0].clientX;
-    S.track.style.transition = 'none';
+    if(e.touches.length !== 1 || e.target.closest(NO_SWIPE)){ S.isDragging = false; return; }
+    S.isDragging = true; axis = null;
+    S.startX = S.currentX = e.touches[0].clientX; startY = e.touches[0].clientY;
   }, {passive:true});
   box.addEventListener('touchmove', e => {
     if(!S.isDragging) return;
-    S.currentX = e.touches[0].clientX;
-    const diff = S.currentX - S.startX;
+    const t = e.touches[0], dx = t.clientX - S.startX, dy = t.clientY - startY;
+    if(!axis){
+      if(Math.abs(dx) < 8 && Math.abs(dy) < 8) return;
+      axis = Math.abs(dx) > Math.abs(dy) * 1.2 ? 'x' : 'y';
+      if(axis === 'x') S.track.style.transition = 'none';
+    }
+    if(axis !== 'x') return;
+    S.currentX = t.clientX;
     const base = -(S.current * S.step);
-    const offset = (diff / box.offsetWidth) * S.step;
-    S.track.style.transform = 'translateX(' + (base + offset) + '%)';
+    S.track.style.transform = 'translateX(' + (base + (dx / box.offsetWidth) * S.step) + '%)';
   }, {passive:true});
-  box.addEventListener('touchend', () => {
+  const endDrag = commit => {
     if(!S.isDragging) return;
     S.isDragging = false; S.track.style.transition = '';
-    const diff = S.currentX - S.startX;
-    if(diff < -50) nextSlide(); else if(diff > 50) prevSlide(); else goToSlide(S.current);
-  });
+    const diff = S.currentX - S.startX, min = Math.max(60, box.offsetWidth * 0.18);
+    if(commit && axis === 'x' && Math.abs(diff) > min) (diff < 0 ? nextSlide : prevSlide)();
+    else if(axis === 'x') goToSlide(S.current);
+    axis = null;
+  };
+  box.addEventListener('touchend', () => endDrag(true));
+  box.addEventListener('touchcancel', () => endDrag(false));
   return {goToSlide, nextSlide, prevSlide};
 }
 const landingCarousel = makeCarousel({
