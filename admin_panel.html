@@ -1078,15 +1078,21 @@ body.dark-mode .pay-badge-bank svg path[style*="fill:#66cde7"]{fill:#fff!importa
   0%{transform:scale(1)}25%{transform:scale(1.35)}50%{transform:scale(0.85)}75%{transform:scale(1.12)}100%{transform:scale(1)}
 }
 #apToast{
-  position:fixed;bottom:20px;left:50%;
-  transform:translateX(-50%) translateY(10px);
-  background:rgba(10,18,36,.92);color:#fff;
-  backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.1);
-  padding:10px 18px;border-radius:12px;font-size:13px;font-weight:600;
-  opacity:0;pointer-events:none;transition:opacity .22s,transform .22s;z-index:999;
-  display:flex;align-items:center;gap:8px;box-shadow:0 4px 24px rgba(0,0,0,.4);
+  position:fixed;top:calc(env(safe-area-inset-top,0px) + 12px);left:0;right:0;margin-inline:auto;
+  width:max-content;max-width:min(92vw,420px);box-sizing:border-box;
+  display:flex;align-items:center;justify-content:center;gap:10px;
+  padding:11px 16px;border-radius:14px;
+  background:rgba(10,18,36,.94);color:#fff;border:1px solid rgba(255,255,255,.1);
+  backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  font-size:13px;font-weight:600;line-height:1.35;text-align:center;overflow-wrap:anywhere;
+  box-shadow:0 8px 28px rgba(0,0,0,.38);
+  opacity:0;visibility:hidden;pointer-events:none;transform:translateY(-14px) scale(.97);
+  transition:opacity .24s var(--mo-ease,ease),transform .32s var(--mo-spring,ease),visibility 0s linear .32s;
+  z-index:100000;
 }
-#apToast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+#apToast .ap-ico{flex:0 0 20px;width:20px;height:20px;display:flex;align-items:center;justify-content:center;font-size:15px;line-height:1}
+#apToast .ap-msg{min-width:0}
+#apToast.show{opacity:1;visibility:visible;transform:none;transition:opacity .24s var(--mo-ease,ease),transform .32s var(--mo-spring,ease),visibility 0s}
 #svAdminGate2{position:fixed;inset:0;z-index:999999;background:#0a1628;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:14px;transition:opacity .25s ease;font-family:'DM Sans',sans-serif}
 #svAdminGate2 .sv-gate-spin{width:34px;height:34px;border-radius:50%;border:3px solid rgba(255,255,255,0.18);border-top-color:#009ddc;animation:svGate2Spin .8s linear infinite}
 #svAdminGate2 .sv-gate-txt{color:rgba(255,255,255,0.65);font-size:13px;font-weight:600}
@@ -4605,11 +4611,20 @@ window.addEventListener('message', function(e){
   applyTheme();
   if(typeof pagesSelectedKey !== 'undefined' && typeof renderPagePreview === 'function') renderPagePreview(pagesSelectedKey);
 });
+let _toastTimer = 0;
 function T(msg, icon){
   const t = document.getElementById('apToast');
-  t.innerHTML = (icon ? '<span style="font-size:15px">' + icon + '</span>' : '') + '<span>' + msg + '</span>';
-  t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 2200);
+  if(!t) return;
+  if(!t.hasAttribute('role')){ t.setAttribute('role','status'); t.setAttribute('aria-live','polite'); }
+  const hdr = document.querySelector('.admin-header');
+  const safe = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--sat')) || 0;
+  t.style.top = ((hdr ? Math.max(hdr.getBoundingClientRect().bottom, 0) : safe) + 10) + 'px';
+  t.replaceChildren();
+  if(icon){ const i = document.createElement('span'); i.className = 'ap-ico'; i.textContent = icon; t.appendChild(i); }
+  const m = document.createElement('span'); m.className = 'ap-msg'; m.textContent = msg; t.appendChild(m);
+  clearTimeout(_toastTimer);
+  t.classList.remove('show'); void t.offsetWidth; t.classList.add('show');
+  _toastTimer = setTimeout(() => t.classList.remove('show'), Math.min(4200, 1900 + String(msg).length * 28));
 }
 let manualDiscount = false;
 let currentImg = null;
