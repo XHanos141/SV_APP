@@ -1068,7 +1068,7 @@
 
   /* ---------- ID card — ported from SV-Web profile.html (.id-card / .cid-*) ---------- */
   .cs-idcard{
-    position:relative; overflow:hidden; border-radius:18px; padding:18px 16px; color:#fff; margin-bottom:14px;
+    position:relative; overflow:hidden; border-radius:18px; padding:16px 16px 12px; color:#fff; margin-bottom:12px;
     background:radial-gradient(ellipse 80% 60% at 50% -10%,rgba(255,255,255,0.06) 0%,transparent 65%),radial-gradient(ellipse 60% 80% at -10% 0%,rgba(124,111,247,0.22) 0%,transparent 55%),linear-gradient(135deg,#0f3258 0%,#002248 28%,#001f3c 60%,#000d20 100%);
     box-shadow:0 10px 30px rgba(0,20,50,0.28);
   }
@@ -1092,24 +1092,43 @@
   .idc-verified svg{ width:14px; height:14px; color:#2fd88a; }
   .idc-email{ font-size:11.5px; color:rgba(255,255,255,0.55); margin-top:2px; font-weight:600; overflow-wrap:anywhere; }
   .idc-since{ font-size:11px; color:rgba(255,255,255,0.45); margin-top:2px; font-weight:600; }
-  .cid-wrap{ display:flex; align-items:center; gap:8px; margin-top:11px; position:relative; z-index:1; flex-wrap:wrap; }
-  .cid-label{ font-size:13px; font-weight:700; color:rgba(255,255,255,0.7); }
+  .cid-wrap{ display:flex; align-items:center; gap:7px; margin-top:7px; position:relative; z-index:1; flex-wrap:wrap; }
+  .cid-label{ font-size:11px; font-weight:700; color:rgba(255,255,255,0.6); }
   .cid-row{
-    display:inline-flex; align-items:center; gap:6px; padding:4px 9px; border-radius:9px; width:fit-content;
-    background:rgba(124,111,247,0.18); border:1.5px solid rgba(124,111,247,0.4);
+    display:inline-flex; align-items:center; gap:4px; padding:2px 6px 2px 8px; border-radius:8px; width:fit-content;
+    background:rgba(124,111,247,0.18); border:1px solid rgba(124,111,247,0.4);
   }
-  .cid-value{ font-family:var(--font-head); font-size:12px; font-weight:800; color:#c4bdfd; letter-spacing:.2px; }
+  .cid-value{ font-family:var(--font-head); font-size:11px; font-weight:800; color:#c4bdfd; letter-spacing:.2px; }
   .cid-copy{
-    position:relative; width:22px; height:22px; border:none; flex-shrink:0; cursor:pointer; background:transparent;
+    position:relative; width:18px; height:18px; border:none; flex-shrink:0; cursor:pointer; background:transparent;
     display:flex; align-items:center; justify-content:center; color:#c4bdfd; transition:opacity .15s;
   }
   .cid-copy::before{ content:''; position:absolute; inset:-11px; }   /* 44px touch target */
   .cid-copy:active{ opacity:.6; }
-  .cid-copy svg{ width:16px; height:16px; }
+  .cid-copy svg{ width:13px; height:13px; }
+  .cid-copy::before{ inset:-13px; }
   .cid-copy.copied{ color:#7cf0c2; }
   .cid-copy .cs-done{ display:none; }
   .cid-copy.copied .cs-idle{ display:none !important; }
   .cid-copy.copied .cs-done{ display:inline-flex; }
+  .idc-info{ position:relative; z-index:1; margin-top:12px; padding-top:10px; border-top:1px solid rgba(255,255,255,0.10); display:flex; flex-direction:column; gap:8px; }
+  .idc-row{ display:flex; align-items:center; gap:10px; min-width:0; }
+  .idc-row__icon{ width:28px; height:28px; border-radius:9px; flex:0 0 auto; display:flex; align-items:center; justify-content:center;
+    background:rgba(255,255,255,0.07); color:#8fd3f4; }
+  .idc-row__icon svg{ width:15px; height:15px; }
+  .idc-row__body{ min-width:0; flex:1; }
+  .idc-copy{ position:relative; width:30px; height:30px; border-radius:9px; flex:0 0 auto; align-self:center; display:flex; align-items:center; justify-content:center;
+    color:#c4bdfd; background:rgba(124,111,247,0.14); border:1px solid rgba(124,111,247,0.3); transition:transform .12s ease, opacity .15s; }
+  .idc-copy::before{ content:''; position:absolute; inset:-7px; }   /* 44px touch target */
+  .idc-copy:active{ transform:scale(.92); opacity:.7; }
+  .idc-copy svg{ width:14px; height:14px; }
+  .idc-copy .cs-done{ display:none; }
+  .idc-copy.copied{ color:#7cf0c2; background:rgba(47,216,138,0.14); border-color:rgba(47,216,138,0.4); }
+  .idc-copy.copied .cs-idle{ display:none !important; }
+  .idc-copy.copied .cs-done{ display:inline-flex; }
+  .idc-row__lbl{ font-size:10px; font-weight:800; letter-spacing:.6px; text-transform:uppercase; color:rgba(255,255,255,0.45); }
+  .idc-row__val{ font-size:13.5px; font-weight:600; color:rgba(255,255,255,0.92); margin-top:1px; line-height:1.35; overflow-wrap:anywhere; }
+  .idc-row__val.is-empty{ color:rgba(255,255,255,0.4); font-weight:500; font-style:italic; }
   .cs-head--slim{ align-items:center; padding-top:2px; padding-bottom:6px; }
   .cs-head--slim .cs-head__text{ display:flex; align-items:center; gap:10px; min-height:44px; }
   .cs-head__mini{ display:none; align-items:center; gap:8px; min-width:0; }
@@ -1122,13 +1141,29 @@
   .cs-head--slim.is-condensed .cs-head__mini{ display:flex; }
 
   .cs-stats{ display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px; }
-  .cs-stat{ background:var(--surface-2); border:1px solid var(--hairline); border-radius:12px; padding:10px 10px 9px; min-width:0; }
-  .cs-stat__val{
-    font-family:var(--font-head); font-weight:800; font-size:17px; line-height:1.15; color:var(--text-1);
-    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  .cs-stat{
+    --tone:124,111,247;
+    position:relative; overflow:hidden; min-width:0;
+    display:flex; flex-direction:column; align-items:flex-start; gap:0;
+    padding:11px 10px 10px; border-radius:14px;
+    background:linear-gradient(160deg, rgba(var(--tone),.13) 0%, rgba(var(--tone),.04) 55%, transparent 100%), var(--surface-2);
+    border:1px solid rgba(var(--tone),.22);
   }
-  .cs-stat__lbl{ font-size:11px; font-weight:700; color:var(--text-2); margin-top:3px; }
-  .cs-stat__sub{ font-size:10.5px; color:var(--text-3); margin-top:1px; min-height:13px; }
+  .cs-stat--orders{ --tone:124,111,247; }
+  .cs-stat--spend{ --tone:47,155,104; }
+  .cs-stat--active{ --tone:244,169,34; }
+  .cs-stat__icon{
+    width:26px; height:26px; border-radius:8px; flex:0 0 auto; margin-bottom:9px;
+    display:flex; align-items:center; justify-content:center;
+    background:rgba(var(--tone),.18); color:rgb(var(--tone));
+  }
+  .cs-stat__icon svg{ width:15px; height:15px; }
+  .cs-stat__val{
+    font-family:var(--font-head); font-weight:800; font-size:clamp(16px,4.8vw,19px); line-height:1.1; letter-spacing:-.3px; color:var(--text-1);
+    max-width:100%; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; font-variant-numeric:tabular-nums;
+  }
+  .cs-stat__lbl{ font-size:11.5px; font-weight:700; color:var(--text-1); opacity:.88; margin-top:5px; line-height:1.2; }
+  .cs-stat__sub{ font-size:10.5px; font-weight:600; color:var(--text-3); margin-top:2px; line-height:1.2; }
 
   .cs-actions{ display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px; margin-top:12px; }
   .cs-action{
@@ -1685,6 +1720,7 @@
       status: "registered",
       match_confidence: "strong",   // matched by phone number across channels
       phone: "01712-345678",
+      address: "House 14, Road 7, Dhanmondi, Dhaka 1205",   // mock
       email: "tanvir.ahmed@gmail.com",
       customer_since: "2025-11-08T00:00:00.000Z",   // mock
       channels: ["messenger", "whatsapp"],
@@ -1700,6 +1736,7 @@
       status: "registered",
       match_confidence: "strong",
       phone: "01818-902233",
+      address: "Zindabazar, Sylhet 3100",   // mock
       email: "rakibul.islam@yahoo.com",
       customer_since: "2026-02-19T00:00:00.000Z",   // mock
       channels: ["whatsapp"],
@@ -2049,6 +2086,7 @@
   const TAG_MAX = 8, TAG_LEN = 24, NOTE_LEN = 300;
 
   const ICONS = {
+    pin:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>',
     close:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>',
     back:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>',
     chevron:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>',
@@ -2118,7 +2156,10 @@
   const isOrderRecord = (o) => /^(SV|PX)-/.test(o.id);
   function orderKind(id){ return /^PX-/.test(id) ? "Proxy order" : /^RT-/.test(id) ? "Return" : "Order"; }
   function money(n){ return "৳" + Number(n).toLocaleString(); }
-  function formatMonthYear(iso){ return new Date(iso).toLocaleDateString(undefined, { month:"short", year:"numeric" }); }
+  function formatMonthYear(iso){
+    const d = new Date(iso), M = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+    return d.getDate() + " " + M[d.getMonth()] + " " + d.getFullYear();
+  }
 
   function payTagHtml(o){
     const v = o.payment_status;
@@ -2233,26 +2274,9 @@
     const spent = orders.filter(o => o.status === "Delivered").reduce((n, o) => n + o.amount, 0);
     const active = orders.filter(o => o.status === "Pending" || o.status === "Shipped").length;
     return `<div class="cs-stats" role="list">
-      <div class="cs-stat" role="listitem"><div class="cs-stat__val">${orders.length}</div><div class="cs-stat__lbl">Total orders</div><div class="cs-stat__sub">${returns ? returns + (returns === 1 ? " return" : " returns") : ""}</div></div>
-      <div class="cs-stat" role="listitem"><div class="cs-stat__val">${money(spent)}</div><div class="cs-stat__lbl">Lifetime spend</div><div class="cs-stat__sub">delivered orders</div></div>
-      <div class="cs-stat" role="listitem"><div class="cs-stat__val">${active}</div><div class="cs-stat__lbl">Active orders</div><div class="cs-stat__sub">pending or shipped</div></div>
-    </div>`;
-  }
-
-  function actionsHtml(cust){
-    const tel = cust.phone ? String(cust.phone).replace(/[^\d+]/g, "") : "";
-    const call = tel
-      ? `<a class="cs-action" href="tel:${escAttr(tel)}" aria-label="Call customer at ${escAttr(cust.phone)}">${ICONS.phone}<span>Call</span></a>`
-      : `<button type="button" class="cs-action" data-act="no-phone" aria-disabled="true" aria-label="Call customer (no phone number on file)">${ICONS.phone}<span>Call</span></button>`;
-    return `<div class="cs-actions">
-      ${call}
-      <button type="button" class="cs-action" data-act="copy" data-copy="${escAttr(cust.customer_id || "")}" data-what="Customer ID" aria-label="Copy Customer ID ${escAttr(cust.customer_id || "")}">
-        <span class="cs-idle" style="display:contents">${ICONS.copy}<span>Copy ID</span></span>
-        <span class="cs-done">${ICONS.check}<span>Copied</span></span>
-      </button>
-      <button type="button" class="cs-action" data-act="expand" aria-pressed="${sheet.full}">
-        ${sheet.full ? ICONS.collapse : ICONS.expand}<span>${sheet.full ? "Collapse" : "Full profile"}</span>
-      </button>
+      <div class="cs-stat cs-stat--orders" role="listitem"><span class="cs-stat__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg></span><div class="cs-stat__val">${orders.length}</div><div class="cs-stat__lbl">Total orders</div><div class="cs-stat__sub">${returns ? returns + (returns === 1 ? " return" : " returns") : "all time"}</div></div>
+      <div class="cs-stat cs-stat--spend" role="listitem"><span class="cs-stat__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 7V5a2 2 0 0 0-2-2H5a2 2 0 0 0 0 4h14a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5"/><path d="M16 13.5h.01"/></svg></span><div class="cs-stat__val">${money(spent)}</div><div class="cs-stat__lbl">Lifetime spend</div><div class="cs-stat__sub">delivered only</div></div>
+      <div class="cs-stat cs-stat--active" role="listitem"><span class="cs-stat__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 17h4V5H2v12h3"/><path d="M14 8h4l4 4v5h-3"/><circle cx="7.5" cy="17.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/></svg></span><div class="cs-stat__val">${active}</div><div class="cs-stat__lbl">Active orders</div><div class="cs-stat__sub">pending or shipped</div></div>
     </div>`;
   }
 
@@ -2363,16 +2387,20 @@
         <div class="idc-avatar" aria-hidden="true">${ini}</div>
         <div class="idc-main">
           <div class="idc-name-row"><span class="idc-name">${escapeHtml(cust.name || "SuppVerse Customer")}</span><span class="idc-verified">${VERIFIED_SVG_WEB}Verified</span></div>
-          ${cust.email ? `<div class="idc-email">${escapeHtml(cust.email)}</div>` : ""}
           ${cust.customer_since ? `<div class="idc-since">Customer since ${escapeHtml(formatMonthYear(cust.customer_since))}</div>` : ""}
-        </div>
-      </div>
-      <div class="cid-wrap">
+          <div class="cid-wrap">
         <span class="cid-label">Customer ID</span>
         <div class="cid-row"><span class="cid-value">${escapeHtml(cust.customer_id || "")}</span>
           <button type="button" class="cid-copy" data-act="copy" data-copy="${escAttr(cust.customer_id || "")}" data-what="Customer ID" aria-label="Copy Customer ID ${escAttr(cust.customer_id || "")}">
             <span class="cs-idle" style="display:inline-flex">${ICONS.copy}</span><span class="cs-done">${ICONS.check}</span>
           </button></div>
+      </div>
+        </div>
+      </div>
+      <div class="idc-info">
+        <div class="idc-row" data-field="phone"><span class="idc-row__icon" aria-hidden="true">${ICONS.phone}</span><div class="idc-row__body"><div class="idc-row__val${cust.phone ? "" : " is-empty"}">${cust.phone ? escapeHtml(cust.phone) : "No phone on file"}</div></div>${cust.phone ? `<button type="button" class="idc-copy" data-act="copy" data-copy="${escAttr(cust.phone)}" data-what="Phone" aria-label="Copy phone ${escAttr(cust.phone)}"><span class="cs-idle" style="display:inline-flex">${ICONS.copy}</span><span class="cs-done">${ICONS.check}</span></button>` : ""}</div>
+        <div class="idc-row" data-field="email"><span class="idc-row__icon" aria-hidden="true">${ICONS.mail}</span><div class="idc-row__body"><div class="idc-row__val${cust.email ? "" : " is-empty"}">${cust.email ? escapeHtml(cust.email) : "No email on file"}</div></div>${cust.email ? `<button type="button" class="idc-copy" data-act="copy" data-copy="${escAttr(cust.email)}" data-what="Email" aria-label="Copy email ${escAttr(cust.email)}"><span class="cs-idle" style="display:inline-flex">${ICONS.copy}</span><span class="cs-done">${ICONS.check}</span></button>` : ""}</div>
+        <div class="idc-row" data-field="address"><span class="idc-row__icon" aria-hidden="true">${ICONS.pin}</span><div class="idc-row__body"><div class="idc-row__val${cust.address ? "" : " is-empty"}">${cust.address ? escapeHtml(cust.address) : "No address on file"}</div></div>${cust.address ? `<button type="button" class="idc-copy" data-act="copy" data-copy="${escAttr(cust.address)}" data-what="Address" aria-label="Copy address ${escAttr(cust.address)}"><span class="cs-idle" style="display:inline-flex">${ICONS.copy}</span><span class="cs-done">${ICONS.check}</span></button>` : ""}</div>
       </div>
     </section>`;
   }
@@ -2415,11 +2443,6 @@
     return `
       ${idCardHtml(cust)}
       ${statsHtml(cust)}
-      ${actionsHtml(cust)}
-
-      <div class="cust-sheet__section-label">Contact</div>
-      ${contactRowHtml(ICONS.phone, "Phone", cust.phone, "No phone number on file")}
-      ${contactRowHtml(ICONS.mail, "Email", cust.email, "No email on file")}
 
       <div class="cust-sheet__section-label">Connected channels</div>
       <div class="platform-list">${platformsHtml}</div>
