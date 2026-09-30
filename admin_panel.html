@@ -1119,7 +1119,18 @@ body.dark-mode .pay-badge-bank svg path[style*="fill:#66cde7"]{fill:#fff!importa
 .wr-pill{font-size:9.5px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;padding:2px 7px;border-radius:999px;border:1px solid transparent}
 .wr-pill.draft{color:#0284c7;background:#0284c71a;border-color:#0284c740}
 .wr-pill.live{color:#16a34a;background:#16a34a1a;border-color:#16a34a40}
-#webEditTrigger.empty .stock-pick-name{color:var(--text2)}
+#webEditTrigger.empty .stock-pick-name{color:var(--text)}
+#webEditTrigger.empty{border-color:color-mix(in srgb,var(--cyan) 35%,var(--border));background:linear-gradient(135deg,color-mix(in srgb,var(--cyan) 9%,var(--surface)),var(--surface));box-shadow:0 2px 10px color-mix(in srgb,var(--cyan) 14%,transparent)}
+#webEditTrigger .wr-empty-badge{width:36px;height:36px;border-radius:11px;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#38bdf8,#009ddc 55%,#0369a1);box-shadow:0 4px 12px color-mix(in srgb,var(--cyan) 40%,transparent),inset 0 1px 0 rgba(255,255,255,.35)}
+#webEditTrigger .wr-empty-badge svg{width:20px;height:20px;fill:#fff}
+#webEditTrigger .wr-state{display:inline-flex;align-items:center;gap:5px;align-self:flex-start;margin-top:3px;padding:2px 8px 2px 7px;border-radius:999px;font-size:10.5px;font-weight:700;letter-spacing:.01em;color:var(--st);background:color-mix(in srgb,var(--st) 12%,transparent);border:1px solid color-mix(in srgb,var(--st) 28%,transparent)}
+#webEditTrigger .wr-state::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--st)}
+#webEditTrigger .wr-state.live{--st:#16a34a}
+#webEditTrigger .wr-state.pending{--st:#d97706}
+#webEditTrigger .wr-state.none{--st:var(--text3)}
+#webEditTrigger .wr-state.live::before,#webEditTrigger .wr-state.pending::before{animation:wrPulse 1.8s ease-in-out infinite}
+@keyframes wrPulse{50%{opacity:.35}}
+@media (prefers-reduced-motion:reduce){#webEditTrigger .wr-state::before{animation:none!important}}
 #webEditTrigger .wr-sku{font-family:"Courier Prime","Courier New",monospace;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:var(--sku-color);text-shadow:0 3px 10px var(--sku-glow);-webkit-text-stroke:.25px var(--sku-color)}
 #webEditTrigger .stock-pick-text{display:flex;flex-direction:column}
 </style>
@@ -4889,6 +4900,7 @@ function pickWebRequest(id){
   if(id === currentEditId && !document.getElementById('productFieldset').disabled) return;
   openWebRequest(id);
 }
+const WR_EMPTY_BADGE = '<span class="wr-empty-badge"><svg viewBox="0 0 32 32" aria-hidden="true"><rect x="15" y="2" width="6" height="4"/><path d="M29,2h-6v5c0,0.6-0.4,1-1,1h-8c-0.6,0-1-0.4-1-1V2H7C5.3,2,4,3.3,4,5v6H3c-0.6,0-1,0.4-1,1s0.4,1,1,1h1h3c0.6,0,1,0.4,1,1s-0.4,1-1,1H4H1c-0.6,0-1,0.4-1,1s0.4,1,1,1h3h1c0.6,0,1,0.4,1,1s-0.4,1-1,1H4H3c-0.6,0-1,0.4-1,1s0.4,1,1,1h1v6c0,1.7,1.3,3,3,3h22c1.7,0,3-1.3,3-3V5C32,3.3,30.7,2,29,2z M23,25H13c-0.6,0-1-0.4-1-1s0.4-1,1-1h10c0.6,0,1,0.4,1,1S23.6,25,23,25z M24.7,16.8c-0.2,0.2-0.4,0.3-0.7,0.3c-0.3,0-0.5-0.1-0.7-0.3L23,16.5V21c0,0.6-0.4,1-1,1s-1-0.4-1-1v-4.5l-0.3,0.3c-0.4,0.4-1,0.4-1.4,0c-0.4-0.4-0.4-1,0-1.4l2-2.1c0,0,0,0,0,0c0.2-0.2,0.4-0.3,0.7-0.3s0.5,0.1,0.7,0.3c0,0,0,0,0,0l2,2.1C25.1,15.8,25.1,16.5,24.7,16.8z"/></svg></span>';
 function renderWebEditTrigger(){
   const btn = document.getElementById('webEditTrigger');
   if(!btn) return;
@@ -4896,12 +4908,13 @@ function renderWebEditTrigger(){
   const infoBtn = document.getElementById('webEditInfoBtn');
   const p = WEB_LIST.find(x => x.id === currentEditId);
   btn.classList.toggle('empty', !p);
-  subEl.classList.toggle('wr-sku', !!p);
+  subEl.className = 'stock-pick-sub' + (p ? ' wr-sku' : '');
   if(infoBtn) infoBtn.style.display = p ? '' : 'none';
   if(!p){
-    icon.innerHTML = '';
+    icon.innerHTML = WR_EMPTY_BADGE;
     const pending = WEB_LIST.filter(x => !x.published).length;
     nameEl.textContent = 'Select a product';
+    subEl.className = 'stock-pick-sub wr-state ' + (WEB_LIST.length ? (pending ? 'pending' : 'live') : 'none');
     subEl.textContent = WEB_LIST.length ? (pending ? pending + ' waiting from app' : 'All requests are live') : 'No requests from app yet';
     return;
   }
