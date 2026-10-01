@@ -7971,6 +7971,24 @@ html[data-theme="dark"] #alertsTabContent .px-more { color: #FF9466; }
 /* ---- Buy For Me request: full-screen detail page (proxy-request.html) ---- */
 #proxyRequestPanel { display:none; position:fixed; inset:0; z-index:8600; background:#0f1621; }
 #proxyRequestPanel.open { display:block; animation:hubSlideUp 0.28s cubic-bezier(0.4,0,0.2,1) forwards; }
+#pxQuoteSheet { display:none; position:fixed; inset:0; z-index:8700; background:rgba(8,12,20,.55); align-items:flex-end; justify-content:center; }
+#pxQuoteSheet.open { display:flex; }
+#pxQuoteSheet .pxq-card { width:100%; max-width:520px; background:#fff; color:#1b2230; border-radius:22px 22px 0 0; padding:18px 18px calc(18px + env(safe-area-inset-bottom)); animation:hubSlideUp .28s cubic-bezier(.4,0,.2,1); font-family:'DM Sans',sans-serif; }
+html[data-theme="dark"] #pxQuoteSheet .pxq-card { background:#162130; color:#e8ecf4; }
+#pxQuoteSheet h3 { margin:0 0 2px; font-size:17px; font-weight:800; }
+#pxQuoteSheet .pxq-sub { font-size:12px; opacity:.65; margin-bottom:14px; }
+#pxQuoteSheet label { display:block; font-size:11px; font-weight:700; letter-spacing:.4px; text-transform:uppercase; opacity:.65; margin:12px 0 6px; }
+#pxQuoteSheet input, #pxQuoteSheet select, #pxQuoteSheet textarea { width:100%; box-sizing:border-box; padding:12px 14px; border-radius:12px; border:1.5px solid rgba(124,111,247,.35); background:transparent; color:inherit; font:600 15px 'DM Sans',sans-serif; outline:none; }
+#pxQuoteSheet input:focus, #pxQuoteSheet select:focus, #pxQuoteSheet textarea:focus { border-color:#7c6ff7; }
+#pxQuoteSheet select option { color:#1b2230; }
+#pxQuoteSheet textarea { min-height:60px; resize:none; font-weight:500; font-size:14px; }
+#pxQuoteSheet .pxq-est { margin-top:8px; font-size:12px; font-weight:600; color:#7c6ff7; background:none; border:none; padding:0; cursor:pointer; width:auto; }
+#pxQuoteSheet .pxq-btns { display:flex; gap:10px; margin-top:16px; }
+#pxQuoteSheet .pxq-btns button { flex:1; padding:13px; border-radius:12px; border:none; font:700 14px 'DM Sans',sans-serif; cursor:pointer; }
+#pxQuoteSheet .pxq-send { background:#7c6ff7; color:#fff; }
+#pxQuoteSheet .pxq-send:disabled { opacity:.6; }
+#pxQuoteSheet .pxq-cancel { background:rgba(124,111,247,.12); color:inherit; }
+#pxQuoteSheet .pxq-err { color:#d95353; font-size:12px; font-weight:600; margin-top:8px; min-height:14px; }
 #proxyRequestPanel iframe { position:absolute; inset:0; width:100%; height:100%; border:none; display:block; background:#0f1621; }
 #alertsTabContent .rq-tag { display:inline-flex; align-items:center; border:1.5px solid rgba(198,82,39,0.55); border-radius:6px; padding:2px 7px; font-family:'Plus Jakarta Sans',sans-serif; font-size:11px; font-weight:800; color:#E15A26; letter-spacing:.3px; background:rgba(255,255,255,0.5); flex-shrink:0; }
 html[data-theme="dark"] #alertsTabContent .rq-tag { border-color:rgba(251,202,185,0.5); color:#FF9466; background:rgba(255,255,255,0.06); }
@@ -8052,6 +8070,21 @@ html[data-theme="dark"] #alertsTabContent .rq-tag { border-color:rgba(251,202,18
         </div>
       </div>
     </div>
+  </div>
+</div>
+<div id="pxQuoteSheet" role="dialog" aria-label="Send quote">
+  <div class="pxq-card">
+    <h3>Send quote</h3>
+    <div class="pxq-sub" id="pxqSub"></div>
+    <label for="pxqTotal">Final price (BDT)</label>
+    <input id="pxqTotal" type="number" inputmode="decimal" min="1" step="1" placeholder="0">
+    <button type="button" class="pxq-est" id="pxqEst"></button>
+    <label for="pxqValid">Quote valid for</label>
+    <select id="pxqValid"><option value="24">24 hours</option><option value="48">48 hours</option><option value="72" selected>3 days</option><option value="168">7 days</option></select>
+    <label for="pxqNote">Note (optional)</label>
+    <textarea id="pxqNote" maxlength="500" placeholder="Internal note"></textarea>
+    <div class="pxq-err" id="pxqErr"></div>
+    <div class="pxq-btns"><button type="button" class="pxq-cancel" onclick="closeQuoteSheet()">Cancel</button><button type="button" class="pxq-send" id="pxqSend" onclick="submitQuote()">Send quote</button></div>
   </div>
 </div>
 <div id="proxyRequestPanel" role="dialog" aria-label="Buy For Me request details">
@@ -25822,7 +25855,9 @@ function al_pxNormalize(r){
       qty: Math.max(1, parseInt(i.qty, 10) || 1), price: Number(i.price) || 0, ai: !!i.ai
     })),
     notes: snap.notes || '',
-    finalBdt: r.quote_total != null ? Number(r.quote_total) : null
+    finalBdt: r.quote_total != null ? Number(r.quote_total) : null,
+    fees: r.fee_snapshot || null,
+    adminNote: r.admin_notes || ''
   };
 }
 
@@ -25880,7 +25915,7 @@ function al_proxyRequestCard(req){
       ${unverified ? al_chip('alertTri','Prices','Unverified','#E15A26').replace('class="chip"','class="chip px-warn"') : ''}
     </div>
     <div class="al-actions-row">
-      ${al_actionBtn('primary','send','Quote',`openProxyDetails('${id}')`)}
+      ${(req.status === 'pending_quote' || req.status === 'quoted') ? al_actionBtn('primary','send', req.status === 'quoted' ? 'Re-quote' : 'Quote', `openQuoteSheet('${id}')`) : ''}
       <button class="al-action-btn" style="background:${ch.color};color:#fff;box-shadow:0 4px 12px ${ch.color}55" onclick="openProxyChat('${id}')">${al_icon('message',13,'#fff',2.5)}<span>Chat</span></button>
       ${al_actionBtn('ghost','history','Details',`openProxyDetails('${id}')`)}
     </div>
@@ -25930,6 +25965,68 @@ window.addEventListener('message', function(e){
   const d = e.data || {};
   if (d.type === 'sv-px-close') closeProxyDetails();
 });
+
+/* ---- Quote sheet: admin sets the final BDT price -> admin_send_quote RPC ---- */
+let _pxqId = null;
+async function al_pxFees(req){
+  if (req.fees && req.fees.usd_rate) return req.fees;
+  try {
+    const r = await sbFetch('site_content?select=content&page=eq.buy_for_me&section=eq.fees');
+    return (r && r[0] && r[0].content) || null;
+  } catch (e) { return null; }
+}
+async function openQuoteSheet(id){
+  const req = AL_PROXY.find(r => r.id === id);
+  if (!req) return;
+  _pxqId = id;
+  document.getElementById('pxqSub').textContent = (req.reqNo || 'Request') + ' · ' + req.customer.name;
+  const totalEl = document.getElementById('pxqTotal');
+  const estEl = document.getElementById('pxqEst');
+  totalEl.value = req.finalBdt != null ? Math.round(req.finalBdt) : '';
+  document.getElementById('pxqNote').value = req.adminNote || '';
+  document.getElementById('pxqErr').textContent = '';
+  estEl.style.display = 'none';
+  document.getElementById('pxQuoteSheet').classList.add('open');
+  const f = await al_pxFees(req);
+  const usd = req.items.reduce((t, i) => t + i.qty * i.price, 0);
+  if (f && usd > 0 && Number(f.usd_rate) > 0) {
+    const est = Math.round(usd * (1 + (Number(f.sales_tax) || 0) / 100 + (Number(f.service_charge) || 0) / 100) * Number(f.usd_rate));
+    estEl.textContent = 'Estimate from customer prices: ৳' + est.toLocaleString('en-US') + ' (tap to use)';
+    estEl.onclick = () => { totalEl.value = est; };
+    estEl.style.display = '';
+    if (!totalEl.value) totalEl.value = est;
+  }
+}
+function closeQuoteSheet(){
+  document.getElementById('pxQuoteSheet').classList.remove('open');
+  _pxqId = null;
+}
+async function submitQuote(){
+  const btn = document.getElementById('pxqSend');
+  const err = document.getElementById('pxqErr');
+  const total = Number(document.getElementById('pxqTotal').value);
+  if (!_pxqId || !(total > 0)) { err.textContent = 'Enter the final price.'; return; }
+  btn.disabled = true; err.textContent = '';
+  try {
+    await requireFingerprint();
+    const { error } = await sb.rpc('admin_send_quote', {
+      p_id: _pxqId,
+      p_total: total,
+      p_note: document.getElementById('pxqNote').value.trim() || null,
+      p_valid_hours: parseInt(document.getElementById('pxqValid').value, 10) || 72
+    });
+    if (error) throw error;
+    closeQuoteSheet();
+    if (typeof showToast === 'function') showToast('Quote sent');
+    await loadProxyRequests();
+    renderAlertsTabNow();
+  } catch (e) {
+    console.error('submitQuote error:', e);
+    err.textContent = (e && e.message) ? e.message : 'Could not send quote';
+  }
+  btn.disabled = false;
+}
+document.addEventListener('click', function(e){ if (e.target && e.target.id === 'pxQuoteSheet') closeQuoteSheet(); });
 
 /* ---- Card 6: Payment Received — Local Stock order ---- */
 function al_paymentLocalCard() {
