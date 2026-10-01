@@ -25966,6 +25966,13 @@ window.addEventListener('message', function(e){
   if (d.type === 'sv-px-close') closeProxyDetails();
 });
 
+window.addEventListener('message', function(e){
+  var d = e.data;
+  if (!d || d.type !== 'sv-open-url' || typeof d.url !== 'string' || !/^https?:\/\//i.test(d.url)) return;
+  var w = window.open(d.url, '_blank');
+  if (!w) window.location.href = d.url;
+});
+
 /* ---- Quote sheet: admin sets the final BDT price -> admin_send_quote RPC ---- */
 let _pxqId = null;
 async function al_pxFees(req){
