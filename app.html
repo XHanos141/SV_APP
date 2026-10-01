@@ -25889,7 +25889,7 @@ function al_proxyRequestCard(req){
 
 function al_proxyCards(){
   if (!AL_PROXY.length) {
-    return `<div class="al-card glass-shadow ${AL_SEVERITY.proxy.tone}" data-group="order"><div class="px-empty">No Buy For Me requests yet</div></div>`;
+    return `<div class="al-card glass-shadow ${AL_SEVERITY.proxy.tone}" data-group="proxy-empty"><div class="px-empty">No Buy For Me requests yet</div></div>`;
   }
   return AL_PROXY.map(al_proxyRequestCard).join('');
 }
