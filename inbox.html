@@ -1068,7 +1068,7 @@
 
   /* ---------- ID card — ported from SV-Web profile.html (.id-card / .cid-*) ---------- */
   .cs-idcard{
-    position:relative; overflow:hidden; border-radius:18px; padding:16px 16px 12px; color:#fff; margin-bottom:12px;
+    position:relative; overflow:hidden; border-radius:16px; padding:12px 14px 8px; color:#fff; margin-bottom:10px;
     background:radial-gradient(ellipse 80% 60% at 50% -10%,rgba(255,255,255,0.06) 0%,transparent 65%),radial-gradient(ellipse 60% 80% at -10% 0%,rgba(124,111,247,0.22) 0%,transparent 55%),linear-gradient(135deg,#0f3258 0%,#002248 28%,#001f3c 60%,#000d20 100%);
     box-shadow:0 10px 30px rgba(0,20,50,0.28);
   }
@@ -1076,15 +1076,15 @@
     background:repeating-linear-gradient(115deg,transparent 0 26px,rgba(255,255,255,0.03) 26px 27px); }
   .idc-top{ display:flex; align-items:center; gap:12px; position:relative; z-index:1; }
   .idc-avatar{
-    width:52px; height:52px; border-radius:50%; flex-shrink:0;
+    width:46px; height:46px; border-radius:50%; flex-shrink:0;
     background:linear-gradient(135deg,#0A9BDC,#4fb7ea);
     display:flex; align-items:center; justify-content:center;
-    font-family:var(--font-head); font-weight:800; font-size:18px; color:#fff;
+    font-family:var(--font-head); font-weight:800; font-size:16px; color:#fff;
     box-shadow:0 4px 14px rgba(45,190,245,0.35),inset 0 1px 0 rgba(255,255,255,0.25);
   }
   .idc-main{ flex:1; min-width:0; }
   .idc-name-row{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
-  .idc-name{ font-family:var(--font-head); font-size:17px; font-weight:800; letter-spacing:-.2px; overflow-wrap:anywhere; }
+  .idc-name{ font-family:var(--font-head); font-size:16px; font-weight:800; letter-spacing:-.2px; overflow-wrap:anywhere; }
   .idc-verified{
     font-family:var(--font-head); font-size:11px; font-weight:800; letter-spacing:.3px; color:#7cf0c2;
     display:flex; align-items:center; gap:3px;
@@ -1092,7 +1092,7 @@
   .idc-verified svg{ width:14px; height:14px; color:#2fd88a; }
   .idc-email{ font-size:11.5px; color:rgba(255,255,255,0.55); margin-top:2px; font-weight:600; overflow-wrap:anywhere; }
   .idc-since{ font-size:11px; color:rgba(255,255,255,0.45); margin-top:2px; font-weight:600; }
-  .cid-wrap{ display:flex; align-items:center; gap:7px; margin-top:7px; position:relative; z-index:1; flex-wrap:wrap; }
+  .cid-wrap{ display:flex; align-items:center; gap:7px; margin-top:5px; position:relative; z-index:1; flex-wrap:wrap; }
   .cid-label{ font-size:11px; font-weight:700; color:rgba(255,255,255,0.6); }
   .cid-row{
     display:inline-flex; align-items:center; gap:4px; padding:2px 6px 2px 8px; border-radius:8px; width:fit-content;
@@ -1111,23 +1111,25 @@
   .cid-copy .cs-done{ display:none; }
   .cid-copy.copied .cs-idle{ display:none !important; }
   .cid-copy.copied .cs-done{ display:inline-flex; }
-  .idc-info{ position:relative; z-index:1; margin-top:12px; padding-top:10px; border-top:1px solid rgba(255,255,255,0.10); display:flex; flex-direction:column; gap:8px; }
-  .idc-row{ display:flex; align-items:center; gap:10px; min-width:0; }
-  .idc-row__icon{ width:28px; height:28px; border-radius:9px; flex:0 0 auto; display:flex; align-items:center; justify-content:center;
+  .idc-info{ position:relative; z-index:1; margin-top:9px; padding-top:7px; border-top:1px solid rgba(255,255,255,0.10); display:flex; flex-direction:column; gap:4px; }
+  .idc-row{ display:flex; align-items:center; gap:7px; min-width:0; }
+  .idc-row__icon{ width:22px; height:22px; border-radius:7px; flex:0 0 auto; display:flex; align-items:center; justify-content:center;
     background:rgba(255,255,255,0.07); color:#8fd3f4; }
-  .idc-row__icon svg{ width:15px; height:15px; }
+  .idc-row__icon svg{ width:13px; height:13px; }
   .idc-row__body{ min-width:0; flex:1; }
-  .idc-copy{ position:relative; width:30px; height:30px; border-radius:9px; flex:0 0 auto; align-self:center; display:flex; align-items:center; justify-content:center;
+  .idc-copy{ position:relative; width:26px; height:26px; border-radius:8px; flex:0 0 auto; align-self:center; display:flex; align-items:center; justify-content:center;
     color:#c4bdfd; background:rgba(124,111,247,0.14); border:1px solid rgba(124,111,247,0.3); transition:transform .12s ease, opacity .15s; }
-  .idc-copy::before{ content:''; position:absolute; inset:-7px; }   /* 44px touch target */
+  .idc-copy::before{ content:''; position:absolute; inset:-9px -7px; }   /* 44px touch target */
   .idc-copy:active{ transform:scale(.92); opacity:.7; }
-  .idc-copy svg{ width:14px; height:14px; }
+  .idc-copy svg{ width:13px; height:13px; }
   .idc-copy .cs-done{ display:none; }
   .idc-copy.copied{ color:#7cf0c2; background:rgba(47,216,138,0.14); border-color:rgba(47,216,138,0.4); }
   .idc-copy.copied .cs-idle{ display:none !important; }
   .idc-copy.copied .cs-done{ display:inline-flex; }
   .idc-row__lbl{ font-size:10px; font-weight:800; letter-spacing:.6px; text-transform:uppercase; color:rgba(255,255,255,0.45); }
-  .idc-row__val{ font-size:13.5px; font-weight:600; color:rgba(255,255,255,0.92); margin-top:1px; line-height:1.35; overflow-wrap:anywhere; }
+  .idc-row__val{ font-size:13px; font-weight:600; color:rgba(255,255,255,0.92); line-height:1.35; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .idc-row__val[data-act]{ cursor:pointer; }
+  .idc-row__val.is-open{ white-space:normal; overflow-wrap:anywhere; }
   .idc-row__val.is-empty{ color:rgba(255,255,255,0.4); font-weight:500; font-style:italic; }
   .cs-head--slim{ align-items:center; padding-top:2px; padding-bottom:6px; }
   .cs-head--slim .cs-head__text{ display:flex; align-items:center; gap:10px; min-height:44px; }
@@ -1143,27 +1145,20 @@
   .cs-stats{ display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px; }
   .cs-stat{
     --tone:124,111,247;
-    position:relative; overflow:hidden; min-width:0;
-    display:flex; flex-direction:column; align-items:flex-start; gap:0;
-    padding:11px 10px 10px; border-radius:14px;
-    background:linear-gradient(160deg, rgba(var(--tone),.13) 0%, rgba(var(--tone),.04) 55%, transparent 100%), var(--surface-2);
+    min-width:0; display:flex; flex-direction:column; align-items:flex-start; gap:5px;
+    padding:9px 10px 8px; border-radius:12px;
+    background:linear-gradient(160deg, rgba(var(--tone),.13) 0%, rgba(var(--tone),.04) 70%, transparent 100%), var(--surface-2);
     border:1px solid rgba(var(--tone),.22);
   }
   .cs-stat--orders{ --tone:124,111,247; }
   .cs-stat--spend{ --tone:47,155,104; }
   .cs-stat--active{ --tone:244,169,34; }
-  .cs-stat__icon{
-    width:26px; height:26px; border-radius:8px; flex:0 0 auto; margin-bottom:9px;
-    display:flex; align-items:center; justify-content:center;
-    background:rgba(var(--tone),.18); color:rgb(var(--tone));
-  }
-  .cs-stat__icon svg{ width:15px; height:15px; }
   .cs-stat__val{
     font-family:var(--font-head); font-weight:800; font-size:clamp(16px,4.8vw,19px); line-height:1.1; letter-spacing:-.3px; color:var(--text-1);
     max-width:100%; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; font-variant-numeric:tabular-nums;
   }
-  .cs-stat__lbl{ font-size:11.5px; font-weight:700; color:var(--text-1); opacity:.88; margin-top:5px; line-height:1.2; }
-  .cs-stat__sub{ font-size:10.5px; font-weight:600; color:var(--text-3); margin-top:2px; line-height:1.2; }
+  .cs-stat__lbl{ display:flex; align-items:center; gap:5px; font-size:11px; font-weight:700; color:var(--text-2); line-height:1; }
+  .cs-stat__lbl svg{ width:12px; height:12px; flex:0 0 auto; color:rgb(var(--tone)); }
 
   .cs-actions{ display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px; margin-top:12px; }
   .cs-action{
@@ -2274,9 +2269,9 @@
     const spent = orders.filter(o => o.status === "Delivered").reduce((n, o) => n + o.amount, 0);
     const active = orders.filter(o => o.status === "Pending" || o.status === "Shipped").length;
     return `<div class="cs-stats" role="list">
-      <div class="cs-stat cs-stat--orders" role="listitem"><span class="cs-stat__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg></span><div class="cs-stat__val">${orders.length}</div><div class="cs-stat__lbl">Total orders</div><div class="cs-stat__sub">${returns ? returns + (returns === 1 ? " return" : " returns") : "all time"}</div></div>
-      <div class="cs-stat cs-stat--spend" role="listitem"><span class="cs-stat__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 7V5a2 2 0 0 0-2-2H5a2 2 0 0 0 0 4h14a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5"/><path d="M16 13.5h.01"/></svg></span><div class="cs-stat__val">${money(spent)}</div><div class="cs-stat__lbl">Lifetime spend</div><div class="cs-stat__sub">delivered only</div></div>
-      <div class="cs-stat cs-stat--active" role="listitem"><span class="cs-stat__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 17h4V5H2v12h3"/><path d="M14 8h4l4 4v5h-3"/><circle cx="7.5" cy="17.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/></svg></span><div class="cs-stat__val">${active}</div><div class="cs-stat__lbl">Active orders</div><div class="cs-stat__sub">pending or shipped</div></div>
+      <div class="cs-stat cs-stat--orders" role="listitem" title="Total orders${returns ? " (" + returns + (returns === 1 ? " return" : " returns") + ")" : ""}"><div class="cs-stat__lbl"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>Orders</div><div class="cs-stat__val">${orders.length}</div></div>
+      <div class="cs-stat cs-stat--spend" role="listitem" title="Lifetime spend (delivered orders)"><div class="cs-stat__lbl"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 7V5a2 2 0 0 0-2-2H5a2 2 0 0 0 0 4h14a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5"/><path d="M16 13.5h.01"/></svg>Spent</div><div class="cs-stat__val">${money(spent)}</div></div>
+      <div class="cs-stat cs-stat--active" role="listitem" title="Active orders (pending or shipped)"><div class="cs-stat__lbl"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 17h4V5H2v12h3"/><path d="M14 8h4l4 4v5h-3"/><circle cx="7.5" cy="17.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/></svg>Active</div><div class="cs-stat__val">${active}</div></div>
     </div>`;
   }
 
@@ -2399,8 +2394,8 @@
       </div>
       <div class="idc-info">
         <div class="idc-row" data-field="phone"><span class="idc-row__icon" aria-hidden="true">${ICONS.phone}</span><div class="idc-row__body"><div class="idc-row__val${cust.phone ? "" : " is-empty"}">${cust.phone ? escapeHtml(cust.phone) : "No phone on file"}</div></div>${cust.phone ? `<button type="button" class="idc-copy" data-act="copy" data-copy="${escAttr(cust.phone)}" data-what="Phone" aria-label="Copy phone ${escAttr(cust.phone)}"><span class="cs-idle" style="display:inline-flex">${ICONS.copy}</span><span class="cs-done">${ICONS.check}</span></button>` : ""}</div>
-        <div class="idc-row" data-field="email"><span class="idc-row__icon" aria-hidden="true">${ICONS.mail}</span><div class="idc-row__body"><div class="idc-row__val${cust.email ? "" : " is-empty"}">${cust.email ? escapeHtml(cust.email) : "No email on file"}</div></div>${cust.email ? `<button type="button" class="idc-copy" data-act="copy" data-copy="${escAttr(cust.email)}" data-what="Email" aria-label="Copy email ${escAttr(cust.email)}"><span class="cs-idle" style="display:inline-flex">${ICONS.copy}</span><span class="cs-done">${ICONS.check}</span></button>` : ""}</div>
-        <div class="idc-row" data-field="address"><span class="idc-row__icon" aria-hidden="true">${ICONS.pin}</span><div class="idc-row__body"><div class="idc-row__val${cust.address ? "" : " is-empty"}">${cust.address ? escapeHtml(cust.address) : "No address on file"}</div></div>${cust.address ? `<button type="button" class="idc-copy" data-act="copy" data-copy="${escAttr(cust.address)}" data-what="Address" aria-label="Copy address ${escAttr(cust.address)}"><span class="cs-idle" style="display:inline-flex">${ICONS.copy}</span><span class="cs-done">${ICONS.check}</span></button>` : ""}</div>
+        <div class="idc-row" data-field="email"><span class="idc-row__icon" aria-hidden="true">${ICONS.mail}</span><div class="idc-row__body"><div class="idc-row__val${cust.email ? "" : " is-empty"}"${cust.email ? ' data-act="toggle-val" role="button" tabindex="0" aria-expanded="false" title="Tap to show full text"' : ""}>${cust.email ? escapeHtml(cust.email) : "No email on file"}</div></div>${cust.email ? `<button type="button" class="idc-copy" data-act="copy" data-copy="${escAttr(cust.email)}" data-what="Email" aria-label="Copy email ${escAttr(cust.email)}"><span class="cs-idle" style="display:inline-flex">${ICONS.copy}</span><span class="cs-done">${ICONS.check}</span></button>` : ""}</div>
+        <div class="idc-row" data-field="address"><span class="idc-row__icon" aria-hidden="true">${ICONS.pin}</span><div class="idc-row__body"><div class="idc-row__val${cust.address ? "" : " is-empty"}"${cust.address ? ' data-act="toggle-val" role="button" tabindex="0" aria-expanded="false" title="Tap to show full text"' : ""}>${cust.address ? escapeHtml(cust.address) : "No address on file"}</div></div>${cust.address ? `<button type="button" class="idc-copy" data-act="copy" data-copy="${escAttr(cust.address)}" data-what="Address" aria-label="Copy address ${escAttr(cust.address)}"><span class="cs-idle" style="display:inline-flex">${ICONS.copy}</span><span class="cs-done">${ICONS.check}</span></button>` : ""}</div>
       </div>
     </section>`;
   }
@@ -2488,6 +2483,11 @@
       case "open-order": goView("order", el.dataset.oid); break;
       case "all-orders": goView("orders"); break;
       case "no-phone": showToast("No phone number on file"); break;
+      case "toggle-val": {
+        const open = el.classList.toggle("is-open");
+        el.setAttribute("aria-expanded", String(open));
+        break;
+      }
       case "expand": {
         sheet.full = !sheet.full;
         els.custSheet.classList.toggle("is-full", sheet.full);
