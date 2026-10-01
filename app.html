@@ -20012,9 +20012,14 @@ function _voucherOrderId() {
   const u = c ? c.dataset.orderUuid : null;
   return _isUuid(u) ? u : null;
 }
-function _voucherKey(code) { return JSON.stringify([code, _voucherLines(), _voucherPhone()]); }
+function _voucherShipping() { return parseInt(document.getElementById('noShipping')?.value) || 0; }
+function _voucherKey(code) { return JSON.stringify([code, _voucherLines(), _voucherPhone(), _voucherShipping()]); }
+function _voucherOkText(r, disc) {
+  const amt = '-৳' + disc.toLocaleString('en-IN');
+  return '✓ ' + r.voucher.code + (r.voucher.type === 'freeship' ? ' applied · delivery fee waived ' : ' applied · ') + amt;
+}
 async function _validateVoucher(code) {
-  const r = await sbFetch('rpc/validate_voucher', 'POST', { p_code: code, p_lines: _voucherLines(), p_phone: _voucherPhone(), p_order_id: _voucherOrderId() });
+  const r = await sbFetch('rpc/validate_voucher', 'POST', { p_code: code, p_lines: _voucherLines(), p_phone: _voucherPhone(), p_order_id: _voucherOrderId(), p_shipping: _voucherShipping() });
   return Array.isArray(r) ? r[0] : r;
 }
 function _setVoucherStatus(cls, text) {
@@ -20066,7 +20071,7 @@ async function applyVoucher() {
     if (r && r.valid) {
       const disc = Number(r.discount) || 0;
       _appliedVoucher = { code: r.voucher.code, discount: disc, key: key };
-      _setVoucherStatus('success', '✓ ' + r.voucher.code + ' applied · -৳' + disc.toLocaleString('en-IN'));
+      _setVoucherStatus('success', _voucherOkText(r, disc));
     } else {
       _appliedVoucher = null;
       _setVoucherStatus('error', '✗ ' + ((r && r.message) || 'Voucher cannot be applied'));
@@ -20100,7 +20105,7 @@ async function _revalidateVoucher() {
     if (r && r.valid) {
       const disc = Number(r.discount) || 0;
       _appliedVoucher = { code: r.voucher.code, discount: disc, key: key };
-      _setVoucherStatus('success', '✓ ' + r.voucher.code + ' applied · -৳' + disc.toLocaleString('en-IN'));
+      _setVoucherStatus('success', _voucherOkText(r, disc));
     } else {
       _appliedVoucher = null;
       _setVoucherStatus('error', '✗ ' + ((r && r.message) || 'Voucher cannot be applied'));
