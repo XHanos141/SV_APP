@@ -7962,6 +7962,21 @@ html[data-theme="dark"] .odm-summary-total-label { color: #fff; }
 .odm-card { background: rgba(124,111,247,0.05); border: 1px solid rgba(124,111,247,0.12); border-radius: 14px; padding: 13px 14px; }
 html[data-theme="dark"] .odm-card { background: rgba(124,111,247,0.08); border-color: rgba(124,111,247,0.2); }
 
+
+/* ---- Buy For Me (proxy) request: alert card extras + details modal ---- */
+#alertsTabContent .px-more { font-size: 10.5px; font-weight: 700; color: #E15A26; margin: -4px 0 9px 4px; }
+html[data-theme="dark"] #alertsTabContent .px-more { color: #FF9466; }
+#alertsTabContent .chip.px-warn { background: rgba(226,90,38,0.14); border-radius: 8px; padding: 3px 8px; }
+#alertsTabContent .px-empty { text-align: center; font-size: 12px; font-weight: 600; color: var(--al-muted); padding: 6px 0 2px; }
+/* ---- Buy For Me request: full-screen detail page (proxy-request.html) ---- */
+#proxyRequestPanel { display:none; position:fixed; inset:0; z-index:8600; background:#0f1621; }
+#proxyRequestPanel.open { display:block; animation:hubSlideUp 0.28s cubic-bezier(0.4,0,0.2,1) forwards; }
+#proxyRequestPanel iframe { position:absolute; inset:0; width:100%; height:100%; border:none; display:block; background:#0f1621; }
+#alertsTabContent .rq-tag { display:inline-flex; align-items:center; border:1.5px solid rgba(198,82,39,0.55); border-radius:6px; padding:2px 7px; font-family:'Plus Jakarta Sans',sans-serif; font-size:11px; font-weight:800; color:#E15A26; letter-spacing:.3px; background:rgba(255,255,255,0.5); flex-shrink:0; }
+html[data-theme="dark"] #alertsTabContent .rq-tag { border-color:rgba(251,202,185,0.5); color:#FF9466; background:rgba(255,255,255,0.06); }
+#alertsTabContent .px-cust { display:flex; align-items:center; gap:10px; min-width:0; }
+#alertsTabContent .px-avatar { width:34px; height:34px; border-radius:50%; flex-shrink:0; object-fit:cover; background:linear-gradient(135deg,#0A9BDC,#4fb7ea); display:flex; align-items:center; justify-content:center; font-family:'Plus Jakarta Sans',sans-serif; font-weight:800; font-size:13px; color:#fff; overflow:hidden; }
+#alertsTabContent .px-avatar img { width:100%; height:100%; object-fit:cover; display:block; }
 </style>
 <base target="_blank">
 <div class="modal-overlay" id="orderDetailsModal" onclick="if(event.target===this)closeOrderDetailsModal()">
@@ -8038,6 +8053,9 @@ html[data-theme="dark"] .odm-card { background: rgba(124,111,247,0.08); border-c
       </div>
     </div>
   </div>
+</div>
+<div id="proxyRequestPanel" role="dialog" aria-label="Buy For Me request details">
+  <iframe id="proxyRequestFrame" title="Buy For Me request" referrerpolicy="same-origin"></iframe>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script src="assets/js/supabase-config.js"></script>
@@ -25732,47 +25750,186 @@ function al_newOrderCard() {
   </div>`;
 }
 
-/* ---- Card 5: Buy For Me (Proxy Order) ---- */
-function al_buyForMeCard() {
+/* ---- Card 5: Buy For Me (Proxy Order) — data-driven ----
+   Data contract (proxy_requests row, normalised by al_pxNormalize):
+   product_snapshot = { items:[{name,store,url,qty,price,ai}], whatsapp, notes, contact:{channel} }
+   Quote fees come from site_content buy_for_me/fees (same source as the website). No hardcoded fallback. */
+let AL_PROXY = [];
+
+const AL_PX_STATUS = {
+  pending_quote:{ label:'Awaiting quote',   sev:'proxy' },
+  quoted:       { label:'Quote sent',       sev:'warning' },
+  approved:     { label:'Awaiting payment', sev:'warning' },
+  paid:         { label:'Paid',             sev:'success' },
+  purchasing:   { label:'Purchasing',       sev:'success' },
+  ordered:      { label:'Ordered',          sev:'success' },
+  shipped_intl: { label:'Shipped',          sev:'success' },
+  arrived_bd:   { label:'Arrived in BD',    sev:'success' },
+  delivered:    { label:'Delivered',        sev:'success' },
+  rejected:     { label:'Rejected',         sev:'critical' },
+  cancelled:    { label:'Cancelled',        sev:'critical' },
+  expired:      { label:'Quote expired',    sev:'critical' }
+};
+const AL_PX_CHANNEL = {
+  whatsapp:  { label:'WhatsApp',  color:'#25D366', icon:'whatsapp' },
+  messenger: { label:'Messenger', color:'#1877F2', icon:'facebook' },
+  facebook:  { label:'Messenger', color:'#1877F2', icon:'facebook' },
+  instagram: { label:'Instagram', color:'#E1306C', icon:'instagram' },
+  website:   { label:'Website',   color:'#7c6ff7', icon:null }
+};
+
+function al_pxStatus(st){ return AL_PX_STATUS[st] || { label:String(st||'').replace(/_/g,' '), sev:'proxy' }; }
+function al_pxChannel(ch){ return AL_PX_CHANNEL[ch] || AL_PX_CHANNEL.website; }
+function al_pxAgo(iso){
+  const sec = Math.max(0, (Date.now() - new Date(iso).getTime()) / 1000);
+  if (!isFinite(sec)) return '';
+  if (sec < 60) return 'just now';
+  if (sec < 3600) return Math.floor(sec / 60) + 'm ago';
+  if (sec < 86400) return Math.floor(sec / 3600) + 'h ago';
+  return Math.floor(sec / 86400) + 'd ago';
+}
+function al_pxWhen(iso){
+  const d = new Date(iso);
+  if (isNaN(d)) return '';
+  const M = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  let h = d.getHours(); const ap = h >= 12 ? 'pm' : 'am'; h = h % 12 || 12;
+  return d.getDate() + ' ' + M[d.getMonth()] + ' ' + d.getFullYear() + ', ' + h + ':' + ('0' + d.getMinutes()).slice(-2) + ' ' + ap;
+}
+function al_pxSafeUrl(u){ return /^https?:\/\//i.test(u || '') ? u : ''; }
+function al_pxUsd(n){ return '$' + (Number(n) || 0).toFixed(2); }
+
+function al_pxNormalize(r){
+  const snap = r.product_snapshot || {};
+  const raw = (Array.isArray(snap.items) && snap.items.length)
+    ? snap.items
+    : [{ name:snap.name, store:snap.store, url:r.source_url, qty:snap.qty, price:snap.price, ai:snap.ai }];
+  const c = r.customers || {};
+  return {
+    id: r.id,
+    reqNo: r.request_no || '',
+    px: (r.orders && r.orders.order_number) || '',
+    createdAt: r.created_at,
+    status: r.status || 'pending_quote',
+    customer: {
+      name: c.full_name || 'Customer',
+      phone: snap.whatsapp || c.phone || '',
+      avatar: c.avatar_url || '',
+      address: [c.district, c.address_text].filter(Boolean).join(', ')
+    },
+    channel: (snap.contact && snap.contact.channel) || 'website',
+    items: raw.map(i => ({
+      name: i.name || 'Unnamed product', store: i.store || '', url: i.url || '',
+      qty: Math.max(1, parseInt(i.qty, 10) || 1), price: Number(i.price) || 0, ai: !!i.ai
+    })),
+    notes: snap.notes || '',
+    finalBdt: r.quote_total != null ? Number(r.quote_total) : null
+  };
+}
+
+async function loadProxyRequests(){
+  try {
+    const rows = await sbFetch('proxy_requests?select=*,customers(full_name,phone,avatar_url),orders(order_number)&order=created_at.desc');
+    AL_PROXY = Array.isArray(rows) ? rows.map(al_pxNormalize) : [];
+  } catch (e) { console.error('loadProxyRequests error:', e.message || e); AL_PROXY = []; }
+  return AL_PROXY;
+}
+
+function al_proxyRequestCard(req){
   const sv = AL_SEVERITY.proxy;
+  const st = al_pxStatus(req.status);
+  const stSv = AL_SEVERITY[st.sev] || sv;
+  const ch = al_pxChannel(req.channel);
+  const first = req.items[0];
+  const more = req.items.length - 1;
+  const unverified = req.status === 'pending_quote' && req.items.some(i => i.ai);
+  const id = escapeHtml(req.id);
   return `
-  <div class="al-card glass-shadow ${sv.tone}" data-group="order">
+  <div class="al-card glass-shadow ${sv.tone}" data-group="order" data-px-id="${id}">
     <div class="al-card-top">
       <div class="al-icon-chip" style="background:${sv.accent};box-shadow:0 3px 10px rgba(226,90,38,0.4)">${al_icon('link',16,'#fff',2.5)}</div>
       <div class="al-card-label-col">
         <div class="al-card-label" style="color:${sv.labelColor}">Buy For Me</div>
-        <div class="al-card-time">28m ago</div>
+        <div class="al-card-time">${escapeHtml(al_pxAgo(req.createdAt))}</div>
       </div>
-      <span class="tracking-tag"><span class="tt-val">PX-1013</span></span>
+      ${req.reqNo ? `<span class="rq-tag">${escapeHtml(req.reqNo)}</span>` : ''}
     </div>
     <div class="customer-row">
-      <div>
-        <div class="customer-name">Tanvir Islam</div>
-        <div class="customer-phone">+880 1998-221190</div>
+      <div class="px-cust">
+        <div class="px-avatar" aria-hidden="true">${req.customer.avatar && al_pxSafeUrl(req.customer.avatar) ? `<img src="${escapeHtml(req.customer.avatar)}" alt="">` : escapeHtml((req.customer.name || '?').trim().charAt(0).toUpperCase())}</div>
+        <div style="min-width:0">
+          <div class="customer-name">${escapeHtml(req.customer.name)}</div>
+          <div class="customer-phone">${escapeHtml(req.customer.phone)}</div>
+        </div>
       </div>
-      <span class="al-status-badge" style="color:${sv.labelColor};background:${sv.chipBg}">Awaiting quote</span>
+      <span class="al-status-badge" style="color:${stSv.labelColor};background:${stSv.chipBg}">${escapeHtml(st.label)}</span>
     </div>
     <div class="proxy-item-block">
       <div>
-        <div class="proxy-item-name">iHerb — Now Foods Zinc 50mg</div>
-        <div class="proxy-item-store">Store: iHerb.com</div>
+        <div class="proxy-item-name">${escapeHtml(first.name)}</div>
+        <div class="proxy-item-store">${first.store ? 'Store: ' + escapeHtml(first.store) : 'Store: not detected'}</div>
       </div>
       <div>
-        <div class="proxy-item-price">$18.40</div>
-        <div class="proxy-item-qty">Qty: 2</div>
+        <div class="proxy-item-price">${first.price ? al_pxUsd(first.price) : '—'}</div>
+        <div class="proxy-item-qty">Qty: ${first.qty}</div>
       </div>
     </div>
+    ${more > 0 ? `<div class="px-more">+${more} more item${more > 1 ? 's' : ''}</div>` : ''}
     <div class="chips-row">
-      ${al_chip('phone','Contact','WhatsApp')}
-      ${al_chip('clock','Requested','Today, 2:10 PM')}
+      ${al_chip('message','Contact',escapeHtml(ch.label))}
+      ${al_chip('clock','Requested',escapeHtml(al_pxWhen(req.createdAt)))}
+      ${unverified ? al_chip('alertTri','Prices','Unverified','#E15A26').replace('class="chip"','class="chip px-warn"') : ''}
     </div>
     <div class="al-actions-row">
-      ${al_actionBtn('primary','send','Quote')}
-      <a class="al-action-btn" href="https://wa.me/8801998221190" target="_blank" rel="noopener" style="text-decoration:none;background:#25D366;color:#fff;box-shadow:0 4px 12px rgba(37,211,102,0.35)"><svg width="13" height="13" viewBox="0 0 24 24" fill="#fff"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347zM12 0C5.373 0 0 5.373 0 12c0 2.127.558 4.122 1.532 5.855L.054 23.454a.5.5 0 00.623.529l5.792-1.526A11.938 11.938 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.882a9.877 9.877 0 01-5.031-1.375l-.36-.214-3.733.983.998-3.648-.235-.374A9.861 9.861 0 012.118 12C2.118 6.53 6.53 2.118 12 2.118S21.882 6.53 21.882 12 17.47 21.882 12 21.882z"/></svg><span>WhatsApp</span></a>
-      ${al_actionBtn('ghost','history','Details','openOrderDetailsModal()')}
+      ${al_actionBtn('primary','send','Quote',`openProxyDetails('${id}')`)}
+      <button class="al-action-btn" style="background:${ch.color};color:#fff;box-shadow:0 4px 12px ${ch.color}55" onclick="openProxyChat('${id}')">${al_icon('message',13,'#fff',2.5)}<span>Chat</span></button>
+      ${al_actionBtn('ghost','history','Details',`openProxyDetails('${id}')`)}
     </div>
   </div>`;
 }
+
+function al_proxyCards(){
+  if (!AL_PROXY.length) {
+    return `<div class="al-card glass-shadow ${AL_SEVERITY.proxy.tone}" data-group="order"><div class="px-empty">No Buy For Me requests yet</div></div>`;
+  }
+  return AL_PROXY.map(al_proxyRequestCard).join('');
+}
+
+/* Single seam for "talk to this customer". The Unified Inbox plugs in here:
+   define window.openUnifiedInbox({ channel, phone, ref, name }) and every proxy card/modal uses it. */
+function openProxyChat(id){
+  const req = AL_PROXY.find(r => r.id === id);
+  if (!req) return;
+  if (typeof window.openUnifiedInbox === 'function') {
+    window.openUnifiedInbox({ channel:req.channel, phone:req.customer.phone, ref:req.px, name:req.customer.name });
+    return;
+  }
+  const digits = String(req.customer.phone || '').replace(/\D/g, '');
+  if (!digits) { if (typeof showToast === 'function') showToast('No contact number on this request'); return; }
+  const num = digits.startsWith('880') ? digits : (digits.startsWith('0') ? '88' + digits : '880' + digits);
+  const msg = encodeURIComponent('Hi ' + req.customer.name + ', this is SuppVerse BD about your Buy For Me request ' + (req.px || '') + '.');
+  window.open('https://wa.me/' + num + '?text=' + msg, '_blank', 'noopener');
+}
+
+function openProxyDetails(id){
+  const req = AL_PROXY.find(r => r.id === id);
+  const panel = document.getElementById('proxyRequestPanel');
+  const frame = document.getElementById('proxyRequestFrame');
+  if (!req || !panel || !frame) return;
+  const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+  frame.src = 'proxy-request.html?id=' + encodeURIComponent(req.id) + '&theme=' + theme;
+  panel.classList.add('open');
+}
+function closeProxyDetails(){
+  const panel = document.getElementById('proxyRequestPanel');
+  const frame = document.getElementById('proxyRequestFrame');
+  if (panel) panel.classList.remove('open');
+  if (frame) frame.removeAttribute('src');   // release the page, fresh load on reopen
+}
+window.addEventListener('message', function(e){
+  if (e.origin !== window.location.origin) return;
+  const d = e.data || {};
+  if (d.type === 'sv-px-close') closeProxyDetails();
+});
 
 /* ---- Card 6: Payment Received — Local Stock order ---- */
 function al_paymentLocalCard() {
@@ -25979,13 +26136,27 @@ function al_expiredCard() {
   </div>`;
 }
 
+let _alPxLoading = false;
 function renderAlertsTab() {
+  const container = document.getElementById('alertsTabContent');
+  if (!container) return;
+  if (!_alPxLoading) {
+    _alPxLoading = true;
+    loadProxyRequests().then(() => {
+      _alPxLoading = false;
+      const panel = document.getElementById('tab-alerts');
+      if (panel && panel.classList.contains('active-panel')) renderAlertsTabNow();
+    }).catch(() => { _alPxLoading = false; });
+  }
+  renderAlertsTabNow();
+}
+function renderAlertsTabNow() {
   const container = document.getElementById('alertsTabContent');
   if (!container) return;
   container.innerHTML = '<div class="al-cards-wrap">' +
     al_customerInboxCard() +
     al_lowStockCard() + al_outOfStockCard() + al_expiryCard() +
-    al_newOrderCard() + al_buyForMeCard() +
+    al_newOrderCard() + al_proxyCards() +
     al_paymentLocalCard() + al_paymentProxyCard() +
     al_returnRequestCard() + al_paymentDueCard(false) +
     al_expiredCard() +
