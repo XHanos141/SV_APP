@@ -5155,7 +5155,7 @@ html[data-theme="dark"] .voucher-input { background: rgba(255,255,255,0.06); bor
 .voucher-apply-btn:active { transform: scale(0.95); }
 .vq,.vqi-sh{--vq-card:#fff;--vq-text:#001f3c;--vq-muted:#8c92a1;--vq-line:#ececec;--vq-red:#d95353}
 html[data-theme="dark"] .vq,html[data-theme="dark"] .vqi-sh{--vq-card:#1b2738;--vq-text:#eef4ff;--vq-muted:#9ca8bc;--vq-line:rgba(255,255,255,.09);--vq-red:#f87171}
-.vq{background:var(--vq-card);border:1px solid var(--vq-line);border-radius:16px;padding:12px;margin-bottom:8px;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.vq{background:var(--vq-card);border:1px solid var(--vq-line);border-radius:16px;padding:12px;margin-bottom:8px;-webkit-tap-highlight-color:transparent}
 .vq-top{display:flex;gap:12px;align-items:flex-start}
 .vq-ic{width:46px;height:46px;border-radius:13px;flex:none;display:grid;place-items:center;color:#fff;background:linear-gradient(135deg,var(--vc),var(--vc2));box-shadow:0 6px 12px -6px var(--vc2)}
 .vq-ic svg{width:22px;height:22px}
@@ -23037,15 +23037,12 @@ function vqOpenInfo(code) {
   requestAnimationFrame(() => o.classList.add('open'));
 }
 document.addEventListener('keydown', e => { if (e.key === 'Escape') vqCloseInfo(); });
-document.addEventListener('keydown', e => {
-  if ((e.key === 'Enter' || e.key === ' ') && e.target.classList.contains('vq') && e.target.closest('#voucherListContainer')) { e.preventDefault(); openVoucherHub(); }
-});
 document.addEventListener('click', async e => {
   if (!e.target.closest('#voucherListContainer')) return;
   const inf = e.target.closest('.vq-info');
   if (inf) { vqOpenInfo(inf.dataset.code); return; }
   const b = e.target.closest('.vq-cp');
-  if (!b) { if (e.target.closest('.vq')) openVoucherHub(); return; }
+  if (!b) return;
   if (!await svCopyText(b.dataset.code)) return;
   b.classList.add('ok'); b.innerHTML = VQ_ICON.check;
   setTimeout(() => { b.classList.remove('ok'); b.innerHTML = VQ_ICON.copy; }, 1200);
@@ -23076,7 +23073,7 @@ async function renderDrawerVouchers() {
     const st = v.derived_status || v.status;
     const label = v.type in VQ_TYPE ? m.label : v.type;
     const title = v.title || label;
-    return `<div class="vq" role="button" tabindex="0" aria-label="Open voucher hub" style="--vc:${m.c};--vc2:${m.c2}">
+    return `<div class="vq" style="--vc:${m.c};--vc2:${m.c2}">
       <div class="vq-top">
         <div class="vq-ic">${m.icon}</div>
         <div class="vq-bd">
