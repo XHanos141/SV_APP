@@ -9199,6 +9199,15 @@ html[data-theme="dark"] .hamburger:hover { background: rgba(255,255,255,0.15); }
 .nav-icon-box.active { background: var(--timeframe-active); color: #ffffff; }
 .nav-lbl { font-size: 10px; font-weight: 600; color: var(--muted); font-family: "Plus Jakarta Sans", sans-serif; transition: color 0.35s ease; }
 .nav-lbl.active { color: var(--text); }
+/* Bottom nav: slimmer bar + locked active pill (beats sticky touch-hover, no pale/washed state) */
+.bottom-nav { padding: 7px 20px 13px; }
+.bottom-nav .nav-item { gap: 2px; }
+.bottom-nav .nav-icon-box { width: 38px; height: 38px; border-radius: 12px; overflow: visible; transition: background-color 0.3s ease, color 0.3s ease, transform 0.3s ease; }
+.bottom-nav .nav-icon-box.active,
+.bottom-nav .nav-icon-box.active:hover { background: var(--timeframe-active); color: #ffffff; box-shadow: none; }
+.bottom-nav .nav-icon-box.active svg { color: #ffffff; }
+@media (hover: none) { .bottom-nav .nav-icon-box:not(.active):hover { background: transparent; transform: none; } }
+.bottom-nav .nav-fab { margin-top: -15px; }
 .divider { height: 1px; background: var(--line); transition: background 0.35s ease; }
 
 @keyframes fadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
