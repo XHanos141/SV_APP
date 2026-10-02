@@ -1636,11 +1636,11 @@ html[data-theme="dark"] .content-card h2 { color: #eef4ff; }
 html[data-theme="dark"] .content-card p { color: #9ca8bc; }
 
 /* BOTTOM NAV */
-.bottom-nav { background: #ffffff; border-top: 1px solid #ececec; padding: 12px 24px 20px; display: flex; justify-content: space-around; align-items: center; flex-shrink: 0; transition: background 0.4s ease, border-color 0.35s ease; }
+.bottom-nav { background: #ffffff; border-top: 1px solid #ececec; padding: 9px 24px 16px; display: flex; justify-content: space-around; align-items: center; flex-shrink: 0; transition: background 0.4s ease, border-color 0.35s ease; }
 html[data-theme="dark"] .bottom-nav { background: #1b2738; border-color: rgba(255,255,255,0.08); }
-.nav-item { display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: default; }
+.nav-item { display: flex; flex-direction: column; align-items: center; gap: 3px; cursor: default; }
 .nav-icon-box {
-  width: 44px; height: 44px; border-radius: 14px;
+  width: 40px; height: 40px; border-radius: 13px;
   display: flex; align-items: center; justify-content: center;
   font-size: 18px; color: #8c92a1; background: transparent;
   transition: all 0.4s cubic-bezier(0.4,0,0.2,1);
@@ -1658,6 +1658,15 @@ html[data-theme="dark"] .nav-icon-box { color: #9ca8bc; }
 html[data-theme="dark"] .nav-icon-box.active {
   background: linear-gradient(180deg, #001a33 0%, #001122 50%, #000d1a 100%);
   box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), inset 0 -1px 0 rgba(0,0,0,0.4);
+}
+
+/* Active icon stays white in BOTH themes (dark-theme muted colour rule was beating it) */
+.nav-icon-box.active, html[data-theme="dark"] .nav-icon-box.active,
+.nav-icon-box.active:hover, html[data-theme="dark"] .nav-icon-box.active:hover { color: #ffffff; }
+.nav-icon-box.active svg { color: #ffffff; }
+@media (hover: none) {
+  .nav-icon-box:not(.active):hover, html[data-theme="dark"] .nav-icon-box:not(.active):hover { background: transparent; transform: none; }
+  .nav-icon-box.active:hover { transform: translateY(-1px); }
 }
 
 /* Hover lift effect */
@@ -4032,7 +4041,7 @@ html[data-theme="dark"] .draft-shipping-input::placeholder { color: rgba(255,255
    ====== FAB BUTTON & ACTION SHEET ======
    ============================================================ */
 .nav-fab {
-  margin-top: -18.1px;
+  margin-top: -15px;
   z-index: 10;
 }
 .nav-fab-btn {
@@ -9199,15 +9208,6 @@ html[data-theme="dark"] .hamburger:hover { background: rgba(255,255,255,0.15); }
 .nav-icon-box.active { background: var(--timeframe-active); color: #ffffff; }
 .nav-lbl { font-size: 10px; font-weight: 600; color: var(--muted); font-family: "Plus Jakarta Sans", sans-serif; transition: color 0.35s ease; }
 .nav-lbl.active { color: var(--text); }
-/* Bottom nav: slimmer bar + locked active pill (beats sticky touch-hover, no pale/washed state) */
-.bottom-nav { padding: 7px 20px 13px; }
-.bottom-nav .nav-item { gap: 2px; }
-.bottom-nav .nav-icon-box { width: 38px; height: 38px; border-radius: 12px; overflow: visible; transition: background-color 0.3s ease, color 0.3s ease, transform 0.3s ease; }
-.bottom-nav .nav-icon-box.active,
-.bottom-nav .nav-icon-box.active:hover { background: var(--timeframe-active); color: #ffffff; box-shadow: none; }
-.bottom-nav .nav-icon-box.active svg { color: #ffffff; }
-@media (hover: none) { .bottom-nav .nav-icon-box:not(.active):hover { background: transparent; transform: none; } }
-.bottom-nav .nav-fab { margin-top: -15px; }
 .divider { height: 1px; background: var(--line); transition: background 0.35s ease; }
 
 @keyframes fadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
