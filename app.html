@@ -20531,6 +20531,7 @@ async function loadOrdersFromSupabase() {
         paidAdded = true;
         return;
       }
+      if (o.status === 'cancelled') return; // auto-cancelled unpaid web order
       if (known.has(o.id)) return;
       container.appendChild(buildDraftCardEl({
         orderId: o.order_number, name: o.customer_name || 'Customer', phone: o.customer_phone || '',
