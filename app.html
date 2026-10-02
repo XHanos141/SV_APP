@@ -7767,6 +7767,7 @@ html[data-theme="dark"] #alertsTabContent .tone-proxy   .al-actions-row { border
 #alertsTabContent .al-card:nth-child(2) { animation-delay: .10s; }
 #alertsTabContent .al-card:nth-child(3) { animation-delay: .17s; }
 @keyframes al-cardIn { to { opacity: 1; transform: translateY(0); } }
+#alertsTabContent .al-cards-wrap.al-no-anim .al-card { animation: none; opacity: 1; transform: none; }
 
 #alertsTabContent .al-card-top { display: flex; align-items: center; gap: 9px; margin-bottom: 9px; }
 #alertsTabContent .al-icon-chip {
@@ -26358,13 +26359,16 @@ function al_expiredCard() {
 }
 
 let _alPxLoading = false;
+let _alHasRendered = false;
 function renderAlertsTab() {
   const container = document.getElementById('alertsTabContent');
   if (!container) return;
   if (!_alPxLoading) {
     _alPxLoading = true;
+    const before = JSON.stringify(AL_PROXY);
     loadProxyRequests().then(() => {
       _alPxLoading = false;
+      if (JSON.stringify(AL_PROXY) === before) return; // nothing changed -> no re-render, no blink
       const panel = document.getElementById('tab-alerts');
       if (panel && panel.classList.contains('active-panel')) renderAlertsTabNow();
     }).catch(() => { _alPxLoading = false; });
@@ -26374,7 +26378,9 @@ function renderAlertsTab() {
 function renderAlertsTabNow() {
   const container = document.getElementById('alertsTabContent');
   if (!container) return;
-  container.innerHTML = '<div class="al-cards-wrap">' +
+  const _alAnim = !_alHasRendered;
+  _alHasRendered = true;
+  container.innerHTML = '<div class="al-cards-wrap' + (_alAnim ? '' : ' al-no-anim') + '">' +
     al_customerInboxCard() +
     al_lowStockCard() + al_outOfStockCard() + al_expiryCard() +
     al_newOrderCard() + al_proxyCards() +
