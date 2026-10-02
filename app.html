@@ -22938,11 +22938,15 @@ function vqOpenInfo(code) {
   requestAnimationFrame(() => o.classList.add('open'));
 }
 document.addEventListener('keydown', e => { if (e.key === 'Escape') vqCloseInfo(); });
-document.getElementById('voucherListContainer')?.addEventListener('click', async e => {
+document.addEventListener('keydown', e => {
+  if ((e.key === 'Enter' || e.key === ' ') && e.target.classList.contains('vq') && e.target.closest('#voucherListContainer')) { e.preventDefault(); openVoucherHub(); }
+});
+document.addEventListener('click', async e => {
+  if (!e.target.closest('#voucherListContainer')) return;
   const inf = e.target.closest('.vq-info');
   if (inf) { vqOpenInfo(inf.dataset.code); return; }
   const b = e.target.closest('.vq-cp');
-  if (!b) return;
+  if (!b) { if (e.target.closest('.vq')) openVoucherHub(); return; }
   if (!await svCopyText(b.dataset.code)) return;
   b.classList.add('ok'); b.innerHTML = VQ_ICON.check;
   setTimeout(() => { b.classList.remove('ok'); b.innerHTML = VQ_ICON.copy; }, 1200);
@@ -22973,7 +22977,7 @@ async function renderDrawerVouchers() {
     const st = v.derived_status || v.status;
     const label = v.type in VQ_TYPE ? m.label : v.type;
     const title = v.title || label;
-    return `<div class="vq" style="--vc:${m.c};--vc2:${m.c2}" onclick="if(!event.target.closest('.vq-cp,.vq-info'))openVoucherHub()">
+    return `<div class="vq" role="button" tabindex="0" aria-label="Open voucher hub" style="--vc:${m.c};--vc2:${m.c2}">
       <div class="vq-top">
         <div class="vq-ic">${m.icon}</div>
         <div class="vq-bd">
