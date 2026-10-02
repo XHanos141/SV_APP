@@ -1643,7 +1643,7 @@ html[data-theme="dark"] .bottom-nav { background: #1b2738; border-color: rgba(25
   width: 40px; height: 40px; border-radius: 13px;
   display: flex; align-items: center; justify-content: center;
   font-size: 18px; color: #8c92a1; background: transparent;
-  transition: color 0.3s ease, background-color 0.3s ease;
+  transition: color 0.45s ease, background-color 0.3s ease;
   position: relative; overflow: hidden;
 }
 html[data-theme="dark"] .nav-icon-box { color: #9ca8bc; }
@@ -1655,7 +1655,7 @@ html[data-theme="dark"] .nav-icon-box { color: #9ca8bc; }
   background: linear-gradient(180deg, #002a52 0%, #001f3c 50%, #001532 100%);
   box-shadow: inset 0 1px 0 rgba(255,255,255,0.12), inset 0 -1px 0 rgba(0,0,0,0.25);
   transform: translate3d(0,0,0); opacity: 0; will-change: transform;
-  transition: transform 0.42s cubic-bezier(0.32,0.72,0,1), opacity 0.2s ease;
+  transition: transform 0.58s cubic-bezier(0.22,0.9,0.28,1), opacity 0.25s ease;
   pointer-events: none;
 }
 .nav-pill.ready { opacity: 1; }
@@ -1665,7 +1665,7 @@ html[data-theme="dark"] .nav-pill {
   box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), inset 0 -1px 0 rgba(0,0,0,0.4);
 }
 .nav-icon-box { z-index: 1; }
-.nav-icon-box svg { position: relative; transition: transform 0.35s cubic-bezier(0.32,0.72,0,1); }
+.nav-icon-box svg { position: relative; transition: transform 0.5s cubic-bezier(0.22,0.9,0.28,1); }
 .nav-icon-box.active svg { transform: scale(1.06); }
 
 /* Active icon white in BOTH themes; the pill (not the icon box) carries the background */
@@ -1689,7 +1689,7 @@ html[data-theme="dark"] .nav-icon-box:hover {
 .nav-lbl {
   font-size: 10px; font-weight: 600; color: #8c92a1;
   font-family: "Plus Jakarta Sans", sans-serif;
-  transition: all 0.35s ease;
+  transition: color 0.45s ease;
 }
 html[data-theme="dark"] .nav-lbl { color: #9ca8bc; }
 
