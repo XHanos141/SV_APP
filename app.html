@@ -12239,8 +12239,8 @@ window.addEventListener('message', function(e) {
   if (profitDetailOverlay.classList.contains('open')) ovRenderProfit();
 });
 
-/* Rolling-digit number animation — same algorithm as SV-Web index.html animateStat():
-   2 full rotations, alternating up/down per digit, 140ms stagger, symbols slide+fade in. */
+/* Rolling-digit number animation — SV-Web animateStat() timing/easing, but with true alternating
+   direction per digit (down, up, down, up...), 2 full rotations, 140ms stagger, symbols slide+fade in. */
 function svRollNumber(el, txt) {
   if (!el) return;
   txt = String(txt);
@@ -12258,31 +12258,45 @@ function svRollNumber(el, txt) {
     const delay = i * 140;
     if (/[0-9]/.test(ch)) {
       const targetDigit = parseInt(ch, 10);
-      const ascending = i % 2 === 0;
-      // descending strips must END on the target: last row = (10 - steps%10)%10, so steps%10 = (10 - target)%10
-      const steps = rotations * 10 + (ascending ? targetDigit : (10 - targetDigit) % 10);
+      // true alternating physical motion: even digits spin DOWN, odd digits spin UP  (down, up, down, up ...)
+      const goesDown = i % 2 === 0;
       const ghost = document.createElement('span');   // in-flow sizer: box width = real glyph width in this font
       ghost.className = 'digit-ghost';
       ghost.textContent = ch;
       box.appendChild(ghost);
       const strip = document.createElement('span');
       strip.className = 'digit-strip';
-      for (let n = 0; n <= steps; n++) {
-        const val = ascending ? (n % 10) : ((10 - (n % 10)) % 10);
-        const row = document.createElement('span');
-        row.className = 'digit-row';
-        row.textContent = val;
-        strip.appendChild(row);
+      let steps;
+      if (goesDown) {
+        // rows run target, target+1, ... so the strip sliding DOWN (to translateY(0)) counts digits down and lands on row 0 = target
+        steps = rotations * 10;
+        for (let n = 0; n <= steps; n++) {
+          const row = document.createElement('span');
+          row.className = 'digit-row';
+          row.textContent = (targetDigit + n) % 10;
+          strip.appendChild(row);
+        }
+        strip.style.transform = 'translateY(-' + steps + 'em)';
+        strip.dataset.endY = '0em';
+      } else {
+        // rows run 0,1,2 ... target (+2 full turns); strip slides UP to the target row
+        steps = rotations * 10 + targetDigit;
+        for (let n = 0; n <= steps; n++) {
+          const row = document.createElement('span');
+          row.className = 'digit-row';
+          row.textContent = n % 10;
+          strip.appendChild(row);
+        }
+        strip.dataset.endY = '-' + steps + 'em';
       }
       strip.style.transitionDelay = delay + 'ms';
-      strip.dataset.endY = '-' + steps + 'em';
       box.appendChild(strip);
     } else {
       box.classList.add('digit-sym');
       const inner = document.createElement('span');
       inner.className = 'digit-inner';
       inner.textContent = ch;
-      const dir = i % 2 === 0 ? 1 : -1;
+      const dir = i % 2 === 0 ? -1 : 1;   // even slot drops in from above, odd rises from below (matches digit directions)
       inner.style.transform = 'translateY(' + (dir * 44) + 'px)';
       inner.style.opacity = '0';
       inner.style.transitionDelay = delay + 'ms';
