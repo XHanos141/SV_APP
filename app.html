@@ -1667,6 +1667,7 @@ html[data-theme="dark"] .nav-pill {
 .nav-icon-box { z-index: 1; }
 .nav-icon-box svg { position: relative; transition: transform 0.5s cubic-bezier(0.22,0.9,0.28,1); }
 .nav-icon-box.active svg { transform: scale(1.06); }
+#nav-icon-sales svg { margin-top: 0.8px; } /* cart glyph sits ~0.4px high in its viewBox */
 
 /* Active icon white in BOTH themes; the pill (not the icon box) carries the background */
 .nav-icon-box.active, html[data-theme="dark"] .nav-icon-box.active,
@@ -25642,11 +25643,15 @@ function svShowDebugError(where, e){
 function svMoveNavPill(tab, animate) {
   const pill = document.getElementById('navPill');
   const box = document.getElementById('nav-icon-' + (tab || 'overview'));
-  if (!pill || !box || !box.offsetWidth) return;
-  pill.style.width = box.offsetWidth + 'px';
-  pill.style.height = box.offsetHeight + 'px';
+  const nav = pill && pill.parentElement;
+  if (!pill || !box || !nav || !box.offsetWidth) return;
+  // sub-pixel exact: measure real rects (offsetLeft rounds to whole px -> up to ~0.5px drift off the icon)
+  const nr = nav.getBoundingClientRect(), br = box.getBoundingClientRect();
+  const x = br.left - nr.left - nav.clientLeft, y = br.top - nr.top - nav.clientTop;
+  pill.style.width = br.width + 'px';
+  pill.style.height = br.height + 'px';
   if (animate === false) pill.classList.add('no-anim');
-  pill.style.transform = 'translate3d(' + box.offsetLeft + 'px,' + box.offsetTop + 'px,0)';
+  pill.style.transform = 'translate3d(' + x + 'px,' + y + 'px,0)';
   pill.classList.add('ready');
   if (animate === false) { void pill.offsetWidth; pill.classList.remove('no-anim'); }
 }
