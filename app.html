@@ -1880,6 +1880,9 @@ html[data-theme="dark"] .voucher-icon { background: rgba(217,83,83,0.15); }
 .voucher-icon svg { color: #d95353; }
 html[data-theme="dark"] .voucher-icon svg { color: #f07070; }
 html[data-theme="dark"] .invoice-icon svg { color: #3bbf7f; }
+/* Menu rows stay neutral: the tint classes are reused on the row for the inner icon colours only */
+.section-header:where([class*="-icon"]) { background: transparent; }
+html[data-theme="dark"] .section-header:where([class*="-icon"]) { background: transparent; }
 .invoice-badge { background: rgba(47,155,104,0.12); color: #2f9b68; }
 html[data-theme="dark"] .invoice-badge { background: rgba(47,155,104,0.15); color: #3bbf7f; }
 
