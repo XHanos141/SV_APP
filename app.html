@@ -12251,11 +12251,15 @@ function svRollNumber(el, txt) {
   if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) { el.textContent = txt; return; }
   el.textContent = '';
   const rotations = 2;
-  Array.from(txt).forEach(function(ch, i) {
+  // Left-to-right wave with a FIXED total duration: per-digit stagger shrinks as the number grows,
+  // so 4 digits or 12 digits both start together-ish from the left and finish at the same moment.
+  const chars = Array.from(txt);
+  const stagger = chars.length > 1 ? Math.min(140, 560 / (chars.length - 1)) : 0;
+  chars.forEach(function(ch, i) {
     const box = document.createElement('span');
     box.className = 'digit-box';
     box.setAttribute('aria-hidden', 'true');
-    const delay = i * 140;
+    const delay = Math.round(i * stagger);
     if (/[0-9]/.test(ch)) {
       const targetDigit = parseInt(ch, 10);
       // true alternating physical motion: even digits spin DOWN, odd digits spin UP  (down, up, down, up ...)
