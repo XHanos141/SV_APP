@@ -5699,6 +5699,7 @@ html[data-theme="dark"] .vm-check{background:#1b2738;border-color:rgba(255,255,2
 html[data-theme="dark"] .vm-row{color:#fff}
 .vm-row b{font-family:'Plus Jakarta Sans',sans-serif}
 .vm-row small{color:#8c92a1}
+.vm-row .prod-card-sku{font-size:11px;margin-top:3px}
 .vm-err{color:#d95353!important}
 #vmGo.modal-btn-confirm{background:#2f9b68}
 #vmGo.modal-btn-confirm:hover{background:#278357}
@@ -24961,7 +24962,7 @@ window.svVmOpen = function () {
   if (sel.length < 2) err = 'Select at least 2 products.';
   else if (new Set(sel.map(key)).size !== 1) err = 'Brand, product name, and category must match exactly (case and spaces too). Fix the name on the product first.';
   else if (new Set(labels).size !== labels.length) err = 'Two products have identical potency and count. Fix one first.';
-  rows.innerHTML = sel.map(p => `<div class="vm-row"><div><b>${escapeHtml(svVariantLabel(p))}</b><br><small>${escapeHtml(p.sku)}</small></div><div style="text-align:right"><b>৳${Number(p.price).toLocaleString('en-IN')}</b><br><small>stock ${p.stock}</small></div></div>`).join('');
+  rows.innerHTML = sel.map(p => `<div class="vm-row"><div><b>${escapeHtml(svVariantLabel(p))}</b><div class="prod-card-sku">${escapeHtml(p.sku)}</div></div><div style="text-align:right"><b>৳${Number(p.price).toLocaleString('en-IN')}</b><br><small>stock ${p.stock}</small></div></div>`).join('');
   txt.classList.toggle('vm-err', !!err);
   txt.textContent = err || 'Each stays its own SKU with its own stock and price. Website shows them as one product with potency/count options.';
   go.disabled = !!err; go.style.opacity = err ? '.4' : '';
