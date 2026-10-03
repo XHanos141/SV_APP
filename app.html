@@ -5667,6 +5667,29 @@ html[data-theme="dark"] .pinfo-total-label { color: #F0F4FA; }
   transition: transform 0.25s ease, box-shadow 0.25s ease, background 0.4s ease, border-color 0.35s ease;
 }
 html[data-theme="dark"] .prod-card { background: #1b2738; border-color: rgba(255,255,255,0.08); }
+.prod-card{position:relative}
+.prod-card.vm-on{cursor:pointer;-webkit-user-select:none;user-select:none}
+.prod-card.vm-sel{border-color:#7c6ff7!important;box-shadow:0 0 0 2px rgba(124,111,247,.35)}
+.vm-check{position:absolute;top:-9px;left:-9px;width:26px;height:26px;border-radius:50%;border:2px solid #b8bfcc;background:#fff;display:flex;align-items:center;justify-content:center;z-index:3;transition:background .18s ease,border-color .18s ease}
+html[data-theme="dark"] .vm-check{background:#1b2738;border-color:rgba(255,255,255,.3)}
+.vm-check svg{opacity:0;transition:opacity .15s ease}
+.prod-card.vm-sel .vm-check{background:#7c6ff7;border-color:#7c6ff7}
+.prod-card.vm-sel .vm-check svg{opacity:1}
+.vg-strip{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:10px;padding:8px 10px;border-radius:10px;background:rgba(124,111,247,.08);border:1px solid rgba(124,111,247,.25)}
+.vg-lbl{font:700 11px 'Plus Jakarta Sans',sans-serif;color:#7c6ff7;display:flex;align-items:center;gap:5px;margin-right:auto}
+.vg-chip{padding:3px 9px;border-radius:999px;font:600 11px 'DM Sans',sans-serif;border:1px solid rgba(124,111,247,.35);color:#7c6ff7}
+.vg-chip.cur{background:#7c6ff7;color:#fff}
+.vg-split{border:none;background:transparent;color:#d95353;font:700 11px 'Plus Jakarta Sans',sans-serif;padding:4px 6px;cursor:pointer}
+.vm-bar{position:sticky;bottom:10px;z-index:20;display:flex;gap:8px;align-items:center;padding:10px 12px;border-radius:14px;background:#001f3c;box-shadow:0 8px 24px rgba(0,0,0,.3);margin-top:8px}
+.vm-bar span{flex:1;color:#fff;font:600 13px 'DM Sans',sans-serif}
+.vm-bar button{border:none;border-radius:10px;padding:9px 14px;font:700 13px 'Plus Jakarta Sans',sans-serif;cursor:pointer}
+.vm-go{background:#7c6ff7;color:#fff}.vm-go:disabled{opacity:.4;cursor:default}
+.vm-x{background:rgba(255,255,255,.12);color:#fff}
+.vm-row{display:flex;justify-content:space-between;gap:10px;padding:10px 12px;border-radius:10px;background:rgba(124,111,247,.07);margin-top:8px;font-size:13px;color:#001f3c;text-align:left}
+html[data-theme="dark"] .vm-row{color:#fff}
+.vm-row b{font-family:'Plus Jakarta Sans',sans-serif}
+.vm-row small{color:#8c92a1}
+.vm-err{color:#d95353!important}
 .prod-card.sv-sort-out, .tx-card-expand.sv-sort-out {
   animation: svSortOut 0.22s cubic-bezier(.4,0,.2,1) forwards;
 }
@@ -17334,6 +17357,23 @@ svLoadProducts();
   </div>
 </div>
 
+<div class="modal-overlay" id="vmModal" onclick="if(event.target===this)svVmCloseModal()">
+  <div class="modal-panel" style="max-width:380px">
+    <div class="rate-warning-body">
+      <div class="rate-warning-icon" style="background:rgba(124,111,247,.12);border-color:rgba(124,111,247,.3)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#7c6ff7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:#7c6ff7"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+      </div>
+      <div class="rate-warning-title">Merge into one product?</div>
+      <div class="rate-warning-text" id="vmText"></div>
+      <div id="vmRows"></div>
+    </div>
+    <div class="save-modal-footer">
+      <button class="modal-btn modal-btn-cancel" onclick="svVmCloseModal()">Cancel</button>
+      <button class="modal-btn modal-btn-confirm" id="vmGo" onclick="svVmConfirm()">Merge</button>
+    </div>
+  </div>
+</div>
+
 <!-- ====== DELETE PRODUCT CONFIRM MODAL ====== -->
 <div class="modal-overlay" id="pdaDeleteModal">
   <div class="modal-panel" style="max-width:360px">
@@ -24528,6 +24568,7 @@ function mapSupabaseProductToLocal(row) {
     archivedAt: row.archived_at || null,
     webEnabled: row.web_enabled === true,
     isWebPublished: row.is_web_published === true,
+    variantGroupId: row.variant_group_id || null,
     meta: Object.assign({ brandName: row.brand, usdCost: row.usd_cost, weight: row.weight_cost || null }, row.meta || {})
   };
 }
@@ -24847,6 +24888,123 @@ function _positionFilterIndicator(id, prevRect, activeBtn) {
   ind.style.height = finalHeight;
 }
 
+
+// ===== Variant groups (merge products that differ only by potency/count) =====
+let _vmMode = false;
+const _vmSel = new Set();
+let _vmSwallow = 0;
+function svVariantLabel(p) {
+  const m = p.meta || {}, a = [];
+  if (m.potencyAmount) a.push(Number(m.potencyAmount) + ' ' + (m.potencyType || ''));
+  if (m.capsuleCount) a.push(m.capsuleCount + ' caps');
+  if (m.flavor) a.push(m.flavor);
+  return a.join(' · ').trim() || p.sku;
+}
+function svVgSiblings(p) {
+  if (!p.variantGroupId) return [];
+  return PRODUCTS_DATA.filter(x => x.variantGroupId === p.variantGroupId && !x.archived)
+    .sort((a, b) => ((a.meta && a.meta.capsuleCount) || 0) - ((b.meta && b.meta.capsuleCount) || 0));
+}
+function svVgStripHTML(p) {
+  const sib = svVgSiblings(p);
+  if (sib.length < 2) return '';
+  const chips = sib.map(s => `<span class="vg-chip${s === p ? ' cur' : ''}">${escapeHtml(svVariantLabel(s))}</span>`).join('');
+  const sk = String(p.sku).replace(/'/g, "\\'");
+  return `<div class="vg-strip"><span class="vg-lbl"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>${sib.length} variants</span>${chips}<button class="vg-split" onclick="svVmSplit('${sk}', event)">Split</button></div>`;
+}
+function svVmBarHTML() {
+  if (!_vmMode) return '';
+  return `<div class="vm-bar"><span id="vmCount">${_vmSel.size} selected</span><button class="vm-x" onclick="svVmCancel()">Cancel</button><button class="vm-go" id="vmGoBar" onclick="svVmOpen()" ${_vmSel.size < 2 ? 'disabled' : ''}>Merge</button></div>`;
+}
+function svVmRefreshBar() {
+  const n = _vmSel.size, c = document.getElementById('vmCount'), b = document.getElementById('vmGoBar');
+  if (c) c.textContent = n + ' selected';
+  if (b) b.disabled = n < 2;
+}
+window.svVmCancel = function () { _vmMode = false; _vmSel.clear(); renderProductsTab(); };
+window.svVmCloseModal = function () { const m = document.getElementById('vmModal'); if (m) m.classList.remove('active'); };
+window.svVmOpen = function () {
+  const sel = PRODUCTS_DATA.filter(p => p.id && _vmSel.has(p.id));
+  const txt = document.getElementById('vmText'), rows = document.getElementById('vmRows'), go = document.getElementById('vmGo');
+  const key = p => [(p.meta && p.meta.brandName || '').trim().toLowerCase(), String(p.name).trim().toLowerCase(), p.category].join('|');
+  const labels = sel.map(svVariantLabel);
+  let err = '';
+  if (sel.length < 2) err = 'Select at least 2 products.';
+  else if (new Set(sel.map(key)).size !== 1) err = 'Different brand, name, or category. Only the same product can be merged.';
+  else if (new Set(labels).size !== labels.length) err = 'Two products have identical potency and count. Fix one first.';
+  rows.innerHTML = sel.map(p => `<div class="vm-row"><div><b>${escapeHtml(svVariantLabel(p))}</b><br><small>${escapeHtml(p.sku)}</small></div><div style="text-align:right"><b>৳${Number(p.price).toLocaleString('en-IN')}</b><br><small>stock ${p.stock}</small></div></div>`).join('');
+  txt.classList.toggle('vm-err', !!err);
+  txt.textContent = err || 'Each stays its own SKU with its own stock and price. Website shows them as one product with potency/count options.';
+  go.disabled = !!err; go.style.opacity = err ? '.4' : '';
+  document.getElementById('vmModal').classList.add('active');
+};
+window.svVmConfirm = async function () {
+  const go = document.getElementById('vmGo'), txt = document.getElementById('vmText');
+  const sel = PRODUCTS_DATA.filter(p => p.id && _vmSel.has(p.id));
+  if (go.dataset.busy === '1') return;
+  go.dataset.busy = '1'; go.textContent = 'Merging…';
+  try {
+    const r = await sb.rpc('admin_merge_variants', { p_ids: sel.map(p => p.id) });
+    if (r.error) throw new Error(r.error.message);
+    sel.forEach(p => { p.variantGroupId = r.data; });
+    _vmMode = false; _vmSel.clear();
+    svVmCloseModal();
+    renderProductsTab();
+    try { showToast('Merged into one product'); } catch (e) {}
+  } catch (err) {
+    txt.classList.add('vm-err'); txt.textContent = 'Merge failed: ' + err.message;
+  } finally {
+    go.dataset.busy = ''; go.textContent = 'Merge';
+  }
+};
+window.svVmSplit = async function (sku, ev) {
+  if (ev) { ev.stopPropagation(); ev.preventDefault(); }
+  const p = PRODUCTS_DATA.find(x => x.sku === sku);
+  if (!p || !p.id) return;
+  if (!confirm('Split this variant out of its group?')) return;
+  try {
+    const gid = p.variantGroupId;
+    const r = await sb.rpc('admin_split_variant', { p_id: p.id });
+    if (r.error) throw new Error(r.error.message);
+    p.variantGroupId = null;
+    const left = PRODUCTS_DATA.filter(x => x.variantGroupId === gid);
+    if (left.length === 1) left[0].variantGroupId = null;
+    renderProductsTab();
+  } catch (err) { alert('Split failed: ' + err.message); }
+};
+(function svVmBindGestures() {
+  let timer = null, sx = 0, sy = 0;
+  const clear = () => { if (timer) { clearTimeout(timer); timer = null; } };
+  document.addEventListener('pointerdown', e => {
+    if (_vmMode) return;
+    const card = e.target.closest && e.target.closest('#productsTabContent .prod-card[data-pid]');
+    if (!card || !card.dataset.pid) return;
+    if (e.target.closest('button, .web-sw, .expiry-bar, .variant-bar, input, a, .vg-strip')) return;
+    sx = e.clientX; sy = e.clientY; clear();
+    timer = setTimeout(() => {
+      timer = null;
+      _vmMode = true; _vmSel.clear(); _vmSel.add(card.dataset.pid);
+      _vmSwallow = Date.now() + 600;
+      if (navigator.vibrate) { try { navigator.vibrate(15); } catch (x) {} }
+      renderProductsTab();
+    }, 450);
+  }, true);
+  document.addEventListener('pointermove', e => { if (timer && (Math.abs(e.clientX - sx) > 8 || Math.abs(e.clientY - sy) > 8)) clear(); }, true);
+  ['pointerup', 'pointercancel', 'scroll'].forEach(t => document.addEventListener(t, clear, true));
+  document.addEventListener('click', e => {
+    const card = e.target.closest && e.target.closest('#productsTabContent .prod-card');
+    if (Date.now() < _vmSwallow && card) { e.preventDefault(); e.stopPropagation(); return; }
+    if (!_vmMode || !card) return;
+    e.preventDefault(); e.stopPropagation();
+    const id = card.dataset.pid;
+    if (!id) return;
+    if (_vmSel.has(id)) _vmSel.delete(id); else _vmSel.add(id);
+    card.classList.toggle('vm-sel', _vmSel.has(id));
+    svVmRefreshBar();
+  }, true);
+  document.addEventListener('contextmenu', e => { if (e.target.closest && e.target.closest('#productsTabContent .prod-card')) e.preventDefault(); }, true);
+})();
+
 function renderProductsTab(searchDisplayVal) {
   const _prevFilterInd = _captureIndicatorRect('productsFilterSlide');
   const _prevProductsFilterScroll = document.getElementById('productsFilterRow') ? document.getElementById('productsFilterRow').scrollLeft : 0;
@@ -24937,7 +25095,8 @@ function renderProductsTab(searchDisplayVal) {
     }
 
     return `
-    <div class="prod-card" style="border-color:${cat.color};background:${cat.color}0D">
+    <div class="prod-card${_vmMode ? ' vm-on' : ''}${_vmMode && p.id && _vmSel.has(p.id) ? ' vm-sel' : ''}" data-pid="${p.id || ''}" style="border-color:${cat.color};background:${cat.color}0D">
+      ${_vmMode ? '<div class="vm-check"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>' : ''}
       <div class="prod-card-top">
         <div class="prod-avatar-badge" style="background:linear-gradient(135deg,${cat.color},${cat.color2});box-shadow:0 4px 12px ${cat.color}4d"><svg class="cat-icon cat-icon-${cat.icon}"><use href="#cat-icon-${cat.icon}"/></svg></div>
         <div class="prod-card-info">
@@ -24986,6 +25145,7 @@ function renderProductsTab(searchDisplayVal) {
       ${hasBatches ? buildBatchDropdown(pid, p.batches) : ''}
       ` : ''}
       ${variantSectionHtml}
+      ${svVgStripHTML(p)}
     </div>`;
   }).join('');
 
@@ -25065,7 +25225,7 @@ function renderProductsTab(searchDisplayVal) {
         <div class="filter-chip ${productFilter==='out'?'active':''}" onclick="setProductFilter('out')"><span class="filter-chip-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="#d95353"/></svg></span> Out (${outCount})</div>
       </div>
     </div>
-    ${cards}${empty}
+    ${cards}${empty}${svVmBarHTML()}
     <div class="brand-sheet-backdrop" id="brandFilterBackdrop" onclick="closeBrandFilterSheet()"></div>
     <div class="brand-sheet" id="brandFilterSheet" onclick="event.stopPropagation()">
       <div class="brand-sheet-header">
