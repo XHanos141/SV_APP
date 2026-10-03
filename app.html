@@ -5669,23 +5669,33 @@ html[data-theme="dark"] .pinfo-total-label { color: #F0F4FA; }
 html[data-theme="dark"] .prod-card { background: #1b2738; border-color: rgba(255,255,255,0.08); }
 .prod-card{position:relative}
 .prod-card.vm-on{cursor:pointer;-webkit-user-select:none;user-select:none}
-.prod-card.vm-sel{border-color:#7c6ff7!important;box-shadow:0 0 0 2px rgba(124,111,247,.35)}
+.prod-card.vm-sel{box-shadow:0 0 0 3px rgba(0,31,60,.22);box-shadow:0 0 0 3px color-mix(in srgb,var(--cc,#2f9b68) 40%,transparent)}
 .vm-check{position:absolute;top:-9px;left:-9px;width:26px;height:26px;border-radius:50%;border:2px solid #b8bfcc;background:#fff;display:flex;align-items:center;justify-content:center;z-index:3;transition:background .18s ease,border-color .18s ease}
 html[data-theme="dark"] .vm-check{background:#1b2738;border-color:rgba(255,255,255,.3)}
 .vm-check svg{opacity:0;transition:opacity .15s ease}
-.prod-card.vm-sel .vm-check{background:#7c6ff7;border-color:#7c6ff7}
+.prod-card.vm-sel .vm-check{background:var(--cc,#2f9b68);border-color:var(--cc,#2f9b68)}
 .prod-card.vm-sel .vm-check svg{opacity:1}
-.vg-strip{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:10px;padding:8px 10px;border-radius:10px;background:rgba(124,111,247,.08);border:1px solid rgba(124,111,247,.25)}
-.vg-lbl{font:700 11px 'Plus Jakarta Sans',sans-serif;color:#7c6ff7;display:flex;align-items:center;gap:5px;margin-right:auto}
-.vg-chip{padding:3px 9px;border-radius:999px;font:600 11px 'DM Sans',sans-serif;border:1px solid rgba(124,111,247,.35);color:#7c6ff7}
-.vg-chip.cur{background:#7c6ff7;color:#fff}
-.vg-split{border:none;background:transparent;color:#d95353;font:700 11px 'Plus Jakarta Sans',sans-serif;padding:4px 6px;cursor:pointer}
+.vg-wrap{margin-top:10px;padding:8px 10px;border-radius:10px;background:rgba(0,31,60,.04);border:1px solid rgba(0,31,60,.12);background:color-mix(in srgb,var(--cc,#2f9b68) 8%,transparent);border:1px solid color-mix(in srgb,var(--cc,#2f9b68) 28%,transparent)}
+.vg-row{display:flex;align-items:center;gap:8px}
+.vg-ic{flex:none;color:var(--cc,#2f9b68)}
+.vg-cur{flex:1;min-width:0;font:700 13px 'Plus Jakarta Sans',sans-serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.vg-more{display:flex;align-items:center;gap:3px;padding:4px 9px;border-radius:999px;border:1px solid var(--cc,#2f9b68);background:transparent;color:var(--cc,#2f9b68);font:700 11px 'Plus Jakarta Sans',sans-serif;cursor:pointer;min-height:28px}
+.vg-chev{transition:transform .18s ease}
+.vg-open .vg-chev{transform:rotate(180deg)}
+.vg-split{border:none;background:transparent;color:#d95353;font:700 11px 'Plus Jakarta Sans',sans-serif;padding:4px 6px;min-height:28px;cursor:pointer}
+.vg-chips{display:none;flex-wrap:wrap;gap:6px;margin-top:8px;padding-top:8px;border-top:1px dashed rgba(0,31,60,.18);border-top:1px dashed color-mix(in srgb,var(--cc,#2f9b68) 40%,transparent)}
+.vg-open .vg-chips{display:flex}
+.vg-chip{padding:4px 10px;border-radius:999px;border:1px solid var(--cc,#2f9b68);background:transparent;color:var(--cc,#2f9b68);font:600 11px 'DM Sans',sans-serif;cursor:pointer}
+.vg-chip.cur{background:var(--cc,#2f9b68);color:#fff;cursor:default}
+@keyframes vgFlash{0%,100%{box-shadow:0 0 0 0 transparent}30%{box-shadow:0 0 0 4px var(--cc,#2f9b68)}}
+.prod-card.vg-flash{animation:vgFlash 1.1s ease}
+@media (prefers-reduced-motion:reduce){.prod-card.vg-flash{animation:none}.vg-chev{transition:none}}
 .vm-bar{position:sticky;bottom:10px;z-index:20;display:flex;gap:8px;align-items:center;padding:10px 12px;border-radius:14px;background:#001f3c;box-shadow:0 8px 24px rgba(0,0,0,.3);margin-top:8px}
 .vm-bar span{flex:1;color:#fff;font:600 13px 'DM Sans',sans-serif}
 .vm-bar button{border:none;border-radius:10px;padding:9px 14px;font:700 13px 'Plus Jakarta Sans',sans-serif;cursor:pointer}
-.vm-go{background:#7c6ff7;color:#fff}.vm-go:disabled{opacity:.4;cursor:default}
+.vm-go{background:#2f9b68;color:#fff}.vm-go:disabled{opacity:.4;cursor:default}
 .vm-x{background:rgba(255,255,255,.12);color:#fff}
-.vm-row{display:flex;justify-content:space-between;gap:10px;padding:10px 12px;border-radius:10px;background:rgba(124,111,247,.07);margin-top:8px;font-size:13px;color:#001f3c;text-align:left}
+.vm-row{display:flex;justify-content:space-between;gap:10px;padding:10px 12px;border-radius:10px;background:rgba(47,155,104,.08);margin-top:8px;font-size:13px;color:#001f3c;text-align:left}
 html[data-theme="dark"] .vm-row{color:#fff}
 .vm-row b{font-family:'Plus Jakarta Sans',sans-serif}
 .vm-row small{color:#8c92a1}
@@ -17360,8 +17370,8 @@ svLoadProducts();
 <div class="modal-overlay" id="vmModal" onclick="if(event.target===this)svVmCloseModal()">
   <div class="modal-panel" style="max-width:380px">
     <div class="rate-warning-body">
-      <div class="rate-warning-icon" style="background:rgba(124,111,247,.12);border-color:rgba(124,111,247,.3)">
-        <svg viewBox="0 0 24 24" fill="none" stroke="#7c6ff7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:#7c6ff7"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+      <div class="rate-warning-icon" style="background:rgba(47,155,104,.12);border-color:rgba(47,155,104,.3)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#2f9b68" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:#2f9b68"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
       </div>
       <div class="rate-warning-title">Merge into one product?</div>
       <div class="rate-warning-text" id="vmText"></div>
@@ -24908,10 +24918,26 @@ function svVgSiblings(p) {
 function svVgStripHTML(p) {
   const sib = svVgSiblings(p);
   if (sib.length < 2) return '';
-  const chips = sib.map(s => `<span class="vg-chip${s === p ? ' cur' : ''}">${escapeHtml(svVariantLabel(s))}</span>`).join('');
   const sk = String(p.sku).replace(/'/g, "\\'");
-  return `<div class="vg-strip"><span class="vg-lbl"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>${sib.length} variants</span>${chips}<button class="vg-split" onclick="svVmSplit('${sk}', event)">Split</button></div>`;
+  const chips = sib.map(s => s === p
+    ? `<span class="vg-chip cur">${escapeHtml(svVariantLabel(s))}</span>`
+    : `<button class="vg-chip" onclick="svVgJump('${s.id}', event)">${escapeHtml(svVariantLabel(s))}</button>`).join('');
+  return `<div class="vg-wrap"><div class="vg-row"><svg class="vg-ic" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg><span class="vg-cur">${escapeHtml(svVariantLabel(p))}</span><button class="vg-more" aria-expanded="false" aria-label="Show all variants" onclick="svVgToggle(this, event)">+${sib.length - 1}<svg class="vg-chev" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg></button><button class="vg-split" onclick="svVmSplit('${sk}', event)">Split</button></div><div class="vg-chips">${chips}</div></div>`;
 }
+window.svVgToggle = function (btn, ev) {
+  if (ev) { ev.stopPropagation(); ev.preventDefault(); }
+  const w = btn.closest('.vg-wrap');
+  const open = w.classList.toggle('vg-open');
+  btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+};
+window.svVgJump = function (id, ev) {
+  if (ev) { ev.stopPropagation(); ev.preventDefault(); }
+  const el = document.querySelector('#productsTabContent .prod-card[data-pid="' + id + '"]');
+  if (!el) return;
+  el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  el.classList.remove('vg-flash'); void el.offsetWidth; el.classList.add('vg-flash');
+  setTimeout(() => el.classList.remove('vg-flash'), 1200);
+};
 function svVmBarHTML() {
   if (!_vmMode) return '';
   return `<div class="vm-bar"><span id="vmCount">${_vmSel.size} selected</span><button class="vm-x" onclick="svVmCancel()">Cancel</button><button class="vm-go" id="vmGoBar" onclick="svVmOpen()" ${_vmSel.size < 2 ? 'disabled' : ''}>Merge</button></div>`;
@@ -25095,7 +25121,7 @@ function renderProductsTab(searchDisplayVal) {
     }
 
     return `
-    <div class="prod-card${_vmMode ? ' vm-on' : ''}${_vmMode && p.id && _vmSel.has(p.id) ? ' vm-sel' : ''}" data-pid="${p.id || ''}" style="border-color:${cat.color};background:${cat.color}0D">
+    <div class="prod-card${_vmMode ? ' vm-on' : ''}${_vmMode && p.id && _vmSel.has(p.id) ? ' vm-sel' : ''}" data-pid="${p.id || ''}" style="--cc:${cat.color};border-color:${cat.color};background:${cat.color}0D">
       ${_vmMode ? '<div class="vm-check"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>' : ''}
       <div class="prod-card-top">
         <div class="prod-avatar-badge" style="background:linear-gradient(135deg,${cat.color},${cat.color2});box-shadow:0 4px 12px ${cat.color}4d"><svg class="cat-icon cat-icon-${cat.icon}"><use href="#cat-icon-${cat.icon}"/></svg></div>
