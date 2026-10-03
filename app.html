@@ -24926,11 +24926,11 @@ window.svVmCloseModal = function () { const m = document.getElementById('vmModal
 window.svVmOpen = function () {
   const sel = PRODUCTS_DATA.filter(p => p.id && _vmSel.has(p.id));
   const txt = document.getElementById('vmText'), rows = document.getElementById('vmRows'), go = document.getElementById('vmGo');
-  const key = p => [(p.meta && p.meta.brandName || '').trim().toLowerCase(), String(p.name).trim().toLowerCase(), p.category].join('|');
+  const key = p => [(p.meta && p.meta.brandName) || '', String(p.name), p.category].join('\u001f');
   const labels = sel.map(svVariantLabel);
   let err = '';
   if (sel.length < 2) err = 'Select at least 2 products.';
-  else if (new Set(sel.map(key)).size !== 1) err = 'Different brand, name, or category. Only the same product can be merged.';
+  else if (new Set(sel.map(key)).size !== 1) err = 'Brand, product name, and category must match exactly (case and spaces too). Fix the name on the product first.';
   else if (new Set(labels).size !== labels.length) err = 'Two products have identical potency and count. Fix one first.';
   rows.innerHTML = sel.map(p => `<div class="vm-row"><div><b>${escapeHtml(svVariantLabel(p))}</b><br><small>${escapeHtml(p.sku)}</small></div><div style="text-align:right"><b>৳${Number(p.price).toLocaleString('en-IN')}</b><br><small>stock ${p.stock}</small></div></div>`).join('');
   txt.classList.toggle('vm-err', !!err);
