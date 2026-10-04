@@ -8111,23 +8111,8 @@ html[data-theme="dark"] #alertsTabContent .rq-tag { border-color:rgba(251,202,18
       </button>
     </div>
     <div class="odm-body">
-      <!-- Section 1: Customer Info -->
-      <div class="odm-card">
-        <div class="odm-section-label">
-          <svg fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><use href="#icon-user-profile"/></svg>Customer Info
-        </div>
-        <div class="odm-customer-name">
-          <div class="odm-customer-name-left"><svg fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><use href="#icon-user-profile"/></svg>Rafiq Ahmed</div>
-          <span class="order-id-badge">SV-1014</span>
-        </div>
-        <a class="odm-customer-row call-row" href="tel:+8801712345678">
-          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#icon-tag-price"/></svg>
-          <span>+880 1712-345678</span>
-          <span class="odm-call-badge"><svg fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg></span>
-        </a>
-        <div class="odm-customer-row"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#icon-link-chain"/></svg><span>House 7, Road 3, Mirpur, Dhaka</span></div>
-        <div class="odm-customer-row"><span style="display:inline-flex;align-items:center;justify-content:center;width:15px;height:15px;border-radius:4px;background:#1877F2;flex-shrink:0;"><svg width="8" height="8" viewBox="0 0 24 24" fill="#fff"><use href="#icon-facebook"/></svg></span><span>Ordered via Facebook</span></div>
-      </div>
+      <!-- Section 1: Customer Info (registered web customer = Buy For Me profile card, else basic block) -->
+      <div id="odmCustomerSection"></div>
 
       <!-- Section 2: Order Items -->
       <div>
@@ -8197,6 +8182,7 @@ html[data-theme="dark"] #alertsTabContent .rq-tag { border-color:rgba(251,202,18
 </div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script src="assets/js/supabase-config.js"></script>
+<script src="assets/js/sv-customer-card.js"></script>
 <style>
 #svAdminGate{position:fixed;inset:0;z-index:999999;background:#000d20;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:14px;transition:opacity .25s ease;font-family:'DM Sans',sans-serif}
 #svAdminGate .sv-gate-spin{width:38px;height:38px;border-radius:50%;border:3px solid rgba(255,255,255,0.18);border-top-color:#009ddc;animation:svGateSpin .8s linear infinite}
@@ -26063,9 +26049,35 @@ function al_itemMain(catKey, subcat, name, sku) {
       </div>`;
 }
 
-function openOrderDetailsModal() {
+/* Order Details → customer section. Registered web customers get the same profile card as Buy For Me; others get the basic block. */
+const ODM_DEMO_ORDER = { orderId: 'SV-1014', channel: 'facebook', registered: true, name: 'Rafiq Ahmed', customer_id: 'CU-1014', customer_since: '2026-08-12', phone: '+880 1712-345678', email: 'rafiq.ahmed@example.com', address: 'House 7, Road 3, Mirpur, Dhaka' };
+function renderOrderDetailsCustomer(o) {
+  const box = document.getElementById("orderDetailsModal") && document.getElementById("odmCustomerSection");
+  if (!box) return;
+  const chName = (typeof CH_NAME !== 'undefined' && CH_NAME[o.channel]) || 'Website';
+  const via = `<div class="odm-customer-row" style="margin-bottom:0">${channelIcon(o.channel)}<span>Ordered via ${escapeHtml(chName)}</span></div>`;
+  const idPill = `<span class="order-id-badge">${escapeHtml(o.orderId || '')}</span>`;
+  if (o.registered && window.SVCustomerCard) {
+    box.innerHTML = `<div class="odm-section-label"><svg fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><use href="#icon-user-profile"/></svg>Customer Info</div>
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px">${via}${idPill}</div>
+      <div id="odmProfileCard"></div>`;
+    window.SVCustomerCard.mount(document.getElementById('odmProfileCard'), { name: o.name, customer_id: o.customer_id, customer_since: o.customer_since, phone: o.phone, email: o.email, address: o.address, avatar_url: o.avatar_url || '', verified: true });
+  } else {
+    const tel = String(o.phone || '').replace(/[^\d+]/g, '');
+    box.innerHTML = `<div class="odm-card">
+      <div class="odm-section-label"><svg fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><use href="#icon-user-profile"/></svg>Customer Info</div>
+      <div class="odm-customer-name"><div class="odm-customer-name-left"><svg fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><use href="#icon-user-profile"/></svg>${escapeHtml(o.name)}</div>${idPill}</div>
+      <a class="odm-customer-row call-row" href="tel:${escapeHtml(tel)}"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#icon-tag-price"/></svg><span>${escapeHtml(o.phone)}</span><span class="odm-call-badge"><svg fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg></span></a>
+      <div class="odm-customer-row"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#icon-link-chain"/></svg><span>${escapeHtml(o.address)}</span></div>
+      ${via.replace(' style="margin-bottom:0"', '')}
+    </div>`;
+  }
+}
+
+function openOrderDetailsModal(order) {
   const overlay = document.getElementById("orderDetailsModal");
   if (!overlay) return;
+  renderOrderDetailsCustomer(order || ODM_DEMO_ORDER);
   requestAnimationFrame(() => requestAnimationFrame(() => {
     overlay.classList.add("active");
   }));
