@@ -202,8 +202,8 @@ function renderStoreOrder(o,cust,pay){
     +'</div></div></section>';
   h+='<section><div class="label">Order Summary</div><div class="card">'
     +'<div class="sum"><span>Subtotal</span><strong>'+bdt(subtotal)+'</strong></div>'
-    +'<div class="sum '+(ship===0?'free':'')+'"><span>Shipping</span><strong>'+(ship===0?'FREE':bdt(ship))+'</strong></div>'
     +(disc>0?'<div class="sum disc"><span>'+(o.voucher_code?'Voucher '+esc(o.voucher_code):'Discount')+'</span><strong>-'+bdt(disc)+'</strong></div>':'')
+    +'<div class="sum '+(ship===0?'free':'')+'"><span>Shipping</span><strong>'+(ship===0?'FREE':bdt(ship))+'</strong></div>'
     +'<div class="div"></div><div class="tot"><b>Total</b><span class="totval"><span class="totnum">'+bdt(total)+'</span>'+cbtn(bdt(total))+'</span></div></div></section>';
   document.getElementById('root').innerHTML=h;
   SVCustomerCard.mount(document.getElementById('custCard'),{
