@@ -8061,9 +8061,11 @@ html[data-theme="dark"] .odm-mc-row > span:last-child { color: #F0F4FA; }
 .odm-mc-row svg { width: 13px; height: 13px; flex-shrink: 0; }
 .odm-mc-row.ship > span:first-child, .odm-mc-row.discount > span:first-child { font-weight: 700; color: #0B1220; }
 html[data-theme="dark"] .odm-mc-row.ship > span:first-child { color: #F0F4FA; }
-.odm-mc-row.ship.free > span:first-child, .odm-mc-row.discount > span:first-child { color: #0A9B72; }
-.odm-mc-row.ship.free > span:last-child { color: #0A9B72; font-weight: 800; letter-spacing: .5px; font-size: 11px; text-transform: uppercase; }
-.odm-mc-row.discount > span:last-child { color: #0A9B72; }
+/* Admin-side rule (same as draft card): free shipping + discount are money leaving the business → red */
+.odm-mc-row.ship.free > span:first-child, .odm-mc-row.discount > span:first-child, .odm-mc-row.discount > span:last-child { color: #d95353; }
+.odm-mc-row.ship.free > span:last-child { color: #d95353; font-weight: 700; letter-spacing: .5px; font-size: 10px; text-transform: uppercase; }
+html[data-theme="dark"] .odm-mc-row.ship.free > span, html[data-theme="dark"] .odm-mc-row.discount > span { color: #ff6b6b !important; }
+.odm-mc-voucher { margin-left: 6px; padding: 1px 6px; border-radius: 6px; font: 600 10px/1.5 'Roboto Mono', monospace; letter-spacing: .02em; background: rgba(217,83,83,0.12); }
 .odm-mc-row.total { padding-top: 8px; border-top: 1px solid rgba(10,22,40,0.10); }
 html[data-theme="dark"] .odm-mc-row.total { border-top-color: rgba(255,255,255,0.10); }
 .odm-mc-row.total > span:first-child { font-size: 13px; font-weight: 800; color: #0B1220; }
@@ -26061,7 +26063,7 @@ function renderOrderDetailsSummary(o) {
   if (!box) return;
   const money = n => '৳' + Number(n || 0).toLocaleString('en-IN');
   const free = Number(o.shipping) === 0;
-  const disc = Number(o.discount) > 0 ? `<div class="odm-mc-row discount"><span>${ODM_ICO_TAG}Discount${o.voucher_code ? ' (' + escapeHtml(o.voucher_code) + ')' : ''}</span><span>−${money(o.discount)}</span></div>` : '';
+  const disc = Number(o.discount) > 0 ? `<div class="odm-mc-row discount"><span>${ODM_ICO_TAG}Discount${o.voucher_code ? '<span class="odm-mc-voucher">' + escapeHtml(o.voucher_code) + '</span>' : ''}</span><span>-${money(o.discount)}</span></div>` : '';
   box.innerHTML = `<div class="odm-mc">
     <div class="odm-mc-row"><span>Subtotal</span><span>${money(o.subtotal)}</span></div>
     <div class="odm-mc-row ship${free ? ' free' : ''}"><span>${ODM_ICO_TRUCK}Shipping</span><span>${free ? 'Free' : money(o.shipping)}</span></div>
