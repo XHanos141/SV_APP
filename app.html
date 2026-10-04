@@ -8051,6 +8051,24 @@ html[data-theme="dark"] .odm-pi-name { color: #fff; }
 html[data-theme="dark"] .odm-pi-amt { color: #fff; }
 .odm-pi-spec { font-size: 11.5px; font-weight: 600; color: #001f3c; opacity: .6; line-height: 1.3; margin-top: 1px; }
 html[data-theme="dark"] .odm-pi-spec { color: #fff; }
+.odm-mc { background: #F8FAFD; border: 1px solid rgba(10,22,40,0.10); border-radius: 12px; box-shadow: inset 0 1px 2px rgba(11,18,32,0.04); padding: 11px 12px; display: flex; flex-direction: column; gap: 7px; }
+html[data-theme="dark"] .odm-mc { background: #1A2235; border-color: rgba(255,255,255,0.10); box-shadow: none; }
+.odm-mc-row { display: flex; justify-content: space-between; align-items: center; }
+.odm-mc-row > span:first-child { font-size: 12px; font-weight: 600; color: #5E6B7D; display: flex; align-items: center; gap: 6px; }
+.odm-mc-row > span:last-child { font-size: 12px; font-weight: 700; color: #0B1220; }
+html[data-theme="dark"] .odm-mc-row > span:first-child { color: #A0AAB8; }
+html[data-theme="dark"] .odm-mc-row > span:last-child { color: #F0F4FA; }
+.odm-mc-row svg { width: 13px; height: 13px; flex-shrink: 0; }
+.odm-mc-row.ship > span:first-child, .odm-mc-row.discount > span:first-child { font-weight: 700; color: #0B1220; }
+html[data-theme="dark"] .odm-mc-row.ship > span:first-child { color: #F0F4FA; }
+.odm-mc-row.ship.free > span:first-child, .odm-mc-row.discount > span:first-child { color: #0A9B72; }
+.odm-mc-row.ship.free > span:last-child { color: #0A9B72; font-weight: 800; letter-spacing: .5px; font-size: 11px; text-transform: uppercase; }
+.odm-mc-row.discount > span:last-child { color: #0A9B72; }
+.odm-mc-row.total { padding-top: 8px; border-top: 1px solid rgba(10,22,40,0.10); }
+html[data-theme="dark"] .odm-mc-row.total { border-top-color: rgba(255,255,255,0.10); }
+.odm-mc-row.total > span:first-child { font-size: 13px; font-weight: 800; color: #0B1220; }
+html[data-theme="dark"] .odm-mc-row.total > span:first-child { color: #F0F4FA; }
+.odm-mc-row.total > span:last-child { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 15px; font-weight: 800; }
 .odm-pi-sku { font-family: "Courier Prime", "Courier New", monospace; font-size: 9px; font-weight: 700; color: #0891b2; letter-spacing: 0.13em; text-transform: uppercase; margin-top: 1px; }
 html[data-theme="dark"] .odm-pi-sku { color: #22d3ee; }
 .odm-item-row { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
@@ -8142,16 +8160,7 @@ html[data-theme="dark"] #alertsTabContent .rq-tag { border-color:rgba(251,202,18
         <div class="odm-section-label">
           <svg fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><use href="#icon-file-document"/></svg>Order Summary
         </div>
-        <div class="odm-card">
-          <div class="odm-summary-row"><span>Subtotal</span><strong>৳9,500</strong></div>
-          <div class="odm-summary-row shipping-free"><span>Shipping</span><strong>FREE</strong></div>
-          <div class="odm-summary-row voucher"><span>Voucher applied</span><strong>-৳500</strong></div>
-          <div class="odm-summary-divider"></div>
-          <div class="odm-summary-total">
-            <span class="odm-summary-total-label">Total</span>
-            <span class="odm-summary-total-amt">৳9,000</span>
-          </div>
-        </div>
+        <div id="odmSummary"></div>
       </div>
     </div>
   </div>
@@ -26044,7 +26053,22 @@ function al_itemMain(catKey, subcat, name, sku) {
 }
 
 /* Order Details → customer section. Registered web customers get the same profile card as Buy For Me; others get the basic block. */
-const ODM_DEMO_ORDER = { items: [{ name: 'Magnesium Glycinate', category: 'Supplement', qty: 2, price: 3250, spec: '400 mg \u2022 120 Capsules', sku: 'DB-MAG-GLY-120' }, { name: 'Betaine HCL & Pepsin', category: 'Supplement', qty: 1, price: 3000, spec: '650 mg \u2022 120 Capsules', sku: 'DB-HCI-PEP-120' }], orderId: 'SV-1014', channel: 'facebook', registered: true, name: 'Rafiq Ahmed', customer_id: 'CU-1014', customer_since: '2026-08-12', phone: '+880 1712-345678', email: 'rafiq.ahmed@example.com', address: 'House 7, Road 3, Mirpur, Dhaka' };
+const ODM_DEMO_ORDER = { subtotal: 9500, shipping: 0, discount: 500, total: 9000, items: [{ name: 'Magnesium Glycinate', category: 'Supplement', qty: 2, price: 3250, spec: '400 mg \u2022 120 Capsules', sku: 'DB-MAG-GLY-120' }, { name: 'Betaine HCL & Pepsin', category: 'Supplement', qty: 1, price: 3000, spec: '650 mg \u2022 120 Capsules', sku: 'DB-HCI-PEP-120' }], orderId: 'SV-1014', channel: 'facebook', registered: true, name: 'Rafiq Ahmed', customer_id: 'CU-1014', customer_since: '2026-08-12', phone: '+880 1712-345678', email: 'rafiq.ahmed@example.com', address: 'House 7, Road 3, Mirpur, Dhaka' };
+const ODM_ICO_TRUCK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"/><path d="M15 18H9"/><path d="M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.624l-3.48-4.35A1 1 0 0 0 17.52 8H14"/><circle cx="17" cy="18" r="2"/><circle cx="7" cy="18" r="2"/></svg>';
+const ODM_ICO_TAG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>';
+function renderOrderDetailsSummary(o) {
+  const box = document.getElementById("odmSummary");
+  if (!box) return;
+  const money = n => '৳' + Number(n || 0).toLocaleString('en-IN');
+  const free = Number(o.shipping) === 0;
+  const disc = Number(o.discount) > 0 ? `<div class="odm-mc-row discount"><span>${ODM_ICO_TAG}Discount${o.voucher_code ? ' (' + escapeHtml(o.voucher_code) + ')' : ''}</span><span>−${money(o.discount)}</span></div>` : '';
+  box.innerHTML = `<div class="odm-mc">
+    <div class="odm-mc-row"><span>Subtotal</span><span>${money(o.subtotal)}</span></div>
+    <div class="odm-mc-row ship${free ? ' free' : ''}"><span>${ODM_ICO_TRUCK}Shipping</span><span>${free ? 'Free' : money(o.shipping)}</span></div>
+    ${disc}
+    <div class="odm-mc-row total"><span>Total</span><span>${money(o.total)}</span></div>
+  </div>`;
+}
 function renderOrderDetailsItems(items) {
   const box = document.getElementById("odmItems");
   if (!box) return;
@@ -26085,6 +26109,7 @@ function openOrderDetailsModal(order) {
   if (!overlay) return;
   renderOrderDetailsCustomer(order || ODM_DEMO_ORDER);
   renderOrderDetailsItems((order || ODM_DEMO_ORDER).items);
+  renderOrderDetailsSummary(order || ODM_DEMO_ORDER);
   requestAnimationFrame(() => requestAnimationFrame(() => {
     overlay.classList.add("active");
   }));
