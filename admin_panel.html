@@ -5347,6 +5347,13 @@ const WEB_DEFAULT_GRADIENT = 'linear-gradient(135deg,#ff6b6b,#ee5a24)';
 function getProducts(){ return WEB_LIST; }
 function getPublishedProducts(){ return WEB_LIST.filter(p => p.published); }
 function saveProducts(){}
+function svSlugSpec(sd){
+  sd = Array.isArray(sd) ? sd[0] : sd;
+  if(!sd) return '';
+  const pot = (sd.potency_amount != null && String(sd.potency_amount).trim() !== '') ? Number(sd.potency_amount) + String(sd.potency_unit || '').toLowerCase() : '';
+  const cnt = sd.capsule_count != null ? sd.capsule_count + ' capsules' : '';
+  return [pot, cnt].filter(Boolean).join(' ');
+}
 function slugify(t){
   return String(t || '').toLowerCase().normalize('NFKD').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 80);
 }
@@ -5363,7 +5370,7 @@ function webRowToProduct(r){
     sale: !!st.sale, hot: !!st.hot, trending: !!st.trending,
     image: images[0] || null, images, gradient: st.gradient || WEB_DEFAULT_GRADIENT,
     published: r.is_web_published === true, stockProductId: r.id, variants: [],
-    slug: (w && w.slug) || '', seoTitle: (w && w.seo_title) || '', seoDesc: (w && w.seo_description) || ''
+    spec: svSlugSpec(r.supplement_details), slug: (w && w.slug) || '', seoTitle: (w && w.seo_title) || '', seoDesc: (w && w.seo_description) || ''
   };
 }
 async function loadWebProducts(force){
@@ -5371,7 +5378,7 @@ async function loadWebProducts(force){
   const fs = document.getElementById('productFieldset');
   if(fs && !fs.disabled && !force) return;
   const { data, error } = await sb.from('products')
-    .select('id,name,brand,sku,price,old_price,category,subcategory,stock_qty,is_web_published,product_web(*)')
+    .select('id,name,brand,sku,price,old_price,category,subcategory,stock_qty,is_web_published,product_web(*),supplement_details(potency_amount,potency_unit,capsule_count)')
     .eq('web_enabled', true).eq('is_active', true).eq('archived', false).order('name');
   if(error){ console.error('loadWebProducts error:', error.message); T('Could not load web products', '⚠️'); return; }
   WEB_LIST = (data || []).map(webRowToProduct);
@@ -5503,7 +5510,7 @@ async function saveProduct(evt){
     const newName = document.getElementById('apInpName').value.trim() || cur.name;
     const web = {
       product_id: id,
-      slug: slugify(document.getElementById('inpSlug').value) || slugify(svTitle(cur.name, cur.brand)),
+      slug: slugify(document.getElementById('inpSlug').value) || slugify(svTitle(cur.name, cur.brand) + ' ' + (cur.spec || '')),
       web_description: desc,
       web_images: urls,
       seo_title: document.getElementById('inpSeoTitle').value.trim() || null,
