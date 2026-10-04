@@ -8129,6 +8129,9 @@ html[data-theme="dark"] #pxQuoteSheet .pxq-card { background:#162130; color:#e8e
 #pxQuoteSheet .pxq-send:disabled { opacity:.6; }
 #pxQuoteSheet .pxq-cancel { background:rgba(124,111,247,.12); color:inherit; }
 #pxQuoteSheet .pxq-err { color:#d95353; font-size:12px; font-weight:600; margin-top:8px; min-height:14px; }
+#storeOrderPanel { display:none; position:fixed; inset:0; z-index:8600; background:#0f1621; }
+#storeOrderPanel.open { display:block; animation:hubSlideUp 0.28s cubic-bezier(0.4,0,0.2,1) forwards; }
+#storeOrderPanel iframe { position:absolute; inset:0; width:100%; height:100%; border:none; display:block; background:#0f1621; }
 #proxyRequestPanel iframe { position:absolute; inset:0; width:100%; height:100%; border:none; display:block; background:#0f1621; }
 #alertsTabContent .rq-tag { display:inline-flex; align-items:center; border:1.5px solid rgba(198,82,39,0.55); border-radius:6px; padding:2px 7px; font-family:'Plus Jakarta Sans',sans-serif; font-size:11px; font-weight:800; color:#E15A26; letter-spacing:.3px; background:rgba(255,255,255,0.5); flex-shrink:0; }
 html[data-theme="dark"] #alertsTabContent .rq-tag { border-color:rgba(251,202,185,0.5); color:#FF9466; background:rgba(255,255,255,0.06); }
@@ -8184,6 +8187,9 @@ html[data-theme="dark"] #alertsTabContent .rq-tag { border-color:rgba(251,202,18
 </div>
 <div id="proxyRequestPanel" role="dialog" aria-label="Buy For Me request details">
   <iframe id="proxyRequestFrame" title="Buy For Me request" referrerpolicy="same-origin"></iframe>
+</div>
+<div id="storeOrderPanel" role="dialog" aria-label="Store order details">
+  <iframe id="storeOrderFrame" title="Store order" referrerpolicy="same-origin"></iframe>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script src="assets/js/supabase-config.js"></script>
@@ -26291,7 +26297,7 @@ function al_newOrderCard() {
     <div class="al-actions-row">
       ${al_actionBtn('primary','box','Accept')}
       <a class="al-action-btn" href="https://wa.me/8801712345678" target="_blank" rel="noopener" style="text-decoration:none;background:#25D366;color:#fff;box-shadow:0 4px 12px rgba(37,211,102,0.35)"><svg width="13" height="13" viewBox="0 0 24 24" fill="#fff"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347zM12 0C5.373 0 0 5.373 0 12c0 2.127.558 4.122 1.532 5.855L.054 23.454a.5.5 0 00.623.529l5.792-1.526A11.938 11.938 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.882a9.877 9.877 0 01-5.031-1.375l-.36-.214-3.733.983.998-3.648-.235-.374A9.861 9.861 0 012.118 12C2.118 6.53 6.53 2.118 12 2.118S21.882 6.53 21.882 12 17.47 21.882 12 21.882z"/></svg><span>WhatsApp</span></a>
-      ${al_actionBtn('ghost','history','Details','openOrderDetailsModal()')}
+      ${al_actionBtn('ghost','history','Details','openStoreOrderDetails()')}
     </div>
   </div>`;
 }
@@ -26467,6 +26473,20 @@ function openProxyDetails(id){
   frame.src = 'proxy-request.html?id=' + encodeURIComponent(req.id) + '&theme=' + theme;
   panel.classList.add('open');
 }
+function openStoreOrderDetails(id){
+  const panel = document.getElementById('storeOrderPanel');
+  const frame = document.getElementById('storeOrderFrame');
+  if (!panel || !frame) return;
+  const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+  frame.src = 'store-order.html?' + (id ? 'id=' + encodeURIComponent(id) : 'demo=1') + '&theme=' + theme;
+  panel.classList.add('open');
+}
+function closeStoreOrderDetails(){
+  const panel = document.getElementById('storeOrderPanel');
+  const frame = document.getElementById('storeOrderFrame');
+  if (panel) panel.classList.remove('open');
+  if (frame) frame.removeAttribute('src');
+}
 function closeProxyDetails(){
   const panel = document.getElementById('proxyRequestPanel');
   const frame = document.getElementById('proxyRequestFrame');
@@ -26477,6 +26497,7 @@ window.addEventListener('message', function(e){
   if (e.origin !== window.location.origin) return;
   const d = e.data || {};
   if (d.type === 'sv-px-close') closeProxyDetails();
+  if (d.type === 'sv-so-close') closeStoreOrderDetails();
 });
 
 window.addEventListener('message', function(e){
