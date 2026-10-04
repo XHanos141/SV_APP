@@ -7745,6 +7745,7 @@ html[data-theme="dark"] .batch-units { background: rgba(255,255,255,0.08); color
    ============================================================ */
 :root {
   --al-purple: #7C6FF7; --al-purple-glow: rgba(124,111,247,0.35);
+  --al-store: #009DDC; --al-store-glow: rgba(0,157,220,0.35);
   --al-danger: #D95353; --al-warning: #F4A922; --al-success: #2F9B68;
   --al-warning-txt: #C27808;
   --al-txt: #0B1220;
@@ -7781,23 +7782,23 @@ html[data-theme="dark"] #alertsTabContent .glass-shadow {
 #alertsTabContent .tone-warning { background: #FEF6E9; border: 2px solid #FBE3B8; }
 #alertsTabContent .tone-danger  { background: #FBEEEE; border: 2px solid #F3C8C8; }
 #alertsTabContent .tone-success { background: #EAF5F0; border: 2px solid #BCDFCF; }
-#alertsTabContent .tone-order   { background: #F2F1FE; border: 2px solid #D5D1FC; }
+#alertsTabContent .tone-order   { background: #EBF7FD; border: 2px solid #BFE4F5; }
 #alertsTabContent .tone-proxy   { background: #FEF0EA; border: 2px solid #FBCAB9; }
 html[data-theme="dark"] #alertsTabContent .tone-warning { background: rgba(93,64,13,0.55); border-color: rgba(166,115,23,0.5); }
 html[data-theme="dark"] #alertsTabContent .tone-danger  { background: rgba(82,32,32,0.55); border-color: rgba(148,56,56,0.5); }
 html[data-theme="dark"] #alertsTabContent .tone-success { background: rgba(18,59,40,0.55); border-color: rgba(32,105,71,0.5); }
-html[data-theme="dark"] #alertsTabContent .tone-order   { background: rgba(56,50,111,0.55); border-color: rgba(99,89,198,0.5); }
+html[data-theme="dark"] #alertsTabContent .tone-order   { background: rgba(0,76,112,0.55); border-color: rgba(0,157,220,0.5); }
 html[data-theme="dark"] #alertsTabContent .tone-proxy   { background: rgba(109,45,22,0.55); border-color: rgba(198,82,39,0.5); }
 
 #alertsTabContent .tone-warning .al-actions-row { border-top-color: rgba(166,115,23,0.22); }
 #alertsTabContent .tone-danger  .al-actions-row { border-top-color: rgba(148,56,56,0.22); }
 #alertsTabContent .tone-success .al-actions-row { border-top-color: rgba(32,105,71,0.22); }
-#alertsTabContent .tone-order   .al-actions-row { border-top-color: rgba(99,89,198,0.22); }
+#alertsTabContent .tone-order   .al-actions-row { border-top-color: rgba(0,157,220,0.22); }
 #alertsTabContent .tone-proxy   .al-actions-row { border-top-color: rgba(198,82,39,0.22); }
 html[data-theme="dark"] #alertsTabContent .tone-warning .al-actions-row { border-top-color: rgba(251,227,184,0.14); }
 html[data-theme="dark"] #alertsTabContent .tone-danger  .al-actions-row { border-top-color: rgba(243,200,200,0.14); }
 html[data-theme="dark"] #alertsTabContent .tone-success .al-actions-row { border-top-color: rgba(188,223,207,0.14); }
-html[data-theme="dark"] #alertsTabContent .tone-order   .al-actions-row { border-top-color: rgba(213,209,252,0.14); }
+html[data-theme="dark"] #alertsTabContent .tone-order   .al-actions-row { border-top-color: rgba(191,228,245,0.14); }
 html[data-theme="dark"] #alertsTabContent .tone-proxy   .al-actions-row { border-top-color: rgba(251,202,185,0.16); }
 
 #alertsTabContent .al-card {
@@ -7983,6 +7984,8 @@ html[data-theme="dark"] #alertsTabContent .payment-summary-block { background: r
 #alertsTabContent .al-action-btn:active { transform: scale(0.97); }
 #alertsTabContent .al-action-btn:focus-visible { outline: 2px solid var(--al-purple); outline-offset: 2px; }
 #alertsTabContent .al-action-btn.primary { background: var(--al-purple); color: #fff; box-shadow: 0 4px 12px var(--al-purple-glow); }
+#alertsTabContent .tone-order .al-action-btn.primary { background: var(--al-store); box-shadow: 0 4px 12px var(--al-store-glow); }
+#alertsTabContent .tone-order .al-action-btn:focus-visible { outline-color: var(--al-store); }
 #alertsTabContent .al-action-btn.ghost { background: transparent; color: var(--al-muted); border: 1.5px solid var(--al-ghost-border); }
 #alertsTabContent .al-action-btn.amber { background: var(--al-warning); color: #fff; box-shadow: 0 4px 12px rgba(244,169,34,0.35); }
 #alertsTabContent .al-action-btn span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -26017,7 +26020,7 @@ const AL_SEVERITY = {
   warning: { accent: 'var(--al-warning)', labelColor: 'var(--al-warning-txt)', chipBg: 'rgba(244,169,34,0.22)', tone: 'tone-warning' },
   critical:{ accent: 'var(--al-danger)',  labelColor: 'var(--al-danger)',      chipBg: 'rgba(217,83,83,0.20)',  tone: 'tone-danger' },
   success: { accent: 'var(--al-success)', labelColor: 'var(--al-success)',    chipBg: 'rgba(47,155,104,0.20)',  tone: 'tone-success' },
-  order:   { accent: 'var(--al-purple)',  labelColor: 'var(--al-purple)',     chipBg: 'rgba(124,111,247,0.20)', tone: 'tone-order' },
+  order:   { accent: 'var(--al-store)',   labelColor: 'var(--al-store)',      chipBg: 'rgba(0,157,220,0.20)',   tone: 'tone-order' },
   proxy:   { accent: '#E15A26',        labelColor: '#E15A26',           chipBg: 'rgba(226,90,38,0.20)',   tone: 'tone-proxy' },
 };
 
@@ -26197,7 +26200,7 @@ function al_newOrderCard() {
   return `
   <div class="al-card glass-shadow ${sv.tone}" data-group="order">
     <div class="al-card-top">
-      <div class="al-icon-chip" style="background:${sv.accent};box-shadow:0 3px 10px rgba(124,111,247,0.4)">${al_icon('bag',16,'#fff',2.5)}</div>
+      <div class="al-icon-chip" style="background:${sv.accent};box-shadow:0 3px 10px rgba(0,157,220,0.4)">${al_icon('bag',16,'#fff',2.5)}</div>
       <div class="al-card-label-col">
         <div class="al-card-label" style="color:${sv.labelColor}">New Order</div>
         <div class="al-card-time">12m ago</div>
