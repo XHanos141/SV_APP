@@ -7920,6 +7920,19 @@ html[data-theme="dark"] #alertsTabContent .proxy-item-block { background: rgba(2
 #alertsTabContent .customer-side { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; flex-shrink: 0; }
 #alertsTabContent .customer-platform-badge { width: 20px; height: 20px; border-radius: 6px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
 #alertsTabContent .customer-platform-badge svg { width: 10px; height: 10px; }
+/* Customer block on the New Order card — mirrors the Sales draft-card customer block 1:1 */
+#alertsTabContent .nc-cust { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; margin-bottom: 8px; }
+#alertsTabContent .nc-left { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+#alertsTabContent .nc-name { font-family: "Plus Jakarta Sans", sans-serif; font-size: 17px; font-weight: 700; color: #001f3c; line-height: 1.2; display: flex; align-items: center; gap: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+html[data-theme="dark"] #alertsTabContent .nc-name { color: #ffffff; }
+#alertsTabContent .nc-name svg { width: 15px; height: 15px; flex-shrink: 0; opacity: 1; color: #1a2744; }
+html[data-theme="dark"] #alertsTabContent .nc-name svg { color: rgba(255,255,255,0.75); }
+#alertsTabContent .nc-meta { display: flex; flex-direction: column; gap: 2px; margin-top: 1px; }
+#alertsTabContent .nc-meta-row { display: flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 500; color: #9ca3b0; min-width: 0; }
+html[data-theme="dark"] #alertsTabContent .nc-meta-row { color: rgba(255,255,255,0.38); }
+#alertsTabContent .nc-meta-row svg { width: 11px; height: 11px; flex-shrink: 0; opacity: 1; color: #1a2744; }
+html[data-theme="dark"] #alertsTabContent .nc-meta-row svg { color: rgba(255,255,255,0.75); }
+#alertsTabContent .nc-meta-row span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
 #alertsTabContent .customer-date { font-size: 10.5px; font-weight: 700; color: var(--al-muted); white-space: nowrap; }
 
 #alertsTabContent .order-summary-block { display: flex; align-items: center; justify-content: space-between; margin-bottom: 9px; padding: 10px 12px; background: rgba(255,255,255,0.5); border-radius: 12px; }
@@ -26207,15 +26220,15 @@ function al_newOrderCard() {
       </div>
       <span class="order-id-badge">SV-1014</span>
     </div>
-    <div class="customer-row">
-      <div class="customer-info">
-        <div class="customer-name"><svg fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><use href="#icon-user-profile"/></svg>Rafiq Ahmed</div>
-        <div class="customer-meta-row"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#icon-tag-price"/></svg><span>+880 1712-345678</span></div>
-        <div class="customer-meta-row address-row"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#icon-link-chain"/></svg><span>Mirpur, Dhaka</span></div>
+    <div class="nc-cust">
+      <div class="nc-left">
+        <div class="nc-name"><svg fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><use href="#icon-user-profile"/></svg>Rafiq Ahmed</div>
+        <div class="nc-meta">
+          <div class="nc-meta-row"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#icon-tag-price"/></svg><span>+880 1712-345678</span></div>
+          <div class="nc-meta-row"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#icon-link-chain"/></svg><span>Mirpur, Dhaka</span></div>
+        </div>
       </div>
-      <div class="customer-side">
-        <div class="customer-platform-badge" style="background:#1877F2"><svg viewBox="0 0 24 24" fill="#fff"><use href="#icon-facebook"/></svg></div>
-      </div>
+      ${channelIcon('facebook')}
     </div>
     <div class="order-summary-block">
       <div class="payment-meta-left">
