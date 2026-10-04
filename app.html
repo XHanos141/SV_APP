@@ -8071,6 +8071,18 @@ html[data-theme="dark"] .odm-mc-row.total { border-top-color: rgba(255,255,255,0
 .odm-mc-row.total > span:first-child { font-size: 13px; font-weight: 800; color: #0B1220; }
 html[data-theme="dark"] .odm-mc-row.total > span:first-child { color: #F0F4FA; }
 .odm-mc-row.total > span:last-child { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 15px; font-weight: 800; }
+.odm-pay-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.odm-pay-method { display: flex; align-items: center; gap: 9px; font-size: 14px; font-weight: 800; color: #0B1220; font-family: 'Plus Jakarta Sans', sans-serif; }
+html[data-theme="dark"] .odm-pay-method { color: #F0F4FA; }
+.odm-pay-badge { width: 28px; height: 28px; border-radius: 9px; display: flex; align-items: center; justify-content: center; color: #fff; font: 800 10px 'Plus Jakarta Sans', sans-serif; letter-spacing: .02em; }
+.odm-pay-status { font: 800 11px 'Plus Jakarta Sans', sans-serif; border-radius: 8px; padding: 4px 9px; color: #E15A26; background: rgba(242,100,48,.15); }
+.odm-pay-status.paid { color: #0A9B72; background: rgba(10,155,114,.12); }
+.odm-pay-val { display: inline-flex; align-items: center; gap: 8px; }
+.odm-pay-mono { font-family: "Courier Prime", "Courier New", monospace; font-size: 12.5px; font-weight: 700; letter-spacing: .06em; color: #0B1220; }
+html[data-theme="dark"] .odm-pay-mono { color: #F0F4FA; }
+.odm-copy { width: 24px; height: 24px; border-radius: 8px; border: 1px solid rgba(10,155,220,.3); background: rgba(10,155,220,.1); color: #0A9BDC; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; padding: 0; }
+.odm-copy:active { transform: scale(.92); }
+.odm-copy svg { width: 12px; height: 12px; }
 .odm-pi-sku { font-family: "Courier Prime", "Courier New", monospace; font-size: 9px; font-weight: 700; color: #0891b2; letter-spacing: 0.13em; text-transform: uppercase; margin-top: 1px; }
 html[data-theme="dark"] .odm-pi-sku { color: #22d3ee; }
 .odm-item-row { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
@@ -8129,9 +8141,6 @@ html[data-theme="dark"] #pxQuoteSheet .pxq-card { background:#162130; color:#e8e
 #pxQuoteSheet .pxq-send:disabled { opacity:.6; }
 #pxQuoteSheet .pxq-cancel { background:rgba(124,111,247,.12); color:inherit; }
 #pxQuoteSheet .pxq-err { color:#d95353; font-size:12px; font-weight:600; margin-top:8px; min-height:14px; }
-#storeOrderPanel { display:none; position:fixed; inset:0; z-index:8600; background:#0f1621; }
-#storeOrderPanel.open { display:block; animation:hubSlideUp 0.28s cubic-bezier(0.4,0,0.2,1) forwards; }
-#storeOrderPanel iframe { position:absolute; inset:0; width:100%; height:100%; border:none; display:block; background:#0f1621; }
 #proxyRequestPanel iframe { position:absolute; inset:0; width:100%; height:100%; border:none; display:block; background:#0f1621; }
 #alertsTabContent .rq-tag { display:inline-flex; align-items:center; border:1.5px solid rgba(198,82,39,0.55); border-radius:6px; padding:2px 7px; font-family:'Plus Jakarta Sans',sans-serif; font-size:11px; font-weight:800; color:#E15A26; letter-spacing:.3px; background:rgba(255,255,255,0.5); flex-shrink:0; }
 html[data-theme="dark"] #alertsTabContent .rq-tag { border-color:rgba(251,202,185,0.5); color:#FF9466; background:rgba(255,255,255,0.06); }
@@ -8158,6 +8167,14 @@ html[data-theme="dark"] #alertsTabContent .rq-tag { border-color:rgba(251,202,18
           <svg fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><use href="#icon-archive-box"/></svg>Ordered Products
         </div>
         <div class="odm-card" id="odmItems" style="padding:12px 14px"></div>
+      </div>
+
+      <!-- Section 2b: Payment (bKash/Nagad etc. — txn ID, sender, amount due) -->
+      <div id="odmPaymentSection" style="display:none">
+        <div class="odm-section-label">
+          <svg fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><use href="#icon-file-document"/></svg>Payment
+        </div>
+        <div id="odmPayment"></div>
       </div>
 
       <!-- Section 3: Order Summary -->
@@ -8187,9 +8204,6 @@ html[data-theme="dark"] #alertsTabContent .rq-tag { border-color:rgba(251,202,18
 </div>
 <div id="proxyRequestPanel" role="dialog" aria-label="Buy For Me request details">
   <iframe id="proxyRequestFrame" title="Buy For Me request" referrerpolicy="same-origin"></iframe>
-</div>
-<div id="storeOrderPanel" role="dialog" aria-label="Store order details">
-  <iframe id="storeOrderFrame" title="Store order" referrerpolicy="same-origin"></iframe>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script src="assets/js/supabase-config.js"></script>
@@ -26061,7 +26075,7 @@ function al_itemMain(catKey, subcat, name, sku) {
 }
 
 /* Order Details → customer section. Registered web customers get the same profile card as Buy For Me; others get the basic block. */
-const ODM_DEMO_ORDER = { subtotal: 9500, shipping: 0, discount: 500, total: 9000, items: [{ name: 'Magnesium Glycinate', category: 'Supplement', qty: 2, price: 3250, spec: '400 mg \u2022 120 Capsules', sku: 'DB-MAG-GLY-120' }, { name: 'Betaine HCL & Pepsin', category: 'Supplement', qty: 1, price: 3000, spec: '650 mg \u2022 120 Capsules', sku: 'DB-HCI-PEP-120' }], orderId: 'SV-1014', channel: 'facebook', registered: true, name: 'Rafiq Ahmed', customer_id: 'CU-1014', customer_since: '2026-08-12', phone: '+880 1712-345678', email: 'rafiq.ahmed@example.com', address: 'House 7, Road 3, Mirpur, Dhaka' };
+const ODM_DEMO_ORDER = { payment: { method: 'bkash', status: 'Verifying', txn: 'BK7F2L9Q3X', sender: '01712345678', amount_due: 9000, submitted: '5 Oct 2026, 1:55 am' }, subtotal: 9500, shipping: 0, discount: 500, total: 9000, items: [{ name: 'Magnesium Glycinate', category: 'Supplement', qty: 2, price: 3250, spec: '400 mg \u2022 120 Capsules', sku: 'DB-MAG-GLY-120' }, { name: 'Betaine HCL & Pepsin', category: 'Supplement', qty: 1, price: 3000, spec: '650 mg \u2022 120 Capsules', sku: 'DB-HCI-PEP-120' }], orderId: 'SV-1014', channel: 'facebook', registered: true, name: 'Rafiq Ahmed', customer_id: 'CU-1014', customer_since: '2026-08-12', phone: '+880 1712-345678', email: 'rafiq.ahmed@example.com', address: 'House 7, Road 3, Mirpur, Dhaka' };
 const ODM_ICO_TRUCK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"/><path d="M15 18H9"/><path d="M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.624l-3.48-4.35A1 1 0 0 0 17.52 8H14"/><circle cx="17" cy="18" r="2"/><circle cx="7" cy="18" r="2"/></svg>';
 const ODM_ICO_TAG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>';
 function renderOrderDetailsSummary(o) {
@@ -26075,6 +26089,30 @@ function renderOrderDetailsSummary(o) {
     ${disc}
     <div class="odm-mc-row ship${free ? ' free' : ''}"><span>${ODM_ICO_TRUCK}Shipping</span><span>${free ? 'Free' : money(o.shipping)}</span></div>
     <div class="odm-mc-row total"><span>Total</span><span>${money(o.total)}</span></div>
+  </div>`;
+}
+const ODM_PAY_METHODS = { bkash: ['bKash', '#e2136e', 'BK'], nagad: ['Nagad', '#f26a21', 'NG'], rocket: ['Rocket', '#8c3494', 'RK'], upay: ['Upay', '#f9a61a', 'UP'], bank: ['Bank Transfer', '#2f6f9f', 'BT'], crypto: ['Crypto', '#26a17b', 'CR'], cod: ['Cash on Delivery', '#2f9b68', 'CD'] };
+const ODM_ICO_COPY = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>';
+function odmCopy(btn, text) {
+  const done = () => { if (typeof showToast === 'function') showToast('Copied'); };
+  try { if (navigator.clipboard && window.isSecureContext) { navigator.clipboard.writeText(text).then(done); return; } } catch (e) {}
+  const ta = document.createElement('textarea'); ta.value = text; ta.setAttribute('readonly', ''); ta.style.cssText = 'position:fixed;top:0;left:0;opacity:0;';
+  document.body.appendChild(ta); ta.select(); try { document.execCommand('copy'); done(); } catch (e) {} document.body.removeChild(ta);
+}
+function renderOrderDetailsPayment(pay) {
+  const sec = document.getElementById("odmPaymentSection"), box = document.getElementById("odmPayment");
+  if (!sec || !box) return;
+  if (!pay) { sec.style.display = 'none'; return; }
+  sec.style.display = '';
+  const m = ODM_PAY_METHODS[String(pay.method || '').toLowerCase()] || [pay.method || 'Not chosen', '#657386', '?'];
+  const money = n => '৳' + Number(n || 0).toLocaleString('en-IN');
+  const copyRow = (label, val) => val ? `<div class="odm-mc-row"><span>${label}</span><span class="odm-pay-val"><span class="odm-pay-mono">${escapeHtml(val)}</span><button type="button" class="odm-copy" aria-label="Copy ${label}" onclick="odmCopy(this, '${escapeHtml(val)}')">${ODM_ICO_COPY}</button></span></div>` : '';
+  box.innerHTML = `<div class="odm-mc">
+    <div class="odm-pay-head"><div class="odm-pay-method"><span class="odm-pay-badge" style="background:${m[1]}">${m[2]}</span>${escapeHtml(m[0])}</div><span class="odm-pay-status${pay.status === 'Paid' ? ' paid' : ''}">${escapeHtml(pay.status || '')}</span></div>
+    ${copyRow('Transaction ID', pay.txn)}
+    ${copyRow('Sender number', pay.sender)}
+    ${pay.amount_due != null ? `<div class="odm-mc-row"><span>Amount due</span><span>${money(pay.amount_due)}</span></div>` : ''}
+    ${pay.submitted ? `<div class="odm-mc-row"><span>Submitted</span><span>${escapeHtml(pay.submitted)}</span></div>` : ''}
   </div>`;
 }
 function renderOrderDetailsItems(items) {
@@ -26118,6 +26156,7 @@ function openOrderDetailsModal(order) {
   renderOrderDetailsCustomer(order || ODM_DEMO_ORDER);
   renderOrderDetailsItems((order || ODM_DEMO_ORDER).items);
   renderOrderDetailsSummary(order || ODM_DEMO_ORDER);
+  renderOrderDetailsPayment((order || ODM_DEMO_ORDER).payment);
   requestAnimationFrame(() => requestAnimationFrame(() => {
     overlay.classList.add("active");
   }));
@@ -26297,7 +26336,7 @@ function al_newOrderCard() {
     <div class="al-actions-row">
       ${al_actionBtn('primary','box','Accept')}
       <a class="al-action-btn" href="https://wa.me/8801712345678" target="_blank" rel="noopener" style="text-decoration:none;background:#25D366;color:#fff;box-shadow:0 4px 12px rgba(37,211,102,0.35)"><svg width="13" height="13" viewBox="0 0 24 24" fill="#fff"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347zM12 0C5.373 0 0 5.373 0 12c0 2.127.558 4.122 1.532 5.855L.054 23.454a.5.5 0 00.623.529l5.792-1.526A11.938 11.938 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.882a9.877 9.877 0 01-5.031-1.375l-.36-.214-3.733.983.998-3.648-.235-.374A9.861 9.861 0 012.118 12C2.118 6.53 6.53 2.118 12 2.118S21.882 6.53 21.882 12 17.47 21.882 12 21.882z"/></svg><span>WhatsApp</span></a>
-      ${al_actionBtn('ghost','history','Details','openStoreOrderDetails()')}
+      ${al_actionBtn('ghost','history','Details','openOrderDetailsModal()')}
     </div>
   </div>`;
 }
@@ -26473,20 +26512,6 @@ function openProxyDetails(id){
   frame.src = 'proxy-request.html?id=' + encodeURIComponent(req.id) + '&theme=' + theme;
   panel.classList.add('open');
 }
-function openStoreOrderDetails(id){
-  const panel = document.getElementById('storeOrderPanel');
-  const frame = document.getElementById('storeOrderFrame');
-  if (!panel || !frame) return;
-  const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
-  frame.src = 'store-order.html?' + (id ? 'id=' + encodeURIComponent(id) : 'demo=1') + '&theme=' + theme;
-  panel.classList.add('open');
-}
-function closeStoreOrderDetails(){
-  const panel = document.getElementById('storeOrderPanel');
-  const frame = document.getElementById('storeOrderFrame');
-  if (panel) panel.classList.remove('open');
-  if (frame) frame.removeAttribute('src');
-}
 function closeProxyDetails(){
   const panel = document.getElementById('proxyRequestPanel');
   const frame = document.getElementById('proxyRequestFrame');
@@ -26497,7 +26522,6 @@ window.addEventListener('message', function(e){
   if (e.origin !== window.location.origin) return;
   const d = e.data || {};
   if (d.type === 'sv-px-close') closeProxyDetails();
-  if (d.type === 'sv-so-close') closeStoreOrderDetails();
 });
 
 window.addEventListener('message', function(e){
