@@ -8220,7 +8220,7 @@ html[data-theme="dark"] .odm-card { background: rgba(124,111,247,0.08); border-c
 html[data-theme="dark"] #alertsTabContent .px-more { color: #FF9466; }
 #alertsTabContent .chip.px-warn { background: rgba(226,90,38,0.14); border-radius: 8px; padding: 3px 8px; }
 #alertsTabContent .px-empty { text-align: center; font-size: 12px; font-weight: 600; color: var(--al-muted); padding: 6px 0 2px; }
-/* ---- Buy For Me request: full-screen detail page (proxy-request.html) ---- */
+/* ---- Buy For Me request: full-screen detail page (assets/js/sv-proxy-request.js) ---- */
 #proxyRequestPanel { display:none; position:fixed; inset:0; z-index:8600; background:#0f1621; }
 #proxyRequestPanel.open { display:block; animation:hubSlideUp 0.28s cubic-bezier(0.4,0,0.2,1) forwards; }
 .source-icon { display:inline-flex; align-items:center; justify-content:center; width:18px; height:18px; border-radius:5px; flex-shrink:0; }
@@ -22757,6 +22757,8 @@ async function sbFetch(path, method='GET', body=null) {
   if (!res.ok) throw new Error(await res.text());
   return res.status === 204 ? null : res.json();
 }
+
+window.sbFetch = sbFetch;   /* expose for assets/js/sv-proxy-request.js */
 
 /* ===== FINGERPRINT CONFIRMATION FOR IMPORTANT SAVES =====
    Same gate used on the profile page: any save that changes price,
