@@ -149,7 +149,7 @@ window.SVProxyRequest={
       var same=hit&&JSON.stringify(hit)===JSON.stringify(d);
       cache[id]=d;
       if(!same){ var top=root.scrollTop; renderProxyRequest(d.row,d.fees); root.scrollTop=top; }
-    }).catch(function(e){ console.error(e); if(!hit) setRoot('Could not load this request.'); });
+    }).catch(function(e){ console.error('[BFM]',e); var m=String((e&&e.message)||e||'').replace(/[<>&]/g,'').slice(0,220); if(!hit) setRoot('Could not load this request.<br><small style="opacity:.7;font-size:11px;word-break:break-word">'+m+'</small>'); });
   },
   close:function(){}
 };
