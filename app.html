@@ -955,6 +955,7 @@ html[data-theme="dark"] .rw-paytag.ok { color: #3bbf7f; }
 html[data-theme="dark"] .rw-paytag.cod { color: #F4A922; }
 .rw-actions .btn-invoice { padding: 0 12px; font-size: 11px; }
 .rw-actions { margin-top: 12px; }
+.rw-card .draft-math-row.discount-row { border-bottom: none; }
 .rw-info-btn { width: 36px; height: 32px; flex-shrink: 0; border-radius: 10px; background: rgba(10,155,220,0.12); color: #0A86BE; border: 1px solid rgba(10,155,220,0.4); display: flex; align-items: center; justify-content: center; cursor: pointer; padding: 0; transition: transform 0.15s ease, background 0.2s ease; }
 html[data-theme="dark"] .rw-info-btn { background: rgba(10,155,220,0.18); color: #2DBEF5; border-color: rgba(10,155,220,0.5); }
 .rw-info-btn:active { transform: scale(0.94); }
@@ -20648,7 +20649,21 @@ function buildWebReadyCardEl(d) {
   const personIcon = `<svg fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><use href="#icon-user-profile"/></svg>`;
   const phoneIcon = `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#icon-tag-price"/></svg>`;
   const locIcon = `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#icon-link-chain"/></svg>`;
-  const invoiceRows = items.map(i => `<div class="draft-item"><div class="draft-item-name">${escapeHtml(i.name)}</div><div class="draft-item-qty" data-qty="${i.qty}" data-price="${i.price}"></div><div class="draft-item-sku">${escapeHtml(i.sku || '')}</div></div>`).join('');
+  const shipIcon = `<svg fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><use href="#icon-truck-delivery"/></svg>`;
+  const totalQty = items.reduce((a, i) => a + i.qty, 0);
+  const itemsHtml = items.map(i => `
+    <div class="draft-item" data-category="${escapeHtml(i.category || '')}">
+      <div class="draft-item-header">
+        <div class="draft-item-name"><span class="draft-item-name-text">${escapeHtml(i.name)}</span>${txItemCatBadge(i.category)}</div>
+        <div class="draft-item-amount draft-item-qty" data-qty="${i.qty}" data-price="${i.price}">${i.qty}× ৳${Number(i.price).toLocaleString('en-IN')}</div>
+      </div>
+      <div class="draft-item-sku">${escapeHtml(i.sku || '')}</div>
+    </div>`).join('');
+  const mathHtml = `
+    <div class="draft-math-row"><span class="draft-math-label">Subtotal <span class="draft-math-units">${totalQty}u</span></span><span class="draft-math-val">${rwMoney(subtotal)}</span></div>
+    ${discount > 0 ? `<div class="draft-math-row discount-row"><span class="draft-math-label">${tagIcon}Discount${d.voucher ? `<span class="draft-voucher-tag">${escapeHtml(d.voucher)}</span>` : ''}</span><span class="draft-math-val">-${rwMoney(discount)}</span></div>` : ''}
+    <div class="draft-math-row shipping-row ${shipping === 0 ? 'free-shipping' : ''}"><span class="draft-math-label">${shipIcon}Shipping</span><span class="draft-math-val">${shipping === 0 ? 'FREE' : rwMoney(shipping)}</span></div>
+    <div class="draft-math-total"><span class="draft-math-total-label">Total</span><span class="draft-math-total-amt">${rwMoney(total)}</span></div>`;
 
   const card = document.createElement('div');
   card.className = 'draft-card rw-card';
@@ -20689,7 +20704,9 @@ function buildWebReadyCardEl(d) {
     <div class="draft-details-wrapper">
       <div class="draft-details-inner">
         <div class="draft-divider"></div>
-        <div hidden>${invoiceRows}</div>
+        ${itemsHtml}
+        <div class="draft-divider"></div>
+        ${mathHtml}
         <div class="draft-actions rw-actions">
           <button class="btn-invoice" onclick="createInvoiceFromDraft(${idx}, event)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-file-document"/></svg>Invoice</button>
           <button class="rw-info-btn" onclick="rwDetails(${idx}, event)" aria-label="Order details">${RW_ICO_INFO}</button>
