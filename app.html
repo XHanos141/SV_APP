@@ -8081,10 +8081,6 @@ html[data-theme="dark"] .odm-mc-row.total > span:first-child { color: #F0F4FA; }
 html[data-theme="dark"] .odm-mc.pay { --pm-bkash:#ff5c96; --pm-nagad:#ffab4a; --pm-rocket:#c471cd; --pm-upay:#5b9bdb; --pm-cellfin:#3fcf85; --pm-crypto:#ffab4a; }
 .odm-mc.pay .odm-mc-row > span:first-child { color: #0B1220; font-weight: 700; }
 html[data-theme="dark"] .odm-mc.pay .odm-mc-row > span:first-child { color: #F0F4FA; }
-.odm-pm { font-weight: 800; color: #0B1220; }
-html[data-theme="dark"] .odm-pm { color: #F0F4FA; }
-.odm-pm.pm-bkash { color: var(--pm-bkash); } .odm-pm.pm-nagad { color: var(--pm-nagad); } .odm-pm.pm-rocket { color: var(--pm-rocket); }
-.odm-pm.pm-upay { color: var(--pm-upay); } .odm-pm.pm-cellfin { color: var(--pm-cellfin); } .odm-pm.pm-crypto { color: var(--pm-crypto); }
 .odm-trxwrap { display: inline-flex; align-items: center; gap: 8px; }
 .odm-trxv { font-size: 12px; font-weight: 800; letter-spacing: .3px; color: #0B1220; }
 html[data-theme="dark"] .odm-trxv { color: #F0F4FA; }
@@ -26149,7 +26145,7 @@ function renderOrderDetailsPayment(pay) {
   const copyVal = v => `<span class="odm-trxwrap"><span class="odm-trxv">${escapeHtml(v)}</span><button type="button" class="odm-copy" data-copy="${escapeHtml(v)}" aria-label="Copy">${ODM_ICO_COPY}</button></span>`;
   const paid = pay.status === 'Paid';
   box.innerHTML = `<div class="odm-mc pay">
-    ${row('Method', `<span class="odm-pm${ODM_PAY_LABELS[key] ? ' pm-' + key : ''}">${escapeHtml(label)}</span>`)}
+    ${row('Method', `<span class="pmt-pay-badge ${payKey(pay.method)}" title="${escapeHtml(label)}" aria-label="${escapeHtml(label)}">${payBadgeIcon(pay.method)}</span>`)}
     ${pay.txn ? row('Transaction ID', copyVal(pay.txn)) : ''}
     ${pay.sender ? row('Sender number', copyVal(pay.sender)) : ''}
     ${pay.amount_due != null ? row('Amount due', money(pay.amount_due)) : ''}
