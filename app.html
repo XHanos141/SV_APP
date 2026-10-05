@@ -8134,6 +8134,8 @@ html[data-theme="dark"] .odm-mc-row > span:last-child { color: #F0F4FA; }
 .odm-mc-row svg { width: 13px; height: 13px; flex-shrink: 0; }
 .odm-mc-row.ship > span:first-child, .odm-mc-row.discount > span:first-child { font-weight: 700; color: #0B1220; }
 html[data-theme="dark"] .odm-mc-row.ship > span:first-child { color: #F0F4FA; }
+.odm-mc-row.sub > span:first-child { font-weight: 700; color: #0B1220; }
+html[data-theme="dark"] .odm-mc-row.sub > span:first-child { color: #F0F4FA; }
 /* Admin-side rule (same as draft card): free shipping + discount are money leaving the business → red */
 .odm-mc-row.ship.free > span:first-child, .odm-mc-row.discount > span:first-child, .odm-mc-row.discount > span:last-child { color: #d95353; }
 .odm-mc-row.ship.free > span:last-child { color: #d95353; font-weight: 700; letter-spacing: .5px; font-size: 10px; text-transform: uppercase; }
@@ -26356,7 +26358,7 @@ function renderOrderDetailsSummary(o) {
   const free = Number(o.shipping) === 0;
   const disc = Number(o.discount) > 0 ? `<div class="odm-mc-row discount"><span>${ODM_ICO_TAG}Discount (${escapeHtml(o.voucher_code || 'Manual')})</span><span>-${money(o.discount)}</span></div>` : '';
   box.innerHTML = `<div class="odm-mc">
-    <div class="odm-mc-row"><span>Subtotal</span><span>${money(o.subtotal)}</span></div>
+    <div class="odm-mc-row sub"><span>Subtotal</span><span>${money(o.subtotal)}</span></div>
     ${disc}
     <div class="odm-mc-row ship${free ? ' free' : ''}"><span>${ODM_ICO_TRUCK}Shipping</span><span>${free ? 'Free' : money(o.shipping)}</span></div>
     <div class="odm-mc-row total"><span>Total</span><span>${money(o.total)}</span></div>
