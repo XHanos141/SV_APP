@@ -8242,7 +8242,6 @@ html[data-theme="dark"] #pxQuoteSheet .pxq-card { background:#162130; color:#e8e
 #pxQuoteSheet .pxq-send:disabled { opacity:.6; }
 #pxQuoteSheet .pxq-cancel { background:rgba(124,111,247,.12); color:inherit; }
 #pxQuoteSheet .pxq-err { color:#d95353; font-size:12px; font-weight:600; margin-top:8px; min-height:14px; }
-#proxyRequestPanel iframe { position:absolute; inset:0; width:100%; height:100%; border:none; display:block; background:#0f1621; }
 #alertsTabContent .rq-tag { display:inline-flex; align-items:center; border:1.5px solid rgba(198,82,39,0.55); border-radius:6px; padding:2px 7px; font-family:'Plus Jakarta Sans',sans-serif; font-size:11px; font-weight:800; color:#E15A26; letter-spacing:.3px; background:rgba(255,255,255,0.5); flex-shrink:0; }
 html[data-theme="dark"] #alertsTabContent .rq-tag { border-color:rgba(251,202,185,0.5); color:#FF9466; background:rgba(255,255,255,0.06); }
 #alertsTabContent .px-cust { display:flex; align-items:center; gap:10px; min-width:0; }
@@ -8307,11 +8306,11 @@ html[data-theme="dark"] #alertsTabContent .rq-tag { border-color:rgba(251,202,18
   </div>
 </div>
 <div id="proxyRequestPanel" role="dialog" aria-label="Buy For Me request details">
-  <iframe id="proxyRequestFrame" title="Buy For Me request" referrerpolicy="same-origin"></iframe>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script src="assets/js/supabase-config.js"></script>
 <script src="assets/js/sv-customer-card.js"></script>
+<script src="assets/js/sv-proxy-request.js"></script>
 <style>
 #svAdminGate{position:fixed;inset:0;z-index:999999;background:#000d20;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:14px;transition:opacity .25s ease;font-family:'DM Sans',sans-serif}
 #svAdminGate .sv-gate-spin{width:38px;height:38px;border-radius:50%;border:3px solid rgba(255,255,255,0.18);border-top-color:#009ddc;animation:svGateSpin .8s linear infinite}
@@ -26793,17 +26792,13 @@ function openProxyChat(id){
 function openProxyDetails(id){
   const req = AL_PROXY.find(r => r.id === id);
   const panel = document.getElementById('proxyRequestPanel');
-  const frame = document.getElementById('proxyRequestFrame');
-  if (!req || !panel || !frame) return;
-  const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
-  frame.src = 'proxy-request.html?id=' + encodeURIComponent(req.id) + '&theme=' + theme;
+  if (!req || !panel || !window.SVProxyRequest) return;
   panel.classList.add('open');
+  window.SVProxyRequest.open(req.id);
 }
 function closeProxyDetails(){
   const panel = document.getElementById('proxyRequestPanel');
-  const frame = document.getElementById('proxyRequestFrame');
   if (panel) panel.classList.remove('open');
-  if (frame) frame.removeAttribute('src');   // release the page, fresh load on reopen
 }
 window.addEventListener('message', function(e){
   if (e.origin !== window.location.origin) return;
