@@ -953,6 +953,21 @@ html[data-theme="dark"] .rw-pill.delivered { background: rgba(47,155,104,0.15); 
 .rw-paytag.cod { color: #c27a08; background: rgba(244,169,34,0.16); }
 html[data-theme="dark"] .rw-paytag.ok { color: #3bbf7f; }
 html[data-theme="dark"] .rw-paytag.cod { color: #F4A922; }
+.rw-cust { background: #EDF2F9; border-radius: 12px; padding: 7px 10px; display: flex; flex-direction: column; gap: 3px; margin-top: 6px; }
+html[data-theme="dark"] .rw-cust { background: #1A2235; }
+.rw-crow { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.rw-ci { width: 20px; height: 20px; border-radius: 7px; background: #ffffff; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+html[data-theme="dark"] .rw-ci { background: rgba(255,255,255,.07); }
+.rw-ci svg { width: 14px; height: 14px; stroke: #0A9BDC; stroke-width: 2.3; fill: none; stroke-linecap: butt; }
+html[data-theme="dark"] .rw-ci svg { stroke: #2DBEF5; }
+.rw-ci.solid svg { fill: #0A9BDC; stroke: none; }
+html[data-theme="dark"] .rw-ci.solid svg { fill: #2DBEF5; }
+.rw-ctxt { font-size: 12.5px; font-weight: 700; color: #0B1220; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+html[data-theme="dark"] .rw-ctxt { color: #F0F4FA; }
+.rw-crow.addr .rw-ctxt { font-weight: 600; color: #5E6B7D; line-height: 1.4; }
+html[data-theme="dark"] .rw-crow.addr .rw-ctxt { color: #A0AAB8; }
+.draft-card.expanded .rw-crow.addr { align-items: flex-start; }
+.draft-card.expanded .rw-crow.addr .rw-ctxt { white-space: normal; overflow: visible; }
 .rw-actions .btn-invoice { padding: 0 12px; font-size: 11px; }
 .rw-actions { margin-top: 12px; }
 .rw-card .draft-math-row.discount-row { border-bottom: none; }
@@ -19397,7 +19412,7 @@ function createInvoiceFromDraft(index, event) {
   const discount = parseFloat(card.getAttribute("data-discount")) || 0;
   const shipping = parseFloat(card.getAttribute("data-shipping")) || 0;
   const status = card.getAttribute("data-status") || "pending";
-  const customer = card.querySelector(".draft-name")?.textContent || "Customer";
+  const customer = card.querySelector('[data-cust="name"]')?.textContent || card.querySelector(".draft-name")?.textContent || "Customer";
   const dateText = card.querySelector(".draft-date")?.textContent || "--";
 
   const itemEls = card.querySelectorAll(".draft-item");
@@ -19435,8 +19450,8 @@ function createInvoiceFromDraft(index, event) {
     brandName: "SuppVerse",
     brandColor: "#7C6FF7",
     customerName: customer,
-    customerLocation: card.querySelector(".address-row span")?.textContent.trim() || "",
-    customerPhone: card.querySelector(".dc-meta-row:not(.address-row) span")?.textContent.trim() || "",
+    customerLocation: (card.querySelector('[data-cust="addr"]') || card.querySelector(".address-row span"))?.textContent.trim() || "",
+    customerPhone: (card.querySelector('[data-cust="phone"]') || card.querySelector(".dc-meta-row:not(.address-row) span"))?.textContent.trim() || "",
     items: items,
     discount: discount,
     voucher: card.getAttribute("data-voucher") || null,
@@ -20646,9 +20661,6 @@ function buildWebReadyCardEl(d) {
   const cod = !!d.cod;
   const methodKey = cod ? 'cod' : String(d.payMethod || '').toLowerCase();
   const tagIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-archive-box"/></svg>`;
-  const personIcon = `<svg fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><use href="#icon-user-profile"/></svg>`;
-  const phoneIcon = `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#icon-tag-price"/></svg>`;
-  const locIcon = `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#icon-link-chain"/></svg>`;
   const shipIcon = `<svg fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><use href="#icon-truck-delivery"/></svg>`;
   const totalQty = items.reduce((a, i) => a + i.qty, 0);
   const itemsHtml = items.map(i => `
@@ -20684,10 +20696,10 @@ function buildWebReadyCardEl(d) {
       <div class="dc-header">
         <div class="dc-left">
           <div class="rw-idrow"><span class="draft-id">${escapeHtml(d.orderId)}</span>${d.demo ? '<span class="rw-demo-tag">DEMO</span>' : ''}</div>
-          <div class="draft-name">${personIcon}${escapeHtml(d.name)}</div>
-          <div class="dc-meta">
-            ${d.phone ? `<div class="dc-meta-row">${phoneIcon}<span>${escapeHtml(d.phone)}</span></div>` : ''}
-            ${d.fullAddress ? `<div class="dc-meta-row address-row">${locIcon}<span>${escapeHtml(d.fullAddress)}</span></div>` : ''}
+          <div class="rw-cust">
+            <div class="rw-crow"><span class="rw-ci solid"><svg viewBox="0 0 24 24"><path d="M21,19a3,3,0,0,1-3,3H6a3,3,0,0,1-3-3,5,5,0,0,1,5-5h8A5,5,0,0,1,21,19Zm-9-7A5,5,0,1,0,7,7,5,5,0,0,0,12,12Z"/></svg></span><span class="rw-ctxt" data-cust="name">${escapeHtml(d.name)}</span></div>
+            ${d.phone ? `<div class="rw-crow"><span class="rw-ci"><svg viewBox="0 0 24 24"><path d="M3 5.5C3 14.0604 9.93959 21 18.5 21C18.8862 21 19.2691 20.9859 19.6483 20.9581C20.0834 20.9262 20.3009 20.9103 20.499 20.7963C20.663 20.7019 20.8185 20.5345 20.9007 20.364C21 20.1582 21 19.9181 21 19.438V16.6207C21 16.2169 21 16.015 20.9335 15.842C20.8749 15.6891 20.7795 15.553 20.6559 15.4456C20.516 15.324 20.3262 15.255 19.9468 15.117L16.74 13.9509C16.2985 13.7904 16.0777 13.7101 15.8683 13.7237C15.6836 13.7357 15.5059 13.7988 15.3549 13.9058C15.1837 14.0271 15.0629 14.2285 14.8212 14.6314L14 16C11.3501 14.7999 9.2019 12.6489 8 10L9.36863 9.17882C9.77145 8.93713 9.97286 8.81628 10.0942 8.64506C10.2012 8.49408 10.2643 8.31637 10.2763 8.1317C10.2899 7.92227 10.2096 7.70153 10.0491 7.26005L8.88299 4.05321C8.745 3.67376 8.67601 3.48403 8.55442 3.3441C8.44701 3.22049 8.31089 3.12515 8.15802 3.06645C7.98496 3 7.78308 3 7.37932 3H4.56201C4.08188 3 3.84181 3 3.63598 3.09925C3.4655 3.18146 3.29814 3.33701 3.2037 3.50103C3.08968 3.69907 3.07375 3.91662 3.04189 4.35173C3.01413 4.73086 3 5.11378 3 5.5Z"/></svg></span><span class="rw-ctxt" data-cust="phone">${escapeHtml(d.phone)}</span></div>` : ''}
+            ${d.fullAddress ? `<div class="rw-crow addr"><span class="rw-ci"><svg viewBox="0 0 24 24"><path d="M12 21C15.5 17.4 19 14.1764 19 10.2C19 6.22355 15.866 3 12 3C8.13401 3 5 6.22355 5 10.2C5 14.1764 8.5 17.4 12 21Z"/><path d="M12 13C13.6569 13 15 11.6569 15 10C15 8.34315 13.6569 7 12 7C10.3431 7 9 8.34315 9 10C9 11.6569 10.3431 13 12 13Z"/></svg></span><span class="rw-ctxt" data-cust="addr">${escapeHtml(d.fullAddress)}</span></div>` : ''}
           </div>
           ${discount > 0 ? `<div class="draft-discount">${tagIcon}<span>৳${discount.toLocaleString('en-IN')}</span></div>` : ''}
         </div>
