@@ -20701,7 +20701,7 @@ function buildWebReadyCardEl(d) {
     </div>`).join('');
   const mathHtml = `
     <div class="draft-math-row"><span class="draft-math-label">Subtotal <span class="draft-math-units">${totalQty}u</span></span><span class="draft-math-val">${rwMoney(subtotal)}</span></div>
-    ${discount > 0 ? `<div class="draft-math-row discount-row"><span class="draft-math-label">${tagIcon}Discount${d.voucher ? `<span class="draft-voucher-tag">${escapeHtml(d.voucher)}</span>` : ''}</span><span class="draft-math-val">-${rwMoney(discount)}</span></div>` : ''}
+    ${discount > 0 ? `<div class="draft-math-row discount-row"><span class="draft-math-label">${tagIcon}Discount${d.voucher ? ` (${escapeHtml(d.voucher)})` : ''}</span><span class="draft-math-val">-${rwMoney(discount)}</span></div>` : ''}
     <div class="draft-math-row shipping-row ${shipping === 0 ? 'free-shipping' : ''}"><span class="draft-math-label">${shipIcon}Shipping</span><span class="draft-math-val">${shipping === 0 ? 'FREE' : rwMoney(shipping)}</span></div>
     <div class="draft-math-total"><span class="draft-math-total-label">Total</span><span class="draft-math-total-amt">${rwMoney(total)}</span></div>`;
 
