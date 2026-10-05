@@ -8205,7 +8205,10 @@ html[data-theme="dark"] .odm-pc-price { color: #fff; }
 .odm-pc-old { font-size: 11px; font-weight: 600; color: #E14343; text-decoration: line-through; text-decoration-color: #8794A8; }
 .odm-pc-qty { min-width: 34px; height: 26px; padding: 0 8px; display: inline-flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 800; color: #001f3c; background: #F8FAFD; border: 0.8px solid rgba(10,22,40,0.10); border-radius: 6px; flex-shrink: 0; }
 html[data-theme="dark"] .odm-pc-qty { color: #fff; background: #1A2235; border-color: rgba(255,255,255,0.10); }
-.odm-pi-sku { margin-top: 4px; }
+.odm-pi-sku { margin-top: 2px; }
+.odm-pi-head { align-items: flex-start; }
+.odm-pi-head .odm-pc-name { flex: 1; min-width: 0; }
+.odm-pi-amt { font-size: 12px; }
 .odm-item-row { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
 .odm-item-name { display: flex; align-items: center; gap: 5px; font-family: "Plus Jakarta Sans", sans-serif; font-size: 13px; font-weight: 700; color: #001f3c; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 html[data-theme="dark"] .odm-item-name { color: #fff; }
@@ -26424,12 +26427,11 @@ function renderOrderDetailsItems(items) {
     <div class="odm-pi-img">${cube}${it.image ? `<img src="${escapeHtml(it.image)}" alt="" loading="lazy" onerror="this.remove()">` : ''}</div>
     <div class="odm-pi-body">
       <div class="odm-pc-cat">${typeBadge(it.category)}${it.subcategory ? `<span>${escapeHtml(it.subcategory)}</span>` : ''}</div>
-      <div class="odm-pc-name">${escapeHtml(it.name)}</div>
-      ${it.spec ? `<div class="odm-pc-spec">${escapeHtml(it.spec)}</div>` : ''}
-      <div class="odm-pc-bottom">
-        <div class="odm-pc-price">\u09f3${Number(it.price).toLocaleString('en-IN')}${it.old_price ? `<span class="odm-pc-old">\u09f3${Number(it.old_price).toLocaleString('en-IN')}</span>` : ''}</div>
-        <span class="odm-pc-qty">\u00d7${it.qty}</span>
+      <div class="odm-pi-head">
+        <div class="odm-pc-name">${escapeHtml(it.name)}</div>
+        <div class="odm-pi-amt">${it.qty}\u00d7 \u09f3${Number(it.price).toLocaleString('en-IN')}</div>
       </div>
+      ${it.spec ? `<div class="odm-pc-spec">${escapeHtml(it.spec)}</div>` : ''}
       <div class="odm-pi-sku">${escapeHtml(it.sku || '')}</div>
     </div>
   </div>`).join('');
