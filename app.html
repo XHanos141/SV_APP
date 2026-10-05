@@ -8065,7 +8065,6 @@ html[data-theme="dark"] .odm-mc-row.ship > span:first-child { color: #F0F4FA; }
 .odm-mc-row.ship.free > span:first-child, .odm-mc-row.discount > span:first-child, .odm-mc-row.discount > span:last-child { color: #d95353; }
 .odm-mc-row.ship.free > span:last-child { color: #d95353; font-weight: 700; letter-spacing: .5px; font-size: 10px; text-transform: uppercase; }
 html[data-theme="dark"] .odm-mc-row.ship.free > span, html[data-theme="dark"] .odm-mc-row.discount > span { color: #ff6b6b !important; }
-.odm-mc-voucher { margin-left: 6px; padding: 1px 6px; border-radius: 6px; font: 600 10px/1.5 'Roboto Mono', monospace; letter-spacing: .02em; background: rgba(217,83,83,0.12); }
 .odm-mc-row.total { padding-top: 8px; border-top: 1px solid rgba(10,22,40,0.10); }
 html[data-theme="dark"] .odm-mc-row.total { border-top-color: rgba(255,255,255,0.10); }
 .odm-mc-row.total > span:first-child { font-size: 13px; font-weight: 800; color: #0B1220; }
@@ -26106,7 +26105,7 @@ function al_itemMain(catKey, subcat, name, sku) {
 }
 
 /* Order Details → customer section. Registered web customers get the same profile card as Buy For Me; others get the basic block. */
-const ODM_DEMO_ORDER = { status: 'Pending', state: 'pending', created_at: '2026-10-05T01:48:00+06:00', status_at: '2026-10-05T01:48:00+06:00', payment: { method: 'bkash', status: 'Verifying', txn: 'BK7F2L9Q3X', sender: '01712345678', amount_due: 9000, submitted: '5 Oct 2026, 1:55 am' }, subtotal: 9500, shipping: 0, discount: 500, total: 9000, items: [{ name: 'Magnesium Glycinate', category: 'Supplement', qty: 2, price: 3250, spec: '400 mg \u2022 120 Capsules', sku: 'DB-MAG-GLY-120' }, { name: 'Betaine HCL & Pepsin', category: 'Supplement', qty: 1, price: 3000, spec: '650 mg \u2022 120 Capsules', sku: 'DB-HCI-PEP-120' }], orderId: 'SV-1014', channel: 'facebook', registered: true, name: 'Rafiq Ahmed', customer_id: 'CU-1014', customer_since: '2026-08-12', phone: '+880 1712-345678', email: 'rafiq.ahmed@example.com', address: 'House 7, Road 3, Mirpur, Dhaka' };
+const ODM_DEMO_ORDER = { voucher_code: 'SUP-REG7K2QX', status: 'Pending', state: 'pending', created_at: '2026-10-05T01:48:00+06:00', status_at: '2026-10-05T01:48:00+06:00', payment: { method: 'bkash', status: 'Verifying', txn: 'BK7F2L9Q3X', sender: '01712345678', amount_due: 9000, submitted: '5 Oct 2026, 1:55 am' }, subtotal: 9500, shipping: 0, discount: 500, total: 9000, items: [{ name: 'Magnesium Glycinate', category: 'Supplement', qty: 2, price: 3250, spec: '400 mg \u2022 120 Capsules', sku: 'DB-MAG-GLY-120' }, { name: 'Betaine HCL & Pepsin', category: 'Supplement', qty: 1, price: 3000, spec: '650 mg \u2022 120 Capsules', sku: 'DB-HCI-PEP-120' }], orderId: 'SV-1014', channel: 'facebook', registered: true, name: 'Rafiq Ahmed', customer_id: 'CU-1014', customer_since: '2026-08-12', phone: '+880 1712-345678', email: 'rafiq.ahmed@example.com', address: 'House 7, Road 3, Mirpur, Dhaka' };
 const ODM_ICO_TRUCK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"/><path d="M15 18H9"/><path d="M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.624l-3.48-4.35A1 1 0 0 0 17.52 8H14"/><circle cx="17" cy="18" r="2"/><circle cx="7" cy="18" r="2"/></svg>';
 const ODM_ICO_TAG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>';
 function renderOrderDetailsSummary(o) {
@@ -26114,7 +26113,7 @@ function renderOrderDetailsSummary(o) {
   if (!box) return;
   const money = n => '৳' + Number(n || 0).toLocaleString('en-IN');
   const free = Number(o.shipping) === 0;
-  const disc = Number(o.discount) > 0 ? `<div class="odm-mc-row discount"><span>${ODM_ICO_TAG}Discount${o.voucher_code ? '<span class="odm-mc-voucher">' + escapeHtml(o.voucher_code) + '</span>' : ''}</span><span>-${money(o.discount)}</span></div>` : '';
+  const disc = Number(o.discount) > 0 ? `<div class="odm-mc-row discount"><span>${ODM_ICO_TAG}Discount (${escapeHtml(o.voucher_code || 'Manual')})</span><span>-${money(o.discount)}</span></div>` : '';
   box.innerHTML = `<div class="odm-mc">
     <div class="odm-mc-row"><span>Subtotal</span><span>${money(o.subtotal)}</span></div>
     ${disc}
