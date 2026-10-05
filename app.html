@@ -26368,8 +26368,8 @@ function renderOrderDetailsPayment(pay) {
     ${row('Method', `<span class="pmt-pay-badge ${payKey(pay.method)}" title="${escapeHtml(label)}" aria-label="${escapeHtml(label)}">${payBadgeIcon(pay.method)}</span>`)}
     ${pay.txn ? row('Transaction ID', copyVal(pay.txn)) : ''}
     ${pay.sender ? row('Sender number', copyVal(pay.sender)) : ''}
-    ${pay.amount_due != null ? row('Amount due', money(pay.amount_due)) : ''}
     ${pay.submitted ? row('Submitted', escapeHtml(pay.submitted)) : ''}
+    ${pay.amount_due != null ? row('Amount due', money(pay.amount_due)) : ''}
     ${pay.status ? row('Status', `<span class="odm-stv${paid ? ' green' : ''}">${escapeHtml(pay.status)}</span>`) : ''}
   </div>`;
 }
