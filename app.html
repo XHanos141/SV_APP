@@ -968,13 +968,12 @@ html[data-theme="dark"] .rw-ctxt { color: #F0F4FA; }
 html[data-theme="dark"] .rw-crow.addr .rw-ctxt { color: #A0AAB8; }
 .draft-card.expanded .rw-crow.addr { align-items: flex-start; }
 .draft-card.expanded .rw-crow.addr .rw-ctxt { white-space: normal; overflow: visible; }
-.rw-actions .btn-invoice { padding: 0 12px; font-size: 11px; }
+.rw-actions .btn-invoice { flex: 0 0 44px; padding: 0; }
 .rw-actions { margin-top: 12px; }
 .rw-card .draft-math-row.discount-row { border-bottom: none; }
-.rw-info-btn { width: 36px; height: 32px; flex-shrink: 0; border-radius: 10px; background: rgba(10,155,220,0.12); color: #0A86BE; border: 1px solid rgba(10,155,220,0.4); display: flex; align-items: center; justify-content: center; cursor: pointer; padding: 0; transition: transform 0.15s ease, background 0.2s ease; }
-html[data-theme="dark"] .rw-info-btn { background: rgba(10,155,220,0.18); color: #2DBEF5; border-color: rgba(10,155,220,0.5); }
-.rw-info-btn:active { transform: scale(0.94); }
-.rw-info-btn svg { width: 17px; height: 17px; }
+.rw-info-btn { width: 32px; height: 32px; flex-shrink: 0; border: none; padding: 3px; border-radius: 50%; background: #ffffff; color: #7C6FF7; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: color 0.2s ease, transform 0.15s ease; align-self: center; }
+.rw-info-btn:active { color: #5f52d6; transform: scale(0.94); }
+.rw-info-btn svg { width: 100%; height: 100%; }
 .rw-advance { min-width: 0; flex: 1; }
 .rw-advance.done { background: rgba(47,155,104,0.18); color: #26854f; box-shadow: none; pointer-events: none; }
 html[data-theme="dark"] .rw-advance.done { color: #3bbf7f; }
@@ -20648,7 +20647,7 @@ function buildDraftCardEl(d) {
    ============================================================ */
 const RW_LABEL = { ready: 'Ready to Ship', shipped: 'Shipped', delivered: 'Delivered' };
 const RW_ICO_X = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg>';
-const RW_ICO_INFO = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><line x1="12" y1="11" x2="12" y2="16"/><circle cx="12" cy="8" r="0.6"/></svg>';
+const RW_ICO_INFO = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 22C6.477 22 2 17.523 2 12S6.477 2 12 2s10 4.477 10 10-4.477 10-10 10zm-.696-3.534c.63 0 1.332-.288 2.196-1.458l.911-1.22a.334.334 0 0 0-.074-.472.38.38 0 0 0-.505.06l-1.475 1.679a.241.241 0 0 1-.279.061.211.211 0 0 1-.12-.244l1.858-7.446a.499.499 0 0 0-.575-.613l-3.35.613a.35.35 0 0 0-.276.258l-.086.334a.25.25 0 0 0 .243.312h1.73l-1.476 5.922c-.054.234-.144.63-.144.918 0 .666.396 1.296 1.422 1.296zm1.83-10.536c.702 0 1.242-.414 1.386-1.044.036-.144.054-.306.054-.414 0-.504-.396-.972-1.134-.972-.702 0-1.242.414-1.386 1.044a1.868 1.868 0 0 0-.054.414c0 .504.396.972 1.134.972z"/></svg>';
 function rwMoney(n) { return '৳' + Number(n || 0).toLocaleString('en-IN'); }
 
 function buildWebReadyCardEl(d) {
@@ -20720,7 +20719,7 @@ function buildWebReadyCardEl(d) {
         <div class="draft-divider"></div>
         ${mathHtml}
         <div class="draft-actions rw-actions">
-          <button class="btn-invoice" onclick="createInvoiceFromDraft(${idx}, event)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-file-document"/></svg>Invoice</button>
+          <button class="btn-invoice" onclick="createInvoiceFromDraft(${idx}, event)" aria-label="Create invoice"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-file-document"/></svg></button>
           <button class="rw-info-btn" onclick="rwDetails(${idx}, event)" aria-label="Order details">${RW_ICO_INFO}</button>
           <button class="btn-paid rw-advance" id="rw-adv-${idx}" onclick="rwAdvance(${idx}, event)"></button>
           <button class="btn-delete rw-cancel" onclick="rwCancel(${idx}, event)" aria-label="Cancel order">${RW_ICO_X}</button>
