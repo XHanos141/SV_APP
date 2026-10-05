@@ -8071,18 +8071,28 @@ html[data-theme="dark"] .odm-mc-row.total { border-top-color: rgba(255,255,255,0
 .odm-mc-row.total > span:first-child { font-size: 13px; font-weight: 800; color: #0B1220; }
 html[data-theme="dark"] .odm-mc-row.total > span:first-child { color: #F0F4FA; }
 .odm-mc-row.total > span:last-child { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 15px; font-weight: 800; }
-.odm-pay-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
-.odm-pay-method { display: flex; align-items: center; gap: 9px; font-size: 14px; font-weight: 800; color: #0B1220; font-family: 'Plus Jakarta Sans', sans-serif; }
-html[data-theme="dark"] .odm-pay-method { color: #F0F4FA; }
-.odm-pay-badge { width: 28px; height: 28px; border-radius: 9px; display: flex; align-items: center; justify-content: center; color: #fff; font: 800 10px 'Plus Jakarta Sans', sans-serif; letter-spacing: .02em; }
-.odm-pay-status { font: 800 11px 'Plus Jakarta Sans', sans-serif; border-radius: 8px; padding: 4px 9px; color: #E15A26; background: rgba(242,100,48,.15); }
-.odm-pay-status.paid { color: #0A9B72; background: rgba(10,155,114,.12); }
-.odm-pay-val { display: inline-flex; align-items: center; gap: 8px; }
-.odm-pay-mono { font-family: "Courier Prime", "Courier New", monospace; font-size: 12.5px; font-weight: 700; letter-spacing: .06em; color: #0B1220; }
-html[data-theme="dark"] .odm-pay-mono { color: #F0F4FA; }
-.odm-copy { width: 24px; height: 24px; border-radius: 8px; border: 1px solid rgba(10,155,220,.3); background: rgba(10,155,220,.1); color: #0A9BDC; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; padding: 0; }
+.odm-mc.pay { --pm-bkash:#e21966; --pm-nagad:#e88316; --pm-rocket:#8b3392; --pm-upay:#0555a4; --pm-cellfin:#09853e; --pm-crypto:#c9860c; }
+html[data-theme="dark"] .odm-mc.pay { --pm-bkash:#ff5c96; --pm-nagad:#ffab4a; --pm-rocket:#c471cd; --pm-upay:#5b9bdb; --pm-cellfin:#3fcf85; --pm-crypto:#ffab4a; }
+.odm-mc.pay .odm-mc-row > span:first-child { color: #0B1220; font-weight: 700; }
+html[data-theme="dark"] .odm-mc.pay .odm-mc-row > span:first-child { color: #F0F4FA; }
+.odm-pm { font-weight: 800; color: #0B1220; }
+html[data-theme="dark"] .odm-pm { color: #F0F4FA; }
+.odm-pm.pm-bkash { color: var(--pm-bkash); } .odm-pm.pm-nagad { color: var(--pm-nagad); } .odm-pm.pm-rocket { color: var(--pm-rocket); }
+.odm-pm.pm-upay { color: var(--pm-upay); } .odm-pm.pm-cellfin { color: var(--pm-cellfin); } .odm-pm.pm-crypto { color: var(--pm-crypto); }
+.odm-trxwrap { display: inline-flex; align-items: center; gap: 8px; }
+.odm-trxv { font-size: 12px; font-weight: 800; letter-spacing: .3px; color: #0B1220; }
+html[data-theme="dark"] .odm-trxv { color: #F0F4FA; }
+.odm-copy { width: 24px; height: 24px; border: none; border-radius: 7px; background: rgba(10,155,220,0.08); color: #0A9BDC; display: inline-flex; align-items: center; justify-content: center; padding: 0; cursor: pointer; flex-shrink: 0; }
+html[data-theme="dark"] .odm-copy { background: rgba(45,190,245,0.08); color: #2DBEF5; }
+.odm-copy svg { width: 13px; height: 13px; }
+.odm-copy .ic-done { display: none; }
+.odm-copy.copied { background: rgba(10,155,114,0.10); color: #0A9B72; }
+.odm-copy.copied .ic-copy { display: none; }
+.odm-copy.copied .ic-done { display: block; }
 .odm-copy:active { transform: scale(.92); }
-.odm-copy svg { width: 12px; height: 12px; }
+.odm-stv { font-weight: 800; color: #0A9BDC; }
+html[data-theme="dark"] .odm-stv { color: #2DBEF5; }
+.odm-stv.green { color: #0A9B72; }
 .odm-pi-sku { font-family: "Courier Prime", "Courier New", monospace; font-size: 9px; font-weight: 700; color: #0891b2; letter-spacing: 0.13em; text-transform: uppercase; margin-top: 1px; }
 html[data-theme="dark"] .odm-pi-sku { color: #22d3ee; }
 .odm-item-row { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
@@ -26091,28 +26101,33 @@ function renderOrderDetailsSummary(o) {
     <div class="odm-mc-row total"><span>Total</span><span>${money(o.total)}</span></div>
   </div>`;
 }
-const ODM_PAY_METHODS = { bkash: ['bKash', '#e2136e', 'BK'], nagad: ['Nagad', '#f26a21', 'NG'], rocket: ['Rocket', '#8c3494', 'RK'], upay: ['Upay', '#f9a61a', 'UP'], bank: ['Bank Transfer', '#2f6f9f', 'BT'], crypto: ['Crypto', '#26a17b', 'CR'], cod: ['Cash on Delivery', '#2f9b68', 'CD'] };
-const ODM_ICO_COPY = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>';
-function odmCopy(btn, text) {
-  const done = () => { if (typeof showToast === 'function') showToast('Copied'); };
-  try { if (navigator.clipboard && window.isSecureContext) { navigator.clipboard.writeText(text).then(done); return; } } catch (e) {}
-  const ta = document.createElement('textarea'); ta.value = text; ta.setAttribute('readonly', ''); ta.style.cssText = 'position:fixed;top:0;left:0;opacity:0;';
-  document.body.appendChild(ta); ta.select(); try { document.execCommand('copy'); done(); } catch (e) {} document.body.removeChild(ta);
-}
+const ODM_PAY_LABELS = { bkash: 'bKash', nagad: 'Nagad', rocket: 'Rocket', upay: 'Upay', cellfin: 'Cellfin', crypto: 'Crypto', bank: 'Bank Transfer', cod: 'Cash on Delivery' };
+const ODM_ICO_COPY = '<svg class="ic-copy" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg><svg class="ic-done" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
+document.addEventListener('click', function (e) {
+  const b = e.target.closest && e.target.closest('.odm-copy'); if (!b) return;
+  const txt = b.getAttribute('data-copy') || '';
+  const done = () => { b.classList.add('copied'); clearTimeout(b._t); b._t = setTimeout(() => b.classList.remove('copied'), 1600); };
+  const fallback = () => { try { const ta = document.createElement('textarea'); ta.value = txt; ta.style.cssText = 'position:fixed;opacity:0;top:0'; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); ta.remove(); done(); } catch (_) {} };
+  if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(txt).then(done, fallback); else fallback();
+});
 function renderOrderDetailsPayment(pay) {
   const sec = document.getElementById("odmPaymentSection"), box = document.getElementById("odmPayment");
   if (!sec || !box) return;
   if (!pay) { sec.style.display = 'none'; return; }
   sec.style.display = '';
-  const m = ODM_PAY_METHODS[String(pay.method || '').toLowerCase()] || [pay.method || 'Not chosen', '#657386', '?'];
+  const key = String(pay.method || '').toLowerCase().replace(/[^a-z]/g, '');
+  const label = ODM_PAY_LABELS[key] || pay.method || 'Not chosen';
   const money = n => '৳' + Number(n || 0).toLocaleString('en-IN');
-  const copyRow = (label, val) => val ? `<div class="odm-mc-row"><span>${label}</span><span class="odm-pay-val"><span class="odm-pay-mono">${escapeHtml(val)}</span><button type="button" class="odm-copy" aria-label="Copy ${label}" onclick="odmCopy(this, '${escapeHtml(val)}')">${ODM_ICO_COPY}</button></span></div>` : '';
-  box.innerHTML = `<div class="odm-mc">
-    <div class="odm-pay-head"><div class="odm-pay-method"><span class="odm-pay-badge" style="background:${m[1]}">${m[2]}</span>${escapeHtml(m[0])}</div><span class="odm-pay-status${pay.status === 'Paid' ? ' paid' : ''}">${escapeHtml(pay.status || '')}</span></div>
-    ${copyRow('Transaction ID', pay.txn)}
-    ${copyRow('Sender number', pay.sender)}
-    ${pay.amount_due != null ? `<div class="odm-mc-row"><span>Amount due</span><span>${money(pay.amount_due)}</span></div>` : ''}
-    ${pay.submitted ? `<div class="odm-mc-row"><span>Submitted</span><span>${escapeHtml(pay.submitted)}</span></div>` : ''}
+  const row = (k, v) => `<div class="odm-mc-row"><span>${k}</span><span>${v}</span></div>`;
+  const copyVal = v => `<span class="odm-trxwrap"><span class="odm-trxv">${escapeHtml(v)}</span><button type="button" class="odm-copy" data-copy="${escapeHtml(v)}" aria-label="Copy">${ODM_ICO_COPY}</button></span>`;
+  const paid = pay.status === 'Paid';
+  box.innerHTML = `<div class="odm-mc pay">
+    ${row('Method', `<span class="odm-pm${ODM_PAY_LABELS[key] ? ' pm-' + key : ''}">${escapeHtml(label)}</span>`)}
+    ${pay.txn ? row('Transaction ID', copyVal(pay.txn)) : ''}
+    ${pay.sender ? row('Sender number', copyVal(pay.sender)) : ''}
+    ${pay.amount_due != null ? row('Amount due', money(pay.amount_due)) : ''}
+    ${pay.submitted ? row('Submitted', escapeHtml(pay.submitted)) : ''}
+    ${pay.status ? row('Status', `<span class="odm-stv${paid ? ' green' : ''}">${escapeHtml(pay.status)}</span>`) : ''}
   </div>`;
 }
 function renderOrderDetailsItems(items) {
