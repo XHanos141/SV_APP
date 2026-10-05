@@ -939,6 +939,54 @@ html[data-theme="dark"] .status-pill.shipped {
   border-color: rgba(124,111,247,0.45);
 }
 
+/* ---- Ready to Ship (web order) card ---- */
+.rw-pill { font-family: "Plus Jakarta Sans", sans-serif; font-size: 10px; font-weight: 700; padding: 3px 10px; border-radius: 999px; border: 1.5px solid transparent; white-space: nowrap; }
+.rw-pill.ready { background: rgba(10,155,220,0.12); color: #0A86BE; border-color: rgba(10,155,220,0.4); }
+.rw-pill.shipped { background: rgba(124,111,247,0.12); color: #5a4fcf; border-color: rgba(124,111,247,0.4); }
+.rw-pill.delivered { background: rgba(47,155,104,0.12); color: #26854f; border-color: rgba(47,155,104,0.4); }
+html[data-theme="dark"] .rw-pill.ready { background: rgba(10,155,220,0.18); color: #2DBEF5; border-color: rgba(10,155,220,0.5); }
+html[data-theme="dark"] .rw-pill.shipped { background: rgba(124,111,247,0.18); color: #a095f5; border-color: rgba(124,111,247,0.45); }
+html[data-theme="dark"] .rw-pill.delivered { background: rgba(47,155,104,0.15); color: #3bbf7f; border-color: rgba(47,155,104,0.45); }
+.rw-meta { display: flex; align-items: center; gap: 6px; }
+.rw-paytag { font-family: "Plus Jakarta Sans", sans-serif; font-size: 9.5px; font-weight: 800; letter-spacing: .03em; padding: 2px 7px; border-radius: 6px; }
+.rw-paytag.ok { color: #26854f; background: rgba(47,155,104,0.12); }
+.rw-paytag.cod { color: #c27a08; background: rgba(244,169,34,0.16); }
+html[data-theme="dark"] .rw-paytag.ok { color: #3bbf7f; }
+html[data-theme="dark"] .rw-paytag.cod { color: #F4A922; }
+.rw-item { display: flex; gap: 10px; align-items: flex-start; }
+.rw-thumb { width: 40px; height: 40px; border-radius: 10px; flex-shrink: 0; background: rgba(0,31,60,0.05); border: 1px solid rgba(0,31,60,0.08); display: flex; align-items: center; justify-content: center; color: #8c92a1; overflow: hidden; }
+html[data-theme="dark"] .rw-thumb { background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.1); color: rgba(255,255,255,0.45); }
+.rw-thumb svg { width: 20px; height: 20px; }
+.rw-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.rw-ibody { flex: 1; min-width: 0; }
+.rw-pay { margin-top: 10px; padding-top: 10px; border-top: 1.5px dashed #a0a8b8; opacity: 0; transform: translateY(6px); transition: opacity 0.3s ease 0.3s, transform 0.3s ease 0.3s; }
+html[data-theme="dark"] .rw-pay { border-top-color: rgba(255,255,255,0.22); }
+.draft-card.expanded .rw-pay { opacity: 1; transform: translateY(0); }
+.rw-pay-title { font-family: "Plus Jakarta Sans", sans-serif; font-size: 10px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: #0A86BE; margin-bottom: 6px; }
+html[data-theme="dark"] .rw-pay-title { color: #2DBEF5; }
+.rw-pay-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; min-height: 28px; font-size: 12px; font-weight: 600; color: #8c92a1; }
+html[data-theme="dark"] .rw-pay-row { color: rgba(255,255,255,0.55); }
+.rw-pay-row .rw-pv { color: #001f3c; font-weight: 800; display: inline-flex; align-items: center; gap: 8px; }
+html[data-theme="dark"] .rw-pay-row .rw-pv { color: #fff; }
+.rw-pay-row .rw-pv.ok { color: #26854f; }
+html[data-theme="dark"] .rw-pay-row .rw-pv.ok { color: #3bbf7f; }
+.rw-pay-row .rw-pv.cod { color: #c27a08; }
+html[data-theme="dark"] .rw-pay-row .rw-pv.cod { color: #F4A922; }
+.rw-pay-row .odm-trxv { font-family: "Roboto Mono", monospace; }
+html[data-theme="dark"] .rw-pay-row .odm-trxv { color: #fff; }
+.rw-actions .btn-invoice, .rw-actions .rw-btn-ghost { padding: 0 10px; font-size: 11px; }
+.rw-btn-ghost { height: 32px; border-radius: 10px; background: transparent; color: #001f3c; border: 1px solid rgba(0,31,60,0.18); font-family: "Plus Jakarta Sans", sans-serif; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 5px; transition: transform 0.15s ease; }
+html[data-theme="dark"] .rw-btn-ghost { color: #fff; border-color: rgba(255,255,255,0.2); }
+.rw-btn-ghost:active { transform: scale(0.96); }
+.rw-btn-ghost svg { width: 14px; height: 14px; }
+.rw-advance { min-width: 0; }
+.rw-advance.done { background: rgba(47,155,104,0.18); color: #26854f; box-shadow: none; pointer-events: none; }
+html[data-theme="dark"] .rw-advance.done { color: #3bbf7f; }
+.rw-advance.ship { background: #7c6ff7; }
+.rw-advance.ship:hover { background: #6b5fd9; box-shadow: 0 3px 8px rgba(124,111,247,0.3); }
+.rw-idrow { display: flex; align-items: center; }
+.rw-demo-tag { font-family: "Plus Jakarta Sans", sans-serif; font-size: 8.5px; font-weight: 800; letter-spacing: .08em; color: #8c92a1; border: 1px dashed rgba(140,146,161,0.6); border-radius: 5px; padding: 1px 5px; margin-left: 6px; }
+
 .status-dropdown-menu {
   position: absolute;
   top: calc(100% + 6px);
@@ -20598,6 +20646,197 @@ function buildDraftCardEl(d) {
 
   return card;
 }
+
+/* ============================================================
+   READY TO SHIP — web order card (paid or COD-accepted orders)
+   ============================================================ */
+const RW_LABEL = { ready: 'Ready to Ship', shipped: 'Shipped', delivered: 'Delivered' };
+const RW_PAY_LABEL = { bkash: 'bKash', nagad: 'Nagad', rocket: 'Rocket', upay: 'Upay', cellfin: 'Cellfin', crypto: 'Crypto', bank: 'Bank Transfer', cod: 'Cash on Delivery' };
+const RW_ICO_COPY = '<svg class="ic-copy" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg><svg class="ic-done" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5L20 7"/></svg>';
+const RW_ICO_BOX = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8l-9-5-9 5v8l9 5 9-5V8z"/><path d="M3.3 7L12 12l8.7-5M12 22V12"/></svg>';
+const RW_ICO_X = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg>';
+const RW_ICO_INFO = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><line x1="12" y1="11" x2="12" y2="16"/><circle cx="12" cy="8" r="0.6"/></svg>';
+function rwMoney(n) { return '৳' + Number(n || 0).toLocaleString('en-IN'); }
+
+function buildWebReadyCardEl(d) {
+  const idx = ++_draftSeq;
+  const items = d.items || [];
+  const stage = d.stage || 'ready';
+  const subtotal = Number(d.subtotal) || items.reduce((a, i) => a + i.qty * i.price, 0);
+  const discount = Number(d.discount) || 0, shipping = Number(d.shipping) || 0;
+  const total = d.total != null ? Number(d.total) : Math.max(0, subtotal - discount + shipping);
+  const totalQty = items.reduce((a, i) => a + i.qty, 0);
+  const cod = !!d.cod;
+  const methodKey = cod ? 'cod' : String(d.payMethod || '').toLowerCase();
+  const methodLabel = RW_PAY_LABEL[methodKey] || d.payMethod || 'Not chosen';
+  const tagIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-archive-box"/></svg>`;
+  const shipIcon = `<svg fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><use href="#icon-truck-delivery"/></svg>`;
+  const personIcon = `<svg fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><use href="#icon-user-profile"/></svg>`;
+  const phoneIcon = `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#icon-tag-price"/></svg>`;
+  const locIcon = `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#icon-link-chain"/></svg>`;
+  const copyBtn = v => `<button type="button" class="odm-copy" data-copy="${escapeHtml(v)}" aria-label="Copy">${RW_ICO_COPY}</button>`;
+
+  const itemsHtml = items.map(i => `
+    <div class="draft-item rw-item" data-category="${escapeHtml(i.category || '')}">
+      <div class="rw-thumb">${RW_ICO_BOX}${i.image ? `<img src="${escapeHtml(i.image)}" alt="" loading="lazy" onerror="this.remove()">` : ''}</div>
+      <div class="rw-ibody">
+        <div class="draft-item-header">
+          <div class="draft-item-name"><span class="draft-item-name-text">${escapeHtml(i.name)}</span>${txItemCatBadge(i.category)}</div>
+          <div class="draft-item-amount draft-item-qty" data-qty="${i.qty}" data-price="${i.price}">${i.qty}× ৳${Number(i.price).toLocaleString('en-IN')}</div>
+        </div>
+        <div class="draft-item-sku">${escapeHtml(i.sku || '')}</div>
+      </div>
+    </div>`).join('');
+
+  const mathHtml = `
+    <div class="draft-math-row"><span class="draft-math-label">Subtotal <span class="draft-math-units">${totalQty}u</span></span><span class="draft-math-val">${rwMoney(subtotal)}</span></div>
+    ${discount > 0 ? `<div class="draft-math-row discount-row"><span class="draft-math-label">${tagIcon}Discount${d.voucher ? `<span class="draft-voucher-tag">${escapeHtml(d.voucher)}</span>` : ''}</span><span class="draft-math-val">-${rwMoney(discount)}</span></div>` : ''}
+    <div class="draft-math-row shipping-row ${shipping === 0 ? 'free-shipping' : ''}"><span class="draft-math-label">${shipIcon}Shipping</span><span class="draft-math-val">${shipping === 0 ? 'FREE' : rwMoney(shipping)}</span></div>
+    <div class="draft-math-total"><span class="draft-math-total-label">Total</span><span class="draft-math-total-amt">${rwMoney(total)}</span></div>`;
+
+  const payHtml = `
+    <div class="rw-pay">
+      <div class="rw-pay-title">Payment</div>
+      <div class="rw-pay-row"><span>Method</span><span class="rw-pv"><span class="pmt-pay-badge ${payKey(methodKey)}" title="${escapeHtml(methodLabel)}" aria-label="${escapeHtml(methodLabel)}">${payBadgeIcon(methodKey)}</span></span></div>
+      ${cod
+        ? `<div class="rw-pay-row"><span>Collect on delivery</span><span class="rw-pv cod">${rwMoney(total)}</span></div>`
+        : `${d.payRef ? `<div class="rw-pay-row"><span>Transaction ID</span><span class="rw-pv"><span class="odm-trxv">${escapeHtml(d.payRef)}</span>${copyBtn(d.payRef)}</span></div>` : ''}
+           ${d.sender ? `<div class="rw-pay-row"><span>Sender number</span><span class="rw-pv"><span class="odm-trxv">${escapeHtml(d.sender)}</span>${copyBtn(d.sender)}</span></div>` : ''}
+           <div class="rw-pay-row"><span>Status</span><span class="rw-pv ok">Verified ✓</span></div>`}
+    </div>`;
+
+  const card = document.createElement('div');
+  card.className = 'draft-card rw-card';
+  card.id = 'draft-' + idx;
+  card.setAttribute('data-id', d.orderId);
+  card.setAttribute('data-kind', 'web');
+  card.setAttribute('data-stage', stage);
+  card.setAttribute('data-discount', discount);
+  card.setAttribute('data-shipping', shipping);
+  card.setAttribute('data-subtotal', subtotal);
+  card.setAttribute('data-status', stage);
+  if (d.voucher) card.setAttribute('data-voucher', d.voucher);
+  if (d.uuid) card.dataset.orderUuid = d.uuid;
+  card._rw = d;
+
+  card.innerHTML = `
+    <div class="draft-card-top" onclick="toggleDraft(${idx})">
+      <div class="dc-header">
+        <div class="dc-left">
+          <div class="rw-idrow"><span class="draft-id">${escapeHtml(d.orderId)}</span>${d.demo ? '<span class="rw-demo-tag">DEMO</span>' : ''}</div>
+          <div class="draft-name">${personIcon}${escapeHtml(d.name)}</div>
+          <div class="dc-meta">
+            ${d.phone ? `<div class="dc-meta-row">${phoneIcon}<span>${escapeHtml(d.phone)}</span></div>` : ''}
+            ${d.fullAddress ? `<div class="dc-meta-row address-row">${locIcon}<span>${escapeHtml(d.fullAddress)}</span></div>` : ''}
+          </div>
+          ${discount > 0 ? `<div class="draft-discount">${tagIcon}<span>৳${discount.toLocaleString('en-IN')}</span></div>` : ''}
+        </div>
+        <div class="dc-right">
+          <div class="dc-right-top">
+            <span class="rw-pill ${stage}" id="rw-pill-${idx}">${RW_LABEL[stage]}</span>
+            <div class="rw-meta">${payIcon(methodKey)}${channelIcon(d.channel || 'website')}<div class="draft-date">${escapeHtml(d.dateStr || '')}</div></div>
+            <span class="rw-paytag ${cod ? 'cod' : 'ok'}">${cod ? 'COD' : 'PAID'}</span>
+          </div>
+          <div class="dc-right-bottom"><div class="draft-row-amount">${rwMoney(total)}</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="draft-details-wrapper">
+      <div class="draft-details-inner">
+        <div class="draft-divider"></div>
+        ${itemsHtml}
+        <div class="draft-divider"></div>
+        ${mathHtml}
+        ${payHtml}
+        <div class="draft-actions rw-actions">
+          <button class="btn-invoice" onclick="createInvoiceFromDraft(${idx}, event)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-file-document"/></svg>Invoice</button>
+          <button class="rw-btn-ghost" onclick="rwDetails(${idx}, event)">${RW_ICO_INFO}Details</button>
+          <button class="btn-paid rw-advance" id="rw-adv-${idx}" onclick="rwAdvance(${idx}, event)"></button>
+          <button class="btn-delete rw-cancel" onclick="rwCancel(${idx}, event)" aria-label="Cancel order">${RW_ICO_X}</button>
+        </div>
+      </div>
+    </div>`;
+  rwPaintAdvance(card, idx);
+  return card;
+}
+
+function rwPaintAdvance(card, idx) {
+  const btn = card.querySelector('#rw-adv-' + idx);
+  if (!btn) return;
+  const stage = card.getAttribute('data-stage');
+  const d = card._rw || {};
+  const truck = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-truck-delivery"/></svg>`;
+  const tick = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-checkmark"/></svg>`;
+  btn.classList.remove('ship', 'done');
+  if (stage === 'ready') { btn.classList.add('ship'); btn.innerHTML = truck + 'Ship'; }
+  else if (stage === 'shipped') { btn.innerHTML = tick + (d.cod ? 'Delivered · Collect' : 'Mark Delivered'); }
+  else { btn.classList.add('done'); btn.innerHTML = tick + 'Delivered'; }
+}
+
+function rwAdvance(idx, event) {
+  if (event) event.stopPropagation();
+  const card = document.getElementById('draft-' + idx);
+  if (!card) return;
+  const order = ['ready', 'shipped', 'delivered'];
+  const cur = card.getAttribute('data-stage') || 'ready';
+  const next = order[Math.min(order.indexOf(cur) + 1, 2)];
+  if (next === cur) return;
+  card.setAttribute('data-stage', next);
+  card.setAttribute('data-status', next);
+  const pill = card.querySelector('#rw-pill-' + idx);
+  if (pill) { pill.className = 'rw-pill ' + next; pill.textContent = RW_LABEL[next]; }
+  rwPaintAdvance(card, idx);
+  if (next === 'delivered' && card._rw && card._rw.cod) showToast('Delivered · collect ' + rwMoney(card._rw.total));
+}
+
+function rwCancel(idx, event) {
+  if (event) event.stopPropagation();
+  const card = document.getElementById('draft-' + idx);
+  if (!card || card.classList.contains('delete-out')) return;
+  card.classList.remove('expanded');
+  setTimeout(() => { card.classList.add('delete-out'); updateBadge(); setTimeout(() => { if (card.parentElement) card.remove(); }, 450); }, 150);
+}
+
+function rwModalOrder(d) {
+  const total = d.total != null ? Number(d.total) : Math.max(0, d.subtotal - d.discount + d.shipping);
+  return {
+    orderId: d.orderId, voucher_code: d.voucher || '', status: RW_LABEL[d.stage || 'ready'], state: d.stage === 'delivered' ? 'delivered' : d.stage === 'shipped' ? 'shipped' : 'paid',
+    created_at: d.createdAt, status_at: d.createdAt, channel: d.channel || 'website',
+    payment: d.cod ? { method: 'cod', status: 'Pay on delivery', amount_due: total } : { method: d.payMethod, status: 'Paid', txn: d.payRef, sender: d.sender, amount_due: total },
+    subtotal: d.subtotal, shipping: d.shipping, discount: d.discount, total,
+    items: d.items, registered: !!d.registered, name: d.name, customer_id: d.customerId || '', customer_since: d.customerSince || '', phone: d.phone, email: d.email || '', address: d.fullAddress
+  };
+}
+function rwDetails(idx, event) {
+  if (event) event.stopPropagation();
+  const card = document.getElementById('draft-' + idx);
+  if (!card || !card._rw) return;
+  openOrderDetailsModal(rwModalOrder(card._rw));
+}
+
+function seedReadyToShipDemo() {
+  const container = document.getElementById('draftCardsContainer');
+  if (!container || container.querySelector('.rw-card')) return;
+  const demo = [
+    { orderId: 'SV-1021', name: 'Rafiq Ahmed', phone: '+880 1712-345678', fullAddress: 'Dhaka, House 7, Road 3, Mirpur', stage: 'ready', channel: 'website', registered: true, customerId: 'CU-1014', customerSince: '2026-08-12', email: 'rafiq.ahmed@example.com',
+      payMethod: 'bkash', payRef: 'BK7F2L9Q3X', sender: '01712345678', voucher: 'SUP-REG7K2QX', discount: 500, shipping: 0, subtotal: 9500, total: 9000, dateStr: '05 Oct 26', createdAt: '2026-10-05T01:48:00+06:00',
+      items: [{ name: 'Magnesium Glycinate', category: 'supplement', qty: 2, price: 3250, sku: 'DB-MAG-GLY-120', spec: '400 mg \u2022 120 Capsules' }, { name: 'Betaine HCL & Pepsin', category: 'supplement', qty: 1, price: 3000, sku: 'DB-HCI-PEP-120', spec: '650 mg \u2022 120 Capsules' }] },
+    { orderId: 'SV-1022', name: 'Nusrat Jahan', phone: '+880 1811-223344', fullAddress: 'Chattogram, Agrabad C/A', stage: 'ready', channel: 'website', cod: true, registered: false,
+      discount: 0, shipping: 120, subtotal: 2450, total: 2570, dateStr: '05 Oct 26', createdAt: '2026-10-05T09:12:00+06:00',
+      items: [{ name: 'Omega-3 Ultra', category: 'supplement', qty: 1, price: 2450, sku: 'NW-OMG3-UTA-180', spec: '1000 mg \u2022 180 Softgels' }] },
+    { orderId: 'SV-1020', name: 'Tanvir Hasan', phone: '+880 1911-556677', fullAddress: 'Sylhet, Zindabazar', stage: 'shipped', channel: 'website',
+      payMethod: 'nagad', payRef: 'NGD5K2M8QP', sender: '01911556677', discount: 0, shipping: 120, subtotal: 5600, total: 5720, dateStr: '04 Oct 26', createdAt: '2026-10-04T18:30:00+06:00', registered: true, customerId: 'CU-1009', customerSince: '2026-07-02',
+      items: [{ name: 'Vitamin D3 + K2', category: 'supplement', qty: 2, price: 1800, sku: 'NW-VD3K2-120', spec: '5000 IU \u2022 120 Capsules' }, { name: 'Zinc Picolinate', category: 'supplement', qty: 1, price: 2000, sku: 'DB-ZN-PIC-100', spec: '30 mg \u2022 100 Capsules' }] }
+  ];
+  demo.slice().reverse().forEach(d => {
+    container.prepend(buildWebReadyCardEl(Object.assign({ demo: true }, d)));
+  });
+}
+(function initReadyToShipDemo() {
+  if (window.__svAdminReady) setTimeout(seedReadyToShipDemo, 50);
+  else window.addEventListener('sv-admin-ready', () => setTimeout(seedReadyToShipDemo, 50), { once: true });
+})();
+window.rwAdvance = rwAdvance; window.rwCancel = rwCancel; window.rwDetails = rwDetails;
 
 async function persistOrderDraft(d) {
   const bySku = {};
