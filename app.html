@@ -960,7 +960,7 @@ html[data-theme="dark"] .rw-paytag.cod { color: #F4A922; }
 html[data-theme="dark"] .rw-ci svg { stroke: #2DBEF5; }
 .rw-ci.solid svg { fill: #0A9BDC; stroke: none; }
 html[data-theme="dark"] .rw-ci.solid svg { fill: #2DBEF5; }
-.rw-card .dc-header { display: grid; grid-template-columns: minmax(0, 1fr) auto; column-gap: 10px; row-gap: 5px; align-items: center; }
+.rw-card .dc-header { display: grid; grid-template-columns: minmax(0, 1fr) auto; column-gap: 10px; row-gap: 3px; align-items: center; }
 .rw-card .dc-left, .rw-card .dc-right, .rw-card .dc-right-top, .rw-card .dc-right-bottom, .rw-card .rw-cust { display: contents; }
 .rw-card .rw-idrow { grid-column: 1; grid-row: 1; }
 .rw-card .rw-pill { grid-column: 2; grid-row: 1; justify-self: end; }
@@ -969,7 +969,8 @@ html[data-theme="dark"] .rw-ci.solid svg { fill: #2DBEF5; }
 .rw-card .rw-phone { grid-column: 1 / -1; grid-row: 3; }
 .rw-card .rw-paytag { margin-left: 6px; }
 .rw-card .rw-crow.addr { grid-column: 1; grid-row: 4; }
-.rw-card .draft-row-amount { grid-column: 2; grid-row: 4; justify-self: end; margin: 0; }
+.rw-card .draft-row-amount { grid-column: 2; grid-row: 4; justify-self: end; align-self: end; margin: 0; line-height: 1.1; }
+.rw-card.rw-has-disc .draft-row-amount { grid-row: 4 / span 2; }
 .rw-card .draft-discount { grid-column: 1; grid-row: 5; margin-top: 0; }
 .draft-card.expanded.rw-card .rw-crow.addr { grid-column: 1 / -1; grid-row: 4; }
 .draft-card.expanded.rw-card .draft-row-amount { display: none; }
@@ -20693,6 +20694,7 @@ function buildWebReadyCardEl(d) {
   card.setAttribute('data-id', d.orderId);
   card.setAttribute('data-kind', 'web');
   if (d.demo) card.classList.add('rw-demo');
+  if (discount > 0) card.classList.add('rw-has-disc');
   card.setAttribute('data-stage', stage);
   card.setAttribute('data-discount', discount);
   card.setAttribute('data-shipping', shipping);
