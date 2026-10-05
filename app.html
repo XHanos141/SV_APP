@@ -8062,7 +8062,18 @@ html[data-theme="dark"] #alertsTabContent .payment-summary-block { background: r
 #alertsTabContent .al-action-btn span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
 /* ---- Order Details Modal ---- */
-#orderDetailsModal .modal-panel { max-width: 400px; }
+/* Full-screen page (same feel as Buy For Me request page) */
+#orderDetailsModal { padding: 0; background: #F3F6FB; align-items: stretch; justify-content: stretch; transition: opacity .2s ease; }
+html[data-theme="dark"] #orderDetailsModal { background: #0f1621; }
+#orderDetailsModal .modal-panel { max-width: none; width: 100%; max-height: none; height: 100%; border-radius: 0; box-shadow: none; background: transparent; overflow: hidden; transform: translateY(18px); transition: transform .28s cubic-bezier(.4,0,.2,1), opacity .2s ease; }
+html[data-theme="dark"] #orderDetailsModal .modal-panel { background: transparent; box-shadow: none; }
+#orderDetailsModal.active .modal-panel { transform: translateY(0); }
+#orderDetailsModal .odm-header { justify-content: flex-start; gap: 14px; flex-shrink: 0; padding: calc(12px + env(safe-area-inset-top, 0px)) 16px 12px; background: #fff; }
+html[data-theme="dark"] #orderDetailsModal .odm-header { background: #162130; }
+#orderDetailsModal .odm-title { font-size: 18px; }
+#orderDetailsModal .odm-close { width: 36px; height: 36px; border-radius: 11px; }
+#orderDetailsModal .odm-close svg { width: 18px; height: 18px; }
+#orderDetailsModal .odm-body { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 16px 16px calc(24px + env(safe-area-inset-bottom, 0px)); }
 .odm-header {
   display: flex; align-items: center; justify-content: space-between;
   padding: 18px 20px 14px; border-bottom: 1px solid rgba(0,0,0,0.06);
@@ -8242,10 +8253,10 @@ html[data-theme="dark"] #alertsTabContent .rq-tag { border-color:rgba(251,202,18
 <div class="modal-overlay" id="orderDetailsModal" onclick="if(event.target===this)closeOrderDetailsModal()">
   <div class="modal-panel">
     <div class="odm-header">
-      <div class="odm-title">Order Details</div>
-      <button class="odm-close" onclick="closeOrderDetailsModal()">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      <button class="odm-close" onclick="closeOrderDetailsModal()" aria-label="Back">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
       </button>
+      <div class="odm-title">Order Details</div>
     </div>
     <div class="odm-body">
       <!-- Section 1: Customer Info (registered web customer = Buy For Me profile card, else basic block) -->
