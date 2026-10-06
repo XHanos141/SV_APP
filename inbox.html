@@ -1142,6 +1142,49 @@
   .cs-head--slim.is-condensed .cs-head__title{ display:none; }
   .cs-head--slim.is-condensed .cs-head__mini{ display:flex; }
 
+  /* Profile ID card — exact same compact sizing as Order Details / Buy For Me card (app.html #odmProfileCard) */
+  #csIdCard.cs-idcard{ padding: 9px 12px 6px; border-radius: 14px; }
+  #csIdCard .idc-info{ gap: 2px; margin-top: 7px; padding-top: 5px; }
+  #csIdCard .idc-row{ gap: 5px; }
+  #csIdCard .idc-row__icon{ width: 19px; height: 19px; border-radius: 6px; }
+  #csIdCard .idc-row__icon svg{ width: 11px; height: 11px; }
+  #csIdCard .idc-copy{ width: 20px; height: 20px; border-radius: 6px; }
+  #csIdCard .idc-copy svg{ width: 10px; height: 10px; }
+  #csIdCard .idc-copy::before{ inset: -12px -8px; }
+  #csIdCard .idc-row__val{ line-height: 1.25; }
+  #csIdCard .idc-top{ gap: 7px; }
+  #csIdCard .idc-avatar{ width: 50px; height: 50px; font-size: 18px; }
+  #csIdCard .idc-name-row{ gap: 6px; }
+  #csIdCard .idc-name{ font-size: 15px; line-height: 1.2; }
+  #csIdCard .idc-verified{ font-size: 10px; }
+  #csIdCard .idc-verified svg{ width: 12px; height: 12px; }
+  #csIdCard .idc-since{ font-size: 10px; margin-top: 1px; }
+  #csIdCard .cid-wrap{ gap: 5px; margin-top: 3px; }
+  #csIdCard .cid-label{ font-size: 10px; }
+  #csIdCard .cid-row{ padding: 1px 4px 1px 6px; border-radius: 7px; gap: 3px; }
+  #csIdCard .cid-value{ font-size: 10px; }
+  #csIdCard .cid-copy{ width: 14px; height: 14px; }
+  #csIdCard .cid-copy svg{ width: 10px; height: 10px; }
+
+  /* ---------- Order Details look (cyan store theme) — matches SV_APP app.html #orderDetailsModal ---------- */
+  .cs-head{ padding:6px 12px 12px 18px; }
+  .cs-head__title{ font-size:18px; font-weight:800; }
+  .cs-iconbtn{ width:36px; height:36px; border-radius:11px; background:rgba(255,255,255,0.08); }
+  html[data-theme="light"] .cs-iconbtn{ background:rgba(0,0,0,0.05); }
+  .cs-iconbtn svg{ width:18px; height:18px; }
+  .cust-sheet__section-label{
+    display:flex; align-items:center; gap:6px; margin:20px 0 9px;
+    font-family:'Plus Jakarta Sans',sans-serif; font-size:11px; font-weight:800; letter-spacing:.06em; text-transform:uppercase; color:#2DBEF5;
+  }
+  html[data-theme="light"] .cust-sheet__section-label{ color:#0A9BDC; }
+  .cust-sheet__section-label svg{ width:13px; height:13px; flex:0 0 auto; }
+  .platform-row, .order-card, .order-row{ background:#1A2235; border-color:rgba(255,255,255,0.10); }
+  html[data-theme="light"] .platform-row, html[data-theme="light"] .order-card, html[data-theme="light"] .order-row{ background:#F8FAFD; border-color:rgba(10,22,40,0.10); }
+  .platform-row.active, .order-card--btn{ border-color:rgba(10,155,220,0.5); }
+  .order-card{ border-radius:12px; padding:12px; }
+  .order-card__meta{ margin-top:2px; }
+  button.cs-linkbtn{ border-color:rgba(10,155,220,0.5); background:rgba(10,155,220,0.08); }
+
   .cs-stats{ display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px; }
   .cs-stat{
     --tone:124,111,247;
@@ -2093,6 +2136,11 @@
     collapse:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14h6v6M20 10h-6V4M14 10l7-7M3 21l7-7"/></svg>',
     list:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>',
     plus:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>',
+    chan:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.07 0l3-3a5 5 0 0 0-7.07-7.07l-1.5 1.5"/><path d="M14 11a5 5 0 0 0-7.07 0l-3 3a5 5 0 0 0 7.07 7.07l1.5-1.5"/></svg>',
+    bag:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>',
+    clock:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>',
+    tag:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.6 13.4 13.4 20.6a2 2 0 0 1-2.8 0L2 12V2h10l8.6 8.6a2 2 0 0 1 0 2.8Z"/><circle cx="7" cy="7" r="1.2"/></svg>',
+    note:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6M8 13h8M8 17h5"/></svg>',
     lock:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>'
   };
 
@@ -2439,21 +2487,21 @@
       ${idCardHtml(cust)}
       ${statsHtml(cust)}
 
-      <div class="cust-sheet__section-label">Connected channels</div>
+      <div class="cust-sheet__section-label">${ICONS.chan}Connected channels</div>
       <div class="platform-list">${platformsHtml}</div>
 
-      <div class="cust-sheet__section-label">Current order</div>
+      <div class="cust-sheet__section-label">${ICONS.bag}Current order</div>
       ${currentHtml}
 
-      <div class="cust-sheet__section-label">Previous orders</div>
+      <div class="cust-sheet__section-label">${ICONS.clock}Previous orders</div>
       ${prevHtml}
       ${viewAll}
 
-      <div class="cust-sheet__section-label">Customer tags</div>
+      <div class="cust-sheet__section-label">${ICONS.tag}Customer tags</div>
       <div id="csTags">${tagsSectionHtml()}</div>
 
       <div class="cs-notes__head">
-        <div class="cust-sheet__section-label">Customer notes</div>
+        <div class="cust-sheet__section-label">${ICONS.note}Customer notes</div>
         <span class="cs-private">${ICONS.lock}Private · staff only</span>
       </div>
       <div id="csNotes">${notesSectionHtml()}</div>`;
