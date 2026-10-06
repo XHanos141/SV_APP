@@ -28033,10 +28033,10 @@ function buildTxCard(tx) {
 
   const freeShip = tx.shipping === 0;
   const mathBreakdown = `
-    <div class="draft-math-row"><span class="draft-math-label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-card-payment"/></svg>Subtotal</span><span class="draft-math-val">\u09f3${subtotal.toLocaleString('en-IN')}</span></div>
-    ${tx.discount>0?`<div class="draft-math-row discount-row"><span class="draft-math-label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-archive-box"/></svg>Discount${tx.voucher ? `<span class="draft-voucher-tag">${escapeHtml(tx.voucher)}</span>` : ''}</span><span class="draft-math-val">-\u09f3${tx.discount.toLocaleString('en-IN')}</span></div>`:''}
-    <div class="draft-math-row shipping-row${freeShip?' free-shipping':''}"><span class="draft-math-label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13" rx="1"/><path d="M16 8h4l3 3v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>Delivery</span><span class="draft-math-val">${freeShip?'FREE':'\u09f3'+tx.shipping.toLocaleString('en-IN')}</span></div>
-    <div class="draft-math-total"><span class="draft-math-total-label">Grand Total</span><span class="draft-math-total-amt">\u09f3${grand.toLocaleString('en-IN')}</span></div>`;
+    <div class="draft-math-row"><span class="draft-math-label">Subtotal</span><span class="draft-math-val">${totalQty}u × ${rwMoney(subtotal)}</span></div>
+    ${tx.discount>0?`<div class="draft-math-row discount-row"><span class="draft-math-label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-archive-box"/></svg>Discount${tx.voucher ? ` (${escapeHtml(tx.voucher)})` : ''}</span><span class="draft-math-val">-${rwMoney(tx.discount)}</span></div>`:''}
+    <div class="draft-math-row shipping-row${freeShip?' free-shipping':''}"><span class="draft-math-label"><svg fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><use href="#icon-truck-delivery"/></svg>Shipping</span><span class="draft-math-val">${freeShip?'FREE':rwMoney(tx.shipping)}</span></div>
+    <div class="draft-math-total"><span class="draft-math-total-label">Total</span><span class="draft-math-total-amt">${rwMoney(grand)}</span></div>`;
 
   const payConfirmRow = tx.paidAt ? payConfirmHTML('Paid', tx.payment, tx.paymentRef, tx.paidAt) : '';
   const fulfillClass = tx.fulfillType === 'proxy' ? ' tx-type-proxy' : ' tx-type-local';
