@@ -988,6 +988,29 @@ html[data-theme="dark"] .rw-crow.addr .rw-ctxt { color: #A0AAB8; }
 .rw-info-btn:active { color: #5f52d6; transform: scale(0.94); }
 .rw-info-btn svg { width: 100%; height: 100%; }
 .rw-advance { min-width: 0; flex: 1; }
+.svc-ov { position: fixed; inset: 0; z-index: 100000; display: flex; align-items: center; justify-content: center; padding: 20px; background: rgba(8,14,24,0.55); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); opacity: 0; transition: opacity .2s ease; }
+.svc-ov.show { opacity: 1; }
+.svc-sheet { width: min(88vw, 340px); background: #fff; border: 1px solid #e5e7eb; border-radius: 22px; padding: 26px 22px 18px; text-align: center; box-shadow: 0 25px 50px -12px rgba(0,0,0,.25); transform: scale(.9) translateY(12px); transition: transform .35s cubic-bezier(.16,1,.3,1); }
+.svc-ov.show .svc-sheet { transform: none; }
+html[data-theme="dark"] .svc-sheet { background: #162130; border-color: rgba(255,255,255,.1); }
+.svc-ico { width: 52px; height: 52px; border-radius: 50%; margin: 0 auto 14px; display: flex; align-items: center; justify-content: center; color: #fff; background: var(--svc-c); box-shadow: 0 6px 18px var(--svc-g); }
+.svc-ico svg { width: 24px; height: 24px; }
+.svc-sheet h3 { font-family: "Plus Jakarta Sans", sans-serif; font-size: 17px; font-weight: 800; color: #0B1220; margin: 0 0 6px; }
+html[data-theme="dark"] .svc-sheet h3 { color: #fff; }
+.svc-sheet p { font-size: 13px; line-height: 1.45; color: #6b7280; margin: 0 0 8px; }
+html[data-theme="dark"] .svc-sheet p { color: rgba(255,255,255,.6); }
+.svc-fp { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 700; color: #7c6ff7; margin-bottom: 14px; }
+.svc-fp svg { width: 14px; height: 14px; }
+.svc-btns { display: flex; gap: 8px; }
+.svc-btns button { flex: 1; height: 42px; border: none; border-radius: 12px; font-family: "Plus Jakarta Sans", sans-serif; font-size: 13px; font-weight: 800; cursor: pointer; }
+.svc-btns .svc-no { background: transparent; color: #6b7280; border: 1.5px solid #d9dde5; }
+html[data-theme="dark"] .svc-btns .svc-no { color: rgba(255,255,255,.7); border-color: rgba(255,255,255,.18); }
+.svc-btns .svc-yes { background: var(--svc-c); color: #fff; box-shadow: 0 4px 12px var(--svc-g); }
+.svc-btns button:active { transform: scale(.97); }
+.svc-ship { --svc-c: #7c6ff7; --svc-g: rgba(124,111,247,.4); }
+.svc-ok { --svc-c: #2f9b68; --svc-g: rgba(47,155,104,.4); }
+.svc-danger { --svc-c: #d95353; --svc-g: rgba(217,83,83,.4); }
+.svc-info { --svc-c: #009ddc; --svc-g: rgba(0,157,220,.4); }
 .rw-advance.done { background: rgba(47,155,104,0.18); color: #26854f; box-shadow: none; pointer-events: none; }
 html[data-theme="dark"] .rw-advance.done { color: #3bbf7f; }
 .rw-advance.ship { background: #7c6ff7; }
@@ -18220,6 +18243,7 @@ async function confirmPayment() {
   if (orderUuid) {
     _payInFlight = true;
     try {
+      await requireFingerprint();
       const pr = await sbFetch('rpc/confirm_order_payment', 'POST', { p_order_id: orderUuid, p_method: method, p_ref: ref || null });
       paidRow = Array.isArray(pr) ? pr[0] : pr;
     } catch (err) {
@@ -18278,6 +18302,7 @@ async function confirmPayment() {
 
   // Mark card immediately so badge counts correctly
   card.classList.remove("expanded");
+  showToast(draftId + " marked as paid");
   card.classList.add("paid-out");
   updateBadge();
 
@@ -18297,15 +18322,22 @@ async function deleteDraft(index, event) {
   const card = document.getElementById("draft-" + index);
   if (!card || card.classList.contains("paid-out") || card.classList.contains("delete-out")) return;
   const uuid = card.dataset.orderUuid;
-  if (uuid) {
-    try {
+  const did = card.getAttribute("data-id") || "Draft";
+  if (_rwBusy) return;
+  _rwBusy = true;
+  try {
+    const ok = await svConfirmSheet({ tone: 'danger', title: 'Delete ' + did + '?', text: 'This draft will be permanently deleted.', confirmLabel: 'Delete', fingerprint: !!uuid });
+    if (!ok) return;
+    if (uuid) {
+      await requireFingerprint();
       const res = await sbFetch('orders?id=eq.' + uuid, 'DELETE');
       if (!_affected(res)) throw new Error('Order not found or already paid');
-    } catch (err) {
-      showToast('⚠ Order not deleted — ' + _dbErrMsg(err));
-      return;
     }
-  }
+  } catch (err) {
+    showToast('⚠ Order not deleted — ' + _dbErrMsg(err));
+    return;
+  } finally { _rwBusy = false; }
+  showToast(did + ' deleted');
   card.classList.remove("expanded");
   setTimeout(() => { card.classList.add("delete-out"); updateBadge(); setTimeout(() => { if (card.parentElement) card.remove(); }, 450); }, 150);
 }
@@ -18319,26 +18351,38 @@ function toggleStatusDropdown(event, index) {
   menu.classList.toggle('open');
 }
 
-function setStatus(index, status, event) {
+async function setStatus(index, status, event) {
   if (event) event.stopPropagation();
   const pill = document.getElementById('status-pill-' + index);
   const menu = document.getElementById('status-menu-' + index);
   const card = document.getElementById('draft-' + index);
   if (!pill || !menu || !card) return;
   const prevStatus = card.getAttribute('data-status') || 'pending';
+  menu.classList.remove('open');
+  if (status === prevStatus || _rwBusy) return;
   const paint = st => {
     pill.textContent = st.charAt(0).toUpperCase() + st.slice(1);
     pill.className = 'status-pill ' + st;
     card.setAttribute('data-status', st);
   };
-  paint(status);
-  menu.classList.remove('open');
   const uuid = card.dataset.orderUuid;
-  if (uuid && status !== prevStatus) {
-    sbFetch('orders?id=eq.' + uuid, 'PATCH', { status, updated_at: new Date().toISOString() })
-      .then(res => { if (!_affected(res)) throw new Error('not updated'); })
-      .catch(err => { paint(prevStatus); showToast('⚠ Status not saved — ' + _dbErrMsg(err)); });
-  }
+  const did = card.getAttribute('data-id') || 'Draft';
+  const label = status.charAt(0).toUpperCase() + status.slice(1);
+  _rwBusy = true;
+  try {
+    const ok = await svConfirmSheet({ tone: 'info', title: 'Change ' + did + ' to ' + label + '?', text: 'The order status will be updated.', confirmLabel: 'Change', fingerprint: !!uuid });
+    if (!ok) return;
+    if (uuid) {
+      await requireFingerprint();
+      const res = await sbFetch('orders?id=eq.' + uuid, 'PATCH', { status, updated_at: new Date().toISOString() });
+      if (!_affected(res)) throw new Error('not updated');
+    }
+  } catch (err) {
+    showToast('⚠ Status not saved — ' + _dbErrMsg(err));
+    return;
+  } finally { _rwBusy = false; }
+  paint(status);
+  showToast(did + ' status changed to ' + label);
 }
 
 document.addEventListener('click', function(e) {
@@ -20864,6 +20908,42 @@ function rwPaintAdvance(card, idx) {
 }
 
 let _rwBusy = false;
+const SVC_ICONS = {
+  ship: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-truck-delivery"/></svg>',
+  ok: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-checkmark"/></svg>',
+  danger: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>',
+  info: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16.5v.01"/></svg>'
+};
+let _svcOpen = false;
+function svConfirmSheet(o) {
+  if (_svcOpen) return Promise.resolve(false);
+  _svcOpen = true;
+  const tone = o.tone || 'info';
+  return new Promise(resolve => {
+    const ov = document.createElement('div');
+    ov.className = 'svc-ov svc-' + tone;
+    ov.setAttribute('role', 'dialog'); ov.setAttribute('aria-modal', 'true');
+    ov.innerHTML = '<div class="svc-sheet"><div class="svc-ico">' + (SVC_ICONS[tone] || SVC_ICONS.info) + '</div>'
+      + '<h3>' + escapeHtml(o.title || 'Confirm') + '</h3>'
+      + (o.text ? '<p>' + escapeHtml(o.text) + '</p>' : '')
+      + (o.fingerprint === false ? '' : '<div class="svc-fp"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 11c0 3-1 5-2 7M8 15c.5-1 1-2.3 1-4a3 3 0 0 1 6 0c0 2.5-.5 5-1.5 7M5 12a7 7 0 0 1 14 0c0 2-.2 3.5-.6 5M4.5 17c.3-1.5.5-3 .5-5"/></svg>Fingerprint required</div>')
+      + '<div class="svc-btns"><button type="button" class="svc-no">Cancel</button><button type="button" class="svc-yes">' + escapeHtml(o.confirmLabel || 'Confirm') + '</button></div></div>';
+    const done = v => {
+      ov.classList.remove('show');
+      document.removeEventListener('keydown', onKey);
+      setTimeout(() => ov.remove(), 220);
+      _svcOpen = false; resolve(v);
+    };
+    const onKey = e => { if (e.key === 'Escape') done(false); };
+    ov.addEventListener('click', e => { if (e.target === ov) done(false); });
+    ov.querySelector('.svc-no').addEventListener('click', e => { e.stopPropagation(); done(false); });
+    ov.querySelector('.svc-yes').addEventListener('click', e => { e.stopPropagation(); done(true); });
+    document.addEventListener('keydown', onKey);
+    document.body.appendChild(ov);
+    requestAnimationFrame(() => requestAnimationFrame(() => ov.classList.add('show')));
+  });
+}
+
 async function rwAdvance(idx, event) {
   if (event) event.stopPropagation();
   const card = document.getElementById('draft-' + idx);
@@ -20873,23 +20953,31 @@ async function rwAdvance(idx, event) {
   const next = order[Math.min(order.indexOf(cur) + 1, 2)];
   if (next === cur) return;
   const uuid = card.dataset.orderUuid || null;
-  if (uuid) {
-    _rwBusy = true;
-    try {
+  const d0 = card._rw || {};
+  const oid = d0.orderId || card.getAttribute('data-id') || 'Order';
+  _rwBusy = true;
+  try {
+    const ok = await svConfirmSheet(next === 'shipped'
+      ? { tone: 'ship', title: 'Ship ' + oid + '?', text: 'The order will be marked as shipped.', confirmLabel: 'Ship', fingerprint: !!uuid }
+      : { tone: 'ok', title: 'Mark ' + oid + ' delivered?', text: (d0.cod ? 'Collect ' + rwMoney(d0.total) + ' from the customer. ' : '') + 'The order moves to Sales.', confirmLabel: 'Delivered', fingerprint: !!uuid });
+    if (!ok) return;
+    if (uuid) {
+      await requireFingerprint();
       await sbFetch('rpc/set_order_fulfilment', 'POST', { p_order_id: uuid, p_stage: next });
-    } catch (err) {
-      showToast('⚠ Order not updated — ' + _dbErrMsg(err));
-      return;
-    } finally { _rwBusy = false; }
-  }
+    }
+  } catch (err) {
+    showToast('⚠ Order not updated — ' + _dbErrMsg(err));
+    return;
+  } finally { _rwBusy = false; }
   card.setAttribute('data-stage', next);
   card.setAttribute('data-status', next);
   if (card._rw) card._rw.stage = next;
   const pill = card.querySelector('#rw-pill-' + idx);
   if (pill) { pill.className = 'rw-pill ' + next; pill.textContent = RW_LABEL[next]; }
   rwPaintAdvance(card, idx);
+  if (next === 'shipped') showToast(oid + ' marked as shipped');
   if (next === 'delivered') {
-    if (card._rw && card._rw.cod) showToast('Delivered · collect ' + rwMoney(card._rw.total));
+    showToast(oid + ' delivered' + (d0.cod ? ' · collect ' + rwMoney(d0.total) : ''));
     if (uuid) loadOrdersFromSupabase();
   }
 }
@@ -20899,17 +20987,21 @@ async function rwCancel(idx, event) {
   const card = document.getElementById('draft-' + idx);
   if (!card || _rwBusy || card.classList.contains('delete-out')) return;
   const uuid = card.dataset.orderUuid || null;
-  if (uuid) {
-    _rwBusy = true;
-    try {
+  const oid = (card._rw && card._rw.orderId) || card.getAttribute('data-id') || 'Order';
+  _rwBusy = true;
+  try {
+    const ok = await svConfirmSheet({ tone: 'danger', title: 'Cancel ' + oid + '?', text: 'This order will be cancelled.', confirmLabel: 'Cancel order', fingerprint: !!uuid });
+    if (!ok) return;
+    if (uuid) {
       await requireFingerprint();
       await sbFetch('rpc/cancel_web_order', 'POST', { p_order_id: uuid, p_reason: 'Cancelled by admin' });
-    } catch (err) {
-      showToast('⚠ Order not cancelled — ' + _dbErrMsg(err));
-      return;
-    } finally { _rwBusy = false; }
-    loadProductsFromSupabase();
-  }
+    }
+  } catch (err) {
+    showToast('⚠ Order not cancelled — ' + _dbErrMsg(err));
+    return;
+  } finally { _rwBusy = false; }
+  if (uuid) loadProductsFromSupabase();
+  showToast(oid + ' cancelled');
   card.classList.remove('expanded');
   setTimeout(() => { card.classList.add('delete-out'); updateBadge(); setTimeout(() => { if (card.parentElement) card.remove(); }, 450); }, 150);
 }
