@@ -8058,6 +8058,7 @@ html[data-theme="dark"] #alertsTabContent .payment-summary-block { background: r
 #alertsTabContent .tone-order .al-action-btn.primary { background: var(--al-store); box-shadow: 0 4px 12px var(--al-store-glow); }
 #alertsTabContent .tone-order .al-action-btn:focus-visible { outline-color: var(--al-store); }
 #alertsTabContent .al-action-btn.ghost { background: transparent; color: var(--al-muted); border: 1.5px solid var(--al-ghost-border); }
+#alertsTabContent .al-action-btn.done, #alertsTabContent .tone-order .al-action-btn.done { background: #2f9b68; color: #fff; box-shadow: 0 4px 12px rgba(47,155,104,0.35); pointer-events: none; cursor: default; }
 #alertsTabContent .al-action-btn.amber { background: var(--al-warning); color: #fff; box-shadow: 0 4px 12px rgba(244,169,34,0.35); }
 #alertsTabContent .al-action-btn span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
@@ -26432,6 +26433,7 @@ function switchTab(tab) {
    ====== ALERTS TAB — CARD SYSTEM ======
    ============================================================ */
 const AL_ICONS = {
+  check:    `<polyline points="20 6 9 17 4 12"/>`,
   box:      `<path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/>`,
   alertTri: `<path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>`,
   calendar: `<rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>`,
@@ -26900,9 +26902,10 @@ let AL_STORE = [];
 let _alStoreBusy = false;
 async function loadStoreOrderAlerts() {
   try {
-    const rows = await sbFetch('orders?select=*,order_items(*)&source=eq.web&status=eq.pending&order=created_at.asc');
-    AL_STORE = (Array.isArray(rows) ? rows : []).filter(o =>
-      String(o.payment_method || '').toLowerCase() === 'cod' || String(o.payment_ref || '').trim() !== '');
+    const rows = await sbFetch('orders?select=*,order_items(*)&source=eq.web&status=in.(pending,processing,paid)&delivered_at=is.null&order=created_at.asc');
+    AL_STORE = (Array.isArray(rows) ? rows : []).filter(o => o.status !== 'pending' ||
+      String(o.payment_method || '').toLowerCase() === 'cod' || String(o.payment_ref || '').trim() !== '')
+      .sort((a, b) => (a.status === 'pending' ? 0 : 1) - (b.status === 'pending' ? 0 : 1));
   } catch (e) { console.warn('loadStoreOrderAlerts error:', e.message || e); }
   return AL_STORE;
 }
@@ -26917,8 +26920,11 @@ function al_storeOrderCard(o) {
   const methodLabel = ({ bkash: 'bKash', nagad: 'Nagad', rocket: 'Rocket', upay: 'Upay', cellfin: 'Cellfin', bank: 'Bank Transfer', crypto: 'Crypto', card: 'Card' })[methodKey] || o.payment_method || 'Payment';
   const waNum = String(phone).replace(/\D/g, '').replace(/^0/, '');
   const waHref = waNum ? 'https://wa.me/880' + waNum : '#';
-  const label = cod ? 'New Order · COD' : 'Verify Payment';
-  const primary = cod
+  const handled = o.status !== 'pending';
+  const label = handled ? (cod ? 'Accepted · COD' : 'Payment Confirmed') : (cod ? 'New Order · COD' : 'Verify Payment');
+  const primary = handled
+    ? al_actionBtn('done', 'check', cod ? 'Accepted' : 'Paid')
+    : cod
     ? al_actionBtn('primary', 'box', 'Accept', `alAcceptStoreOrder('${o.id}', this)`)
     : al_actionBtn('primary', 'receipt', 'Confirm payment', `alConfirmStorePayment('${o.id}', this)`);
   return `
@@ -26972,7 +26978,7 @@ async function alAcceptStoreOrder(id, btn) {
     if (btn) btn.disabled = false;
     return;
   } finally { _alStoreBusy = false; }
-  AL_STORE = AL_STORE.filter(x => x.id !== id);
+  await loadStoreOrderAlerts();
   showToast(o.order_number + ' accepted — ready to ship');
   loadProductsFromSupabase();
   loadOrdersFromSupabase();
@@ -26990,7 +26996,7 @@ async function alConfirmStorePayment(id, btn) {
     if (btn) btn.disabled = false;
     return;
   } finally { _alStoreBusy = false; }
-  AL_STORE = AL_STORE.filter(x => x.id !== id);
+  await loadStoreOrderAlerts();
   showToast(o.order_number + ' paid — ready to ship');
   loadProductsFromSupabase();
   loadOrdersFromSupabase();
@@ -27002,11 +27008,13 @@ async function alStoreDetails(id) {
   const d = await rwEnrich(webOrderToReadyData(o));
   const m = rwModalOrder(d);
   const cod = !!d.cod;
-  m.status = cod ? 'Pending' : 'Verifying';
-  m.state = cod ? 'pending' : 'verifying';
-  m.payment = cod
-    ? { method: 'cod', status: 'Pay on delivery', amount_due: m.total }
-    : { method: d.payMethod, status: 'Verifying', txn: d.payRef, sender: d.sender, amount_due: m.total };
+  if (o.status === 'pending') {
+    m.status = cod ? 'Pending' : 'Verifying';
+    m.state = cod ? 'pending' : 'verifying';
+    m.payment = cod
+      ? { method: 'cod', status: 'Pay on delivery', amount_due: m.total }
+      : { method: d.payMethod, status: 'Verifying', txn: d.payRef, sender: d.sender, amount_due: m.total };
+  }
   openOrderDetailsModal(m);
 }
 window.alAcceptStoreOrder = alAcceptStoreOrder;
