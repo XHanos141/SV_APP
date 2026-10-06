@@ -8182,6 +8182,7 @@ html[data-theme="dark"] .odm-oh-meta b { color: #F0F4FA; }
 .odm-oh-pill.pending, .odm-oh-pill.unpaid { background: rgba(242,100,48,0.10); color: #F26430; border-color: rgba(242,100,48,0.4); }
 .odm-oh-pill.verifying, .odm-oh-pill.paid, .odm-oh-pill.processing { background: rgba(10,155,220,0.08); color: #0A9BDC; border-color: rgba(10,155,220,0.4); }
 html[data-theme="dark"] .odm-oh-pill.verifying, html[data-theme="dark"] .odm-oh-pill.paid, html[data-theme="dark"] .odm-oh-pill.processing { background: rgba(45,190,245,0.08); color: #2DBEF5; border-color: rgba(45,190,245,0.4); }
+.odm-oh-pill.shipped { background: rgba(124,111,247,0.10); color: #7c6ff7; border-color: rgba(124,111,247,0.4); }
 .odm-oh-pill.delivered { background: rgba(10,155,114,0.10); color: #0A9B72; border-color: rgba(10,155,114,0.4); }
 .odm-oh-pill.cancelled { background: rgba(217,83,83,0.10); color: #d95353; border-color: rgba(217,83,83,0.4); }
 .odm-oh-date { font-size: 10.5px; font-weight: 600; color: #0B1220; }
@@ -20898,35 +20899,37 @@ function rwModalOrder(d) {
     items: d.items, registered: !!d.registered, name: d.name, customer_id: d.customerId || '', customer_since: d.customerSince || '', phone: d.phone, email: d.email || '', address: d.fullAddress
   };
 }
+async function rwEnrich(d) {
+  d = Object.assign({}, d);
+  if (!d.uuid) return d;
+  try {
+    if (d.customerId) {
+      const cr = await sbFetch('customers?id=eq.' + d.customerId + '&select=full_name,phone,email,customer_code,created_at,is_guest&limit=1');
+      const c = Array.isArray(cr) ? cr[0] : null;
+      if (c) {
+        d.registered = !!(c.customer_code && !c.is_guest);
+        d.customerId = c.customer_code || '';
+        d.customerSince = c.created_at || '';
+        d.email = c.email || '';
+      }
+    }
+  } catch (err) { /* customer card falls back to the order's own name, phone and address */ }
+  try {
+    const pay = await sbFetch('rpc/admin_order_payment', 'POST', { p_order_id: d.uuid });
+    const p = Array.isArray(pay) ? pay[0] : pay;
+    if (p) {
+      d.sender = (p.tx && p.tx.sender) || p.expected_sender || '';
+      if (p.tx && p.tx.transaction_id && !d.payRef) d.payRef = p.tx.transaction_id;
+    }
+  } catch (err) { /* payment block shows what the order row has */ }
+  if (/^[0-9a-f-]{36}$/i.test(d.customerId || '')) d.customerId = '';
+  return d;
+}
 async function rwDetails(idx, event) {
   if (event) event.stopPropagation();
   const card = document.getElementById('draft-' + idx);
   if (!card || !card._rw) return;
-  const d = Object.assign({}, card._rw);
-  if (d.uuid) {
-    try {
-      if (d.customerId) {
-        const cr = await sbFetch('customers?id=eq.' + d.customerId + '&select=full_name,phone,email,customer_code,created_at,is_guest&limit=1');
-        const c = Array.isArray(cr) ? cr[0] : null;
-        if (c) {
-          d.registered = !!(c.customer_code && !c.is_guest);
-          d.customerId = c.customer_code || '';
-          d.customerSince = c.created_at || '';
-          d.email = c.email || '';
-        }
-      }
-    } catch (err) { /* customer card falls back to the order's own name, phone and address */ }
-    try {
-      const pay = await sbFetch('rpc/admin_order_payment', 'POST', { p_order_id: d.uuid });
-      const p = Array.isArray(pay) ? pay[0] : pay;
-      if (p) {
-        d.sender = (p.tx && p.tx.sender) || p.expected_sender || '';
-        if (p.tx && p.tx.transaction_id && !d.payRef) d.payRef = p.tx.transaction_id;
-      }
-    } catch (err) { /* payment block shows what the order row has */ }
-  }
-  if (/^[0-9a-f-]{36}$/i.test(d.customerId || '')) d.customerId = '';
-  openOrderDetailsModal(rwModalOrder(d));
+  openOrderDetailsModal(rwModalOrder(await rwEnrich(card._rw)));
 }
 
 function seedReadyToShipDemo() {
@@ -26721,44 +26724,125 @@ function al_expiryCard() {
 }
 
 /* ---- Card 4: New Order ---- */
-function al_newOrderCard() {
+/* ---- Card 4: Store order alerts (web orders waiting for you) — data-driven ----
+   COD orders wait for Accept. Prepaid orders with a TrxID but no auto-match wait for Confirm payment.
+   Unpaid prepaid orders need nothing from you (they auto-cancel) so they are not listed. */
+let AL_STORE = [];
+let _alStoreBusy = false;
+async function loadStoreOrderAlerts() {
+  try {
+    const rows = await sbFetch('orders?select=*,order_items(*)&source=eq.web&status=eq.pending&order=created_at.asc');
+    AL_STORE = (Array.isArray(rows) ? rows : []).filter(o =>
+      String(o.payment_method || '').toLowerCase() === 'cod' || String(o.payment_ref || '').trim() !== '');
+  } catch (e) { console.warn('loadStoreOrderAlerts error:', e.message || e); }
+  return AL_STORE;
+}
+function al_storeOrderCard(o) {
   const sv = AL_SEVERITY.order;
+  const cod = String(o.payment_method || '').toLowerCase() === 'cod';
+  const name = o.customer_name || 'Customer';
+  const phone = o.customer_phone || '';
+  const addr = [o.district, o.address_text].filter(Boolean).join(', ');
+  const qty = (o.order_items || []).reduce((a, i) => a + (parseInt(i.quantity, 10) || 0), 0);
+  const methodKey = cod ? 'cod' : String(o.payment_method || '').toLowerCase();
+  const methodLabel = ({ bkash: 'bKash', nagad: 'Nagad', rocket: 'Rocket', upay: 'Upay', cellfin: 'Cellfin', bank: 'Bank Transfer', crypto: 'Crypto', card: 'Card' })[methodKey] || o.payment_method || 'Payment';
+  const waNum = String(phone).replace(/\D/g, '').replace(/^0/, '');
+  const waHref = waNum ? 'https://wa.me/880' + waNum : '#';
+  const label = cod ? 'New Order · COD' : 'Verify Payment';
+  const primary = cod
+    ? al_actionBtn('primary', 'box', 'Accept', `alAcceptStoreOrder('${o.id}', this)`)
+    : al_actionBtn('primary', 'receipt', 'Confirm payment', `alConfirmStorePayment('${o.id}', this)`);
   return `
-  <div class="al-card glass-shadow ${sv.tone}" data-group="order">
+  <div class="al-card glass-shadow ${sv.tone}" data-group="order" data-store-order="${o.id}">
     <div class="al-card-top">
       <div class="al-icon-chip" style="background:${sv.accent};box-shadow:0 3px 10px rgba(0,157,220,0.4)">${al_icon('bag',16,'#fff',2.5)}</div>
       <div class="al-card-label-col">
-        <div class="al-card-label" style="color:${sv.labelColor}">New Order</div>
-        <div class="al-card-time">12m ago</div>
+        <div class="al-card-label" style="color:${sv.labelColor}">${label}</div>
+        <div class="al-card-time">${escapeHtml(al_pxAgo(o.created_at))}</div>
       </div>
-      <span class="order-id-badge">SV-1014</span>
+      <span class="order-id-badge">${escapeHtml(o.order_number || '')}</span>
     </div>
     <div class="nc-cust">
-      <div class="nc-row"><span class="nc-ci solid"><svg viewBox="0 0 24 24"><path d="M21,19a3,3,0,0,1-3,3H6a3,3,0,0,1-3-3,5,5,0,0,1,5-5h8A5,5,0,0,1,21,19Zm-9-7A5,5,0,1,0,7,7,5,5,0,0,0,12,12Z"/></svg></span><span class="nc-txt">Rafiq Ahmed</span></div>
-      <div class="nc-row"><span class="nc-ci"><svg viewBox="0 0 24 24"><path d="M3 5.5C3 14.0604 9.93959 21 18.5 21C18.8862 21 19.2691 20.9859 19.6483 20.9581C20.0834 20.9262 20.3009 20.9103 20.499 20.7963C20.663 20.7019 20.8185 20.5345 20.9007 20.364C21 20.1582 21 19.9181 21 19.438V16.6207C21 16.2169 21 16.015 20.9335 15.842C20.8749 15.6891 20.7795 15.553 20.6559 15.4456C20.516 15.324 20.3262 15.255 19.9468 15.117L16.74 13.9509C16.2985 13.7904 16.0777 13.7101 15.8683 13.7237C15.6836 13.7357 15.5059 13.7988 15.3549 13.9058C15.1837 14.0271 15.0629 14.2285 14.8212 14.6314L14 16C11.3501 14.7999 9.2019 12.6489 8 10L9.36863 9.17882C9.77145 8.93713 9.97286 8.81628 10.0942 8.64506C10.2012 8.49408 10.2643 8.31637 10.2763 8.1317C10.2899 7.92227 10.2096 7.70153 10.0491 7.26005L8.88299 4.05321C8.745 3.67376 8.67601 3.48403 8.55442 3.3441C8.44701 3.22049 8.31089 3.12515 8.15802 3.06645C7.98496 3 7.78308 3 7.37932 3H4.56201C4.08188 3 3.84181 3 3.63598 3.09925C3.4655 3.18146 3.29814 3.33701 3.2037 3.50103C3.08968 3.69907 3.07375 3.91662 3.04189 4.35173C3.01413 4.73086 3 5.11378 3 5.5Z"/></svg></span><span class="nc-txt">+880 1712-345678</span></div>
-      <div class="nc-row addr"><span class="nc-ci"><svg viewBox="0 0 24 24"><path d="M12 21C15.5 17.4 19 14.1764 19 10.2C19 6.22355 15.866 3 12 3C8.13401 3 5 6.22355 5 10.2C5 14.1764 8.5 17.4 12 21Z"/><path d="M12 13C13.6569 13 15 11.6569 15 10C15 8.34315 13.6569 7 12 7C10.3431 7 9 8.34315 9 10C9 11.6569 10.3431 13 12 13Z"/></svg></span><span class="nc-txt">Mirpur, Dhaka</span></div>
-      ${channelIcon('facebook')}
+      <div class="nc-row"><span class="nc-ci solid"><svg viewBox="0 0 24 24"><path d="M21,19a3,3,0,0,1-3,3H6a3,3,0,0,1-3-3,5,5,0,0,1,5-5h8A5,5,0,0,1,21,19Zm-9-7A5,5,0,1,0,7,7,5,5,0,0,0,12,12Z"/></svg></span><span class="nc-txt">${escapeHtml(name)}</span></div>
+      <div class="nc-row"><span class="nc-ci"><svg viewBox="0 0 24 24"><path d="M3 5.5C3 14.0604 9.93959 21 18.5 21C18.8862 21 19.2691 20.9859 19.6483 20.9581C20.0834 20.9262 20.3009 20.9103 20.499 20.7963C20.663 20.7019 20.8185 20.5345 20.9007 20.364C21 20.1582 21 19.9181 21 19.438V16.6207C21 16.2169 21 16.015 20.9335 15.842C20.8749 15.6891 20.7795 15.553 20.6559 15.4456C20.516 15.324 20.3262 15.255 19.9468 15.117L16.74 13.9509C16.2985 13.7904 16.0777 13.7101 15.8683 13.7237C15.6836 13.7357 15.5059 13.7988 15.3549 13.9058C15.1837 14.0271 15.0629 14.2285 14.8212 14.6314L14 16C11.3501 14.7999 9.2019 12.6489 8 10L9.36863 9.17882C9.77145 8.93713 9.97286 8.81628 10.0942 8.64506C10.2012 8.49408 10.2643 8.31637 10.2763 8.1317C10.2899 7.92227 10.2096 7.70153 10.0491 7.26005L8.88299 4.05321C8.745 3.67376 8.67601 3.48403 8.55442 3.3441C8.44701 3.22049 8.31089 3.12515 8.15802 3.06645C7.98496 3 7.78308 3 7.37932 3H4.56201C4.08188 3 3.84181 3 3.63598 3.09925C3.4655 3.18146 3.29814 3.33701 3.2037 3.50103C3.08968 3.69907 3.07375 3.91662 3.04189 4.35173C3.01413 4.73086 3 5.11378 3 5.5Z"/></svg></span><span class="nc-txt">${escapeHtml(phone)}</span></div>
+      <div class="nc-row addr"><span class="nc-ci"><svg viewBox="0 0 24 24"><path d="M12 21C15.5 17.4 19 14.1764 19 10.2C19 6.22355 15.866 3 12 3C8.13401 3 5 6.22355 5 10.2C5 14.1764 8.5 17.4 12 21Z"/><path d="M12 13C13.6569 13 15 11.6569 15 10C15 8.34315 13.6569 7 12 7C10.3431 7 9 8.34315 9 10C9 11.6569 10.3431 13 12 13Z"/></svg></span><span class="nc-txt">${escapeHtml(addr)}</span></div>
+      ${channelIcon(o.channel || 'website')}
     </div>
     <div class="order-summary-block">
       <div class="payment-meta-left">
-        <div class="pmt-pay-badge cash">${payBadgeIcon('cash')}</div>
+        <div class="pmt-pay-badge ${payKey(methodKey)}">${payBadgeIcon(methodKey)}</div>
         <div class="order-items-meta" style="text-align:left">
-          <strong>3 items</strong>
-          Cash on delivery
+          <strong>${qty} item${qty === 1 ? '' : 's'}</strong>
+          ${escapeHtml(cod ? 'Cash on delivery' : methodLabel + (o.payment_ref ? ' · ' + o.payment_ref : ''))}
         </div>
       </div>
       <div style="text-align:right">
         <div class="order-total-label">Order total</div>
-        <div class="order-total">৳2,450</div>
+        <div class="order-total">${rwMoney(o.total_amount)}</div>
       </div>
     </div>
     <div class="al-actions-row">
-      ${al_actionBtn('primary','box','Accept')}
-      <a class="al-action-btn" href="https://wa.me/8801712345678" target="_blank" rel="noopener" style="text-decoration:none;background:#25D366;color:#fff;box-shadow:0 4px 12px rgba(37,211,102,0.35)"><svg width="13" height="13" viewBox="0 0 24 24" fill="#fff"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347zM12 0C5.373 0 0 5.373 0 12c0 2.127.558 4.122 1.532 5.855L.054 23.454a.5.5 0 00.623.529l5.792-1.526A11.938 11.938 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.882a9.877 9.877 0 01-5.031-1.375l-.36-.214-3.733.983.998-3.648-.235-.374A9.861 9.861 0 012.118 12C2.118 6.53 6.53 2.118 12 2.118S21.882 6.53 21.882 12 17.47 21.882 12 21.882z"/></svg><span>WhatsApp</span></a>
-      ${al_actionBtn('ghost','history','Details','openOrderDetailsModal()')}
+      ${primary}
+      <a class="al-action-btn" href="${waHref}" target="_blank" rel="noopener" style="text-decoration:none;background:#25D366;color:#fff;box-shadow:0 4px 12px rgba(37,211,102,0.35)"><svg width="13" height="13" viewBox="0 0 24 24" fill="#fff"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347zM12 0C5.373 0 0 5.373 0 12c0 2.127.558 4.122 1.532 5.855L.054 23.454a.5.5 0 00.623.529l5.792-1.526A11.938 11.938 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.882a9.877 9.877 0 01-5.031-1.375l-.36-.214-3.733.983.998-3.648-.235-.374A9.861 9.861 0 012.118 12C2.118 6.53 6.53 2.118 12 2.118S21.882 6.53 21.882 12 17.47 21.882 12 21.882z"/></svg><span>WhatsApp</span></a>
+      ${al_actionBtn('ghost','history','Details',`alStoreDetails('${o.id}')`)}
     </div>
   </div>`;
 }
+function al_newOrderCard() {
+  return AL_STORE.map(al_storeOrderCard).join('');
+}
+async function alAcceptStoreOrder(id, btn) {
+  const o = AL_STORE.find(x => x.id === id);
+  if (!o || _alStoreBusy) return;
+  _alStoreBusy = true; if (btn) btn.disabled = true;
+  try {
+    await requireFingerprint();
+    await sbFetch('rpc/accept_cod_order', 'POST', { p_order_id: id });
+  } catch (err) {
+    showToast('⚠ Order not accepted — ' + _dbErrMsg(err));
+    if (btn) btn.disabled = false;
+    return;
+  } finally { _alStoreBusy = false; }
+  AL_STORE = AL_STORE.filter(x => x.id !== id);
+  showToast(o.order_number + ' accepted — ready to ship');
+  loadProductsFromSupabase();
+  loadOrdersFromSupabase();
+  renderAlertsTabNow();
+}
+async function alConfirmStorePayment(id, btn) {
+  const o = AL_STORE.find(x => x.id === id);
+  if (!o || _alStoreBusy) return;
+  _alStoreBusy = true; if (btn) btn.disabled = true;
+  try {
+    await requireFingerprint();
+    await sbFetch('rpc/confirm_order_payment', 'POST', { p_order_id: id, p_method: o.payment_method, p_ref: o.payment_ref || null });
+  } catch (err) {
+    showToast('⚠ Payment not confirmed — ' + _dbErrMsg(err));
+    if (btn) btn.disabled = false;
+    return;
+  } finally { _alStoreBusy = false; }
+  AL_STORE = AL_STORE.filter(x => x.id !== id);
+  showToast(o.order_number + ' paid — ready to ship');
+  loadProductsFromSupabase();
+  loadOrdersFromSupabase();
+  renderAlertsTabNow();
+}
+async function alStoreDetails(id) {
+  const o = AL_STORE.find(x => x.id === id);
+  if (!o) return;
+  const d = await rwEnrich(webOrderToReadyData(o));
+  const m = rwModalOrder(d);
+  const cod = !!d.cod;
+  m.status = cod ? 'Pending' : 'Verifying';
+  m.state = cod ? 'pending' : 'verifying';
+  m.payment = cod
+    ? { method: 'cod', status: 'Pay on delivery', amount_due: m.total }
+    : { method: d.payMethod, status: 'Verifying', txn: d.payRef, sender: d.sender, amount_due: m.total };
+  openOrderDetailsModal(m);
+}
+window.alAcceptStoreOrder = alAcceptStoreOrder;
+window.alConfirmStorePayment = alConfirmStorePayment;
+window.alStoreDetails = alStoreDetails;
 
 /* ---- Card 5: Buy For Me (Proxy Order) — data-driven ----
    Data contract (proxy_requests row, normalised by al_pxNormalize):
@@ -27220,10 +27304,10 @@ function renderAlertsTab() {
   if (!container) return;
   if (!_alPxLoading) {
     _alPxLoading = true;
-    const before = JSON.stringify(AL_PROXY);
-    loadProxyRequests().then(() => {
+    const before = JSON.stringify([AL_PROXY, AL_STORE]);
+    Promise.all([loadProxyRequests(), loadStoreOrderAlerts()]).then(() => {
       _alPxLoading = false;
-      if (JSON.stringify(AL_PROXY) === before) return; // nothing changed -> no re-render, no blink
+      if (JSON.stringify([AL_PROXY, AL_STORE]) === before) return; // nothing changed -> no re-render, no blink
       const panel = document.getElementById('tab-alerts');
       if (panel && panel.classList.contains('active-panel')) renderAlertsTabNow();
     }).catch(() => { _alPxLoading = false; });
