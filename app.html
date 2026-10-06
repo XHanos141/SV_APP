@@ -20725,6 +20725,25 @@ const RW_ICO_X = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" str
 const RW_ICO_INFO = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 22C6.477 22 2 17.523 2 12S6.477 2 12 2s10 4.477 10 10-4.477 10-10 10zm-.696-3.534c.63 0 1.332-.288 2.196-1.458l.911-1.22a.334.334 0 0 0-.074-.472.38.38 0 0 0-.505.06l-1.475 1.679a.241.241 0 0 1-.279.061.211.211 0 0 1-.12-.244l1.858-7.446a.499.499 0 0 0-.575-.613l-3.35.613a.35.35 0 0 0-.276.258l-.086.334a.25.25 0 0 0 .243.312h1.73l-1.476 5.922c-.054.234-.144.63-.144.918 0 .666.396 1.296 1.422 1.296zm1.83-10.536c.702 0 1.242-.414 1.386-1.044.036-.144.054-.306.054-.414 0-.504-.396-.972-1.134-.972-.702 0-1.242.414-1.386 1.044a1.868 1.868 0 0 0-.054.414c0 .504.396.972 1.134.972z"/></svg>';
 function rwMoney(n) { return '৳' + Number(n || 0).toLocaleString('en-IN'); }
 
+function webOrderToReadyData(o) {
+  const items = (o.order_items || []).map(i => ({
+    name: i.product_name || 'Unnamed product', sku: i.sku || '', qty: Math.max(1, parseInt(i.quantity, 10) || 1),
+    price: Number(i.unit_price) || 0, category: i.category || 'general', image: i.product_image || ''
+  }));
+  return {
+    orderId: o.order_number, uuid: o.id, customerId: o.customer_id || null,
+    name: o.customer_name || 'Customer', phone: o.customer_phone || '',
+    fullAddress: [o.district, o.address_text].filter(Boolean).join(', '),
+    stage: o.delivered_at ? 'delivered' : o.shipped_at ? 'shipped' : 'ready',
+    channel: o.channel || 'website', cod: String(o.payment_method || '').toLowerCase() === 'cod',
+    payMethod: o.payment_method || '', payRef: o.payment_ref || '', voucher: o.voucher_code || '',
+    discount: Number(o.discount) || 0, shipping: Number(o.shipping) || 0, subtotal: Number(o.subtotal) || 0,
+    total: o.total_amount != null ? Number(o.total_amount) : null,
+    dateStr: new Date(o.created_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: '2-digit' }),
+    createdAt: o.created_at, items
+  };
+}
+
 function buildWebReadyCardEl(d) {
   const idx = ++_draftSeq;
   const items = d.items || [];
@@ -20818,26 +20837,53 @@ function rwPaintAdvance(card, idx) {
   else { btn.classList.add('done'); btn.innerHTML = tick + 'Delivered'; }
 }
 
-function rwAdvance(idx, event) {
+let _rwBusy = false;
+async function rwAdvance(idx, event) {
   if (event) event.stopPropagation();
   const card = document.getElementById('draft-' + idx);
-  if (!card) return;
+  if (!card || _rwBusy) return;
   const order = ['ready', 'shipped', 'delivered'];
   const cur = card.getAttribute('data-stage') || 'ready';
   const next = order[Math.min(order.indexOf(cur) + 1, 2)];
   if (next === cur) return;
+  const uuid = card.dataset.orderUuid || null;
+  if (uuid) {
+    _rwBusy = true;
+    try {
+      await sbFetch('rpc/set_order_fulfilment', 'POST', { p_order_id: uuid, p_stage: next });
+    } catch (err) {
+      showToast('⚠ Order not updated — ' + _dbErrMsg(err));
+      return;
+    } finally { _rwBusy = false; }
+  }
   card.setAttribute('data-stage', next);
   card.setAttribute('data-status', next);
+  if (card._rw) card._rw.stage = next;
   const pill = card.querySelector('#rw-pill-' + idx);
   if (pill) { pill.className = 'rw-pill ' + next; pill.textContent = RW_LABEL[next]; }
   rwPaintAdvance(card, idx);
-  if (next === 'delivered' && card._rw && card._rw.cod) showToast('Delivered · collect ' + rwMoney(card._rw.total));
+  if (next === 'delivered') {
+    if (card._rw && card._rw.cod) showToast('Delivered · collect ' + rwMoney(card._rw.total));
+    if (uuid) loadOrdersFromSupabase();
+  }
 }
 
-function rwCancel(idx, event) {
+async function rwCancel(idx, event) {
   if (event) event.stopPropagation();
   const card = document.getElementById('draft-' + idx);
-  if (!card || card.classList.contains('delete-out')) return;
+  if (!card || _rwBusy || card.classList.contains('delete-out')) return;
+  const uuid = card.dataset.orderUuid || null;
+  if (uuid) {
+    _rwBusy = true;
+    try {
+      await requireFingerprint();
+      await sbFetch('rpc/cancel_web_order', 'POST', { p_order_id: uuid, p_reason: 'Cancelled by admin' });
+    } catch (err) {
+      showToast('⚠ Order not cancelled — ' + _dbErrMsg(err));
+      return;
+    } finally { _rwBusy = false; }
+    loadProductsFromSupabase();
+  }
   card.classList.remove('expanded');
   setTimeout(() => { card.classList.add('delete-out'); updateBadge(); setTimeout(() => { if (card.parentElement) card.remove(); }, 450); }, 150);
 }
@@ -20852,11 +20898,35 @@ function rwModalOrder(d) {
     items: d.items, registered: !!d.registered, name: d.name, customer_id: d.customerId || '', customer_since: d.customerSince || '', phone: d.phone, email: d.email || '', address: d.fullAddress
   };
 }
-function rwDetails(idx, event) {
+async function rwDetails(idx, event) {
   if (event) event.stopPropagation();
   const card = document.getElementById('draft-' + idx);
   if (!card || !card._rw) return;
-  openOrderDetailsModal(rwModalOrder(card._rw));
+  const d = Object.assign({}, card._rw);
+  if (d.uuid) {
+    try {
+      if (d.customerId) {
+        const cr = await sbFetch('customers?id=eq.' + d.customerId + '&select=full_name,phone,email,customer_code,created_at,is_guest&limit=1');
+        const c = Array.isArray(cr) ? cr[0] : null;
+        if (c) {
+          d.registered = !!(c.customer_code && !c.is_guest);
+          d.customerId = c.customer_code || '';
+          d.customerSince = c.created_at || '';
+          d.email = c.email || '';
+        }
+      }
+    } catch (err) { /* customer card falls back to the order's own name, phone and address */ }
+    try {
+      const pay = await sbFetch('rpc/admin_order_payment', 'POST', { p_order_id: d.uuid });
+      const p = Array.isArray(pay) ? pay[0] : pay;
+      if (p) {
+        d.sender = (p.tx && p.tx.sender) || p.expected_sender || '';
+        if (p.tx && p.tx.transaction_id && !d.payRef) d.payRef = p.tx.transaction_id;
+      }
+    } catch (err) { /* payment block shows what the order row has */ }
+  }
+  if (/^[0-9a-f-]{36}$/i.test(d.customerId || '')) d.customerId = '';
+  openOrderDetailsModal(rwModalOrder(d));
 }
 
 function seedReadyToShipDemo() {
@@ -20878,6 +20948,7 @@ function seedReadyToShipDemo() {
   });
 }
 (function initReadyToShipDemo() {
+  if (!/[?&]demo=ready\b/.test(location.search)) return;
   if (window.__svAdminReady) setTimeout(seedReadyToShipDemo, 50);
   else window.addEventListener('sv-admin-ready', () => setTimeout(seedReadyToShipDemo, 50), { once: true });
 })();
@@ -21096,6 +21167,11 @@ async function loadOrdersFromSupabase() {
     let paidAdded = false;
     rows.forEach(o => {
       const items = orderRowToItems(o);
+      const isWeb = o.source === 'web';
+      if (isWeb && !o.delivered_at && !known.has(o.id) && (o.status === 'paid' || o.status === 'processing')) {
+        container.appendChild(buildWebReadyCardEl(webOrderToReadyData(o)));
+        known.add(o.id);
+      }
       if (o.status === 'paid') {
         if (TRANSACTIONS_DATA.some(t => t.uuid === o.id || t.id === o.order_number)) return;
         TRANSACTIONS_DATA.unshift(orderRowToTx(o, items));
@@ -21103,6 +21179,7 @@ async function loadOrdersFromSupabase() {
         return;
       }
       if (o.status === 'cancelled') return; // auto-cancelled unpaid web order
+      if (isWeb) return; // unpaid / unaccepted web orders wait in Alerts, not in Draft
       if (known.has(o.id)) return;
       container.appendChild(buildDraftCardEl({
         orderId: o.order_number, name: o.customer_name || 'Customer', phone: o.customer_phone || '',
