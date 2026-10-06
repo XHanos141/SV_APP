@@ -8407,6 +8407,7 @@ html[data-theme="dark"] #alertsTabContent .rq-tag { border-color:rgba(251,202,18
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script src="assets/js/supabase-config.js"></script>
 <script src="assets/js/sv-customer-card.js"></script>
+<script src="assets/js/sv-fingerprint.js"></script>
 <script src="assets/js/sv-proxy-request.js"></script>
 <style>
 #svAdminGate{position:fixed;inset:0;z-index:999999;background:#000d20;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:14px;transition:opacity .25s ease;font-family:'DM Sans',sans-serif}
@@ -8475,6 +8476,7 @@ async function populateDrawerProfile(authUser){
     var row = rows && rows[0];
     if(!row) return;
     window.currentAdminRowId = row.id;
+    if(window.SVFingerprint) SVFingerprint.enable();
     var nameEl = document.getElementById('drawerProfileName');
     var roleEl = document.getElementById('drawerProfileRole');
     var avatarEl = document.getElementById('drawerProfileAvatar');
@@ -23026,58 +23028,7 @@ function bufferToBase64Url(buf){
 }
 async function requireFingerprint(){
   if(!window.currentAdminRowId) return;
-
-  const { count } = await sb.from('admin_passkeys')
-    .select('id', { count: 'exact', head: true })
-    .eq('admin_id', window.currentAdminRowId);
-
-  if(!count) return; // nothing registered yet — nothing to confirm
-
-  if(!window.PublicKeyCredential){
-    throw new Error('This device doesn\u2019t support fingerprint confirmation.');
-  }
-
-  const { data: { session } } = await sb.auth.getSession();
-  if(!session) throw new Error('Not signed in');
-
-  const optionsRes = await fetch(SB_URL + '/functions/v1/passkey-verify-options', {
-    method: 'POST',
-    headers: { 'Authorization': 'Bearer ' + session.access_token, 'Content-Type': 'application/json' },
-  });
-  const options = await optionsRes.json();
-  if(!optionsRes.ok) throw new Error(options.error || 'Could not start fingerprint check');
-
-  const publicKey = {
-    ...options,
-    challenge: base64UrlToBuffer(options.challenge),
-    allowCredentials: (options.allowCredentials || []).map(c => ({
-      ...c, id: base64UrlToBuffer(c.id),
-    })),
-  };
-
-  const assertion = await navigator.credentials.get({ publicKey });
-  if(!assertion) throw new Error('Fingerprint confirmation was cancelled');
-
-  const assertionResponse = {
-    id: assertion.id,
-    rawId: bufferToBase64Url(assertion.rawId),
-    type: assertion.type,
-    response: {
-      clientDataJSON: bufferToBase64Url(assertion.response.clientDataJSON),
-      authenticatorData: bufferToBase64Url(assertion.response.authenticatorData),
-      signature: bufferToBase64Url(assertion.response.signature),
-      userHandle: assertion.response.userHandle ? bufferToBase64Url(assertion.response.userHandle) : null,
-    },
-    clientExtensionResults: assertion.getClientExtensionResults ? assertion.getClientExtensionResults() : {},
-  };
-
-  const verifyRes = await fetch(SB_URL + '/functions/v1/passkey-verify-assert', {
-    method: 'POST',
-    headers: { 'Authorization': 'Bearer ' + session.access_token, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ assertionResponse }),
-  });
-  const verifyData = await verifyRes.json();
-  if(!verifyRes.ok || !verifyData.verified) throw new Error(verifyData.error || 'Fingerprint did not match');
+  await SVFingerprint.verify();
 }
 
 window.__confirmRestockReal = async function confirmRestock() {
