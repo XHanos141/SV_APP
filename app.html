@@ -26595,6 +26595,19 @@ function renderOrderDetailsPayment(pay) {
     ${pay.status ? row('Status', `<span class="odm-stv${paid ? ' green' : ''}">${escapeHtml(pay.status)}</span>`) : ''}
   </div>`;
 }
+function odmCatalogInfo(sku) {
+  const key = typeof normalizeSku === 'function' ? normalizeSku(sku) : String(sku || '');
+  if (!key || typeof PRODUCTS_DATA === 'undefined') return {};
+  const p = PRODUCTS_DATA.find(x => (typeof normalizeSku === 'function' ? normalizeSku(x.sku) : x.sku) === key);
+  if (!p) return {};
+  const m = p.meta || {};
+  const unit = String(m.potencyType || '').trim();
+  const potency = m.potencyAmount ? (m.potencyAmount + ' ' + (/^(mg|mcg|g|ml)$/i.test(unit) ? unit.toLowerCase() : unit)).trim() : '';
+  const nouns = { 'capsule': 'Capsules', 'soft gel': 'Softgels', 'softgel': 'Softgels', 'tablet': 'Tablets' };
+  const noun = nouns[String(m.form || '').trim().toLowerCase()] || 'ct';
+  const count = m.capsuleCount ? (m.capsuleCount + ' ' + noun) : '';
+  return { subcategory: p.subcategory || '', spec: [potency, count].filter(Boolean).join(' \u2022 ') };
+}
 function renderOrderDetailsItems(items) {
   const box = document.getElementById("odmItems");
   if (!box) return;
@@ -26604,7 +26617,7 @@ function renderOrderDetailsItems(items) {
     const meta = (typeof CATEGORY_META !== 'undefined' && (CATEGORY_META[key] || CATEGORY_META.general)) || { color:'#64748B', color2:'#475569', icon:'general', label:'General' };
     return `<span class="odm-item-cat-badge" style="background:linear-gradient(135deg,${meta.color},${meta.color2 || meta.color});" title="${escapeHtml(meta.label || key)}"><svg viewBox="0 0 24 24"><use href="#cat-icon-${meta.icon}"/></svg></span>`;
   };
-  box.innerHTML = (items || []).map(it => `<div class="odm-pi">
+  box.innerHTML = (items || []).map(it => { const ci = (it.spec && it.subcategory) ? {} : odmCatalogInfo(it.sku); it = Object.assign({}, it, { subcategory: it.subcategory || ci.subcategory || '', spec: it.spec || ci.spec || '' }); return `<div class="odm-pi">
     <div class="odm-pi-img"${it.image ? ` data-img="${escapeHtml(it.image)}" data-sku="${escapeHtml(it.sku || '')}" role="button" aria-label="View product pictures"` : ''}>${cube}${it.image ? `<img src="${escapeHtml(it.image)}" alt="" loading="lazy" onerror="this.parentNode.removeAttribute('data-img');this.remove()">` : ''}</div>
     <div class="odm-pi-body">
       <div class="odm-pc-cat">${typeBadge(it.category)}${it.subcategory ? `<span>${escapeHtml(it.subcategory)}</span>` : ''}</div>
@@ -26615,7 +26628,7 @@ function renderOrderDetailsItems(items) {
       ${it.spec ? `<div class="odm-pc-spec">${escapeHtml(it.spec)}</div>` : ''}
       <div class="odm-pi-sku">${escapeHtml(it.sku || '')}</div>
     </div>
-  </div>`).join('');
+  </div>`; }).join('');
 }
 
 /* ─── Order Details image gallery: tap product image → fullscreen, pinch/double-tap zoom, swipe between pictures ─── */
