@@ -805,6 +805,7 @@ html[data-theme="dark"] .draft-math-row.shipping-row .draft-math-label { color: 
 html[data-theme="dark"] .draft-math-row.shipping-row .draft-math-val { color: rgba(255,255,255,0.75); }
 
 /* Free shipping — red + FREE */
+.sv-was { font-size: 11px; font-weight: 600; opacity: .6; margin-right: 6px; letter-spacing: 0; }
 .draft-math-row.shipping-row.free-shipping .draft-math-label { color: #d95353; }
 html[data-theme="dark"] .draft-math-row.shipping-row.free-shipping .draft-math-label { color: #ff6b6b; }
 .draft-math-row.shipping-row.free-shipping .draft-math-val {
@@ -20802,6 +20803,21 @@ function buildDraftCardEl(d) {
 const RW_LABEL = { ready: 'Ready to Ship', shipped: 'Shipped', delivered: 'Delivered' };
 const RW_ICO_X = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg>';
 const RW_ICO_INFO = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 22C6.477 22 2 17.523 2 12S6.477 2 12 2s10 4.477 10 10-4.477 10-10 10zm-.696-3.534c.63 0 1.332-.288 2.196-1.458l.911-1.22a.334.334 0 0 0-.074-.472.38.38 0 0 0-.505.06l-1.475 1.679a.241.241 0 0 1-.279.061.211.211 0 0 1-.12-.244l1.858-7.446a.499.499 0 0 0-.575-.613l-3.35.613a.35.35 0 0 0-.276.258l-.086.334a.25.25 0 0 0 .243.312h1.73l-1.476 5.922c-.054.234-.144.63-.144.918 0 .666.396 1.296 1.422 1.296zm1.83-10.536c.702 0 1.242-.414 1.386-1.044.036-.144.054-.306.054-.414 0-.504-.396-.972-1.134-.972-.702 0-1.242.414-1.386 1.044a1.868 1.868 0 0 0-.054.414c0 .504.396.972 1.134.972z"/></svg>';
+/* Orders plus the ship_voucher flag (DB function). If the flag can't be read, load orders without it. */
+async function sbFetchOrderRows(path) {
+  try { return await sbFetch(path.replace('select=*,', 'select=*,ship_voucher,')); }
+  catch (e) { return await sbFetch(path); }
+}
+function svDiscShipRows(p, discIcon, shipIcon) {
+  const code = p.voucher ? ` (${escapeHtml(p.voucher)})` : '';
+  const discRow = (!p.shipVoucher && p.discount > 0)
+    ? `<div class="draft-math-row discount-row"><span class="draft-math-label">${discIcon}Discount${code}</span><span class="draft-math-val">-${rwMoney(p.discount)}</span></div>` : '';
+  const free = p.shipVoucher ? p.discount > 0 : p.shipping === 0;
+  const was = p.shipVoucher ? Math.max(Number(p.shipping) || 0, 0) : 0;
+  const shipLbl = p.shipVoucher && p.discount > 0 ? `Shipping${code}` : 'Shipping';
+  const shipVal = free ? ((was > 0 ? `<s class="sv-was">${rwMoney(was)}</s>` : '') + 'FREE') : rwMoney(p.shipping);
+  return discRow + `<div class="draft-math-row shipping-row${free ? ' free-shipping' : ''}"><span class="draft-math-label">${shipIcon}${shipLbl}</span><span class="draft-math-val">${shipVal}</span></div>`;
+}
 function rwMoney(n) { return '৳' + Number(n || 0).toLocaleString('en-IN'); }
 
 function webOrderToReadyData(o) {
@@ -20817,6 +20833,7 @@ function webOrderToReadyData(o) {
     channel: o.channel || 'website', cod: String(o.payment_method || '').toLowerCase() === 'cod',
     payMethod: o.payment_method || '', payRef: o.payment_ref || '', voucher: o.voucher_code || '',
     discount: Number(o.discount) || 0, shipping: Number(o.shipping) || 0, subtotal: Number(o.subtotal) || 0,
+    shipVoucher: o.ship_voucher === true,
     total: o.total_amount != null ? Number(o.total_amount) : null,
     dateStr: new Date(o.created_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: '2-digit' }),
     createdAt: o.created_at, items
@@ -20845,8 +20862,7 @@ function buildWebReadyCardEl(d) {
     </div>`).join('');
   const mathHtml = `
     <div class="draft-math-row"><span class="draft-math-label">Subtotal</span><span class="draft-math-val">${totalQty}u × ${rwMoney(subtotal)}</span></div>
-    ${discount > 0 ? `<div class="draft-math-row discount-row"><span class="draft-math-label">${tagIcon}Discount${d.voucher ? ` (${escapeHtml(d.voucher)})` : ''}</span><span class="draft-math-val">-${rwMoney(discount)}</span></div>` : ''}
-    <div class="draft-math-row shipping-row ${shipping === 0 ? 'free-shipping' : ''}"><span class="draft-math-label">${shipIcon}Shipping</span><span class="draft-math-val">${shipping === 0 ? 'FREE' : rwMoney(shipping)}</span></div>
+    ${svDiscShipRows({ discount, shipping, voucher: d.voucher, shipVoucher: d.shipVoucher }, tagIcon, shipIcon)}
     <div class="draft-math-total"><span class="draft-math-total-label">Total</span><span class="draft-math-total-amt">${rwMoney(total)}</span></div>`;
 
   const card = document.createElement('div');
@@ -20874,7 +20890,7 @@ function buildWebReadyCardEl(d) {
             ${d.phone ? `<div class="rw-crow rw-phone"><span class="rw-ci"><svg viewBox="0 0 24 24"><path d="M3 5.5C3 14.0604 9.93959 21 18.5 21C18.8862 21 19.2691 20.9859 19.6483 20.9581C20.0834 20.9262 20.3009 20.9103 20.499 20.7963C20.663 20.7019 20.8185 20.5345 20.9007 20.364C21 20.1582 21 19.9181 21 19.438V16.6207C21 16.2169 21 16.015 20.9335 15.842C20.8749 15.6891 20.7795 15.553 20.6559 15.4456C20.516 15.324 20.3262 15.255 19.9468 15.117L16.74 13.9509C16.2985 13.7904 16.0777 13.7101 15.8683 13.7237C15.6836 13.7357 15.5059 13.7988 15.3549 13.9058C15.1837 14.0271 15.0629 14.2285 14.8212 14.6314L14 16C11.3501 14.7999 9.2019 12.6489 8 10L9.36863 9.17882C9.77145 8.93713 9.97286 8.81628 10.0942 8.64506C10.2012 8.49408 10.2643 8.31637 10.2763 8.1317C10.2899 7.92227 10.2096 7.70153 10.0491 7.26005L8.88299 4.05321C8.745 3.67376 8.67601 3.48403 8.55442 3.3441C8.44701 3.22049 8.31089 3.12515 8.15802 3.06645C7.98496 3 7.78308 3 7.37932 3H4.56201C4.08188 3 3.84181 3 3.63598 3.09925C3.4655 3.18146 3.29814 3.33701 3.2037 3.50103C3.08968 3.69907 3.07375 3.91662 3.04189 4.35173C3.01413 4.73086 3 5.11378 3 5.5Z"/></svg></span><span class="rw-ctxt" data-cust="phone">${escapeHtml(d.phone)}</span></div>` : ''}
             ${d.fullAddress ? `<div class="rw-crow addr"><span class="rw-ci"><svg viewBox="0 0 24 24"><path d="M12 21C15.5 17.4 19 14.1764 19 10.2C19 6.22355 15.866 3 12 3C8.13401 3 5 6.22355 5 10.2C5 14.1764 8.5 17.4 12 21Z"/><path d="M12 13C13.6569 13 15 11.6569 15 10C15 8.34315 13.6569 7 12 7C10.3431 7 9 8.34315 9 10C9 11.6569 10.3431 13 12 13Z"/></svg></span><span class="rw-ctxt" data-cust="addr">${escapeHtml(d.fullAddress)}</span></div>` : ''}
           </div>
-          <div class="draft-discount${discount > 0 ? '' : ' rw-disc-empty'}">${tagIcon}<span>৳${discount.toLocaleString('en-IN')}</span></div>
+          <div class="draft-discount${discount > 0 ? '' : ' rw-disc-empty'}">${d.shipVoucher ? shipIcon : tagIcon}<span>৳${discount.toLocaleString('en-IN')}</span></div>
         </div>
         <div class="dc-right">
           <div class="dc-right-top">
@@ -21018,7 +21034,7 @@ async function rwCancel(idx, event) {
 function rwModalOrder(d) {
   const total = d.total != null ? Number(d.total) : Math.max(0, d.subtotal - d.discount + d.shipping);
   return {
-    orderId: d.orderId, voucher_code: d.voucher || '', status: RW_LABEL[d.stage || 'ready'], state: d.stage === 'delivered' ? 'delivered' : d.stage === 'shipped' ? 'shipped' : 'paid',
+    orderId: d.orderId, voucher_code: d.voucher || '', ship_voucher: !!d.shipVoucher, status: RW_LABEL[d.stage || 'ready'], state: d.stage === 'delivered' ? 'delivered' : d.stage === 'shipped' ? 'shipped' : 'paid',
     created_at: d.createdAt, status_at: d.createdAt, channel: d.channel || 'website',
     payment: d.cod ? { method: 'cod', status: 'Pay on delivery', amount_due: total } : { method: d.payMethod, status: 'Paid', txn: d.payRef, sender: d.sender, amount_due: total },
     subtotal: d.subtotal, shipping: d.shipping, discount: d.discount, total,
@@ -21282,13 +21298,14 @@ function orderRowToTx(o, items) {
     paymentRef: o.payment_ref || null,
     paidAt: paid.toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit', hour12: true }),
     status: 'paid', fulfillType: o.order_type === 'proxy' ? 'proxy' : 'local',
-    discount: Number(o.discount) || 0, shipping: Number(o.shipping) || 0, voucher: o.voucher_code || null, items
+    discount: Number(o.discount) || 0, shipping: Number(o.shipping) || 0, voucher: o.voucher_code || null, items,
+    shipVoucher: o.ship_voucher === true
   };
 }
 
 async function loadOrdersFromSupabase() {
   try {
-    const rows = await sbFetch('orders?select=*,order_items(*)&source=in.(admin,web)&order=created_at.asc');
+    const rows = await sbFetchOrderRows('orders?select=*,order_items(*)&source=in.(admin,web)&order=created_at.asc');
     if (!Array.isArray(rows) || rows.length === 0) return;
     const container = document.getElementById('draftCardsContainer');
     if (!container) return;
@@ -26557,12 +26574,15 @@ function renderOrderDetailsSummary(o) {
   const box = document.getElementById("odmSummary");
   if (!box) return;
   const money = n => '৳' + Number(n || 0).toLocaleString('en-IN');
-  const free = Number(o.shipping) === 0;
-  const disc = Number(o.discount) > 0 ? `<div class="odm-mc-row discount"><span>${ODM_ICO_TAG}Discount (${escapeHtml(o.voucher_code || 'Manual')})</span><span>-${money(o.discount)}</span></div>` : '';
+  const sv = !!o.ship_voucher && Number(o.discount) > 0;
+  const free = sv || Number(o.shipping) === 0;
+  const disc = (!sv && Number(o.discount) > 0) ? `<div class="odm-mc-row discount"><span>${ODM_ICO_TAG}Discount (${escapeHtml(o.voucher_code || 'Manual')})</span><span>-${money(o.discount)}</span></div>` : '';
+  const shipLbl = sv ? `Shipping (${escapeHtml(o.voucher_code || '')})` : 'Shipping';
+  const shipVal = sv ? `<s class="sv-was">${money(o.shipping)}</s>Free` : (free ? 'Free' : money(o.shipping));
   box.innerHTML = `<div class="odm-mc">
     <div class="odm-mc-row sub"><span>Subtotal</span><span>${money(o.subtotal)}</span></div>
     ${disc}
-    <div class="odm-mc-row ship${free ? ' free' : ''}"><span>${ODM_ICO_TRUCK}Shipping</span><span>${free ? 'Free' : money(o.shipping)}</span></div>
+    <div class="odm-mc-row ship${free ? ' free' : ''}"><span>${ODM_ICO_TRUCK}${shipLbl}</span><span>${shipVal}</span></div>
     <div class="odm-mc-row total"><span>Total</span><span>${money(o.total)}</span></div>
   </div>`;
 }
@@ -26970,7 +26990,7 @@ let AL_STORE = [];
 let _alStoreBusy = false;
 async function loadStoreOrderAlerts() {
   try {
-    const rows = await sbFetch('orders?select=*,order_items(*)&source=eq.web&status=in.(pending,processing,paid)&delivered_at=is.null&order=created_at.asc');
+    const rows = await sbFetchOrderRows('orders?select=*,order_items(*)&source=eq.web&status=in.(pending,processing,paid)&delivered_at=is.null&order=created_at.asc');
     AL_STORE = (Array.isArray(rows) ? rows : []).filter(o => o.status !== 'pending' ||
       String(o.payment_method || '').toLowerCase() === 'cod' || String(o.payment_ref || '').trim() !== '')
       .sort((a, b) => (a.status === 'pending' ? 0 : 1) - (b.status === 'pending' ? 0 : 1));
@@ -28079,7 +28099,7 @@ function buildTxCard(tx) {
   const isExp    = !!expandedTx[tx.id];
 
   const discountPill = tx.discount > 0
-    ? `<span class="tx-discount-pill"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-archive-box"/></svg>৳${tx.discount.toLocaleString('en-IN')}</span>` : '';
+    ? `<span class="tx-discount-pill"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#${tx.shipVoucher ? 'icon-truck-delivery' : 'icon-archive-box'}"/></svg>৳${tx.discount.toLocaleString('en-IN')}</span>` : '';
 
   const payChip  = payIcon(tx.payment);
   const prodLine = isMulti ? `${tx.items.length} products \u00b7 ${totalQty} units` : escapeHtml(tx.items[0].name);
@@ -28095,11 +28115,9 @@ function buildTxCard(tx) {
       <div class="tx-exp-item-amt">\u09f3${item.total.toLocaleString('en-IN')}</div>
     </div>`).join('');
 
-  const freeShip = tx.shipping === 0;
   const mathBreakdown = `
     <div class="draft-math-row"><span class="draft-math-label">Subtotal</span><span class="draft-math-val">${totalQty}u × ${rwMoney(subtotal)}</span></div>
-    ${tx.discount>0?`<div class="draft-math-row discount-row"><span class="draft-math-label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-archive-box"/></svg>Discount${tx.voucher ? ` (${escapeHtml(tx.voucher)})` : ''}</span><span class="draft-math-val">-${rwMoney(tx.discount)}</span></div>`:''}
-    <div class="draft-math-row shipping-row${freeShip?' free-shipping':''}"><span class="draft-math-label"><svg fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><use href="#icon-truck-delivery"/></svg>Shipping</span><span class="draft-math-val">${freeShip?'FREE':rwMoney(tx.shipping)}</span></div>
+    ${svDiscShipRows({ discount: tx.discount, shipping: tx.shipping, voucher: tx.voucher, shipVoucher: tx.shipVoucher }, `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-archive-box"/></svg>`, `<svg fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><use href="#icon-truck-delivery"/></svg>`)}
     <div class="draft-math-total"><span class="draft-math-total-label">Total</span><span class="draft-math-total-amt">${rwMoney(grand)}</span></div>`;
 
   const payConfirmRow = tx.paidAt ? payConfirmHTML('Paid', tx.payment, tx.paymentRef, tx.paidAt) : '';
