@@ -26612,7 +26612,7 @@ function renderOrderDetailsItems(items) {
 }
 
 /* ─── Order Details image gallery: tap product image → fullscreen, pinch/double-tap zoom, swipe between pictures ─── */
-(function(){
+function odzInit(){
   var overlay=document.getElementById('odzOverlay'), stage=document.getElementById('odzStage'), track=document.getElementById('odzTrack'),
       dotsWrap=document.getElementById('odzDots'), closeBtn=document.getElementById('odzClose');
   if(!overlay||!stage||!track) return;
@@ -26757,7 +26757,8 @@ function renderOrderDetailsItems(items) {
       if(scale<=1.02){ scale=1; tx=0; ty=0; apply(); }
     }
   });
-})();
+}
+if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',odzInit); else odzInit();
 
 function odmDate(iso) { try { return new Date(iso).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }); } catch (e) { return ''; } }
 function odmDateTime(iso) { try { return odmDate(iso) + ', ' + new Date(iso).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }).toLowerCase(); } catch (e) { return ''; } }
