@@ -6188,6 +6188,7 @@ html[data-theme="dark"] .tx-chevron { color:rgba(255,255,255,0.7); }
 }
 html[data-theme="dark"] .tx-exp-divider { background:rgba(255,255,255,0.08); }
 .tx-card-expand.expanded .tx-exp-divider { opacity:1; }
+.tx-card-expand.expanded .draft-divider { opacity: 1; transform: scaleX(1); }
 
 /* Item rows inside expanded */
 .tx-exp-item {
@@ -28177,6 +28178,7 @@ function buildTxCard(tx) {
         <div class="tx-expand-body">
           <div class="tx-exp-divider"></div>
           ${itemRows}
+          <div class="draft-divider"></div>
           ${mathBreakdown}
           ${payConfirmRow}
         </div>
