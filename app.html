@@ -23734,7 +23734,13 @@ function openVoucherHub() {
     });
 }
 
-const ADMIN_PANEL_LIVE_URL = 'https://raw.githubusercontent.com/XHanos141/SV_APP/main/admin_panel.html';
+// Admin panel is always loaded live from GitHub (main). For branch testing open the app with ?apBranch=<branch>.
+const ADMIN_PANEL_LIVE_URL = (function(){
+  var b = new URLSearchParams(location.search).get('apBranch');
+  if (b && /^[A-Za-z0-9._\/-]+$/.test(b) && b.indexOf('..') < 0)
+    return 'https://raw.githubusercontent.com/XHanos141/SV_APP/' + b + '/admin_panel.html';
+  return 'https://raw.githubusercontent.com/XHanos141/SV_APP/main/admin_panel.html';
+})();
 
 function openAdminPanel() {
   const menuCb = document.getElementById('menuState');
