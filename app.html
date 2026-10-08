@@ -8006,6 +8006,12 @@ html[data-theme="dark"] #alertsTabContent .proxy-item-block { background: rgba(2
 .dc-meta-row.address-row span, .rw-crow.addr .rw-ctxt, .tx-addr-text, #alertsTabContent .customer-meta-row.address-row span {
   white-space: normal; overflow: visible; text-overflow: clip; overflow-wrap: anywhere; word-break: break-word;
 }
+/* Draft cards stay compact: one line when collapsed, full address when expanded */
+.draft-card:not(.expanded) .dc-meta-row.address-row, .draft-card:not(.expanded) .rw-crow.addr { align-items: center; }
+.draft-card:not(.expanded) .dc-meta-row.address-row svg { margin-top: 0; }
+.draft-card:not(.expanded) .dc-meta-row.address-row span, .draft-card:not(.expanded) .rw-crow.addr .rw-ctxt {
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; overflow-wrap: normal; word-break: normal; min-width: 0;
+}
 #alertsTabContent .customer-phone { font-size: 11px; font-weight: 600; color: var(--al-muted); }
 #alertsTabContent .customer-side { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; flex-shrink: 0; }
 #alertsTabContent .customer-platform-badge { width: 20px; height: 20px; border-radius: 6px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
