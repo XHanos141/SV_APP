@@ -1008,6 +1008,21 @@ html[data-theme="dark"] .svc-btns .svc-no { color: rgba(255,255,255,.7); border-
 .svc-btns .svc-yes { background: var(--svc-c); color: #fff; box-shadow: 0 4px 12px var(--svc-g); }
 .svc-btns button:active { transform: scale(.97); }
 .svc-ship { --svc-c: #7c6ff7; --svc-g: rgba(124,111,247,.4); }
+.cr-sheet { max-height: 88vh; overflow-y: auto; }
+.cr-sum { font-size: 12.5px; color: #6b7280; margin: 0 0 12px; line-height: 1.5; }
+html[data-theme="dark"] .cr-sum { color: rgba(255,255,255,.6); }
+.cr-chips { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-bottom: 12px; }
+.cr-chip { height: 38px; padding: 0 16px; border-radius: 12px; border: 1.5px solid #d9dde5; background: transparent; color: #0B1220; font-family: "Plus Jakarta Sans", sans-serif; font-size: 13px; font-weight: 800; cursor: pointer; }
+html[data-theme="dark"] .cr-chip { color: #fff; border-color: rgba(255,255,255,.18); }
+.cr-chip.on { border-color: #7c6ff7; background: rgba(124,111,247,.14); color: #7c6ff7; }
+.cr-chip[disabled] { opacity: .4; pointer-events: none; }
+.cr-note { width: 100%; min-height: 54px; resize: none; border-radius: 12px; border: 1.5px solid #d9dde5; background: transparent; color: inherit; font-family: "DM Sans", sans-serif; font-size: 13px; padding: 9px 12px; margin-bottom: 10px; box-sizing: border-box; }
+html[data-theme="dark"] .cr-note { border-color: rgba(255,255,255,.18); color: #fff; }
+.cr-test { display: flex; align-items: center; justify-content: center; gap: 7px; font-size: 12px; font-weight: 700; color: #b45309; margin-bottom: 10px; cursor: pointer; }
+.cr-err { font-size: 12px; font-weight: 700; color: #d95353; margin-bottom: 8px; display: none; }
+.cr-err.show { display: block; }
+.cr-manual { margin-top: 12px; background: none; border: none; font-size: 11.5px; font-weight: 700; color: #9ca3af; text-decoration: underline; cursor: pointer; }
+
 .svc-ok { --svc-c: #2f9b68; --svc-g: rgba(47,155,104,.4); }
 .svc-danger { --svc-c: #d95353; --svc-g: rgba(217,83,83,.4); }
 .svc-info { --svc-c: #009ddc; --svc-g: rgba(0,157,220,.4); }
@@ -20886,6 +20901,73 @@ function svConfirmSheet(o) {
   });
 }
 
+async function rwBookCourier(orderUuid, pick) {
+  const { data, error } = await sb.functions.invoke('courier', {
+    body: { courier: pick.courier, action: 'book', order_id: orderUuid, note: pick.note || '', dry_run: !!pick.test }
+  });
+  if (error) {
+    let msg = '';
+    try { const j = await error.context.json(); msg = j.error || ''; } catch (e) {}
+    throw new Error(msg || error.message || 'Courier request failed');
+  }
+  if (!data || data.ok === false) throw new Error((data && data.error) || 'Courier request failed');
+  return data.data;
+}
+
+async function rwCourierSheet(d) {
+  if (_svcOpen) return null;
+  _svcOpen = true;
+  let couriers = [];
+  try {
+    const r = await sb.from('couriers').select('code,name,enabled,sort_order').order('sort_order');
+    couriers = r.data || [];
+  } catch (e) {}
+  return new Promise(resolve => {
+    const ov = document.createElement('div');
+    ov.className = 'svc-ov svc-ship';
+    ov.setAttribute('role', 'dialog'); ov.setAttribute('aria-modal', 'true');
+    const chips = couriers.length
+      ? couriers.map(c => '<button type="button" class="cr-chip" data-code="' + escapeHtml(c.code) + '"' + (c.enabled ? '' : ' disabled') + '>' + escapeHtml(c.name) + (c.enabled ? '' : ' · off') + '</button>').join('')
+      : '<div class="cr-sum">No couriers found.</div>';
+    ov.innerHTML = '<div class="svc-sheet cr-sheet"><div class="svc-ico">' + SVC_ICONS.ship + '</div>'
+      + '<h3>Send ' + escapeHtml(d.orderId) + '</h3>'
+      + '<div class="cr-sum">' + escapeHtml(d.name || '') + ' · ' + escapeHtml(d.phone || '') + '<br>' + (d.cod ? 'COD ' + rwMoney(d.total) : 'Prepaid') + '</div>'
+      + '<div class="cr-chips">' + chips + '</div>'
+      + '<textarea class="cr-note" maxlength="480" placeholder="Note for rider (optional)"></textarea>'
+      + '<label class="cr-test"><input type="checkbox" class="cr-testbox" checked> Test only — check, do not book</label>'
+      + '<div class="cr-err"></div>'
+      + '<div class="svc-fp"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 11c0 3-1 5-2 7M8 15c.5-1 1-2.3 1-4a3 3 0 0 1 6 0c0 2.5-.5 5-1.5 7M5 12a7 7 0 0 1 14 0c0 2-.2 3.5-.6 5M4.5 17c.3-1.5.5-3 .5-5"/></svg>Fingerprint required</div>'
+      + '<div class="svc-btns"><button type="button" class="svc-no">Cancel</button><button type="button" class="svc-yes">Test</button></div>'
+      + '<button type="button" class="cr-manual">Mark shipped without courier</button></div>';
+    let chosen = '';
+    const yes = ov.querySelector('.svc-yes'), err = ov.querySelector('.cr-err'), box = ov.querySelector('.cr-testbox');
+    const done = v => {
+      ov.classList.remove('show');
+      document.removeEventListener('keydown', onKey);
+      setTimeout(() => ov.remove(), 220);
+      _svcOpen = false; resolve(v);
+    };
+    const onKey = e => { if (e.key === 'Escape') done(null); };
+    ov.addEventListener('click', e => { if (e.target === ov) done(null); });
+    ov.querySelectorAll('.cr-chip').forEach(b => b.addEventListener('click', e => {
+      e.stopPropagation();
+      chosen = b.dataset.code; err.classList.remove('show');
+      ov.querySelectorAll('.cr-chip').forEach(x => x.classList.toggle('on', x === b));
+    }));
+    box.addEventListener('change', () => { yes.textContent = box.checked ? 'Test' : 'Send'; });
+    ov.querySelector('.svc-no').addEventListener('click', e => { e.stopPropagation(); done(null); });
+    ov.querySelector('.cr-manual').addEventListener('click', e => { e.stopPropagation(); done({ courier: null }); });
+    yes.addEventListener('click', e => {
+      e.stopPropagation();
+      if (!chosen) { err.textContent = 'Pick a courier first.'; err.classList.add('show'); return; }
+      done({ courier: chosen, note: ov.querySelector('.cr-note').value.trim(), test: box.checked });
+    });
+    document.addEventListener('keydown', onKey);
+    document.body.appendChild(ov);
+    requestAnimationFrame(() => requestAnimationFrame(() => ov.classList.add('show')));
+  });
+}
+
 async function rwAdvance(idx, event) {
   if (event) event.stopPropagation();
   const card = document.getElementById('draft-' + idx);
@@ -20899,13 +20981,30 @@ async function rwAdvance(idx, event) {
   const oid = d0.orderId || card.getAttribute('data-id') || 'Order';
   _rwBusy = true;
   try {
-    const ok = await svConfirmSheet(next === 'shipped'
-      ? { tone: 'ship', title: 'Ship ' + oid + '?', text: 'The order will be marked as shipped.', confirmLabel: 'Ship', fingerprint: !!uuid }
-      : { tone: 'ok', title: 'Mark ' + oid + ' delivered?', text: (d0.cod ? 'Collect ' + rwMoney(d0.total) + ' from the customer. ' : '') + 'The order moves to Sales.', confirmLabel: 'Delivered', fingerprint: !!uuid });
-    if (!ok) return;
-    if (uuid) {
+    if (next === 'shipped' && uuid) {
+      const pick = await rwCourierSheet(d0);
+      if (!pick) return;
       await requireFingerprint();
-      await sbFetch('rpc/set_order_fulfilment', 'POST', { p_order_id: uuid, p_stage: next });
+      if (pick.courier) {
+        const res = await rwBookCourier(uuid, pick);
+        if (pick.test) {
+          await svConfirmSheet({ tone: 'info', title: 'Test passed', text: 'Nothing was booked. ' + res.payload.invoice + ' · COD ' + rwMoney(res.payload.cod_amount) + ' · ' + res.payload.phone, confirmLabel: 'OK', fingerprint: false });
+          return;
+        }
+        if (res.stage_error) { showToast('⚠ Parcel booked (' + res.tracking_code + ') but order not marked shipped — use "Mark shipped without courier"'); return; }
+        showToast(oid + ' sent · tracking ' + res.tracking_code);
+      } else {
+        await sbFetch('rpc/set_order_fulfilment', 'POST', { p_order_id: uuid, p_stage: next });
+      }
+    } else {
+      const ok = await svConfirmSheet(next === 'shipped'
+        ? { tone: 'ship', title: 'Ship ' + oid + '?', text: 'The order will be marked as shipped.', confirmLabel: 'Ship', fingerprint: !!uuid }
+        : { tone: 'ok', title: 'Mark ' + oid + ' delivered?', text: (d0.cod ? 'Collect ' + rwMoney(d0.total) + ' from the customer. ' : '') + 'The order moves to Sales.', confirmLabel: 'Delivered', fingerprint: !!uuid });
+      if (!ok) return;
+      if (uuid) {
+        await requireFingerprint();
+        await sbFetch('rpc/set_order_fulfilment', 'POST', { p_order_id: uuid, p_stage: next });
+      }
     }
   } catch (err) {
     showToast('⚠ Order not updated — ' + _dbErrMsg(err));
