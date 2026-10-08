@@ -974,7 +974,6 @@ html[data-theme="dark"] .rw-ci.solid svg { fill: #2DBEF5; }
 .rw-card .draft-discount { grid-column: 1; grid-row: 5; margin-top: 0; }
 .draft-card.expanded.rw-card .rw-crow.addr { grid-column: 1 / -1; grid-row: 4; }
 .draft-card.expanded.rw-card .draft-row-amount { display: none; }
-.draft-card.rw-demo { border-style: dashed; }
 .rw-card .draft-discount.rw-disc-empty { visibility: hidden; }
 .rw-ctxt { font-size: 12.5px; font-weight: 700; color: #0B1220; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 html[data-theme="dark"] .rw-ctxt { color: #F0F4FA; }
@@ -14625,8 +14624,6 @@ html[data-theme="dark"] .add-prod-btn{border-color:rgba(255,255,255,0.15)}
 .modal-btn-create:hover{opacity:0.9}
 .modal-btn-create:disabled{opacity:0.5;cursor:not-allowed}
 .modal-btn-create:disabled:active{transform:none}
-.demo-toggle{position:fixed;top:14px;right:14px;z-index:9999;background:rgba(255,255,255,0.12);border:none;border-radius:8px;padding:6px 10px;cursor:pointer;font-size:16px;backdrop-filter:blur(6px);transition:background 0.2s ease}
-.demo-toggle:hover{background:rgba(255,255,255,0.2)}
 .sticky-step-bar{padding:10px 18px 8px;background:#111c28}
 .sticky-seg-track{display:flex;gap:5px;margin-bottom:7px}
 .s-seg{flex:1;height:3px;border-radius:2px;background:rgba(255,255,255,0.12);transition:background 0.3s ease}
@@ -14778,8 +14775,6 @@ html[data-theme="dark"] .dw-footer{border-color:rgba(255,255,255,0.07)}
 html[data-theme="dark"] .dw-btn-cancel{border-color:rgba(255,255,255,0.1);color:rgba(255,255,255,0.5)}
 .dw-btn-apply{flex:1.5;padding:13px;border:none;background:#7C6FF7;border-radius:12px;font-family:"Plus Jakarta Sans",'Inter',sans-serif;font-size:13px;font-weight:700;color:#ffffff;cursor:pointer}
 html[data-theme="light"] .input-prefix{color:#38bdf8}
-html[data-theme="light"] .demo-toggle{background:rgba(0,0,0,0.08);color:#1a2a3a}
-html[data-theme="light"] .demo-toggle:hover{background:rgba(0,0,0,0.15)}
 html[data-theme="light"] .badge-regular{background:rgba(56,189,248,0.1);color:#0284c7}
 html[data-theme="light"] .badge-event{background:rgba(244,197,90,0.12);color:#a16207}
 html[data-theme="light"] .badge-product{background:rgba(34,197,94,0.1);color:#15803d}
@@ -17607,32 +17602,6 @@ svLoadProducts();
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
         Dismiss
       </button>
-    </div>
-  </div>
-</div>
-
-<!-- ====== EDIT MIN (REORDER POINT) MODAL ====== -->
-<div class="modal-overlay" id="editMinModal">
-  <div class="modal-panel" style="max-width:360px">
-    <div class="rate-warning-body">
-      <div class="rate-warning-icon" style="background:rgba(124,111,247,0.12)">
-        <svg viewBox="0 0 24 24" fill="none" stroke="#7C6FF7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <line x1="4" y1="21" x2="4" y2="14"></line><line x1="4" y1="10" x2="4" y2="3"></line>
-          <line x1="12" y1="21" x2="12" y2="12"></line><line x1="12" y1="8" x2="12" y2="3"></line>
-          <line x1="20" y1="21" x2="20" y2="16"></line><line x1="20" y1="12" x2="20" y2="3"></line>
-          <line x1="1" y1="14" x2="7" y2="14"></line><line x1="9" y1="8" x2="15" y2="8"></line><line x1="17" y1="16" x2="23" y2="16"></line>
-        </svg>
-      </div>
-      <div class="rate-warning-title">Edit Reorder Point</div>
-      <div class="rate-warning-text" id="editMinProductName">Product name</div>
-      <div class="fs-field" style="margin-top:14px;text-align:left">
-        <label class="fs-label" for="editMinInput">Reorder at (units)</label>
-        <input type="number" id="editMinInput" class="fs-input" min="1" step="1" inputmode="numeric" placeholder="e.g. 15">
-      </div>
-    </div>
-    <div class="save-modal-footer">
-      <button class="modal-btn modal-btn-cancel" onclick="closeEditMinModal()">Cancel</button>
-      <button class="modal-btn skeu-restock-btn" onclick="confirmEditMin()">Save</button>
     </div>
   </div>
 </div>
@@ -20793,7 +20762,6 @@ function buildWebReadyCardEl(d) {
   card.id = 'draft-' + idx;
   card.setAttribute('data-id', d.orderId);
   card.setAttribute('data-kind', 'web');
-  if (d.demo) card.classList.add('rw-demo');
   card.setAttribute('data-stage', stage);
   card.setAttribute('data-discount', discount);
   card.setAttribute('data-shipping', shipping);
@@ -21123,8 +21091,6 @@ async function saveNewOrderDraft() {
   const status = oldCard ? (oldCard.getAttribute('data-status') || 'pending') : 'pending';
   const hadVoucher = !!(oldCard && oldCard.getAttribute('data-voucher'));
 
-  // Demo cards (no DB row) stay local; everything else must reach Supabase before it shows up.
-  const isDemoEdit = !!oldCard && !uuid;
   const saveBtn = document.getElementById('noSaveBtn');
   _orderSaving = true;
   if (saveBtn) saveBtn.disabled = true;
@@ -21147,7 +21113,7 @@ async function saveNewOrderDraft() {
       voucherCode = chk.voucher.code;
       discount = Number(chk.discount) || 0;
     }
-    if (!isDemoEdit) {
+    {
       const res = await persistOrderDraft({ uuid, orderId, name, phone, district, address, items, source, discount, shipping, subtotal, voucher: voucherCode, hadVoucher });
       uuid = res.uuid; orderId = res.orderNumber;
       discount = res.discount;
@@ -24138,15 +24104,8 @@ async function _saveReturnDraft() {
       return;
     } finally { _rtSaving = false; }
   } else {
-    // demo order (no database row): local draft only
-    draft = {
-      id: editing ? editing.id : 'RT-' + String(draftReturns.length + 1000 + 1).slice(-4),
-      orderId: _rtOrder.id, phone: document.getElementById('rtPhone').value, customer: custEl.value.trim(),
-      address: document.getElementById('rtAddress').value, source: document.getElementById('rtSource').value,
-      products, reason: reasonEl.value, refundAmount: totalRefund, shippingAmount, deductionType, deductionValue, deductionAmount,
-      finalRefund: Math.max(totalRefund - shippingAmount - deductionAmount, 0),
-      date: new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: '2-digit' }), status: 'draft'
-    };
+    showToast('\u26a0 Return not saved \u2014 order has no database record');
+    return;
   }
 
   if (editing) draftReturns[_rtEditingIdx] = draft;
@@ -24972,33 +24931,9 @@ function changeNpStock(delta) {
 /* ============================================================
    ====== PRODUCTS TAB ======
    ============================================================ */
-const PRODUCTS_DATA = [
-  {
-    name:"Digital Kitchen Scale", sku:"GN-DKS-BLK-01", price:1800, cost:900, weightCost:60, stock:11, color:"p", supplier:"Generic Import", category:"gadget", demo:true,
-    meta:{ brandName:"HomeTech" },
-    variant:"Black", batches:null
-  },
-  {
-    name:"Compression T-Shirt", sku:"AP-CTS-BLK-L", price:1200, cost:550, weightCost:40, stock:14, color:"g", supplier:"Local Apparel Co.", category:"clothing", demo:true,
-    meta:{ brandName:"ActiveFit" },
-    variant:"Black, L", batches:null
-  },
-  {
-    name:"Hydrating Face Serum (DEMO)", sku:"CO-HFS-30ML-01", price:1800, cost:900, weightCost:55, stock:5, color:"p", supplier:"Demo Supplier", category:"cosmetic", demo:true,
-    meta:{ brandName:"GlowLab" },
-    batches:[
-      { id:"BTH-DEMO-01", expiryDate:"2027-01-10", qty:5, costPerUnit:900 },
-    ]
-  },
-  {
-    name:"Reusable Water Bottle (DEMO)", sku:"GN-RWB-BLU-01", price:900, cost:450, weightCost:30, stock:11, color:"g", supplier:"Demo Supplier", category:"general", demo:true,
-    meta:{ brandName:"EcoDaily" },
-    variant:"Blue", batches:null
-  },
-].filter(p => !p.demo);
+const PRODUCTS_DATA = [];
 
-// PRODUCTS_DATA starts empty every page load (demo seed rows are filtered out
-// above). Without this, everything created/restocked only lived in memory for
+// PRODUCTS_DATA starts empty every page load. Without this, everything created/restocked only lived in memory for
 // that session — Supabase was write-only, never read back. This populates real
 // inventory from Supabase on boot so products survive a refresh/reopen.
 function mapSupabaseProductToLocal(row) {
@@ -26463,19 +26398,6 @@ function al_chip(iconName, text, value, color) {
   return `<span class="chip">${al_icon(iconName, 11, 'var(--al-muted)', 2)}<span>${text}</span>${value ? `<strong style="color:${c}">${value}</strong>` : ''}</span>`;
 }
 
-function al_itemMain(catKey, subcat, name, sku) {
-  const meta = CATEGORY_META[catKey] || CATEGORY_META.general;
-  return `
-      <div class="al-item-main">
-        <div class="al-item-pic" style="background:linear-gradient(135deg,${meta.color},${meta.color2})" title="${escapeHtml(meta.label)}">${catIconSVG(meta.icon)}</div>
-        <div class="al-item-info">
-          ${subcat ? `<div class="al-item-subcat">${escapeHtml(subcat)}</div>` : ''}
-          <div class="al-item-name">${escapeHtml(name)}</div>
-          <div class="al-item-sku">${sku}</div>
-        </div>
-      </div>`;
-}
-
 /* Order Details → customer section. Registered web customers get the same profile card as Buy For Me; others get the basic block. */
 const ODM_ICO_TRUCK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"/><path d="M15 18H9"/><path d="M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.624l-3.48-4.35A1 1 0 0 0 17.52 8H14"/><circle cx="17" cy="18" r="2"/><circle cx="7" cy="18" r="2"/></svg>';
 const ODM_ICO_TAG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>';
@@ -26799,113 +26721,6 @@ function al_customerInboxCard() {
 }
 
 /* ---- Card 1: Low Stock ---- */
-function al_lowStockCard() {
-  const sv = AL_SEVERITY.warning;
-  return `
-  <div class="al-card glass-shadow ${sv.tone}">
-    <div class="al-card-top">
-      <div class="al-icon-chip" style="background:${sv.accent};box-shadow:0 3px 10px rgba(244,169,34,0.4)">${al_icon('box',16,'#fff',2.5)}</div>
-      <div class="al-card-label-col">
-        <div class="al-card-label" style="color:${sv.labelColor}">Low Stock</div>
-        <div class="al-card-time">2h ago</div>
-      </div>
-    </div>
-    <div class="al-item-row">
-      ${al_itemMain('supplement', 'Mineral', 'Magnesium Glycinate 120ct', 'DB-MAG-GLY-120')}
-      <div class="stock-badge low">4</div>
-    </div>
-    <div class="meter-block">
-      <div class="meter-labels"><span>Current: <strong style="color:var(--al-danger)">4 units</strong></span><span>Reorder at: <strong style="color:var(--al-txt)">15 units</strong></span></div>
-      <div class="meter-track"><div class="meter-fill" style="width:27%;background:linear-gradient(90deg,#F4A922,#ffc35c)"></div></div>
-    </div>
-    <div class="chips-row">
-      ${al_chip('clock','Last sold','1 day ago')}
-      ${al_chip('barChart','Margin','32.4%','var(--al-success)')}
-    </div>
-    <div class="al-actions-row">
-      ${al_actionBtn('primary','box','Restock','openRestockModalForSku(\'DB-MAG-GLY-120\')')}
-      ${al_actionBtn('ghost','sliders','Edit Min','openEditMinModal(this,\'DB-MAG-GLY-120\',\'Magnesium Glycinate 120ct\',15)')}
-    </div>
-  </div>`;
-}
-
-/* ---- Card 2: Out of Stock ---- */
-function al_outOfStockCard() {
-  const sv = AL_SEVERITY.critical;
-  return `
-  <div class="al-card glass-shadow ${sv.tone}">
-    <div class="al-card-top">
-      <div class="al-icon-chip" style="background:${sv.accent};box-shadow:0 3px 10px rgba(217,83,83,0.4)">${al_icon('alertTri',16,'#fff',2.5)}</div>
-      <div class="al-card-label-col">
-        <div class="al-card-label" style="color:${sv.labelColor}">Out of Stock</div>
-        <div class="al-card-time">5h ago</div>
-      </div>
-    </div>
-    <div class="al-item-row">
-      ${al_itemMain('supplement', 'Omega-3', 'Omega-3 Ultra 180ct', 'NW-OMG3-UTA-180')}
-      <div class="stock-badge out">0</div>
-    </div>
-    <div class="meter-block">
-      <div class="meter-labels"><span>Current: <strong style="color:var(--al-danger)">0 units</strong></span><span>Reorder at: <strong style="color:var(--al-txt)">15 units</strong></span></div>
-      <div class="meter-track empty-track"><div class="meter-fill empty-fill" style="width:3%;background:var(--al-danger)"></div></div>
-    </div>
-    <div class="chips-row">
-      ${al_chip('clock','Last sold','5 days ago')}
-      ${al_chip('barChart','Margin','29.1%','var(--al-warning-txt)')}
-    </div>
-    <div class="al-actions-row">
-      ${al_actionBtn('primary','box','Restock','openRestockModalForSku(\'NW-OMG3-UTA-180\')')}
-      ${al_actionBtn('ghost','archive','Archive')}
-    </div>
-  </div>`;
-}
-
-/* ---- Card 3: Expiry Alert ---- */
-function al_expiryCard() {
-  const sv = AL_SEVERITY.warning;
-  return `
-  <div class="al-card glass-shadow ${sv.tone}">
-    <div class="al-card-top">
-      <div class="al-icon-chip" style="background:${sv.accent};box-shadow:0 3px 10px rgba(244,169,34,0.4)">${al_icon('calendar',16,'#fff',2.5)}</div>
-      <div class="al-card-label-col">
-        <div class="al-card-label" style="color:${sv.labelColor}">Expiry Alert</div>
-        <div class="al-card-time">Today</div>
-      </div>
-    </div>
-    <div class="al-item-row">
-      ${al_itemMain('supplement', 'Digestive', 'Betaine HCL & Pepsin 120ct', 'DB-HCI-PEP-120')}
-      <span class="al-status-badge" style="color:${sv.labelColor};background:${sv.chipBg}">42 days left</span>
-    </div>
-    <div class="meter-block">
-      <div class="meter-labels"><span>Shelf life used: <strong style="color:var(--al-warning-txt)">70%</strong></span><span>Expires: <strong style="color:var(--al-warning-txt)">May 15, 2026</strong></span></div>
-      <div class="meter-track"><div class="meter-fill" style="width:30%;background:linear-gradient(90deg,#F4A922,#ffc35c)"></div></div>
-    </div>
-    <div class="chips-row">
-      ${al_chip('box','Stock','12 units')}
-      ${al_chip('activity','Avg sold','3u / week')}
-    </div>
-    <div class="al-actions-row">
-      ${al_actionBtn('amber','tag','Clearance')}
-      ${al_actionBtn('ghost','history','History')}
-    </div>
-  </div>`;
-}
-
-/* ---- Card 4: New Order ---- */
-/* ---- Card 4: Store order alerts (web orders waiting for you) — data-driven ----
-   COD orders wait for Accept. Prepaid orders with a TrxID but no auto-match wait for Confirm payment.
-   Unpaid prepaid orders need nothing from you (they auto-cancel) so they are not listed. */
-let AL_STORE = [];
-let _alStoreBusy = false;
-async function loadStoreOrderAlerts() {
-  try {
-    const rows = await sbFetchOrderRows('orders?select=*,order_items(*)&source=eq.web&status=in.(pending,processing,paid)&delivered_at=is.null&order=created_at.asc');
-    AL_STORE = (Array.isArray(rows) ? rows : []).filter(o => o.status !== 'pending' ||
-      String(o.payment_method || '').toLowerCase() === 'cod' || String(o.payment_ref || '').trim() !== '')
-      .sort((a, b) => (a.status === 'pending' ? 0 : 1) - (b.status === 'pending' ? 0 : 1));
-  } catch (e) { console.warn('loadStoreOrderAlerts error:', e.message || e); }
-  return AL_STORE;
-}
 function al_storeOrderCard(o) {
   const sv = AL_SEVERITY.order;
   const cod = String(o.payment_method || '').toLowerCase() === 'cod';
@@ -27266,211 +27081,6 @@ async function submitQuote(){
 }
 document.addEventListener('click', function(e){ if (e.target && e.target.id === 'pxQuoteSheet') closeQuoteSheet(); });
 
-/* ---- Card 6: Payment Received — Local Stock order ---- */
-function al_paymentLocalCard() {
-  const sv = AL_SEVERITY.success;
-  return `
-  <div class="al-card glass-shadow ${sv.tone} glow-local" data-group="payment">
-    <div class="al-card-top">
-      <div class="al-icon-chip" style="background:${sv.accent};box-shadow:0 3px 10px rgba(47,155,104,0.4)">${al_icon('wallet',16,'#fff',2.5)}</div>
-      <div class="al-card-label-col">
-        <div class="al-card-label" style="color:${sv.labelColor}">Payment Received</div>
-        <div class="al-card-time">18m ago</div>
-      </div>
-      <span class="order-id-badge">SV-1014</span>
-    </div>
-    <div class="customer-row">
-      <div class="customer-info">
-        <div class="customer-name"><svg fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><use href="#icon-user-profile"/></svg>Rafiq Ahmed</div>
-        <div class="customer-meta-row"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#icon-tag-price"/></svg><span>+880 1712-345678</span></div>
-        <div class="customer-meta-row address-row"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#icon-link-chain"/></svg><span>Mirpur, Dhaka</span></div>
-      </div>
-      <div class="customer-side">
-        <div class="customer-platform-badge" style="background:#1877F2"><svg viewBox="0 0 24 24" fill="#fff"><use href="#icon-facebook"/></svg></div>
-      </div>
-    </div>
-    <div class="payment-summary-block">
-      <div class="payment-meta-left">
-        <div class="pmt-pay-badge bkash">${payBadgeIcon('bkash')}</div>
-        <div class="payment-meta" style="text-align:left">
-          Today, 3:42 PM
-          <strong>bKash</strong>
-        </div>
-      </div>
-      <div style="text-align:right">
-        <div class="payment-amount-label">Paid in full</div>
-        <div class="payment-amount">৳2,450</div>
-      </div>
-    </div>
-    <div class="al-actions-row">
-      ${al_actionBtn('primary','receipt','Receipt')}
-      <a class="al-action-btn" href="https://wa.me/8801712345678" target="_blank" rel="noopener" style="text-decoration:none;background:#25D366;color:#fff;box-shadow:0 4px 12px rgba(37,211,102,0.35)"><svg width="13" height="13" viewBox="0 0 24 24" fill="#fff"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347zM12 0C5.373 0 0 5.373 0 12c0 2.127.558 4.122 1.532 5.855L.054 23.454a.5.5 0 00.623.529l5.792-1.526A11.938 11.938 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.882a9.877 9.877 0 01-5.031-1.375l-.36-.214-3.733.983.998-3.648-.235-.374A9.861 9.861 0 012.118 12C2.118 6.53 6.53 2.118 12 2.118S21.882 6.53 21.882 12 17.47 21.882 12 21.882z"/></svg><span>WhatsApp</span></a>
-      ${al_actionBtn('ghost','history','Details','openOrderDetailsModal()')}
-    </div>
-  </div>`;
-}
-
-/* ---- Card 7: Payment Received — Buy For Me (Proxy) order ---- */
-function al_paymentProxyCard() {
-  const sv = AL_SEVERITY.success;
-  return `
-  <div class="al-card glass-shadow ${sv.tone} glow-proxy" data-group="payment">
-    <div class="al-card-top">
-      <div class="al-icon-chip" style="background:${sv.accent};box-shadow:0 3px 10px rgba(47,155,104,0.4)">${al_icon('wallet',16,'#fff',2.5)}</div>
-      <div class="al-card-label-col">
-        <div class="al-card-label" style="color:${sv.labelColor}">Payment Received</div>
-        <div class="al-card-time">40m ago</div>
-      </div>
-      <span class="tracking-tag"><span class="tt-val">PX-1013</span></span>
-    </div>
-    <div class="customer-row">
-      <div class="customer-info">
-        <div class="customer-name"><svg fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><use href="#icon-user-profile"/></svg>Tanvir Islam</div>
-        <div class="customer-meta-row"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#icon-tag-price"/></svg><span>+880 1998-221190</span></div>
-        <div class="customer-meta-row address-row"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#icon-link-chain"/></svg><span>Banani, Dhaka</span></div>
-      </div>
-      <div class="customer-side">
-        <div class="customer-platform-badge" style="background:#25D366">${al_icon('phone',10,'#fff',2.5)}</div>
-      </div>
-    </div>
-    <div class="payment-summary-block">
-      <div class="payment-meta-left">
-        <div class="pmt-pay-badge bkash">${payBadgeIcon('bkash')}</div>
-        <div class="payment-meta" style="text-align:left">
-          Today, 3:18 PM
-          <strong>bKash</strong>
-        </div>
-      </div>
-      <div style="text-align:right">
-        <div class="payment-amount-label">Advance collected</div>
-        <div class="payment-amount">৳2,890</div>
-      </div>
-    </div>
-    <div class="al-actions-row">
-      ${al_actionBtn('primary','receipt','Receipt')}
-      <a class="al-action-btn" href="https://wa.me/8801998221190" target="_blank" rel="noopener" style="text-decoration:none;background:#25D366;color:#fff;box-shadow:0 4px 12px rgba(37,211,102,0.35)"><svg width="13" height="13" viewBox="0 0 24 24" fill="#fff"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347zM12 0C5.373 0 0 5.373 0 12c0 2.127.558 4.122 1.532 5.855L.054 23.454a.5.5 0 00.623.529l5.792-1.526A11.938 11.938 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.882a9.877 9.877 0 01-5.031-1.375l-.36-.214-3.733.983.998-3.648-.235-.374A9.861 9.861 0 012.118 12C2.118 6.53 6.53 2.118 12 2.118S21.882 6.53 21.882 12 17.47 21.882 12 21.882z"/></svg><span>WhatsApp</span></a>
-      ${al_actionBtn('ghost','history','Details','openOrderDetailsModal()')}
-    </div>
-  </div>`;
-}
-
-/* ---- Card 8: Return Request ---- */
-function al_returnRequestCard() {
-  const sv = AL_SEVERITY.critical;
-  return `
-  <div class="al-card glass-shadow ${sv.tone}" data-group="return">
-    <div class="al-card-top">
-      <div class="al-icon-chip" style="background:${sv.accent};box-shadow:0 3px 10px rgba(217,83,83,0.4)">${al_icon('undo',16,'#fff',2.5)}</div>
-      <div class="al-card-label-col">
-        <div class="al-card-label" style="color:${sv.labelColor}">Return Request</div>
-        <div class="al-card-time">1h ago</div>
-      </div>
-      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">
-        <span class="return-id-badge">RT-1042</span>
-        <span class="order-id-badge">SV-0998</span>
-      </div>
-    </div>
-    <div class="customer-row">
-      <div class="customer-info">
-        <div class="customer-name"><svg fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><use href="#icon-user-profile"/></svg>Nusrat Jahan</div>
-        <div class="customer-meta-row"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#icon-tag-price"/></svg><span>+880 1611-778823</span></div>
-        <div class="customer-meta-row address-row"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#icon-link-chain"/></svg><span>Dhanmondi, Dhaka</span></div>
-      </div>
-    </div>
-    <div class="payment-summary-block">
-      <div class="payment-meta">
-        Requested today
-        <strong>Unopened</strong>
-      </div>
-      <div style="text-align:right">
-        <div class="payment-amount-label">Refund due</div>
-        <div class="payment-amount" style="color:var(--al-danger)">৳890</div>
-      </div>
-    </div>
-    <div class="al-actions-row">
-      ${al_actionBtn('primary','box','Approve')}
-      ${al_actionBtn('ghost','archive','Reject')}
-      ${al_actionBtn('ghost','history','Details','openOrderDetailsModal()')}
-    </div>
-  </div>`;
-}
-
-/* ---- Card 9: Payment Due ---- */
-function al_paymentDueCard(overdue) {
-  const sv = overdue ? AL_SEVERITY.critical : AL_SEVERITY.warning;
-  const dueText = overdue ? '3 days overdue' : 'Due in 2 days';
-  const dueColor = overdue ? 'var(--al-danger)' : 'var(--al-warning-txt)';
-  return `
-  <div class="al-card glass-shadow ${sv.tone}" data-group="duepayment">
-    <div class="al-card-top">
-      <div class="al-icon-chip" style="background:${sv.accent};box-shadow:0 3px 10px rgba(244,169,34,0.4)">${al_icon('card',16,'#fff',2.5)}</div>
-      <div class="al-card-label-col">
-        <div class="al-card-label" style="color:${sv.labelColor}">Payment Due</div>
-        <div class="al-card-time">2h ago</div>
-      </div>
-      <span class="order-id-badge">SV-1021</span>
-    </div>
-    <div class="customer-row">
-      <div class="customer-info">
-        <div class="customer-name"><svg fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><use href="#icon-user-profile"/></svg>Kamal Hossain</div>
-        <div class="customer-meta-row"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#icon-tag-price"/></svg><span>+880 1855-330214</span></div>
-        <div class="customer-meta-row address-row"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#icon-link-chain"/></svg><span>Uttara, Dhaka</span></div>
-      </div>
-      <span class="al-status-badge" style="color:${dueColor};background:${sv.chipBg}">${dueText}</span>
-    </div>
-    <div class="payment-summary-block">
-      <div class="payment-meta">
-        Delivered Aug 18
-        <strong>COD</strong>
-      </div>
-      <div style="text-align:right">
-        <div class="payment-amount-label">Amount due</div>
-        <div class="payment-amount" style="color:${dueColor}">৳1,850</div>
-      </div>
-    </div>
-    <div class="al-actions-row">
-      ${al_actionBtn('primary','send','Remind')}
-      ${al_actionBtn('ghost','phone','Call')}
-      ${al_actionBtn('ghost','receipt','Mark Paid')}
-    </div>
-  </div>`;
-}
-
-/* ---- Card 10: Expired ---- */
-function al_expiredCard() {
-  const sv = AL_SEVERITY.critical;
-  return `
-  <div class="al-card glass-shadow ${sv.tone}" data-group="stock">
-    <div class="al-card-top">
-      <div class="al-icon-chip" style="background:${sv.accent};box-shadow:0 3px 10px rgba(217,83,83,0.4)">${al_icon('calendarX',16,'#fff',2.5)}</div>
-      <div class="al-card-label-col">
-        <div class="al-card-label" style="color:${sv.labelColor}">Expired</div>
-        <div class="al-card-time">3 days ago</div>
-      </div>
-    </div>
-    <div class="al-item-row">
-      <div>
-        <div class="al-item-name">Probiotic Complex 60ct</div>
-        <div class="al-item-sku">DB-PRO-CMX-060</div>
-      </div>
-      <span class="al-status-badge" style="color:${sv.labelColor};background:rgba(217,83,83,0.13)">Expired</span>
-    </div>
-    <div class="meter-block">
-      <div class="meter-labels"><span>Shelf life used: <strong style="color:var(--al-danger)">100%</strong></span><span>Expired: <strong style="color:var(--al-danger)">Aug 17, 2026</strong></span></div>
-      <div class="meter-track empty-track"><div class="meter-fill" style="width:100%;background:var(--al-danger)"></div></div>
-    </div>
-    <div class="chips-row">
-      ${al_chip('box','Stock','8 units')}
-      ${al_chip('barChart','Value at risk','৳3,200','var(--al-danger)')}
-    </div>
-    <div class="al-actions-row">
-      ${al_actionBtn('primary','archive','Write Off')}
-      ${al_actionBtn('ghost','box','Archive')}
-      ${al_actionBtn('ghost','history','History')}
-    </div>
-  </div>`;
-}
-
 let _alPxLoading = false;
 let _alHasRendered = false;
 function renderAlertsTab() {
@@ -27495,11 +27105,7 @@ function renderAlertsTabNow() {
   _alHasRendered = true;
   container.innerHTML = '<div class="al-cards-wrap' + (_alAnim ? '' : ' al-no-anim') + '">' +
     al_customerInboxCard() +
-    al_lowStockCard() + al_outOfStockCard() + al_expiryCard() +
     al_newOrderCard() + al_proxyCards() +
-    al_paymentLocalCard() + al_paymentProxyCard() +
-    al_returnRequestCard() + al_paymentDueCard(false) +
-    al_expiredCard() +
   '</div>';
   document.querySelectorAll('#alertsTabContent .al-card:not([data-group])').forEach(c => c.setAttribute('data-group', 'stock'));
   al_equalizeCardHeights();
@@ -27600,44 +27206,6 @@ function al_confirmDismiss() {
   var _alDismissModal = document.getElementById("alDismissModal");
   if (_alDismissModal) _alDismissModal.addEventListener("click", function(e) {
     if (e.target === this) al_cancelDismiss();
-  });
-})();
-
-/* ---- Edit Min (reorder threshold) popup ---- */
-let _alEditMinCard = null;
-let _alEditMinSku = null;
-
-function openEditMinModal(btnEl, sku, productName, currentMin) {
-  _alEditMinCard = btnEl ? btnEl.closest('.al-card') : null;
-  _alEditMinSku = sku;
-  document.getElementById('editMinProductName').textContent = productName;
-  document.getElementById('editMinInput').value = currentMin;
-  document.getElementById('editMinModal').classList.add('active');
-}
-
-function closeEditMinModal() {
-  document.getElementById('editMinModal').classList.remove('active');
-  _alEditMinCard = null;
-  _alEditMinSku = null;
-}
-
-function confirmEditMin() {
-  const val = parseInt(document.getElementById('editMinInput').value, 10);
-  if (!val || val < 1) { showToast('Enter a valid number'); return; }
-  if (_alEditMinCard) {
-    _alEditMinCard.querySelectorAll('.meter-labels strong').forEach(el => {
-      if (el.previousSibling && /Reorder at/i.test(el.parentElement.textContent)) {
-        el.textContent = val + ' units';
-      }
-    });
-  }
-  closeEditMinModal();
-  showToast('Reorder point updated to ' + val + ' units');
-}
-(function(){
-  var _editMinModal = document.getElementById("editMinModal");
-  if (_editMinModal) _editMinModal.addEventListener("click", function(e) {
-    if (e.target === this) closeEditMinModal();
   });
 })();
 
