@@ -13643,7 +13643,7 @@ function showToast(message, type = 'success') {
       </div>
       <label class="hamburger" for="menuState" aria-label="Open menu">
         <span></span><span></span><span></span>
-        <div class="hamburger-badge visible pulse" id="hamburgerBadge">1</div>
+        <div class="hamburger-badge" id="hamburgerBadge">0</div>
       </label>
     </div>
   </header>
@@ -13683,7 +13683,7 @@ function showToast(message, type = 'success') {
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-file-document"/></svg>
         </div>
         <span class="section-label">Draft</span>
-        <span class="section-badge draft-badge" id="draftBadge">1</span>
+        <span class="section-badge draft-badge" id="draftBadge">0</span>
         <span class="section-chevron">&#8250;</span>
       </div>
       <div class="section-content expanded" id="draftContent">
@@ -13704,71 +13704,6 @@ function showToast(message, type = 'success') {
           </div>
           <div id="draftCardsContainer">
 
-            <div class="draft-card" id="draft-1" data-id="SV-1012" data-discount="200" data-shipping="0" data-subtotal="6150" data-status="pending">
-              <div class="draft-card-top" onclick="toggleDraft(1)">
-                <div class="dc-header">
-                  <!-- LEFT -->
-                  <div class="dc-left">
-                    <span class="draft-id">SV-1012</span>
-                    <div class="draft-name"><svg fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><use href="#icon-user-profile"/></svg>Karim</div>
-                    <div class="dc-meta">
-                      <div class="dc-meta-row">
-                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#icon-tag-price"/></svg>
-                        <span>01811-345678</span>
-                      </div>
-                      <div class="dc-meta-row address-row">
-                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#icon-link-chain"/></svg>
-                        <span>Flat 3B, Agrabad C/A, Chittagong-4100</span>
-                      </div>
-                    </div>
-                    <div class="draft-discount">
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-archive-box"/></svg>
-                      <span>৳200</span>
-                    </div>
-                  </div>
-                  <!-- RIGHT -->
-                  <div class="dc-right" onclick="event.stopPropagation()">
-                    <div class="dc-right-top">
-                      <div class="status-dropdown">
-                        <button class="status-pill pending" id="status-pill-1" onclick="toggleStatusDropdown(event, 1)">Pending</button>
-                        <div class="status-dropdown-menu" id="status-menu-1">
-                          <div class="status-option ordered" onclick="setStatus(1, 'ordered', event)">Ordered</div>
-                          <div class="status-option shipped" onclick="setStatus(1, 'shipped', event)">Shipped</div>
-                          <div class="status-option pending" onclick="setStatus(1, 'pending', event)">Pending</div>
-                        </div>
-                      </div>
-                      <span style="display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:5px;background:linear-gradient(135deg,#f58529 0%,#dd2a7b 50%,#8134af 100%);flex-shrink:0;"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1.2" fill="#fff" stroke="none"/></svg></span>
-                      <div class="draft-date">25 Apr 26</div>
-                    <button class="draft-edit-btn" onclick="openEditDraft(1, event)">
-                      <svg fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><use href="#icon-edit-pencil"/></svg>
-                      Edit
-                    </button>
-                    </div>
-                    <div class="dc-right-bottom">
-                      <div class="draft-row-amount" id="draft-footer-amt-1">৳5,950</div>
-                    </div>
-                  </div>
-                </div>
-                <div class="draft-details-wrapper">
-                  <div class="draft-details-inner">
-                    <div class="draft-item"><div class="draft-item-header"><div class="draft-item-name"><span class="draft-item-name-text">Vitamin D3 + K2</span><span class="odm-item-cat-badge" style="background:linear-gradient(135deg,#009b72,#00704f);margin-left:6px;vertical-align:middle;" title="Supplement"><svg viewBox="0 0 24 24"><use href="#cat-icon-supplement"/></svg></span></div><div class="draft-item-amount">1× ৳6,150</div></div><div class="draft-item-sku">DB-VD3-K2-90</div></div>
-                    <div class="draft-divider"></div>
-                    <div class="draft-math-row"><span class="draft-math-label">Subtotal <span class="draft-math-units">1u</span></span><span class="draft-math-val">৳6,150</span></div>
-                    <div class="draft-math-row discount-row"><span class="draft-math-label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-archive-box"/></svg>Discount</span><span class="draft-math-val">-৳200</span></div>
-                    <div class="draft-math-row shipping-row free-shipping"><span class="draft-math-label"><svg fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><use href="#icon-truck-delivery"/></svg>Shipping</span><span class="draft-math-val" id="draft-shipping-display-1">FREE</span></div>
-                    <div class="draft-math-total">
-                      <span class="draft-math-total-label">Total</span>
-                      <span class="draft-math-total-amt" id="draft-total-amt-1">৳5,950</span>
-                    </div>
-                    <div class="draft-actions">
-                      <button class="btn-invoice" onclick="createInvoiceFromDraft(1, event)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-file-document"/></svg>Create Invoice</button>
-                      <button class="btn-paid" onclick="markPaid(1, event)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-checkmark"/></svg>Mark Paid</button>
-                      <button class="btn-delete" onclick="deleteDraft(1, event)" aria-label="Delete draft"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-trash-delete"/></svg></button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
           </div>
           <div class="draft-empty" id="draftEmpty">
             <div class="draft-empty-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="12" y1="18" x2="12" y2="12"></line><line x1="9" y1="15" x2="15" y2="15"></line></svg></div>
@@ -13786,79 +13721,12 @@ function showToast(message, type = 'success') {
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-download"/></svg>
         </div>
         <span class="section-label">Import Order</span>
-        <span class="section-badge draft-badge" id="importOrderBadge">1</span>
+        <span class="section-badge draft-badge" id="importOrderBadge">0</span>
         <span class="section-chevron">&#8250;</span>
       </div>
       <div class="section-content" id="importOrderContent">
         <div class="section-inner">
           <div id="importOrderCardsContainer">
-            <div class="draft-card" id="draft-0" data-id="PX-1011" data-discount="500" data-shipping="0" data-subtotal="36050" data-status="pending">
-              <div class="draft-card-top" onclick="toggleDraft(0)">
-                <div class="dc-header">
-                  <!-- LEFT -->
-                  <div class="dc-left">
-                    <span class="draft-id proxy">PX-1011</span>
-                    <div class="draft-name"><svg fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><use href="#icon-user-profile"/></svg>Hasan</div>
-                    <div class="dc-meta">
-                      <div class="dc-meta-row">
-                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#icon-tag-price"/></svg>
-                        <span>01711-234567</span>
-                      </div>
-                      <div class="dc-meta-row address-row">
-                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="#icon-link-chain"/></svg>
-                        <span>House 12, Road 5, Block C, Mirpur 10, Dhaka-1216</span>
-                      </div>
-                    </div>
-                    <div class="draft-discount">
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-archive-box"/></svg>
-                      <span>৳500</span>
-                    </div>
-                  </div>
-                  <!-- RIGHT -->
-                  <div class="dc-right" onclick="event.stopPropagation()">
-                    <div class="dc-right-top">
-                      <div class="status-dropdown">
-                        <button class="status-pill pending" id="status-pill-0" onclick="toggleStatusDropdown(event, 0)">Pending</button>
-                        <div class="status-dropdown-menu" id="status-menu-0">
-                          <div class="status-option ordered" onclick="setStatus(0, 'ordered', event)">Ordered</div>
-                          <div class="status-option shipped" onclick="setStatus(0, 'shipped', event)">Shipped</div>
-                          <div class="status-option pending" onclick="setStatus(0, 'pending', event)">Pending</div>
-                        </div>
-                      </div>
-                      <span style="display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:5px;background:#1877F2;flex-shrink:0;"><svg width="9" height="9" viewBox="0 0 24 24" fill="#fff"><use href="#icon-facebook"/></svg></span>
-                      <div class="draft-date">25 Apr 26</div>
-                    <button class="draft-edit-btn" onclick="openEditDraft(0, event)">
-                      <svg fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><use href="#icon-edit-pencil"/></svg>
-                      Edit
-                    </button>
-                    </div>
-                    <div class="dc-right-bottom">
-                      <div class="draft-row-amount" id="draft-footer-amt-0">৳35,550</div>
-                    </div>
-                  </div>
-                </div>
-                <div class="draft-details-wrapper">
-                  <div class="draft-details-inner">
-                    <div class="draft-item"><div class="draft-item-header"><div class="draft-item-name"><span class="draft-item-name-text">Omega-3 Ultra</span><span class="odm-item-cat-badge" style="background:linear-gradient(135deg,#009b72,#00704f);margin-left:6px;vertical-align:middle;" title="Supplement"><svg viewBox="0 0 24 24"><use href="#cat-icon-supplement"/></svg></span></div><div class="draft-item-amount">2× ৳11,900</div></div><div class="draft-item-sku">NW-OMG3-UTA-180</div></div>
-                    <div class="draft-item"><div class="draft-item-header"><div class="draft-item-name"><span class="draft-item-name-text">Magnesium Glycinate</span><span class="odm-item-cat-badge" style="background:linear-gradient(135deg,#009b72,#00704f);margin-left:6px;vertical-align:middle;" title="Supplement"><svg viewBox="0 0 24 24"><use href="#cat-icon-supplement"/></svg></span></div><div class="draft-item-amount">1× ৳3,250</div></div><div class="draft-item-sku">DB-MAG-GLY-120</div></div>
-                    <div class="draft-item"><div class="draft-item-header"><div class="draft-item-name"><span class="draft-item-name-text">Betaine HCL &amp; Pepsin</span><span class="odm-item-cat-badge" style="background:linear-gradient(135deg,#009b72,#00704f);margin-left:6px;vertical-align:middle;" title="Supplement"><svg viewBox="0 0 24 24"><use href="#cat-icon-supplement"/></svg></span></div><div class="draft-item-amount">3× ৳3,000</div></div><div class="draft-item-sku">DB-HCI-PEP-120</div></div>
-                    <div class="draft-divider"></div>
-                    <div class="draft-math-row"><span class="draft-math-label">Subtotal <span class="draft-math-units">6u</span></span><span class="draft-math-val">৳36,050</span></div>
-                    <div class="draft-math-row discount-row"><span class="draft-math-label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-archive-box"/></svg>Discount</span><span class="draft-math-val">-৳500</span></div>
-                    <div class="draft-math-row shipping-row free-shipping"><span class="draft-math-label"><svg fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><use href="#icon-truck-delivery"/></svg>Shipping</span><span class="draft-math-val" id="draft-shipping-display-0">FREE</span></div>
-                    <div class="draft-math-total">
-                      <span class="draft-math-total-label">Total</span>
-                      <span class="draft-math-total-amt" id="draft-total-amt-0">৳35,550</span>
-                    </div>
-                    <div class="draft-actions">
-                      <button class="btn-invoice" onclick="createInvoiceFromDraft(0, event)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-file-document"/></svg>Create Invoice</button>
-                      <button class="btn-paid" onclick="markPaid(0, event)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-checkmark"/></svg>Mark Paid</button>
-                      <button class="btn-delete" onclick="deleteDraft(0, event)" aria-label="Delete draft"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-trash-delete"/></svg></button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
           </div>
           <div class="import-order-hint">Buy For Me orders you're sourcing for a customer show up here, separate from your local stock drafts.</div>
           <button class="import-order-trigger" id="importOrderTrigger" onclick="importOrder(event)">
@@ -21089,29 +20957,6 @@ async function rwDetails(idx, event) {
   openOrderDetailsModal(rwModalOrder(await rwEnrich(card._rw)));
 }
 
-function seedReadyToShipDemo() {
-  const container = document.getElementById('draftCardsContainer');
-  if (!container || container.querySelector('.rw-card')) return;
-  const demo = [
-    { orderId: 'SV-1021', name: 'Rafiq Ahmed', phone: '+880 1712-345678', fullAddress: 'Dhaka, House 7, Road 3, Mirpur', stage: 'ready', channel: 'website', registered: true, customerId: 'CU-1014', customerSince: '2026-08-12', email: 'rafiq.ahmed@example.com',
-      payMethod: 'bkash', payRef: 'BK7F2L9Q3X', sender: '01712345678', voucher: 'SUP-REG7K2QX', discount: 500, shipping: 0, subtotal: 9500, total: 9000, dateStr: '05 Oct 26', createdAt: '2026-10-05T01:48:00+06:00',
-      items: [{ name: 'Magnesium Glycinate', category: 'supplement', qty: 2, price: 3250, sku: 'DB-MAG-GLY-120', spec: '400 mg \u2022 120 Capsules' }, { name: 'Betaine HCL & Pepsin', category: 'supplement', qty: 1, price: 3000, sku: 'DB-HCI-PEP-120', spec: '650 mg \u2022 120 Capsules' }] },
-    { orderId: 'SV-1022', name: 'Nusrat Jahan', phone: '+880 1811-223344', fullAddress: 'Chattogram, Agrabad C/A', stage: 'ready', channel: 'website', cod: true, registered: false,
-      discount: 0, shipping: 120, subtotal: 2450, total: 2570, dateStr: '05 Oct 26', createdAt: '2026-10-05T09:12:00+06:00',
-      items: [{ name: 'Omega-3 Ultra', category: 'supplement', qty: 1, price: 2450, sku: 'NW-OMG3-UTA-180', spec: '1000 mg \u2022 180 Softgels' }] },
-    { orderId: 'SV-1020', name: 'Tanvir Hasan', phone: '+880 1911-556677', fullAddress: 'Sylhet, Zindabazar', stage: 'shipped', channel: 'website',
-      payMethod: 'nagad', payRef: 'NGD5K2M8QP', sender: '01911556677', discount: 0, shipping: 120, subtotal: 5600, total: 5720, dateStr: '04 Oct 26', createdAt: '2026-10-04T18:30:00+06:00', registered: true, customerId: 'CU-1009', customerSince: '2026-07-02',
-      items: [{ name: 'Vitamin D3 + K2', category: 'supplement', qty: 2, price: 1800, sku: 'NW-VD3K2-120', spec: '5000 IU \u2022 120 Capsules' }, { name: 'Zinc Picolinate', category: 'supplement', qty: 1, price: 2000, sku: 'DB-ZN-PIC-100', spec: '30 mg \u2022 100 Capsules' }] }
-  ];
-  demo.slice().reverse().forEach(d => {
-    container.prepend(buildWebReadyCardEl(Object.assign({ demo: true }, d)));
-  });
-}
-(function initReadyToShipDemo() {
-  if (!/[?&]demo=ready\b/.test(location.search)) return;
-  if (window.__svAdminReady) setTimeout(seedReadyToShipDemo, 50);
-  else window.addEventListener('sv-admin-ready', () => setTimeout(seedReadyToShipDemo, 50), { once: true });
-})();
 window.rwAdvance = rwAdvance; window.rwCancel = rwCancel; window.rwDetails = rwDetails;
 
 async function persistOrderDraft(d) {
@@ -26582,7 +26427,6 @@ function al_itemMain(catKey, subcat, name, sku) {
 }
 
 /* Order Details → customer section. Registered web customers get the same profile card as Buy For Me; others get the basic block. */
-const ODM_DEMO_ORDER = { voucher_code: 'SUP-REG7K2QX', status: 'Pending', state: 'pending', created_at: '2026-10-05T01:48:00+06:00', status_at: '2026-10-05T01:48:00+06:00', payment: { method: 'bkash', status: 'Verifying', txn: 'BK7F2L9Q3X', sender: '01712345678', amount_due: 9000, submitted: '5 Oct 2026, 1:55 am' }, subtotal: 9500, shipping: 0, discount: 500, total: 9000, items: [{ name: 'Magnesium Glycinate', category: 'Supplement', subcategory: 'Magnesium', qty: 2, price: 3250, spec: '400 mg \u2022 120 Capsules', sku: 'DB-MAG-GLY-120' }, { name: 'Betaine HCL & Pepsin', category: 'Supplement', subcategory: 'Digestive', qty: 1, price: 3000, spec: '650 mg \u2022 120 Capsules', sku: 'DB-HCI-PEP-120' }], orderId: 'SV-1014', channel: 'facebook', registered: true, name: 'Rafiq Ahmed', customer_id: 'CU-1014', customer_since: '2026-08-12', phone: '+880 1712-345678', email: 'rafiq.ahmed@example.com', address: 'House 7, Road 3, Mirpur, Dhaka' };
 const ODM_ICO_TRUCK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"/><path d="M15 18H9"/><path d="M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.624l-3.48-4.35A1 1 0 0 0 17.52 8H14"/><circle cx="17" cy="18" r="2"/><circle cx="7" cy="18" r="2"/></svg>';
 const ODM_ICO_TAG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>';
 function renderOrderDetailsSummary(o) {
@@ -26847,12 +26691,12 @@ function renderOrderDetailsCustomer(o) {
 }
 function openOrderDetailsModal(order) {
   const overlay = document.getElementById("orderDetailsModal");
-  if (!overlay) return;
-  renderOrderDetailsCustomer(order || ODM_DEMO_ORDER);
-  renderOrderDetailsHead(order || ODM_DEMO_ORDER);
-  renderOrderDetailsItems((order || ODM_DEMO_ORDER).items);
-  renderOrderDetailsSummary(order || ODM_DEMO_ORDER);
-  renderOrderDetailsPayment((order || ODM_DEMO_ORDER).payment);
+  if (!overlay || !order) return;
+  renderOrderDetailsCustomerorder;
+  renderOrderDetailsHeadorder;
+  renderOrderDetailsItems(order.items);
+  renderOrderDetailsSummaryorder;
+  renderOrderDetailsPayment(order.payment);
   requestAnimationFrame(() => requestAnimationFrame(() => {
     overlay.classList.add("active");
   }));
@@ -27768,143 +27612,7 @@ if (document.fonts && document.fonts.ready) { document.fonts.ready.then(al_equal
 /* ============================================================
    ====== SALES TAB — TRANSACTION CARDS ======
    ============================================================ */
-const TRANSACTIONS_DATA = [
-  {
-    id:'PX-1011', date:'Apr 25, 2026', dateRaw:'2026-04-25',
-    customer:'Hasan', phone:'01711-234567', address:'House 12, Road 5, Block C, Mirpur, Dhaka',
-    channel:'facebook', payment:'bkash', status:'paid', fulfillType:'proxy',
-    discount:500, shipping:0,
-    paymentRef:'8N5TG7KQ2R', paidAt:'Apr 25, 2026, 3:42 PM',
-    items:[
-      {name:'Omega-3 Ultra',        sku:'NW-OMG3-UTA-180', qty:2, each:11900, total:23800, category:'supplement'},
-      {name:'Magnesium Glycinate',  sku:'DB-MAG-GLY-120',  qty:1, each:3250,  total:3250,  category:'supplement'},
-      {name:'Betaine HCL & Pepsin', sku:'DB-HCI-PEP-120',  qty:3, each:3000,  total:9000,  category:'supplement'},
-    ]
-  },
-  {
-    id:'SV-1012', date:'Apr 25, 2026', dateRaw:'2026-04-25',
-    customer:'Karim', phone:'01811-345678', address:'Flat 3B, Agrabad C/A, Chittagong',
-    channel:'whatsapp', payment:'cash', status:'pending', fulfillType:'local',
-    discount:200, shipping:80,
-    items:[
-      {name:'Vitamin D3 + K2', sku:'DB-VD3-K2-90', qty:1, each:6150, total:6150, category:'supplement'},
-    ]
-  },
-  {
-    id:'SV-1013', date:'Apr 26, 2026', dateRaw:'2026-04-26',
-    customer:'Nafisa', phone:'01922-889900', address:'Road 11, Banani, Dhaka',
-    channel:'instagram', payment:'nagad', status:'paid', fulfillType:'local',
-    discount:150, shipping:0,
-    paymentRef:'8QX4RT9L2M', paidAt:'Apr 26, 2026, 1:05 PM',
-    items:[
-      {name:'Multivitamin Complex',      sku:'DB-MTV-CMP-60',  qty:1, each:1850,  total:1850,  category:'supplement'},
-      {name:'Bluetooth Earbuds Pro',     sku:'GD-BTE-PRO-01',  qty:1, each:3200,  total:3200,  category:'gadget'},
-      {name:'Hydrating Face Serum',      sku:'CO-HFS-30ML-01', qty:2, each:950,   total:1900,  category:'cosmetic'},
-      {name:'Premium Cotton T-Shirt',    sku:'AP-CTS-WHT-M',   qty:1, each:1100,  total:1100,  category:'clothing'},
-      {name:'Reusable Water Bottle',     sku:'GN-RWB-750-01',  qty:2, each:450,   total:900,   category:'general'},
-    ]
-  },
-  {
-    id:'SV-1006', date:'Apr 12, 2026', dateRaw:'2026-04-12',
-    customer:'Rony', phone:'01911-456789', address:'Road 3, Sector 7, Uttara, Dhaka',
-    channel:'website', payment:'nagad', status:'return', fulfillType:'local',
-    discount:0, shipping:0,
-    items:[
-      {name:'Omega-3 Ultra', sku:'NW-OMG3-UTA-180', qty:3, each:5950, total:17850, category:'supplement'},
-    ]
-  },
-  {
-    id:'PX-1004', date:'Apr 8, 2026', dateRaw:'2026-04-08',
-    customer:'Sadia', phone:'01611-567890', address:'House 7, Lane 4, Dhanmondi, Dhaka',
-    channel:'facebook', payment:'usdt', status:'paid', fulfillType:'proxy',
-    discount:300, shipping:0,
-    paymentRef:'WQPTXN-441', paidAt:'Apr 8, 2026, 11:20 AM',
-    items:[
-      {name:'Zinc Complex',        sku:'DB-ZNC-CMP-60',   qty:2, each:2400, total:4800, category:'supplement'},
-      {name:'Magnesium Glycinate', sku:'DB-MAG-GLY-120',  qty:1, each:3250, total:3250, category:'supplement'},
-    ]
-  },
-  {
-    id:'SV-1001', date:'Mar 30, 2026', dateRaw:'2026-03-30',
-    customer:'Tanvir', phone:'01511-678901', address:'Plot 22, Block E, Bashundhara R/A, Dhaka',
-    channel:'whatsapp', payment:'bank', status:'paid', fulfillType:'local',
-    discount:0, shipping:0,
-    paymentRef:'TXF-0045678', paidAt:'Mar 30, 2026, 2:15 PM',
-    items:[
-      {name:'Betaine HCL & Pepsin', sku:'DB-HCI-PEP-120', qty:4, each:3000, total:12000, category:'supplement'},
-    ]
-  },
-  {
-    id:'PX-1002', date:'Apr 2, 2026', dateRaw:'2026-04-02',
-    customer:'Farhan', phone:'01722-889012', address:'House 9, Road 2, Baridhara, Dhaka',
-    channel:'website', payment:'usdt', status:'paid', fulfillType:'proxy',
-    discount:0, shipping:0,
-    paymentRef:'TRX9F4A2C7E1B', paidAt:'Apr 2, 2026, 10:05 AM',
-    items:[
-      {name:'Omega-3 Ultra', sku:'NW-OMG3-UTA-180', qty:1, each:11900, total:11900, category:'supplement'},
-    ]
-  },
-  {
-    id:'PX-1003', date:'Apr 4, 2026', dateRaw:'2026-04-04',
-    customer:'Mahin', phone:'01633-112233', address:'Flat 5A, Road 6, Sector 4, Uttara, Dhaka',
-    channel:'instagram', payment:'usdc', status:'paid', fulfillType:'proxy',
-    discount:0, shipping:0,
-    paymentRef:'0x4d8f1c9e7a2b',  paidAt:'Apr 4, 2026, 4:50 PM',
-    items:[
-      {name:'Zinc Complex', sku:'DB-ZNC-CMP-60', qty:2, each:2400, total:4800, category:'supplement'},
-    ]
-  },
-  {
-    id:'SV-1014', date:'Apr 28, 2026', dateRaw:'2026-04-28',
-    customer:'Rakib', phone:'01844-223311', address:'House 3, Road 9, Bashundhara R/A, Dhaka',
-    channel:'facebook', payment:'cash', status:'paid', fulfillType:'local',
-    discount:0, shipping:0,
-    paymentRef:'CASH-8821', paidAt:'Apr 28, 2026, 3:40 PM',
-    items:[
-      {name:'Magnesium Glycinate', sku:'DB-MAG-GLY-120', qty:2, each:3250, total:6500, category:'supplement'},
-    ]
-  },
-  {
-    id:'SV-1015', date:'Apr 29, 2026', dateRaw:'2026-04-29',
-    customer:'Priya', phone:'01955-667788', address:'Flat 2C, Road 8, Dhanmondi, Dhaka',
-    channel:'website', payment:'bank', status:'paid', fulfillType:'local',
-    discount:0, shipping:0,
-    paymentRef:'TXF-0051290', paidAt:'Apr 29, 2026, 12:10 PM',
-    items:[
-      {name:'Vitamin D3 + K2', sku:'DB-VD3-K2-90', qty:1, each:2100, total:2100, category:'supplement'},
-    ]
-  },
-  {
-    id:'SV-1016', date:'Apr 30, 2026', dateRaw:'2026-04-30',
-    customer:'Shuvo', phone:'01711-998877', address:'Road 4, Sector 11, Uttara, Dhaka',
-    channel:'whatsapp', payment:'rocket', status:'paid', fulfillType:'local',
-    discount:0, shipping:0,
-    paymentRef:'RKT-778154', paidAt:'Apr 30, 2026, 11:05 AM',
-    items:[
-      {name:'Omega-3 Ultra', sku:'NW-OMG3-UTA-180', qty:1, each:5950, total:5950, category:'supplement'},
-    ]
-  },
-  {
-    id:'SV-1017', date:'May 1, 2026', dateRaw:'2026-05-01',
-    customer:'Ishrat', phone:'01611-224488', address:'House 15, Road 3, Banasree, Dhaka',
-    channel:'facebook', payment:'upay', status:'paid', fulfillType:'local',
-    discount:0, shipping:0,
-    paymentRef:'UPYTXN-4521', paidAt:'May 1, 2026, 2:20 PM',
-    items:[
-      {name:'Betaine HCL & Pepsin', sku:'DB-HCI-PEP-120', qty:1, each:3000, total:3000, category:'supplement'},
-    ]
-  },
-  {
-    id:'SV-1018', date:'May 2, 2026', dateRaw:'2026-05-02',
-    customer:'Tamim', phone:'01522-336699', address:'Flat 4B, Road 2, Mohammadpur, Dhaka',
-    channel:'website', payment:'cellfin', status:'paid', fulfillType:'local',
-    discount:0, shipping:0,
-    paymentRef:'CF-90142', paidAt:'May 2, 2026, 5:15 PM',
-    items:[
-      {name:'Magnesium Glycinate', sku:'DB-MAG-GLY-120', qty:1, each:3250, total:3250, category:'supplement'},
-    ]
-  },
-];
+const TRANSACTIONS_DATA = [];
 
 let salesSearch = '';
 let salesFilter = 'all';
