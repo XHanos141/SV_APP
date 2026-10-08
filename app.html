@@ -8432,6 +8432,46 @@ html[data-theme="dark"] #alertsTabContent .rq-tag { border-color:rgba(251,202,18
 <script src="assets/js/sv-customer-card.js"></script>
 <script src="assets/js/sv-fingerprint.js"></script>
 <script src="assets/js/sv-proxy-request.js"></script>
+<script>
+/* SuppVerse BD — responsive product image helper
+ * New admin uploads are stored as <base>-1200.webp with sibling files
+ * <base>-300.webp, -600.webp and -2000.webp. Any URL that does not match
+ * that pattern (all legacy uploads) is returned untouched, so nothing breaks.
+ *   300  cart, orders, trending, admin thumbs
+ *   600  store grid
+ *   1200 product detail gallery (the URL stored in product_web.web_images)
+ *   2000 zoom viewer
+ */
+(function(){
+  var RE = /-(?:300|600|1200|2000)\.(webp|jpg)((?:\?|#)[\s\S]*)?$/i;
+  function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+  /* svImg(url, 300) -> sized variant URL (or the same URL for legacy files) */
+  window.svImg = function(u, w){
+    if(typeof u !== 'string' || !u) return u;
+    return u.replace(RE, function(_, ext, q){ return '-' + w + '.' + ext + (q || ''); });
+  };
+
+  /* onerror handler: fall back to the stored base URL once, then call onFail */
+  window.svImgFb = function(el, onFail){
+    var f = el.getAttribute('data-fb');
+    if(f && el.getAttribute('src') !== f){ el.setAttribute('src', f); return true; }
+    if(typeof onFail === 'function') onFail(el);
+    return false;
+  };
+
+  /* svImgAttrs(url, 300[, 'failFnName']) -> ' src="..." data-fb="..." onerror="..."' for an <img> tag */
+  window.svImgAttrs = function(u, w, failFn){
+    var v = window.svImg(u, w), hasVariant = v !== u;
+    return ' src="' + esc(v) + '"' +
+      (hasVariant ? ' data-fb="' + esc(u) + '"' : '') +
+      ((hasVariant || failFn) ? ' onerror="svImgFb(this' + (failFn ? ',' + failFn : '') + ')"' : '');
+  };
+
+  window.svImgGone = function(el){ if(el && el.remove) el.remove(); };
+})();
+</script>
+<script>window.odmImgGone=function(el){ if(el.parentNode) el.parentNode.removeAttribute('data-img'); if(el.remove) el.remove(); };</script>
 <style>
 #svAdminGate{position:fixed;inset:0;z-index:999999;background:#000d20;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:14px;transition:opacity .25s ease;font-family:'DM Sans',sans-serif}
 #svAdminGate .sv-gate-spin{width:38px;height:38px;border-radius:50%;border:3px solid rgba(255,255,255,0.18);border-top-color:#009ddc;animation:svGateSpin .8s linear infinite}
@@ -26507,7 +26547,7 @@ function renderOrderDetailsItems(items) {
     return `<span class="odm-item-cat-badge" style="background:linear-gradient(135deg,${meta.color},${meta.color2 || meta.color});" title="${escapeHtml(meta.label || key)}"><svg viewBox="0 0 24 24"><use href="#cat-icon-${meta.icon}"/></svg></span>`;
   };
   box.innerHTML = (items || []).map(it => { const ci = (it.spec && it.subcategory) ? {} : odmCatalogInfo(it.sku); it = Object.assign({}, it, { subcategory: it.subcategory || ci.subcategory || '', spec: it.spec || ci.spec || '' }); return `<div class="odm-pi">
-    <div class="odm-pi-img"${it.image ? ` data-img="${escapeHtml(it.image)}" data-sku="${escapeHtml(it.sku || '')}" role="button" aria-label="View product pictures"` : ''}>${cube}${it.image ? `<img src="${escapeHtml(it.image)}" alt="" loading="lazy" onerror="this.parentNode.removeAttribute('data-img');this.remove()">` : ''}</div>
+    <div class="odm-pi-img"${it.image ? ` data-img="${escapeHtml(it.image)}" data-sku="${escapeHtml(it.sku || '')}" role="button" aria-label="View product pictures"` : ''}>${cube}${it.image ? `<img${svImgAttrs(it.image, 300, 'odmImgGone')} alt="" loading="lazy">` : ''}</div>
     <div class="odm-pi-body">
       <div class="odm-pc-cat">${typeBadge(it.category)}${it.subcategory ? `<span>${escapeHtml(it.subcategory)}</span>` : ''}</div>
       <div class="odm-pi-head">
@@ -26532,7 +26572,7 @@ function odzInit(){
 
   function addSlide(url){
     var zs=document.createElement('div'); zs.className='odz-slide';
-    var im=document.createElement('img'); im.src=url; im.alt=''; im.draggable=false; im.onerror=function(){ im.style.opacity='.25'; };
+    var im=document.createElement('img'), hi=window.svImg?svImg(url,2000):url; im.src=hi; im.alt=''; im.draggable=false; im.onerror=function(){ if(hi!==url&&im.getAttribute('src')!==url){ im.src=url; return; } im.style.opacity='.25'; };
     zs.appendChild(im); track.appendChild(zs);
     var d=document.createElement('div'); d.className='odz-dot'; dotsWrap.appendChild(d);
     slides=track.querySelectorAll('.odz-slide'); dots=dotsWrap.querySelectorAll('.odz-dot'); count=slides.length;
