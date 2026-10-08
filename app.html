@@ -21165,8 +21165,14 @@ function orderRowToTx(o, items) {
 
 async function loadOrdersFromSupabase() {
   try {
-    const rows = await sbFetchOrderRows('orders?select=*,order_items(*)&source=in.(admin,web)&order=created_at.asc');
-    if (!Array.isArray(rows) || rows.length === 0) return;
+    let rows = [];
+    for (let off = 0; ; off += 1000) {
+      const page = await sbFetchOrderRows('orders?select=*,order_items(*)&source=in.(admin,web)&order=created_at.asc&limit=1000&offset=' + off);
+      if (!Array.isArray(page)) break;
+      rows = rows.concat(page);
+      if (page.length < 1000) break;
+    }
+    if (rows.length === 0) return;
     const container = document.getElementById('draftCardsContainer');
     if (!container) return;
     const known = new Set([...document.querySelectorAll('.draft-card')].map(c => c.dataset.orderUuid).filter(Boolean));
@@ -24145,6 +24151,10 @@ async function loadReturnsFromSupabase() {
     }
   } catch (err) {
     console.warn('Returns load failed:', err.message);
+  } finally {
+    const first = !window.__salesReady;
+    window.__salesReady = true;
+    if (first && typeof renderSalesTab === 'function') renderSalesTab();
   }
 }
 
@@ -27907,12 +27917,14 @@ function renderSalesTab() {
   const totalRevenue = TRANSACTIONS_DATA.filter(t=>t.status==='paid').reduce((s,t)=>s+t.items.reduce((a,i)=>a+i.total,0)-t.discount+t.shipping,0);
   const totalOrders  = TRANSACTIONS_DATA.length;
   const returnCount  = RETURNS_DATA.length;
+  const _rdy = !!window.__salesReady;
+  const _fmtRev = n => n >= 100000 ? '৳' + (n/100000).toFixed(2).replace(/\.?0+$/, '') + 'L' : n >= 1000 ? '৳' + (n/1000).toFixed(1).replace(/\.0$/, '') + 'K' : '৳' + Math.round(n);
 
   document.getElementById('salesTabContent').innerHTML = `
     <div class="sales-summary-bar">
-      <div class="psb-card"><div class="psb-val green">৳${(totalRevenue/1000).toFixed(1)}K</div><div class="psb-lbl">Revenue</div></div>
-      <div class="psb-card"><div class="psb-val green">${totalOrders}</div><div class="psb-lbl">Orders</div></div>
-      <div class="psb-card"><div class="psb-val red">${returnCount}</div><div class="psb-lbl">Returns</div></div>
+      <div class="psb-card"><div class="psb-val green">${_rdy ? _fmtRev(totalRevenue) : '—'}</div><div class="psb-lbl">Revenue</div></div>
+      <div class="psb-card"><div class="psb-val green">${_rdy ? totalOrders : '—'}</div><div class="psb-lbl">Orders</div></div>
+      <div class="psb-card"><div class="psb-val red">${_rdy ? returnCount : '—'}</div><div class="psb-lbl">Returns</div></div>
     </div>
     <div class="sales-search">
       <div class="sales-search-input-wrap">
