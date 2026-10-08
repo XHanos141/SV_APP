@@ -1146,6 +1146,45 @@ fieldset:disabled :is(.img-thumb-item,.img-thumb-add,.img-thumb-remove){touch-ac
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script src="assets/js/supabase-config.js"></script>
+<script>
+/* SuppVerse BD — responsive product image helper
+ * New admin uploads are stored as <base>-1200.webp with sibling files
+ * <base>-300.webp, -600.webp and -2000.webp. Any URL that does not match
+ * that pattern (all legacy uploads) is returned untouched, so nothing breaks.
+ *   300  cart, orders, trending, admin thumbs
+ *   600  store grid
+ *   1200 product detail gallery (the URL stored in product_web.web_images)
+ *   2000 zoom viewer
+ */
+(function(){
+  var RE = /-(?:300|600|1200|2000)\.(webp|jpg)((?:\?|#)[\s\S]*)?$/i;
+  function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+  /* svImg(url, 300) -> sized variant URL (or the same URL for legacy files) */
+  window.svImg = function(u, w){
+    if(typeof u !== 'string' || !u) return u;
+    return u.replace(RE, function(_, ext, q){ return '-' + w + '.' + ext + (q || ''); });
+  };
+
+  /* onerror handler: fall back to the stored base URL once, then call onFail */
+  window.svImgFb = function(el, onFail){
+    var f = el.getAttribute('data-fb');
+    if(f && el.getAttribute('src') !== f){ el.setAttribute('src', f); return true; }
+    if(typeof onFail === 'function') onFail(el);
+    return false;
+  };
+
+  /* svImgAttrs(url, 300[, 'failFnName']) -> ' src="..." data-fb="..." onerror="..."' for an <img> tag */
+  window.svImgAttrs = function(u, w, failFn){
+    var v = window.svImg(u, w), hasVariant = v !== u;
+    return ' src="' + esc(v) + '"' +
+      (hasVariant ? ' data-fb="' + esc(u) + '"' : '') +
+      ((hasVariant || failFn) ? ' onerror="svImgFb(this' + (failFn ? ',' + failFn : '') + ')"' : '');
+  };
+
+  window.svImgGone = function(el){ if(el && el.remove) el.remove(); };
+})();
+</script>
 <style>
 .web-pill{margin-left:auto;font-size:10.5px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;padding:4px 10px;border-radius:999px}
 .web-pill.draft{background:rgba(2,132,199,.12);color:#0284c7}
@@ -4671,6 +4710,54 @@ function setGradient(g, el){
   el.classList.add('active');
   if(!currentImg) applyImageToCards();
 }
+/* ─── Responsive product images ───
+   Each photo becomes four WebP files (300/600/1200/2000, quality 88, never upscaled).
+   The -1200 URL is what gets stored in product_web.web_images; svImg() derives the rest. */
+const SV_IMG_SIZES = [300, 600, 1200, 2000];
+const SV_IMG_QUALITY = 0.88;
+const SV_WEBP_OK = (function(){ try{ return document.createElement('canvas').toDataURL('image/webp').indexOf('data:image/webp') === 0; }catch(e){ return false; } })();
+function svCanvasToBlob(cv, type, q){
+  return new Promise((res, rej) => cv.toBlob(b => b ? res(b) : rej(new Error('Image encode failed')), type, q));
+}
+async function svBuildVariants(src){
+  const bmp = await createImageBitmap(await (await fetch(src)).blob());
+  const type = SV_WEBP_OK ? 'image/webp' : 'image/jpeg';
+  const ext = SV_WEBP_OK ? 'webp' : 'jpg';
+  const out = [];
+  try{
+    for(const w of SV_IMG_SIZES){
+      const tw = Math.min(w, bmp.width);                                   // never upscale
+      const th = Math.max(1, Math.round(bmp.height * tw / bmp.width));
+      let cur = bmp, cw = bmp.width, ch = bmp.height;
+      while(cw / 2 >= tw){                                                 // step-down halving keeps edges sharp
+        const nw = Math.round(cw / 2), nh = Math.round(ch / 2);
+        const c = document.createElement('canvas'); c.width = nw; c.height = nh;
+        const x = c.getContext('2d'); x.imageSmoothingQuality = 'high'; x.drawImage(cur, 0, 0, nw, nh);
+        cur = c; cw = nw; ch = nh;
+      }
+      const cv = document.createElement('canvas'); cv.width = tw; cv.height = th;
+      const ctx = cv.getContext('2d'); ctx.imageSmoothingQuality = 'high';
+      if(!SV_WEBP_OK){ ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, tw, th); }  // JPEG fallback has no alpha
+      ctx.drawImage(cur, 0, 0, tw, th);
+      out.push({ w, ext, blob: await svCanvasToBlob(cv, type, SV_IMG_QUALITY) });
+    }
+  } finally { if(bmp.close) bmp.close(); }
+  return out;
+}
+async function svUploadProductImage(productId, src){
+  const variants = await svBuildVariants(src);
+  const bucket = sb.storage.from('site-content-images');
+  const base = 'products/' + productId + '/' + Date.now() + '-' + Math.random().toString(36).slice(2, 7);
+  const paths = variants.map(v => base + '-' + v.w + '.' + v.ext);
+  const results = await Promise.allSettled(variants.map((v, i) =>
+    bucket.upload(paths[i], v.blob, { contentType: v.blob.type, cacheControl: '31536000', upsert: false })
+      .then(r => { if(r.error) throw r.error; })
+  ));
+  const failed = results.find(r => r.status === 'rejected');
+  if(failed){ try{ await bucket.remove(paths); }catch(e){} throw failed.reason; }
+  const i1200 = variants.findIndex(v => v.w === 1200);
+  return bucket.getPublicUrl(paths[i1200]).data.publicUrl;
+}
 function handleImage(e){
   const files = Array.from(e.target.files || []);
   if(!files.length) return;
@@ -4813,7 +4900,7 @@ function renderImgThumbStrip(){
   if(!strip) return;
   strip.innerHTML = currentImages.map((src, i) =>
     '<div class="img-thumb-item" onpointerdown="imgThumbPointerDown(event,' + i + ')" title="Hold to drag">' +
-      '<img src="' + src + '">' +
+      '<img' + svImgAttrs(src, 300) + '>' +
       (i === 0 ? '<span class="img-thumb-primary-badge"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.9 6.26L22 9.27l-5 4.87L18.2 21 12 17.56 5.8 21 7 14.14l-5-4.87 7.1-1.01L12 2z"/></svg>Cover</span>' : '') +
       '<div class="img-thumb-remove" onclick="event.stopPropagation();removeImageAt(' + i + ')"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></div>' +
     '</div>'
@@ -4835,18 +4922,18 @@ function applyImageToCards(){
     const pBadges = pWrap.querySelectorAll('.p-badge-stock, .p-badge-ribbon, .p-out-bar');
     let pBadgeHtml = '';
     pBadges.forEach(b => pBadgeHtml += b.outerHTML);
-    pWrap.innerHTML = (currentImg ? '<img src="' + currentImg + '">' : gridImgSVG) + pBadgeHtml;
+    pWrap.innerHTML = (currentImg ? '<img' + svImgAttrs(currentImg, 600) + '>' : gridImgSVG) + pBadgeHtml;
     updateStockAndSale();
   }
   const tWrap = document.getElementById('tcardImgWrap');
   if(tWrap){
-    tWrap.innerHTML = currentImg ? '<img src="' + currentImg + '">' : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M8 2h8"/><path d="M9 2v6.5L4.5 15A3 3 0 0 0 7 20h10a3 3 0 0 0 2.5-5L15 8.5V2"/></svg>';
+    tWrap.innerHTML = currentImg ? '<img' + svImgAttrs(currentImg, 300) + '>' : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M8 2h8"/><path d="M9 2v6.5L4.5 15A3 3 0 0 0 7 20h10a3 3 0 0 0 2.5-5L15 8.5V2"/></svg>';
   }
   const hWrap = document.getElementById('hcardImgWrap');
   if(hWrap){
     if(currentImg){
       hWrap.style.background = 'none';
-      hWrap.innerHTML = '<img src="' + currentImg + '" style="width:100%;height:100%;object-fit:cover"><span class="hd-add"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></span>';
+      hWrap.innerHTML = '<img' + svImgAttrs(currentImg, 600) + ' style="width:100%;height:100%;object-fit:cover"><span class="hd-add"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></span>';
     } else {
       hWrap.style.background = currentGradient;
       hWrap.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg><span class="hd-add"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></span>';
@@ -5495,14 +5582,8 @@ async function saveProduct(evt){
   try{
     const urls = [];
     for(const src of currentImages){
-      if(typeof src === 'string' && src.startsWith('data:')){
-        const blob = await (await fetch(src)).blob();
-        const ext = ((blob.type.split('/')[1] || 'jpg').replace('jpeg', 'jpg')).replace(/[^a-z0-9]/g, '') || 'jpg';
-        const path = 'products/' + id + '/' + Date.now() + '-' + Math.random().toString(36).slice(2, 7) + '.' + ext;
-        const { error: upErr } = await sb.storage.from('site-content-images').upload(path, blob, { contentType: blob.type, upsert: false });
-        if(upErr) throw upErr;
-        urls.push(sb.storage.from('site-content-images').getPublicUrl(path).data.publicUrl);
-      } else urls.push(src);
+      if(typeof src === 'string' && src.startsWith('data:')) urls.push(await svUploadProductImage(id, src));
+      else urls.push(src);
     }
     const price = parseInt(document.getElementById('inpPrice').value) || 0;
     const oldOn = document.getElementById('switchOldPrice').classList.contains('on');
@@ -5629,7 +5710,7 @@ function renderHotDealsPicker(){
   el.innerHTML = list.map(p => {
     const checked = selection.includes(p.id);
     const idx = selection.indexOf(p.id);
-    const thumb = p.image ? '<img src="' + p.image + '" style="width:100%;height:100%;object-fit:cover">' : '<div style="width:100%;height:100%;background:' + p.gradient + '"></div>';
+    const thumb = p.image ? '<img' + svImgAttrs(p.image, 300) + ' style="width:100%;height:100%;object-fit:cover">' : '<div style="width:100%;height:100%;background:' + p.gradient + '"></div>';
     return '<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--line)">' +
       '<div style="width:36px;height:36px;border-radius:8px;overflow:hidden;flex-shrink:0">' + thumb + '</div>' +
       '<div style="flex:1;min-width:0">' +
@@ -5686,7 +5767,7 @@ function renderHotDealsRow(){
     const pctMatch = (p.discount || '').match(/(\d+)/);
     const pct = pctMatch ? pctMatch[1] : '0';
     const imgHtml = p.image
-      ? '<img src="' + p.image + '" style="width:100%;height:100%;object-fit:cover">'
+      ? '<img' + svImgAttrs(p.image, 600) + ' style="width:100%;height:100%;object-fit:cover">'
       : '<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>';
     return '<div class="hd-card" style="flex-shrink:0">' +
       '<div class="corner-badge corner-badge-sm"><span>HOT</span></div>' +
