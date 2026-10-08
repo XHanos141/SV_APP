@@ -188,6 +188,30 @@ body.dark-mode .icon-moon{opacity:1;transform:scale(1) rotate(0)}
 .qnav-sub{font-size:10.5px;color:var(--text3);font-weight:600;margin-top:-4px}
 .qnav-amount{font-family:var(--font-display);font-size:15px;font-weight:800;color:var(--text);margin-top:-2px}
 
+/* ===== COURIER WALLETS ===== */
+.cw-list{display:flex;flex-direction:column;gap:10px;padding:0 16px}
+.cw-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:13px;box-shadow:var(--shadow-sm);display:flex;flex-direction:column;gap:11px}
+.cw-card.off{opacity:.55}
+.cw-top{display:flex;align-items:center;gap:11px}
+.cw-icon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-size:15px;font-weight:800;flex-shrink:0}
+.cw-meta{flex:1;min-width:0}
+.cw-name{font-size:13px;font-weight:700;color:var(--text);display:flex;align-items:center;gap:7px}
+.cw-sync{font-size:10.5px;color:var(--text3);font-weight:600;margin-top:2px}
+.cw-amt{font-family:var(--font-display);font-size:16px;font-weight:800;color:var(--text);white-space:nowrap}
+.cw-badge{font-size:9px;font-weight:800;letter-spacing:.4px;text-transform:uppercase;padding:2px 6px;border-radius:6px}
+.cw-badge.auto{background:var(--green-soft);color:var(--green)}
+.cw-badge.manual{background:var(--orange-soft);color:var(--orange)}
+.cw-badge.off{background:var(--surface2);color:var(--text3)}
+.cw-actions{display:flex;gap:8px;align-items:center}
+.cw-btn{flex:1;height:36px;border-radius:10px;border:1px solid var(--border-strong);background:var(--surface2);color:var(--text);font-family:var(--font-body);font-size:12.5px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px}
+.cw-btn:active{transform:scale(.97)}
+.cw-btn[disabled]{opacity:.6;pointer-events:none}
+.cw-btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.cw-input{flex:1;height:36px;border-radius:10px;border:1px solid var(--border-strong);background:var(--surface2);color:var(--text);font-family:var(--font-body);font-size:14px;font-weight:700;padding:0 12px;min-width:0}
+.cw-err{font-size:11px;font-weight:600;color:var(--red);display:none}
+.cw-err.show{display:block}
+.cw-empty{font-size:12px;color:var(--text3);font-weight:600;padding:8px 2px}
+
 /* ===== SETTINGS LIST ===== */
 .settings-card{
   margin:0 16px;background:var(--surface);border:1px solid var(--border);
@@ -447,6 +471,10 @@ body.dark-mode .icon-moon{opacity:1;transform:scale(1) rotate(0)}
   </div>
 </div>
 
+<!-- COURIER WALLETS -->
+<div class="sect"><span class="sect-label">Courier Wallets</span></div>
+<div class="cw-list" id="cwList"><div class="cw-empty">Loading…</div></div>
+
 <!-- ACCOUNT SETTINGS -->
 <div class="sect"><span class="sect-label">Account Settings</span></div>
 <div class="settings-card">
@@ -670,6 +698,7 @@ function renderAdmin(row, authUser){
   refreshPasskeyStatus();
 
   idCard.classList.remove('is-loading');
+  loadCourierWallets();
 }
 
 function showLoadError(msg){
@@ -741,6 +770,93 @@ async function loadAdminProfile(){
   renderAdmin(row, authUser);
 }
 loadAdminProfile();
+
+// ===== COURIER WALLETS =====
+const CW_THEME = {
+  steadfast:{fg:'#2f9b68',bg:'var(--green-soft)'},
+  pathao:{fg:'#F26430',bg:'var(--orange-soft)'}
+};
+function cwEsc(v){ return String(v==null?'':v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function cwMoney(n){ return '৳' + Number(n||0).toLocaleString('en-IN'); }
+function cwAgo(iso){
+  if(!iso) return 'Never synced';
+  const m = Math.max(0, Math.round((Date.now() - new Date(iso).getTime())/60000));
+  if(m < 1) return 'Synced just now';
+  if(m < 60) return 'Synced ' + m + ' min ago';
+  const h = Math.round(m/60);
+  if(h < 24) return 'Synced ' + h + ' h ago';
+  return 'Synced ' + Math.round(h/24) + ' d ago';
+}
+async function loadCourierWallets(){
+  const box = document.getElementById('cwList');
+  const [c, w] = await Promise.all([
+    sb.from('couriers').select('code,name,enabled,sort_order,capabilities').order('sort_order'),
+    sb.from('courier_wallets').select('*')
+  ]);
+  if(c.error || w.error || !c.data){ box.innerHTML = '<div class="cw-empty">Could not load courier wallets.</div>'; return; }
+  const wmap = {}; (w.data||[]).forEach(r => wmap[r.courier_code] = r);
+  box.innerHTML = c.data.map(cr => {
+    const wal = wmap[cr.code] || {};
+    const th = CW_THEME[cr.code] || {fg:'var(--purple)',bg:'var(--purple-soft)'};
+    const auto = !!(cr.capabilities && cr.capabilities.wallet_api);
+    const on = cr.enabled;
+    const badge = !on ? '<span class="cw-badge off">Off</span>' : (auto ? '<span class="cw-badge auto">Auto</span>' : '<span class="cw-badge manual">Manual</span>');
+    const sync = !on ? 'Not connected' : (auto ? cwAgo(wal.synced_at) : (wal.synced_at ? 'Updated ' + new Date(wal.synced_at).toLocaleDateString('en-GB',{day:'numeric',month:'short'}) : 'Not updated yet'));
+    const amt = on ? cwMoney(wal.balance) : '—';
+    let actions = '';
+    if(on && auto){
+      actions = '<button class="cw-btn" id="cwBtn-'+cwEsc(cr.code)+'" onclick="refreshCourierWallet(\''+cwEsc(cr.code)+'\')">Refresh balance</button>';
+    } else if(on){
+      actions = '<input class="cw-input" id="cwIn-'+cwEsc(cr.code)+'" type="number" inputmode="decimal" min="0" step="1" placeholder="Balance from courier panel" value="'+cwEsc(wal.balance||'')+'">' +
+                '<button class="cw-btn primary" style="flex:0 0 76px" id="cwBtn-'+cwEsc(cr.code)+'" onclick="saveManualWallet(\''+cwEsc(cr.code)+'\')">Save</button>';
+    }
+    return '<div class="cw-card'+(on?'':' off')+'">' +
+      '<div class="cw-top"><div class="cw-icon" style="background:'+th.bg+';color:'+th.fg+'">'+cwEsc((cr.name||'?').charAt(0))+'</div>' +
+      '<div class="cw-meta"><div class="cw-name">'+cwEsc(cr.name)+badge+'</div><div class="cw-sync">'+sync+'</div></div>' +
+      '<div class="cw-amt">'+amt+'</div></div>' +
+      (actions ? '<div class="cw-actions">'+actions+'</div>' : '') +
+      '<div class="cw-err" id="cwErr-'+cwEsc(cr.code)+'"></div></div>';
+  }).join('');
+}
+function cwShowErr(code, msg){
+  const el = document.getElementById('cwErr-'+code);
+  if(!el) return;
+  el.textContent = msg || '';
+  el.classList.toggle('show', !!msg);
+}
+async function refreshCourierWallet(code){
+  const btn = document.getElementById('cwBtn-'+code);
+  cwShowErr(code, '');
+  btn.disabled = true; btn.textContent = 'Refreshing…';
+  try{
+    const { data, error } = await sb.functions.invoke('courier', { body: { courier: code, action: 'balance' } });
+    let msg = '';
+    if(error){
+      try{ const j = await error.context.json(); msg = j.error || ''; }catch(e){}
+      msg = msg || error.message || 'Request failed';
+    } else if(data && data.ok === false){
+      msg = data.error || 'Request failed';
+    }
+    if(msg){ cwShowErr(code, msg); btn.disabled = false; btn.textContent = 'Refresh balance'; return; }
+    await loadCourierWallets();
+  }catch(e){
+    cwShowErr(code, 'Network error. Try again.');
+    btn.disabled = false; btn.textContent = 'Refresh balance';
+  }
+}
+async function saveManualWallet(code){
+  const inp = document.getElementById('cwIn-'+code);
+  const btn = document.getElementById('cwBtn-'+code);
+  const val = Number(inp.value);
+  cwShowErr(code, '');
+  if(inp.value === '' || !isFinite(val) || val < 0){ cwShowErr(code, 'Enter a valid amount.'); return; }
+  btn.disabled = true; btn.textContent = 'Saving…';
+  const { error } = await sb.from('courier_wallets')
+    .update({ balance: val, source: 'manual', synced_at: new Date().toISOString() })
+    .eq('courier_code', code);
+  if(error){ cwShowErr(code, 'Could not save. Try again.'); btn.disabled = false; btn.textContent = 'Save'; return; }
+  await loadCourierWallets();
+}
 
 // ===== COPY ADMIN ID =====
 function copyAdminId(){
