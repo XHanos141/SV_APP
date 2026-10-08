@@ -7935,9 +7935,22 @@ html[data-theme="dark"] #alertsTabContent .tone-proxy   .al-actions-row { border
 }
 #alertsTabContent .al-card-time { font-size: 10.5px; font-weight: 600; color: var(--al-muted-2); margin-top: 1px; }
 
-#alertsTabContent .al-card-inbox { background: linear-gradient(135deg, #7C6FF7, #4535c4); box-shadow: 0 10px 28px rgba(124,111,247,0.55); border-radius: 12px; border: 2px solid #ffffff; transition: transform .2s ease; }
-#alertsTabContent .al-card-inbox:active { transform: scale(0.98); }
-#alertsTabContent .al-bell-chip { width: 50px; height: 50px; border-radius: 50%; background: #fff; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+/* Customer Inbox pinned card — A3 (3D tilt + glare). Outer .al-card keeps the entry animation; tilt lives on the inner layer. */
+#alertsTabContent .al-card-inbox { padding: 0; background: none; border: 0; border-radius: 22px; overflow: visible; perspective: 900px; --al-inbox-bg: #fff; --al-inbox-line: #E4E7EF; --al-inbox-chip: #EEF0F7; }
+html[data-theme="dark"] #alertsTabContent .al-card-inbox { --al-inbox-bg: #141A2E; --al-inbox-line: #232B48; --al-inbox-chip: #0B1020; }
+#alertsTabContent .al-inbox-tilt { position: relative; display: flex; align-items: center; gap: 10px; padding: 14px; border-radius: 22px; background: var(--al-inbox-bg); border: 1px solid var(--al-inbox-line); box-shadow: 0 20px 34px -14px rgba(11,21,48,.35); transform-style: preserve-3d; transition: transform .35s cubic-bezier(.2,.8,.2,1), box-shadow .35s; will-change: transform; }
+#alertsTabContent .al-inbox-tilt.live { transition: transform .06s linear, box-shadow .35s; box-shadow: 0 30px 44px -14px rgba(75,63,216,.45); }
+#alertsTabContent .al-inbox-ico { width: 46px; height: 46px; border-radius: 16px; flex-shrink: 0; display: grid; place-items: center; color: #fff; background: linear-gradient(160deg,#8B83FF,#4B3FD8); box-shadow: 0 10px 18px rgba(75,63,216,.5); transform: translateZ(34px); }
+#alertsTabContent .al-inbox-mid { flex: 1; min-width: 0; transform: translateZ(18px); }
+#alertsTabContent .al-inbox-title { font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 800; font-size: 14.5px; color: var(--al-txt); }
+#alertsTabContent .al-inbox-chips { display: flex; gap: 6px; margin-top: 7px; }
+#alertsTabContent .al-inbox-chip { display: flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 800; color: var(--al-txt); padding: 3px 9px 3px 4px; border-radius: 99px; background: var(--al-inbox-chip); }
+#alertsTabContent .al-inbox-chip .source-icon { width: 18px; height: 18px; }
+#alertsTabContent .al-inbox-total { font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 800; font-size: 30px; line-height: 1; letter-spacing: -.03em; color: var(--al-txt); transform: translateZ(50px); }
+#alertsTabContent .al-bell-chip { width: 42px; height: 42px; border-radius: 50%; background: #fff; display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1px solid var(--al-inbox-line); box-shadow: 0 6px 14px rgba(11,21,48,.22); transform: translateZ(50px); }
+#alertsTabContent .al-inbox-glare { position: absolute; inset: 0; border-radius: inherit; pointer-events: none; opacity: 0; transition: opacity .3s; background: radial-gradient(260px circle at var(--gx,50%) var(--gy,0%), rgba(255,255,255,.55), transparent 60%); mix-blend-mode: soft-light; }
+#alertsTabContent .al-inbox-tilt.live .al-inbox-glare { opacity: 1; }
+@media (prefers-reduced-motion: reduce) { #alertsTabContent .al-inbox-tilt { transform: none !important; transition: none; } }
 
 #alertsTabContent .al-pulse-dot {
   width: 6px; height: 6px; border-radius: 50%; background: var(--al-danger); flex-shrink: 0;
@@ -26844,23 +26857,43 @@ function openCustomerInboxPlaceholder() {
   console.log('Customer Inbox tapped — not wired to a destination yet.');
 }
 
-/* ---- Card 0: Customer Inbox (pinned shortcut, not a stock alert) ---- */
+/* ---- Card 0: Customer Inbox (pinned shortcut, not a stock alert) — A3 ---- */
+const AL_INBOX_COUNTS = { facebook: 2, instagram: 1, whatsapp: 2 }; /* demo; swap for real unread counts */
 function al_customerInboxCard() {
+  const total = Object.values(AL_INBOX_COUNTS).reduce((a, b) => a + b, 0);
+  const chips = Object.entries(AL_INBOX_COUNTS).map(([ch, n]) =>
+    `<span class="al-inbox-chip">${channelIcon(ch)}<span>${n}</span></span>`).join('');
   return `
   <div class="al-card al-card-pinned al-card-inbox" data-group="inbox" onclick="openCustomerInboxPlaceholder()" style="cursor:pointer">
-    <div class="al-card-top" style="margin-bottom:0">
-      <div class="al-icon-chip" style="background:#fff;box-shadow:0 3px 10px rgba(0,0,0,0.15);width:38px;height:38px">${al_icon('message',21,'var(--al-purple)',2.2)}</div>
-      <div class="al-card-label-col">
-        <div class="al-card-label" style="color:#fff">Customer Inbox</div>
-        <div class="al-card-time" style="color:rgba(255,255,255,0.9);display:flex;align-items:center;gap:11px;margin-top:5px;transform:scale(1.35);transform-origin:left center">
-          <span style="display:flex;align-items:center;gap:3px">${channelIcon('facebook')}<span>2</span></span>
-          <span style="display:flex;align-items:center;gap:3px">${channelIcon('instagram')}<span>1</span></span>
-          <span style="display:flex;align-items:center;gap:3px">${channelIcon('whatsapp')}<span>2</span></span>
-        </div>
+    <div class="al-inbox-tilt" data-al-tilt>
+      <div class="al-inbox-ico">${al_icon('message',22,'#fff',2.2)}</div>
+      <div class="al-inbox-mid">
+        <div class="al-inbox-title">Customer Inbox</div>
+        <div class="al-inbox-chips">${chips}</div>
       </div>
-      <div class="al-bell-chip"><div id="alInboxBell" style="width:34px;height:34px;transform:translate(1px,-1px)"></div></div>
+      <div class="al-inbox-total">${total}</div>
+      <div class="al-bell-chip"><div id="alInboxBell" style="width:30px;height:30px;transform:translate(1px,-1px)"></div></div>
+      <div class="al-inbox-glare"></div>
     </div>
   </div>`;
+}
+
+/* Pointer-follow tilt for the Customer Inbox card */
+function al_initInboxTilt() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  document.querySelectorAll('#alertsTabContent [data-al-tilt]').forEach(el => {
+    const max = 10;
+    const leave = () => { el.classList.remove('live'); el.style.transform = ''; };
+    el.addEventListener('pointermove', e => {
+      const r = el.getBoundingClientRect(), x = (e.clientX - r.left) / r.width, y = (e.clientY - r.top) / r.height;
+      el.classList.add('live');
+      el.style.transform = `rotateX(${(.5 - y) * max * 2}deg) rotateY(${(x - .5) * max * 2}deg)`;
+      el.style.setProperty('--gx', x * 100 + '%'); el.style.setProperty('--gy', y * 100 + '%');
+    });
+    el.addEventListener('pointerleave', leave);
+    el.addEventListener('pointerup', () => setTimeout(leave, 250));
+    el.addEventListener('pointercancel', leave);
+  });
 }
 
 /* ---- Card 1: Low Stock ---- */
@@ -27570,6 +27603,7 @@ function renderAlertsTabNow() {
   al_equalizeCardHeights();
   al_initSwipeToDismiss();
   al_initInboxBell();
+  al_initInboxTilt();
 }
 
 /* ---- Swipe a card away to dismiss, with confirmation ---- */
