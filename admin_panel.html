@@ -2,6 +2,7 @@
 <!-- build: preview-lock-v2 -->
 <html lang="en">
 <head>
+<script src="assets/js/sv-theme.js"></script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>SuppVerse BD — Product Editor</title>
@@ -4661,7 +4662,7 @@ refreshBfmFaq();
 loadBfmFaqsContent();
 // Theme priority: parent-injected data-theme (set at srcdoc build time) > standalone localStorage fallback
 const _apInjectedTheme = document.documentElement.getAttribute('data-theme');
-const themeState = { theme: _apInjectedTheme || localStorage.getItem('sv-theme-editor') || 'light' };
+const themeState = { theme: window.svTheme ? svTheme.get() : (_apInjectedTheme || localStorage.getItem('sv-theme-editor') || 'light') };
 function applyTheme(){
   document.body.classList.toggle('dark-mode', themeState.theme === 'dark');
   document.documentElement.setAttribute('data-theme', themeState.theme);
@@ -4669,6 +4670,7 @@ function applyTheme(){
   if (!window.frameElement) localStorage.setItem('sv-theme-editor', themeState.theme);
 }
 applyTheme();
+if (window.svTheme) svTheme.onChange(function(t){ if (themeState.theme === t) return; themeState.theme = t; applyTheme(); });
 // Show back button only when embedded inside parent app's iframe
 if (window.frameElement) {
   const backBtn = document.getElementById('apBackBtn');

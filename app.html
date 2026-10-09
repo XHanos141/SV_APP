@@ -17922,33 +17922,34 @@ function initTheme() {
   document.documentElement.setAttribute("data-theme", isDark ? "dark" : "light");
 }
 
-function toggleTheme() {
-  var _f=document.getElementById('overviewFrame');
-  if(_f&&_f.contentWindow){try{_f.contentWindow.postMessage({type:'sv-theme',dark:!isDark},'*');}catch(e){}}
-  var _vf=document.getElementById('voucherFrame');
-  var _vo=document.getElementById('voucherOverlay');
-  if(_vf&&_vo&&_vo.style.display!=='none'&&_vf.contentWindow){
-    try{_vf.contentWindow.postMessage({type:'sv-theme',dark:!isDark},'*');}catch(e){}
-  }
-  if(_vf) _vf._vcHtml = null;
-  var _inf=document.getElementById('inboxFrame');
-  var _ino=document.getElementById('inboxOverlay');
-  if(_inf&&_ino&&_ino.style.display!=='none'&&_inf.contentWindow){
-    try{_inf.contentWindow.postMessage({type:'sv-theme',dark:!isDark},'*');}catch(e){}
-  }
-  var _apf=document.getElementById('adminPanelFrame');
-  var _apo=document.getElementById('adminPanelOverlay');
-  if(_apf&&_apo&&_apo.style.display!=='none'&&_apf.contentWindow){
-    try{_apf.contentWindow.postMessage({type:'sv-theme',dark:!isDark},'*');}catch(e){}
-  }
-  isDark = !isDark;
+function svBroadcastTheme(dark) {
+  document.querySelectorAll('iframe').forEach(function (f) {
+    try { f.contentWindow.postMessage({ type: 'sv-theme', dark: dark }, '*'); } catch (e) {}
+  });
+}
+function svApplyTheme(dark) {
+  isDark = dark;
   const theme = isDark ? "dark" : "light";
   document.documentElement.setAttribute("data-theme", theme);
-  localStorage.setItem("svbd-theme", theme);
-  // Sync hub panel theme
   const hubPanel = document.getElementById('voucherHubPanel');
   if (hubPanel) hubPanel.setAttribute('data-theme', theme);
 }
+function toggleTheme() {
+  const dark = !isDark;
+  const _vf = document.getElementById('voucherFrame');
+  if (_vf) _vf._vcHtml = null;
+  try { localStorage.setItem("svbd-theme", dark ? "dark" : "light"); } catch (e) {}
+  svBroadcastTheme(dark);
+  svApplyTheme(dark);
+}
+/* Theme changed elsewhere (Admin Profile tab, etc.) — follow it */
+window.addEventListener('storage', function (e) {
+  if (e.key !== 'svbd-theme') return;
+  const dark = e.newValue !== 'light';
+  if (dark === isDark) return;
+  svBroadcastTheme(dark);
+  svApplyTheme(dark);
+});
 
 /* SECTIONS */
 const sectionState = { draft: true, calc: false, settings: false, margin: false, invoice: false, voucher: false, website: false };
