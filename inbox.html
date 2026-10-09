@@ -70,62 +70,73 @@
     position:relative;
   }
 
-  /* ---------- Header ---------- */
+  /* ---------- Header (matches Admin Panel / Voucher Hub navy bar) ---------- */
   .inbox-header{
     position:sticky;
     top:0;
     z-index:20;
     background:var(--body-bg);
-    padding:18px 16px 0;
+    padding:0;
     border-bottom:1px solid var(--hairline);
   }
   .inbox-header__top{
     display:flex;
     align-items:center;
-    justify-content:space-between;
-    margin-bottom:14px;
+    gap:12px;
+    height:58px;
+    padding:0 20px;
+    margin:0 0 14px;
+    color:#fff;
+    background:linear-gradient(180deg,#0f3258 0%,#002248 22%,#001f3c 55%,#001532 82%,#000d20 100%);
+    box-shadow:0 6px 28px rgba(0,0,0,.35);
   }
+  .inbox-header__body{ padding:0 16px; }
+  .inbox-back-btn{
+    width:36px; height:36px; border-radius:10px;
+    border:1px solid rgba(255,255,255,.15);
+    background:rgba(255,255,255,.08); color:#fff;
+    display:none; align-items:center; justify-content:center;
+    cursor:pointer; flex-shrink:0;
+  }
+  .inbox-back-btn svg{ width:20px; height:20px; }
+  html.is-embedded .inbox-back-btn{ display:flex; }
   .inbox-header__title{
     font-family:var(--font-head);
-    font-weight:700;
-    font-size:22px;
-    letter-spacing:-0.01em;
+    font-weight:800;
+    font-size:16px;
+    letter-spacing:-0.2px;
     margin:0;
+    flex:1;
+    min-width:0;
+    color:#fff;
   }
   .header-actions{
     display:flex;
     align-items:center;
     gap:6px;
   }
-  .bell-btn, .theme-btn{
+  .bell-btn{
     position:relative;
-    width:38px;
-    height:38px;
+    width:36px;
+    height:36px;
     display:flex;
     align-items:center;
     justify-content:center;
     border-radius:10px;
-    color:var(--text-2);
+    border:1px solid rgba(255,255,255,.15);
+    background:rgba(255,255,255,.08);
+    color:#fff;
   }
-  .bell-btn:hover, .theme-btn:hover{ background:var(--surface); color:var(--text-1); }
-  .bell-btn svg, .theme-btn svg{ width:20px; height:20px; }
-  .theme-btn svg{ transition:transform 0.35s ease, opacity 0.35s ease; }
-  .theme-btn .icon-sun, .theme-btn .icon-moon{
-    position:absolute;
-  }
-  .theme-btn .icon-sun{ opacity:0; transform:rotate(-90deg) scale(0.5); }
-  .theme-btn .icon-moon{ opacity:1; transform:rotate(0deg) scale(1); }
-  html[data-theme="light"] .theme-btn .icon-sun{ opacity:1; transform:rotate(0deg) scale(1); }
-  html[data-theme="light"] .theme-btn .icon-moon{ opacity:0; transform:rotate(90deg) scale(0.5); }
+  .bell-btn svg{ width:20px; height:20px; }
   .bell-dot{
     position:absolute;
-    top:8px;
-    right:9px;
+    top:6px;
+    right:7px;
     width:8px;
     height:8px;
     border-radius:50%;
     background:var(--orange);
-    border:2px solid var(--body-bg);
+    border:2px solid #001f3c;
   }
 
   .search-wrap{
@@ -1836,6 +1847,16 @@ html:not([data-theme="light"]) .odm-card { background: rgba(124,111,247,0.08); b
   window.svImgGone = function(el){ if(el && el.remove) el.remove(); };
 })();
 </script>
+<script>
+/* Theme follows the main app (same origin): ?theme= from the overlay, else the app's saved theme, else dark */
+(function(){
+  var r=document.documentElement, t=null;
+  try{ t=new URLSearchParams(location.search).get("theme"); }catch(e){}
+  if(t!=="light"&&t!=="dark"){ try{ t=localStorage.getItem("svbd-theme"); }catch(e){} }
+  r.setAttribute("data-theme", t==="light"?"light":"dark");
+  try{ if(window.frameElement) r.classList.add("is-embedded"); }catch(e){ r.classList.add("is-embedded"); }
+})();
+</script>
 </head>
 <body>
 
@@ -1846,12 +1867,11 @@ html:not([data-theme="light"]) .odm-card { background: rgba(124,111,247,0.08); b
   <!-- Header -->
   <header class="inbox-header">
     <div class="inbox-header__top">
+      <button class="inbox-back-btn" id="inboxBackBtn" type="button" aria-label="Back">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+      </button>
       <h1 class="inbox-header__title">Unified Inbox</h1>
       <div class="header-actions">
-        <button class="theme-btn" id="themeToggleBtn" aria-label="Toggle day/night mode">
-          <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2.4M12 19.1v2.4M4.6 4.6l1.7 1.7M17.7 17.7l1.7 1.7M2.5 12h2.4M19.1 12h2.4M4.6 19.4l1.7-1.7M17.7 6.3l1.7-1.7"/></svg>
-          <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5Z"/></svg>
-        </button>
         <button class="bell-btn" aria-label="Notifications">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
           <span class="bell-dot"></span>
@@ -1859,6 +1879,7 @@ html:not([data-theme="light"]) .odm-card { background: rgba(124,111,247,0.08); b
       </div>
     </div>
 
+    <div class="inbox-header__body">
     <div class="search-wrap">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
       <input id="searchInput" type="text" placeholder="Search conversations..." autocomplete="off">
@@ -1878,6 +1899,7 @@ html:not([data-theme="light"]) .odm-card { background: rgba(124,111,247,0.08); b
       <button class="filter-tab" role="tab" data-channel="instagram" aria-selected="false"><span class="filter-tab-icon ig"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="3.6"/><circle cx="17.2" cy="6.8" r="1"/></svg></span>Instagram <span class="count" data-count="instagram"></span></button>
       <button class="filter-tab" role="tab" data-channel="whatsapp" aria-selected="false"><span class="filter-tab-icon wa"><svg viewBox="0 0 24 24" fill="#fff"><path d="M12 2a10 10 0 0 0-8.6 15L2 22l5.2-1.4A10 10 0 1 0 12 2zm5.6 14.1c-.2.6-1.3 1.2-1.8 1.2-.5.1-1 .1-3.2-.7-2.7-1.1-4.4-3.8-4.6-4-.1-.2-1.1-1.5-1.1-2.8 0-1.3.7-2 1-2.2.2-.3.5-.3.7-.3h.5c.2 0 .4 0 .6.5.2.6.7 1.9.8 2 .1.2.1.4 0 .6-.1.2-.2.3-.3.5-.2.2-.3.3-.1.6.2.3.9 1.5 1.9 2.4 1.3 1.2 2.4 1.5 2.7 1.7.3.1.5.1.6-.1.2-.2.7-.8.9-1.1.2-.3.4-.2.6-.1.2.1 1.5.7 1.8.8.3.1.5.2.5.3.1.3.1.7-.1 1.2z"/></svg></span>WhatsApp <span class="count" data-count="whatsapp"></span></button>
     </div>
+    </div><!-- /inbox-header__body -->
   </header>
 
   <!-- Conversation list -->
@@ -3782,22 +3804,11 @@ function closeOrderDetailsModal() {
     });
   }
 
-  /* ---------- Theme toggle ---------- */
-  (function initTheme(){
-    const root = document.documentElement;
-    let stored = null;
-    try{ stored = localStorage.getItem("sv_inbox_theme"); }catch(e){ }
-    const initial = stored === "light" || stored === "dark"
-      ? stored
-      : (window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark");
-    root.setAttribute("data-theme", initial);
+  /* ---------- Back to main app ---------- */
+  document.getElementById("inboxBackBtn").addEventListener("click", () => {
+    try{ window.parent.postMessage({ type:"sv-close-inbox" }, "*"); }catch(e){}
+  });
 
-    document.getElementById("themeToggleBtn").addEventListener("click", () => {
-      const next = root.getAttribute("data-theme") === "light" ? "dark" : "light";
-      root.setAttribute("data-theme", next);
-      try{ localStorage.setItem("sv_inbox_theme", next); }catch(e){ }
-    });
-  })();
 
   /* Theme sync from the main app when embedded */
   window.addEventListener("message", (e) => {
