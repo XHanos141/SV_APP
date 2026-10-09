@@ -4744,19 +4744,34 @@ async function svBuildVariants(src){
   } finally { if(bmp.close) bmp.close(); }
   return out;
 }
-async function svUploadProductImage(productId, src){
+/* `created` (array) collects the exact Storage paths this operation uploaded successfully,
+   so the caller can remove them if a later step fails. Nothing is deleted here. */
+async function svUploadProductImage(productId, src, created){
+  created = created || [];
   const variants = await svBuildVariants(src);
   const bucket = sb.storage.from('site-content-images');
   const base = 'products/' + productId + '/' + Date.now() + '-' + Math.random().toString(36).slice(2, 7);
   const paths = variants.map(v => base + '-' + v.w + '.' + v.ext);
   const results = await Promise.allSettled(variants.map((v, i) =>
     bucket.upload(paths[i], v.blob, { contentType: v.blob.type, cacheControl: '31536000', upsert: false })
-      .then(r => { if(r.error) throw r.error; })
+      .then(r => { if(r.error) throw r.error; created.push(paths[i]); })
   ));
   const failed = results.find(r => r.status === 'rejected');
-  if(failed){ try{ await bucket.remove(paths); }catch(e){} throw failed.reason; }
+  if(failed) throw failed.reason;   // all uploads have settled; successful ones are in `created`
   const i1200 = variants.findIndex(v => v.w === 1200);
   return bucket.getPublicUrl(paths[i1200]).data.publicUrl;
+}
+/* Removes only the given paths. Never throws; reports whether every path was really removed.
+   Storage returns no error when a delete is blocked by policy, so the removed count is checked too. */
+async function svCleanupUploads(paths){
+  if(!paths || !paths.length) return { ok: true, paths: [] };
+  try{
+    const { data, error } = await sb.storage.from('site-content-images').remove(paths);
+    if(error) return { ok: false, paths: paths, error: error };
+    const removed = Array.isArray(data) ? data.length : 0;
+    if(removed < paths.length) return { ok: false, paths: paths, error: new Error('Only ' + removed + ' of ' + paths.length + ' files were removed') };
+    return { ok: true, paths: paths };
+  }catch(e){ return { ok: false, paths: paths, error: e }; }
 }
 function handleImage(e){
   const files = Array.from(e.target.files || []);
@@ -5579,10 +5594,12 @@ async function saveProduct(evt){
     T('Old price must be higher than selling price', '⚠️'); return;
   }
   T('Saving…', '⏳');
+  const createdPaths = [];   // Storage objects uploaded by THIS save only
+  let webSaved = false;      // true once product_web (which holds the image URLs) is written
   try{
     const urls = [];
     for(const src of currentImages){
-      if(typeof src === 'string' && src.startsWith('data:')) urls.push(await svUploadProductImage(id, src));
+      if(typeof src === 'string' && src.startsWith('data:')) urls.push(await svUploadProductImage(id, src, createdPaths));
       else urls.push(src);
     }
     const price = parseInt(document.getElementById('inpPrice').value) || 0;
@@ -5611,13 +5628,22 @@ async function saveProduct(evt){
       ({ error } = await sb.from('product_web').upsert(web, { onConflict: 'product_id' }));
     }
     if(error) throw error;
+    webSaved = true;   // new URLs are now referenced; from here on the uploads must NOT be deleted
     const r2 = await sb.from('products').update({ name: newName, old_price: (old > 0 && old > price) ? old : null, updated_at: new Date().toISOString() }).eq('id', id);
     if(r2.error) throw r2.error;
     await loadWebProducts(true);
     T('Saved', '✅');
   } catch(err){
     console.error('saveProduct error:', err);
-    T('Save failed: ' + (err.message || err), '⚠️');
+    let failMsg = 'Save failed: ' + (err.message || err);
+    if(!webSaved && createdPaths.length){
+      const c = await svCleanupUploads(createdPaths);
+      if(!c.ok){
+        console.error('saveProduct: orphaned uploads need manual removal from site-content-images:', c.paths, c.error);
+        failMsg += ' | Cleanup failed: ' + c.paths.length + ' unused file(s) left in storage (listed in console)';
+      }
+    }
+    T(failMsg, '⚠️');
     reopen();
   }
 }
