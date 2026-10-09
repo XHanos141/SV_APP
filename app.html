@@ -6235,6 +6235,16 @@ html[data-theme="dark"] .invoice-items .tx-exp-item-amt { color:#ffffff !importa
 .tx-card-expand.expanded .tx-exp-item:nth-child(3) { transition-delay:0.21s; }
 .tx-card-expand.expanded .tx-exp-item:nth-child(4) { transition-delay:0.27s; }
 
+/* Sales card expanded: match draft card (summary row fades out, items show "qty× price") */
+.tx-card-expand .tx-bottom-cols { max-height:64px; overflow:hidden; transition:max-height .38s cubic-bezier(.4,0,.2,1), opacity .22s ease, margin .38s cubic-bezier(.4,0,.2,1); }
+.tx-card-expand.expanded .tx-bottom-cols { max-height:0; opacity:0; margin-top:0; pointer-events:none; }
+.tx-card-expand .tx-exp-item { padding:3px 0; border-bottom:none; align-items:flex-start; }
+.tx-card-expand .tx-exp-item-name { font-size:13px; font-weight:600; color:#001f3c; }
+.tx-card-expand .tx-exp-item-sku { font-size:9px; letter-spacing:0.13em; text-transform:uppercase; margin-top:1px; }
+.tx-card-expand .tx-exp-item-amt { font-size:11px; font-weight:700; color:#001f3c; min-width:0; white-space:nowrap; }
+html[data-theme="dark"] .tx-card-expand .tx-exp-item-name, html[data-theme="dark"] .tx-card-expand .tx-exp-item-amt { color:#ffffff; }
+.tx-card-expand .tx-exp-divider { height:0; background:none; border-top:1.5px dashed #a0a8b8; margin:2px 0 6px; }
+html[data-theme="dark"] .tx-card-expand .tx-exp-divider { border-top-color:rgba(255,255,255,0.22); }
 .tx-exp-item-left { flex:1; min-width:0; }
 .tx-exp-item-name {
   font-family:"Plus Jakarta Sans",sans-serif; font-size:12px; font-weight:600; color:#001f3c;
@@ -28047,8 +28057,7 @@ function buildTxCard(tx) {
   const itemRows = tx.items.map(item => `
     <div class="tx-exp-item">
       <div class="tx-exp-item-left"><div class="tx-exp-item-name">${escapeHtml(item.name)}${txItemCatBadge(item.category)}</div><span class="tx-exp-item-sku">${item.sku}</span></div>
-      <span class="tx-exp-item-qty">${item.qty}u</span>
-      <div class="tx-exp-item-amt">\u09f3${item.total.toLocaleString('en-IN')}</div>
+      <div class="tx-exp-item-amt">${item.qty}\u00d7 \u09f3${Number(item.price != null ? item.price : Math.round(item.total / (item.qty || 1))).toLocaleString('en-IN')}</div>
     </div>`).join('');
 
   const mathBreakdown = `
