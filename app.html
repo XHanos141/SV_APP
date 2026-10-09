@@ -26840,7 +26840,7 @@ function renderOrderDetailsHead(o) {
   box.innerHTML = `<div class="odm-oh">
     <div class="odm-oh-left">
       <div class="odm-oh-idrow"><span class="odm-oh-label">Order ID</span><span class="order-id-badge">${escapeHtml(o.orderId || '')}</span>${channelIcon(o.channel)}</div>
-      <div class="odm-oh-meta">Order created <b>${escapeHtml(odmDate(o.created_at))}</b></div>
+      <div class="odm-oh-meta">Created at <b>${escapeHtml(odmDateTime(o.created_at))}</b></div>
     </div>
     <div class="odm-oh-right"><span class="odm-oh-pill ${state}">${escapeHtml(o.status || 'Pending')}</span><span class="odm-oh-date">${escapeHtml(odmDateTime(o.status_at || o.created_at))}</span></div>
   </div>`;
