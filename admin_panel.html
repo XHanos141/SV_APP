@@ -5498,8 +5498,10 @@ function loadStockProductIntoEditor(stockId){
 }
 
 function apFitNameInput(){
-  const i = document.getElementById('apInpName'), sp = document.getElementById('nameSpecChip');
+  const i = document.getElementById('apInpName'), sp = document.getElementById('nameSpecChip'), br = document.getElementById('nameBrandPrefix');
   if(!i || !sp) return;
+  const GAP = 6;
+  i.style.paddingLeft = (br && br.textContent) ? GAP + 'px' : '';
   if(!sp.textContent){ i.style.flex = ''; i.style.width = ''; i.style.paddingRight = ''; sp.style.paddingLeft = ''; return; }
   const cs = getComputedStyle(i);
   const ctx = (apFitNameInput.c || (apFitNameInput.c = document.createElement('canvas'))).getContext('2d');
@@ -5508,7 +5510,7 @@ function apFitNameInput(){
   i.style.paddingRight = '0';
   i.style.flex = '0 1 auto';
   i.style.width = Math.ceil(w + parseFloat(cs.paddingLeft) + 4) + 'px';
-  sp.style.paddingLeft = cs.paddingLeft;
+  sp.style.paddingLeft = GAP + 'px';
 }
 if(document.fonts && document.fonts.ready) document.fonts.ready.then(function(){ try{ apFitNameInput(); }catch(e){} });
 function updateAll(){
@@ -5555,7 +5557,7 @@ function updateAll(){
         vtag.style.display = 'none';
       }
     }
-    document.getElementById('pcardCat').textContent = cat;
+    document.getElementById('pcardCat').textContent = (document.getElementById('inpSubcat').value || '').trim() || cat;
     document.getElementById('pcardRatingNum').textContent = rating.toFixed(1);
     document.getElementById('pcardStars').innerHTML = buildStars(rating);
     document.getElementById('pcardPrice').textContent = price.toLocaleString();
