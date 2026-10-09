@@ -2,6 +2,7 @@
 <html lang="en" data-theme="dark">
 <head>
 <script src="assets/js/sv-theme.js"></script>
+<link rel="stylesheet" href="assets/css/sv-header.css">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <title>Voucher Hub — SuppVerse BD</title>
@@ -104,25 +105,6 @@ html[data-theme="light"] {
 /* =============================================
    TOP HEADER
    ============================================= */
-.hub-header {
-  flex-shrink: 0;
-  background:
-    radial-gradient(ellipse 80% 60% at 50% -10%, rgba(124,111,247,0.1) 0%, transparent 60%),
-    linear-gradient(180deg, #0f3258 0%, #001f3c 70%);
-  padding: 0 18px;
-  height: 56px;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  border-bottom: 1px solid rgba(0,0,0,0.5);
-  box-shadow: 0 4px 18px rgba(0,0,0,0.4);
-  position: relative;
-  z-index: 10;
-}
-html[data-theme="light"] .hub-header {
-  background: linear-gradient(180deg, #1e4a7c 0%, #163a62 100%);
-}
-
 .back-btn {
   width: 32px; height: 32px;
   border-radius: 9px;
@@ -137,20 +119,6 @@ html[data-theme="light"] .hub-header {
 .back-btn:hover { background: rgba(255,255,255,0.18); }
 .back-btn svg { width: 16px; height: 16px; }
 
-.header-title-wrap { flex: 1; min-width: 0; }
-.header-title {
-  font-family: "Plus Jakarta Sans", sans-serif;
-  font-size: 15px;
-  font-weight: 800;
-  color: #ffffff;
-  letter-spacing: 0.01em;
-}
-.header-subtitle {
-  font-size: 11px;
-  font-weight: 500;
-  color: rgba(255,255,255,0.5);
-  margin-top: 1px;
-}
 
 .theme-toggle-btn {
   width: 32px; height: 32px;
@@ -1689,17 +1657,15 @@ html[data-theme="light"] .mini-voucher .tear-notch { background: var(--surface-2
 <div class="app-shell">
 
   <!-- TOP HEADER -->
-  <div class="hub-header">
-    <button class="back-btn" onclick="hubGoBack()" title="Back to Drawer">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-        <line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/>
-      </svg>
+  <div class="sv-header">
+    <button class="sv-header__back" onclick="hubGoBack()" title="Back to Drawer" aria-label="Back">
+      <svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg>
     </button>
-    <div class="header-title-wrap">
-      <div class="header-title">🎟️ Vouchers &amp; Promos</div>
-      <div class="header-subtitle">Manage all your discount campaigns</div>
+    <div class="sv-header__title">
+      <div class="sv-header__t">🎟️ Vouchers &amp; Promos</div>
+      <div class="sv-header__sub">Manage all your discount campaigns</div>
     </div>
-
+    <div class="sv-header__spacer" aria-hidden="true"></div>
   </div>
 
   <!-- STATS BAR -->
