@@ -7937,7 +7937,9 @@ html[data-theme="dark"] #alertsTabContent .tone-proxy   .al-actions-row { border
 
 /* Customer Inbox pinned card — A3 (3D tilt + glare). Outer .al-card keeps the entry animation; tilt lives on the inner layer. */
 #alertsTabContent .al-card-inbox { padding: 0; background: none; border: 0; border-radius: 22px; overflow: visible; perspective: 900px; --al-inbox-bg: #fff; --al-inbox-line: #E4E7EF; --al-inbox-chip: #EEF0F7; }
-html[data-theme="dark"] #alertsTabContent .al-card-inbox { --al-inbox-bg: #141A2E; --al-inbox-line: #232B48; --al-inbox-chip: #0B1020; }
+html[data-theme="dark"] #alertsTabContent .al-card-inbox { --al-inbox-bg: linear-gradient(145deg,#2A3470 0%,#1B2250 55%,#161B40 100%); --al-inbox-line: rgba(139,131,255,.7); --al-inbox-chip: rgba(8,12,34,.55); }
+html[data-theme="dark"] #alertsTabContent .al-inbox-tilt { box-shadow: 0 0 0 1px rgba(139,131,255,.25), 0 14px 34px -8px rgba(108,99,255,.6), inset 0 1px 0 rgba(255,255,255,.22); }
+html[data-theme="dark"] #alertsTabContent .al-inbox-tilt.live { box-shadow: 0 0 0 1px rgba(139,131,255,.4), 0 24px 44px -10px rgba(108,99,255,.8), inset 0 1px 0 rgba(255,255,255,.3); }
 #alertsTabContent .al-inbox-tilt { position: relative; display: flex; align-items: center; gap: 10px; padding: 14px; border-radius: 22px; background: var(--al-inbox-bg); border: 1px solid var(--al-inbox-line); box-shadow: 0 20px 34px -14px rgba(11,21,48,.35); transform-style: preserve-3d; transition: transform .35s cubic-bezier(.2,.8,.2,1), box-shadow .35s; will-change: transform; }
 #alertsTabContent .al-inbox-tilt.live { transition: transform .06s linear, box-shadow .35s; box-shadow: 0 30px 44px -14px rgba(75,63,216,.45); }
 #alertsTabContent .al-inbox-ico { width: 46px; height: 46px; border-radius: 16px; flex-shrink: 0; display: grid; place-items: center; color: #fff; background: linear-gradient(160deg,#8B83FF,#4B3FD8); box-shadow: 0 10px 18px rgba(75,63,216,.5); transform: translateZ(34px); }
