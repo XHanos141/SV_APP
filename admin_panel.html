@@ -238,6 +238,36 @@ fieldset:disabled .faq-add-btn{pointer-events:none;opacity:.5}
 .stock-pick-name{font-size:13.5px;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .stock-pick-sub{font-size:11px;font-weight:600;color:var(--text3);margin-top:2px}
 .stock-pick-chevron{color:var(--text3);flex-shrink:0}
+.ss-dd{display:block}
+.ss-trigger{width:100%;display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:14px;border:1.5px solid var(--border-strong);background:var(--surface2);color:var(--text);font-family:var(--font-body);text-align:left;cursor:pointer;transition:border-color .2s,box-shadow .2s,background .2s}
+.ss-dd.open .ss-trigger{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.ss-badge{width:36px;height:36px;border-radius:11px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.ss-badge svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+.ss-green{background:var(--green-soft);color:var(--green)}
+.ss-yellow{background:var(--yellow-soft);color:var(--yellow)}
+.ss-red{background:var(--red-soft);color:var(--red)}
+.ss-text{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.ss-title{font-family:var(--font-display);font-size:14px;font-weight:800;color:var(--text)}
+.ss-sub{font-size:11px;font-weight:600;color:var(--text3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ss-tag{font-size:9.5px;font-weight:800;letter-spacing:.4px;text-transform:uppercase;padding:3px 8px;border-radius:999px;display:inline-flex;align-items:center;gap:5px;flex-shrink:0}
+.ss-tag i{width:6px;height:6px;border-radius:50%;background:currentColor;display:block}
+.ss-tag.real{background:var(--green-soft);color:var(--green)}
+.ss-tag.real i{box-shadow:0 0 0 2px var(--green-soft)}
+.ss-tag.over{background:var(--orange-soft);color:var(--orange)}
+.ss-chev{width:18px;height:18px;flex-shrink:0;color:var(--text3);fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;transition:transform .25s}
+.ss-dd.open .ss-chev{transform:rotate(180deg)}
+.ss-panel{display:grid;grid-template-rows:0fr;opacity:0;transition:grid-template-rows .28s ease,opacity .2s ease,margin .28s ease;margin-top:0}
+.ss-dd.open .ss-panel{grid-template-rows:1fr;opacity:1;margin-top:8px}
+.ss-panel-in{overflow:hidden;min-height:0;display:flex;flex-direction:column;gap:6px}
+.ss-opt{width:100%;display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:14px;border:1.5px solid var(--border);background:var(--surface);color:var(--text);font-family:var(--font-body);text-align:left;cursor:pointer;transition:border-color .15s,background .15s}
+.ss-opt.sel{border-color:var(--accent);background:var(--accent-soft)}
+.ss-opt:disabled{opacity:.45;cursor:not-allowed}
+.ss-radio{width:20px;height:20px;border-radius:50%;border:2px solid var(--border-strong);flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .15s}
+.ss-opt.sel .ss-radio{border-color:var(--accent);background:var(--accent)}
+.ss-radio svg{width:12px;height:12px;fill:none;stroke:#fff;stroke-width:3.2;stroke-linecap:round;stroke-linejoin:round;opacity:0}
+.ss-opt.sel .ss-radio svg{opacity:1}
+.ss-reset{align-self:flex-start;border:none;background:none;color:var(--accent);font-family:var(--font-body);font-size:12px;font-weight:700;padding:4px 2px;cursor:pointer;display:inline-flex;align-items:center;gap:6px}
+.ss-reset svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
 
 .webedit-info-btn{width:32px;height:32px;border-radius:9px;flex-shrink:0;padding:0;border:1.5px solid rgba(124,111,247,0.35);background:rgba(124,111,247,0.1);color:#7c6ff7;display:flex;align-items:center;justify-content:center;cursor:pointer}
 .webedit-info-btn svg{width:17px;height:17px}
@@ -2516,12 +2546,21 @@ fill="#ed1d24"><rect width="512" height="512" rx="15%" fill="#ed1d24"/><path d="
   <div class="form-card">
     <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>Stock & Flags</h3>
     <div class="field">
-      <label>Stock Status <span style="font-weight:600;color:var(--text3);text-transform:none;letter-spacing:0">— 🟢 = real status</span></label>
-      <select id="apInpStock" onchange="updateStockAndSale()">
+      <label>Stock Status <span style="font-weight:600;color:var(--text3);text-transform:none;letter-spacing:0">— follows real stock unless changed</span></label>
+      <select id="apInpStock" style="display:none" tabindex="-1" aria-hidden="true" onchange="updateStockAndSale()">
         <option value="in">In Stock</option>
         <option value="low">Low Stock</option>
         <option value="out">Out of Stock</option>
       </select>
+      <div class="ss-dd" id="apStockDD">
+        <button type="button" class="ss-trigger" id="apStockTrig" aria-expanded="false" aria-controls="apStockPanel" onclick="apStockToggle()">
+          <span class="ss-badge" id="apStockBadge"></span>
+          <span class="ss-text"><span class="ss-title" id="apStockTitle"></span><span class="ss-sub" id="apStockSub"></span></span>
+          <span id="apStockTag"></span>
+          <svg class="ss-chev" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg>
+        </button>
+        <div class="ss-panel" id="apStockPanel"><div class="ss-panel-in" id="apStockOpts"></div></div>
+      </div>
     </div>
     <div class="toggle-row">
       <label>Mark as Sale (ribbon badge)</label>
@@ -4975,15 +5014,56 @@ function applyImageToCards(){
   }
 }
 const AP_STOCK_LABEL = { in:'In Stock', low:'Low Stock', out:'Out of Stock' };
+const AP_STOCK_META = {
+  in:  { c:'green',  sub:'Shown as available to order', ico:'<path d="M20 6 9 17l-5-5"/>' },
+  low: { c:'yellow', sub:'Shows a Low Stock badge',      ico:'<path d="M12 9v4"/><path d="M12 17h.01"/><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/>' },
+  out: { c:'red',    sub:'Blocks ordering on the website', ico:'<circle cx="12" cy="12" r="9"/><path d="m5.7 5.7 12.6 12.6"/>' }
+};
 function apSetStock(qty, mode){
   const sel = document.getElementById('apInpStock');
   const real = deriveStockStatus(qty);
-  Array.prototype.forEach.call(sel.options, o => {
-    o.textContent = (o.value === real ? '🟢 ' : '') + AP_STOCK_LABEL[o.value];
-    o.disabled = !(qty > 0) && o.value !== 'out';
-  });
-  sel.value = (qty > 0 && (mode === 'in' || mode === 'low' || mode === 'out')) ? mode : real;
+  sel.dataset.qty = String(qty > 0 ? qty : 0);
   sel.dataset.real = real;
+  sel.value = (qty > 0 && (mode === 'in' || mode === 'low' || mode === 'out')) ? mode : real;
+  apStockRender();
+}
+function apStockToggle(force){
+  const dd = document.getElementById('apStockDD');
+  const open = typeof force === 'boolean' ? force : !dd.classList.contains('open');
+  dd.classList.toggle('open', open);
+  document.getElementById('apStockTrig').setAttribute('aria-expanded', open ? 'true' : 'false');
+}
+function apPickStock(v){
+  const sel = document.getElementById('apInpStock');
+  const qty = Number(sel.dataset.qty) || 0;
+  if(qty <= 0 && v !== 'out') return;
+  sel.value = v;
+  apStockRender();
+  updateStockAndSale();
+  apStockToggle(false);
+}
+function apStockRender(){
+  const sel = document.getElementById('apInpStock');
+  const v = sel.value, real = sel.dataset.real || v, qty = Number(sel.dataset.qty) || 0;
+  const badge = (k) => '<span class="ss-badge ss-' + AP_STOCK_META[k].c + '"><svg viewBox="0 0 24 24">' + AP_STOCK_META[k].ico + '</svg></span>';
+  const bEl = document.getElementById('apStockBadge');
+  bEl.className = 'ss-badge ss-' + AP_STOCK_META[v].c;
+  bEl.innerHTML = '<svg viewBox="0 0 24 24">' + AP_STOCK_META[v].ico + '</svg>';
+  document.getElementById('apStockTitle').textContent = AP_STOCK_LABEL[v];
+  document.getElementById('apStockSub').textContent = v === real
+    ? (qty > 0 ? 'Real status · ' + qty + ' in stock' : 'Real status · no stock')
+    : 'Manual · real status is ' + AP_STOCK_LABEL[real];
+  document.getElementById('apStockTag').innerHTML = v === real
+    ? '<span class="ss-tag real"><i></i>Real</span>'
+    : '<span class="ss-tag over">Override</span>';
+  document.getElementById('apStockOpts').innerHTML = ['in','low','out'].map(k => {
+    const locked = qty <= 0 && k !== 'out';
+    return '<button type="button" class="ss-opt' + (k === v ? ' sel' : '') + '"' + (locked ? ' disabled' : '') + ' onclick="apPickStock(\'' + k + '\')">' +
+      badge(k) +
+      '<span class="ss-text"><span class="ss-title">' + AP_STOCK_LABEL[k] + '</span><span class="ss-sub">' + (locked ? 'No stock available' : AP_STOCK_META[k].sub) + '</span></span>' +
+      (k === real ? '<span class="ss-tag real"><i></i>Real</span>' : '') +
+      '<span class="ss-radio"><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg></span></button>';
+  }).join('') + (v !== real ? '<button type="button" class="ss-reset" onclick="apPickStock(\'' + real + '\')"><svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 3v6h6"/></svg>Back to real status</button>' : '');
 }
 function apEffectiveStock(){
   return document.getElementById('apInpStock').value;
