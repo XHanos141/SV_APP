@@ -380,6 +380,8 @@ fieldset:disabled .faq-add-btn{pointer-events:none;opacity:.5}
 .name-input-group:focus-within{border-color:var(--accent)}
 .name-brand-prefix{padding-left:12px;font-family:var(--font-body);font-size:13px;font-weight:800;color:var(--purple);white-space:nowrap}
 .name-brand-prefix:empty{display:none}
+.name-spec-chip{margin:0 8px 0 4px;padding:4px 8px;border-radius:8px;background:var(--accent-soft);color:var(--accent);font-family:var(--font-body);font-size:10px;font-weight:800;white-space:nowrap;flex-shrink:0}
+.name-spec-chip:empty{display:none}
 .name-input-group input{border:none!important;background:transparent!important;flex:1;min-width:0}
 input.input-error{border-color:var(--red)!important;background:var(--red-soft)!important;color:var(--red)}
 .prod-img-upload{border-color:rgba(124,111,247,0.35);background:linear-gradient(180deg,rgba(124,111,247,0.05),rgba(124,111,247,0.02));padding:10px}
@@ -2384,6 +2386,7 @@ fill="#ed1d24"><rect width="512" height="512" rx="15%" fill="#ed1d24"/><path d="
       <div class="name-input-group">
         <span class="name-brand-prefix" id="nameBrandPrefix"></span>
         <input type="text" id="apInpName" placeholder="Product name" oninput="updateAll()">
+        <span class="name-spec-chip" id="nameSpecChip"></span>
       </div>
     </div>
     <div class="field" style="margin-bottom:0">
@@ -4712,11 +4715,19 @@ let currentGradient = 'linear-gradient(135deg,#ff6b6b,#ee5a24)';
 let currentStockBrand = '';
 let currentVariants = [];
 let stockPickerMode = 'primary';
-function svTitle(name, brand){
+function svTitle(name, brand, spec){
   brand = (brand || '').trim();
   name = name || '';
-  return brand ? (brand + ' ' + name) : name;
+  return (brand ? (brand + ' ' + name) : name) + (spec ? ' ' + spec : '');
 }
+function svWebSpec(sd){
+  sd = Array.isArray(sd) ? sd[0] : sd;
+  if(!sd) return '';
+  const pa = (sd.potency_amount != null && String(sd.potency_amount).trim() !== '') ? (Number(sd.potency_amount) + ' ' + String(sd.potency_unit || '').toLowerCase()).trim() : '';
+  const cc = sd.capsule_count != null ? sd.capsule_count + ' Capsules' : '';
+  return [pa, cc].filter(Boolean).join(' \u2022 ');
+}
+let currentStockSpec = '';
 const TYPE_ICON = {
   Supplement: {cls:'type-supplement', icon:'#cat-icon-supplement', vb:'0 0 512 512'},
   Gadget:     {cls:'type-gadget',     icon:'#cat-icon-gadget',     vb:'0 0 64 64'},
@@ -5142,7 +5153,7 @@ async function loadStockProductsFromDb(){
   if(!window.sb) return;
   const { data, error } = await sb
     .from('products')
-    .select('id,name,brand,sku,price,category,subcategory,stock_qty,archived,is_active')
+    .select('id,name,brand,sku,price,category,subcategory,stock_qty,archived,is_active,supplement_details(potency_amount,potency_unit,capsule_count)')
     .eq('is_active', true)
     .eq('archived', false)
     .order('name');
@@ -5475,6 +5486,7 @@ function loadStockProductIntoEditor(stockId){
   if(!p) return;
   document.getElementById('apInpName').value = p.name;
   currentStockBrand = p.brand || '';
+  currentStockSpec = svWebSpec(p.supplement_details);
   document.getElementById('inpCat').value = STOCK_CAT_LABEL[p.category] || 'General';
   document.getElementById('inpSubcat').value = p.subcategory || '';
   document.getElementById('inpPrice').value = p.price;
@@ -5513,7 +5525,9 @@ function updateAll(){
   const discountLong = pctNum + '% OFF';
   const discountShort = '-' + pctNum + '%';
 
-  const displayName = svTitle(name, currentStockBrand);
+  const displayName = svTitle(name, currentStockBrand, currentStockSpec);
+  const specChip = document.getElementById('nameSpecChip');
+  if(specChip) specChip.textContent = currentStockSpec ? currentStockSpec.replace('Capsules','caps').replace(/ \u2022 /,' · ') : '';
   const pcardName = document.getElementById('pcardName');
   if(pcardName){
     document.getElementById('pcardNameText').textContent = displayName;
@@ -5589,7 +5603,7 @@ function webRowToProduct(r){
     sale: !!st.sale, hot: !!st.hot, trending: !!st.trending,
     image: images[0] || null, images, gradient: st.gradient || WEB_DEFAULT_GRADIENT,
     published: r.is_web_published === true, stockProductId: r.id, variants: [],
-    spec: svSlugSpec(r.supplement_details), slug: (w && w.slug) || '', seoTitle: (w && w.seo_title) || '', seoDesc: (w && w.seo_description) || ''
+    spec: svSlugSpec(r.supplement_details), specLabel: svWebSpec(r.supplement_details), slug: (w && w.slug) || '', seoTitle: (w && w.seo_title) || '', seoDesc: (w && w.seo_description) || ''
   };
 }
 async function loadWebProducts(force){
@@ -5793,7 +5807,7 @@ function loadProductToEditor(id){
     document.getElementById('switchOldPrice').classList.remove('on');
     setV('inpSlug', ''); setV('inpSeoTitle', ''); setV('inpSeoDesc', '');
     ['switchSale', 'switchHot', 'switchTrending'].forEach(x => document.getElementById(x).classList.remove('on'));
-    currentStockProductId = ''; currentStockBrand = ''; currentVariants = [];
+    currentStockProductId = ''; currentStockBrand = ''; currentStockSpec = ''; currentVariants = [];
     refreshStockPickTrigger(); renderVariantChips(); resetImages();
     currentGradient = WEB_DEFAULT_GRADIENT;
     editBtn.disabled = true;
@@ -5805,7 +5819,7 @@ function loadProductToEditor(id){
   editBtn.disabled = false;
   setWebFormsVisible(true);
   currentEditId = p.id;
-  setV('apInpName', p.name); currentStockBrand = p.brand;
+  setV('apInpName', p.name); currentStockBrand = p.brand; currentStockSpec = p.specLabel || '';
   setV('inpCat', p.cat); setV('inpSubcat', p.subcat);
   currentPvCatKey = p.catKey || 'general';
   document.getElementById('apInpDesc').innerHTML = p.desc;
