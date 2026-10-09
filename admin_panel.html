@@ -2516,9 +2516,8 @@ fill="#ed1d24"><rect width="512" height="512" rx="15%" fill="#ed1d24"/><path d="
   <div class="form-card">
     <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>Stock & Flags</h3>
     <div class="field">
-      <label>Stock Status <span style="font-weight:600;color:var(--text3);text-transform:none;letter-spacing:0">— Auto follows stock qty</span></label>
+      <label>Stock Status <span style="font-weight:600;color:var(--text3);text-transform:none;letter-spacing:0">— 🟢 = real status</span></label>
       <select id="apInpStock" onchange="updateStockAndSale()">
-        <option value="auto" selected>Auto (from stock)</option>
         <option value="in">In Stock</option>
         <option value="low">Low Stock</option>
         <option value="out">Out of Stock</option>
@@ -4975,12 +4974,19 @@ function applyImageToCards(){
     }
   }
 }
+const AP_STOCK_LABEL = { in:'In Stock', low:'Low Stock', out:'Out of Stock' };
+function apSetStock(qty, mode){
+  const sel = document.getElementById('apInpStock');
+  const real = deriveStockStatus(qty);
+  Array.prototype.forEach.call(sel.options, o => {
+    o.textContent = (o.value === real ? '🟢 ' : '') + AP_STOCK_LABEL[o.value];
+    o.disabled = !(qty > 0) && o.value !== 'out';
+  });
+  sel.value = (qty > 0 && (mode === 'in' || mode === 'low' || mode === 'out')) ? mode : real;
+  sel.dataset.real = real;
+}
 function apEffectiveStock(){
-  const v = document.getElementById('apInpStock').value;
-  const w = WEB_LIST.find(x => x.id === currentEditId);
-  const sp = STOCK_PRODUCTS.find(x => String(x.id) === String(currentStockProductId));
-  const qty = w ? w.stockQty : (sp ? sp.stock_qty : 0);
-  return svEffectiveStock(qty, v);
+  return document.getElementById('apInpStock').value;
 }
 function svEffectiveStock(qty, mode){
   if(!qty || qty <= 0) return 'out';
@@ -5394,7 +5400,7 @@ function loadStockProductIntoEditor(stockId){
   document.getElementById('inpPrice').value = p.price;
   document.getElementById('inpOld').value = 0;
   document.getElementById('switchOldPrice').classList.remove('on');
-  document.getElementById('apInpStock').value = 'auto';
+  apSetStock(p.stock_qty, null);
   refreshStockPickTrigger();
   updateAll();
 }
@@ -5649,7 +5655,7 @@ async function saveProduct(evt){
         hot: document.getElementById('switchHot').classList.contains('on'),
         trending: document.getElementById('switchTrending').classList.contains('on'),
         rating: parseFloat(document.getElementById('inpRating').value) || 0,
-        stock_override: (['in','low','out'].indexOf(document.getElementById('apInpStock').value) !== -1) ? document.getElementById('apInpStock').value : null,
+        stock_override: (cur.stockQty > 0 && document.getElementById('apInpStock').value !== deriveStockStatus(cur.stockQty)) ? document.getElementById('apInpStock').value : null,
         gradient: currentGradient
       },
       updated_at: new Date().toISOString()
@@ -5703,7 +5709,7 @@ function loadProductToEditor(id){
     currentEditId = null;
     setV('apInpName', ''); setV('inpCat', 'Supplement'); setV('inpSubcat', ''); setV('inpRating', '0');
     document.getElementById('apInpDesc').innerHTML = '';
-    setV('inpPrice', '0'); setV('inpOld', '0'); setV('inpDiscount', '0% OFF'); setV('inpDiscountAmt', '0'); setV('apInpStock', 'auto');
+    setV('inpPrice', '0'); setV('inpOld', '0'); setV('inpDiscount', '0% OFF'); setV('inpDiscountAmt', '0'); apSetStock(0, null);
     document.getElementById('switchOldPrice').classList.remove('on');
     setV('inpSlug', ''); setV('inpSeoTitle', ''); setV('inpSeoDesc', '');
     ['switchSale', 'switchHot', 'switchTrending'].forEach(x => document.getElementById(x).classList.remove('on'));
@@ -5725,7 +5731,7 @@ function loadProductToEditor(id){
   document.getElementById('apInpDesc').innerHTML = p.desc;
   setV('inpRating', p.rating); setV('inpPrice', p.price); setV('inpOld', p.old || 0);
   document.getElementById('switchOldPrice').classList.toggle('on', !!(p.old > 0));
-  setV('apInpStock', p.stockMode || 'auto');
+  apSetStock(p.stockQty, p.stockMode);
   currentStockProductId = p.id; currentVariants = [];
   refreshStockPickTrigger(); renderVariantChips();
   loadPvLiveSpecData(p.id);
