@@ -832,10 +832,6 @@ html[data-theme="dark"] .draft-math-total { border-top-color: rgba(255,255,255,0
 html[data-theme="dark"] .draft-math-total-label { color: rgba(255,255,255,0.4); }
 .draft-math-total-amt { font-family: "Plus Jakarta Sans", sans-serif; font-size: 15px; font-weight: 700; color: #001f3c; transition: color 0.35s ease; }
 html[data-theme="dark"] .draft-math-total-amt { color: #ffffff; }
-.draft-card:not(.return-card) .draft-math-total-amt,
-.draft-card:not(.return-card) .draft-row-amount { color:#7c6ff7; background:none; -webkit-text-fill-color:currentColor; }
-html[data-theme="dark"] .draft-card:not(.return-card) .draft-math-total-amt,
-html[data-theme="dark"] .draft-card:not(.return-card) .draft-row-amount { color:#9a8fff; }
 
 /* Footer — discount left, total right — always visible, slides down on expand */
 .dc-footer {
@@ -13781,7 +13777,7 @@ function showToast(message, type = 'success') {
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-file-document"/></svg>
         </div>
         <span class="section-label">Draft</span>
-        <span class="section-badge draft-badge" id="draftBadge">0</span>
+        <span class="section-badge draft-badge" id="draftBadge" style="display:none">0</span>
         <span class="section-chevron">&#8250;</span>
       </div>
       <div class="section-content expanded" id="draftContent">
@@ -13819,7 +13815,7 @@ function showToast(message, type = 'success') {
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-download"/></svg>
         </div>
         <span class="section-label">Import Order</span>
-        <span class="section-badge draft-badge" id="importOrderBadge">0</span>
+        <span class="section-badge draft-badge" id="importOrderBadge" style="display:none">0</span>
         <span class="section-chevron">&#8250;</span>
       </div>
       <div class="section-content" id="importOrderContent">
@@ -14172,7 +14168,7 @@ function showToast(message, type = 'success') {
           </svg>
         </div>
         <span class="section-label">Margin Data</span>
-        <span class="section-badge export-badge" id="marginBadge">0</span>
+        <span class="section-badge export-badge" id="marginBadge" style="display:none">0</span>
         <span class="section-chevron">&#8250;</span>
       </div>
       <div class="section-content" id="marginContent">
@@ -14196,7 +14192,7 @@ function showToast(message, type = 'success') {
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-file-document"/></svg>
         </div>
         <span class="section-label">Product Invoices</span>
-        <span class="section-badge invoice-badge" id="invoiceBadge">0</span>
+        <span class="section-badge invoice-badge" id="invoiceBadge" style="display:none">0</span>
         <span class="section-chevron">&#8250;</span>
       </div>
       <div class="section-content" id="invoiceContent">
@@ -18126,16 +18122,61 @@ function checkEmpty() {
   const remaining = container.querySelectorAll(".draft-card:not(.paid-out):not(.delete-out)").length;
   empty.classList.toggle("visible", remaining === 0);
 }
+/* ====== MENU BADGES: single source of truth (hidden at 0) ====== */
+function svSetBadge(el, n, pop) {
+  if (!el) return;
+  const changed = el.dataset.n !== String(n);
+  el.dataset.n = n;
+  el.textContent = n;
+  el.style.display = n > 0 ? '' : 'none';
+  if (n > 0 && pop && changed) { el.classList.remove('pop'); void el.offsetWidth; el.classList.add('pop'); }
+}
+function svMenuCounts() {
+  const q = sel => document.querySelectorAll(sel).length;
+  let returns = 0, margin = 0, inv = 0;
+  try { returns = draftReturns.length; } catch (e) {}
+  try { margin = savedCalculations.length; } catch (e) {}
+  try { inv = invoices.length; } catch (e) {}
+  return {
+    draft: q('#draftCardsContainer .draft-card:not(.return-card):not(.paid-out):not(.delete-out)') + returns,
+    imports: q('#importOrderCardsContainer .draft-card:not(.paid-out):not(.delete-out)'),
+    margin: margin,
+    invoices: inv
+  };
+}
+function svSyncMenuBadges(pop) {
+  const c = svMenuCounts();
+  svSetBadge(document.getElementById('draftBadge'), c.draft, pop);
+  svSetBadge(document.getElementById('importOrderBadge'), c.imports, pop);
+  svSetBadge(document.getElementById('marginBadge'), c.margin, pop);
+  svSetBadge(document.getElementById('invoiceBadge'), c.invoices, pop);
+  const hb = document.getElementById('hamburgerBadge');
+  if (hb) {
+    const total = c.draft + c.imports;
+    const changed = hb.dataset.n !== String(total);
+    hb.dataset.n = total;
+    hb.textContent = total;
+    if (total === 0) hb.classList.remove('visible', 'pulse');
+    else {
+      hb.classList.add('visible', 'pulse');
+      if (changed) { hb.classList.remove('pop'); void hb.offsetWidth; hb.classList.add('pop'); }
+    }
+  }
+}
+(function svWireMenuBadges() {
+  let raf = 0;
+  const sync = () => { if (raf) return; raf = requestAnimationFrame(() => { raf = 0; svSyncMenuBadges(true); }); };
+  const init = () => {
+    ['draftCardsContainer', 'importOrderCardsContainer'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) new MutationObserver(sync).observe(el, { childList: true, subtree: true, attributes: true, attributeFilter: ['class'] });
+    });
+    svSyncMenuBadges(false);
+  };
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
+})();
 function updateBadge() {
-  const hamburgerBadge = document.getElementById("hamburgerBadge");
-  const draftBadge = document.getElementById("draftBadge");
-  const container = document.getElementById("draftCardsContainer");
-  const remaining = container.querySelectorAll(".draft-card:not(.paid-out):not(.delete-out)").length;
-  hamburgerBadge.textContent = remaining;
-  draftBadge.textContent = remaining;
-  draftBadge.classList.remove("pop"); void draftBadge.offsetWidth; draftBadge.classList.add("pop");
-  if (remaining === 0) { hamburgerBadge.classList.remove("visible", "pulse"); }
-  else { hamburgerBadge.classList.add("visible", "pulse"); hamburgerBadge.classList.remove("pop"); void hamburgerBadge.offsetWidth; hamburgerBadge.classList.add("pop"); }
+  svSyncMenuBadges(true);
   checkEmpty();
 }
 function markPaid(index, event) {
@@ -18854,8 +18895,7 @@ function renderSavedCalculations() {
   const badge = document.getElementById("marginBadge");
   if (!container || !empty || !badge) return;
 
-  badge.textContent = savedCalculations.length;
-  badge.classList.remove("pop"); void badge.offsetWidth; badge.classList.add("pop");
+  svSyncMenuBadges(true);
 
   if (savedCalculations.length === 0) {
     container.innerHTML = "";
@@ -19628,8 +19668,7 @@ function renderInvoices() {
   const badge = document.getElementById("invoiceBadge");
   if (!container || !empty || !badge) return;
 
-  badge.textContent = invoices.length;
-  badge.classList.remove("pop"); void badge.offsetWidth; badge.classList.add("pop");
+  svSyncMenuBadges(true);
 
   if (invoices.length === 0) {
     container.innerHTML = "";
@@ -24304,8 +24343,7 @@ async function _saveReturnDraft() {
   if (editing) draftReturns[_rtEditingIdx] = draft;
   else {
     draftReturns.push(draft);
-    const draftBadge = document.getElementById('draftBadge');
-    if (draftBadge) draftBadge.textContent = (parseInt(draftBadge.textContent) || 0) + 1;
+    svSyncMenuBadges(true);
   }
 
   const toast = document.getElementById('exportToast');
@@ -24879,8 +24917,7 @@ async function _deleteReturn(idx) {
   }
   draftReturns.splice(idx, 1);
   renderDraftCards();
-  const draftBadge = document.getElementById('draftBadge');
-  if (draftBadge) draftBadge.textContent = Math.max(0, parseInt(draftBadge.textContent) - 1);
+  svSyncMenuBadges(true);
 }
 
 function editReturn(idx, event) {
