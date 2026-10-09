@@ -7814,6 +7814,8 @@ html[data-theme="dark"] .batch-units { background: rgba(255,255,255,0.08); color
 #adminPanelOverlay{position:fixed;inset:0;z-index:9000;background:rgba(0,10,20,0.88);display:none}
 #adminPanelFrame{position:absolute;inset:0;width:100%;height:100%;border:none;display:block;background:#F4F7FB}
 #voucherHubOverlay{position:fixed;inset:0;z-index:8999;display:none;background:#0a1520}
+#inboxOverlay{position:fixed;inset:0;z-index:9000;background:#0f1621;display:none}
+#inboxFrame{position:absolute;inset:0;width:100%;height:100%;border:none;display:block;background:#0f1621}
 #voucherHubFrame{position:absolute;inset:0;width:100%;height:100%;border:none;display:block;background:#162130}
 
 
@@ -14445,6 +14447,11 @@ function showToast(message, type = 'success') {
 <!-- ====== VOUCHER MODAL ====== -->
 <div id="voucherOverlay">
   <iframe id="voucherFrame" title="Issue Voucher"></iframe>
+</div>
+
+<!-- ====== CUSTOMER INBOX OVERLAY ====== -->
+<div id="inboxOverlay">
+  <iframe id="inboxFrame" title="Customer Inbox"></iframe>
 </div>
 
 <!-- ====== ADMIN PANEL MODAL ====== -->
@@ -26869,10 +26876,29 @@ function al_initInboxBell() {
   });
 }
 
-/* Placeholder until the standalone Inbox file is built and wired in */
-function openCustomerInboxPlaceholder() {
-  console.log('Customer Inbox tapped — not wired to a destination yet.');
+/* Customer Inbox: opens inbox.html full-screen in an overlay iframe (same origin) */
+function openCustomerInbox() {
+  const overlay = document.getElementById('inboxOverlay');
+  const frame = document.getElementById('inboxFrame');
+  if (!overlay || !frame) return;
+  const dark = document.documentElement.getAttribute('data-theme') === 'dark';
+  frame.onload = function() {
+    try { frame.contentWindow.postMessage({ type: 'sv-theme', dark: dark }, '*'); } catch (e) {}
+  };
+  frame.src = 'inbox.html?embed=1&t=' + Date.now();
+  overlay.style.display = 'block';
 }
+function closeCustomerInbox() {
+  const overlay = document.getElementById('inboxOverlay');
+  if (overlay) overlay.style.display = 'none';
+  const frame = document.getElementById('inboxFrame');
+  if (frame) { frame.onload = null; frame.src = 'about:blank'; }
+}
+window.addEventListener('message', function(e) {
+  if (e.data && e.data.type === 'sv-close-inbox') closeCustomerInbox();
+});
+/* Seam used by proxy cards: opens the inbox (conversation targeting comes with the backend wiring) */
+window.openUnifiedInbox = function() { openCustomerInbox(); };
 
 /* ---- Card 0: Customer Inbox (pinned shortcut, not a stock alert) — A3 ---- */
 const AL_INBOX_COUNTS = { facebook: 2, instagram: 1, whatsapp: 2 }; /* demo; swap for real unread counts */
@@ -26881,7 +26907,7 @@ function al_customerInboxCard() {
   const chips = Object.entries(AL_INBOX_COUNTS).map(([ch, n]) =>
     `<span class="al-inbox-chip">${channelIcon(ch)}<span>${n}</span></span>`).join('');
   return `
-  <div class="al-card al-card-pinned al-card-inbox" data-group="inbox" onclick="openCustomerInboxPlaceholder()" style="cursor:pointer">
+  <div class="al-card al-card-pinned al-card-inbox" data-group="inbox" onclick="openCustomerInbox()" style="cursor:pointer">
     <div class="al-inbox-tilt" data-al-tilt>
       <div class="al-inbox-ico">${al_icon('message',22,'#fff',2.2)}</div>
       <div class="al-inbox-mid">

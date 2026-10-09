@@ -3641,6 +3641,10 @@ function closeOrderDetailsModal() {
         openOrdersView();
         return;
       }
+      if(btn.dataset.nav === "home" && window.parent !== window){
+        window.parent.postMessage({ type:"sv-close-inbox" }, "*");
+        return;
+      }
       console.log("Navigate to:", btn.dataset.nav);
     });
   });
@@ -3794,6 +3798,13 @@ function closeOrderDetailsModal() {
       try{ localStorage.setItem("sv_inbox_theme", next); }catch(e){ }
     });
   })();
+
+  /* Theme sync from the main app when embedded */
+  window.addEventListener("message", (e) => {
+    if(e.data && e.data.type === "sv-theme"){
+      document.documentElement.setAttribute("data-theme", e.data.dark ? "dark" : "light");
+    }
+  });
 
   /* ---------- Boot ---------- */
   initSupabase();
