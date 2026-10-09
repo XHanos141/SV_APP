@@ -4879,6 +4879,7 @@ function imgThumbPointerMove(e){
     const refNode = items[overIdx];
     if(fromIdx < overIdx) strip.insertBefore(_imgDrag.item, refNode.nextSibling);
     else strip.insertBefore(_imgDrag.item, refNode);
+    svSyncThumbMeta(strip);   // Cover badge + indexes follow the new order
 
     firstRects.forEach((first, el) => {
       const last = el.getBoundingClientRect();
@@ -4906,9 +4907,27 @@ function imgThumbPointerUp(){
   const { item } = _imgDrag;
   item.classList.remove('dragging');
   item.style.transform = '';
+  const stripEl = _imgDrag.strip;
   _imgDrag = null;
+  svSyncThumbMeta(stripEl);
   syncCurrentImg();
   applyImageToCards();
+}
+const SV_COVER_BADGE = '<span class="img-thumb-primary-badge"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.9 6.26L22 9.27l-5 4.87L18.2 21 12 17.56 5.8 21 7 14.14l-5-4.87 7.1-1.01L12 2z"/></svg>Cover</span>';
+/* Re-sync the Cover badge and the baked-in indexes after thumbnails were reordered in the DOM.
+   The first thumbnail is always the cover; handlers must point at each thumbnail's CURRENT position. */
+function svSyncThumbMeta(strip){
+  if(!strip) return;
+  strip.querySelectorAll('.img-thumb-item').forEach((el, i) => {
+    const badge = el.querySelector('.img-thumb-primary-badge');
+    if(i === 0 && !badge){
+      const rm = el.querySelector('.img-thumb-remove');
+      if(rm) rm.insertAdjacentHTML('beforebegin', SV_COVER_BADGE); else el.insertAdjacentHTML('beforeend', SV_COVER_BADGE);
+    } else if(i !== 0 && badge){ badge.remove(); }
+    el.setAttribute('onpointerdown', 'imgThumbPointerDown(event,' + i + ')');
+    const rm2 = el.querySelector('.img-thumb-remove');
+    if(rm2) rm2.setAttribute('onclick', 'event.stopPropagation();removeImageAt(' + i + ')');
+  });
 }
 function renderImgThumbStrip(){
   const strip = document.getElementById('imgThumbStrip');
@@ -4916,7 +4935,7 @@ function renderImgThumbStrip(){
   strip.innerHTML = currentImages.map((src, i) =>
     '<div class="img-thumb-item" onpointerdown="imgThumbPointerDown(event,' + i + ')" title="Hold to drag">' +
       '<img' + svImgAttrs(src, 300) + '>' +
-      (i === 0 ? '<span class="img-thumb-primary-badge"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.9 6.26L22 9.27l-5 4.87L18.2 21 12 17.56 5.8 21 7 14.14l-5-4.87 7.1-1.01L12 2z"/></svg>Cover</span>' : '') +
+      (i === 0 ? SV_COVER_BADGE : '') +
       '<div class="img-thumb-remove" onclick="event.stopPropagation();removeImageAt(' + i + ')"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></div>' +
     '</div>'
   ).join('') + (currentImages.length ? '<div class="img-thumb-add" onclick="document.getElementById(\'imgInput\').click()" aria-label="Add more photos"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></div>' : '');
