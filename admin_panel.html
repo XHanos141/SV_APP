@@ -448,6 +448,14 @@ input.input-error{border-color:var(--red)!important;background:var(--red-soft)!i
 .rte-color-wrap.pen-active button{background:var(--accent-soft);color:var(--accent)}
 .rte-color-hint{display:none;align-items:center;justify-content:space-between;gap:8px;background:var(--accent-soft);color:var(--accent);font-size:11.5px;font-weight:600;padding:8px 12px;border-radius:0 0 10px 10px;margin-top:-1px}
 .rte-color-hint.show{display:flex}
+.rte-scroll{flex-wrap:nowrap;overflow-x:auto;overflow-y:hidden;scrollbar-width:none;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain;gap:2px}
+.rte-scroll::-webkit-scrollbar{display:none}
+.rte-scroll>*{flex-shrink:0}
+.rte-scroll .rte-block-select{width:112px;margin-right:2px}
+.rte-scroll button.on{background:var(--accent-soft);color:var(--accent)}
+.rte-scroll.fade-r{-webkit-mask-image:linear-gradient(90deg,#000 calc(100% - 34px),transparent);mask-image:linear-gradient(90deg,#000 calc(100% - 34px),transparent)}
+.rte-scroll.fade-l{-webkit-mask-image:linear-gradient(270deg,#000 calc(100% - 34px),transparent);mask-image:linear-gradient(270deg,#000 calc(100% - 34px),transparent)}
+.rte-scroll.fade-l.fade-r{-webkit-mask-image:linear-gradient(90deg,transparent,#000 34px,#000 calc(100% - 34px),transparent);mask-image:linear-gradient(90deg,transparent,#000 34px,#000 calc(100% - 34px),transparent)}
 .rte-color-hint button{background:var(--accent);color:#fff;border:none;border-radius:6px;padding:4px 10px;font-size:11px;font-weight:700;cursor:pointer;flex-shrink:0}
 .gradient-swatch.active{border-color:var(--accent);transform:scale(1.1)}
 .toggle-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px dashed rgba(11,18,32,0.5)}
@@ -2484,66 +2492,27 @@ fill="#ed1d24"><rect width="512" height="512" rx="15%" fill="#ed1d24"/><path d="
 
   <div class="form-card">
     <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7V4h16v3M9 20h6M12 4v16"/></svg>Description</h3>
-    <div class="rte-toolbar" id="descToolbar" onmousedown="event.preventDefault()">
+    <div class="rte-toolbar rte-scroll" id="descToolbar" onmousedown="event.preventDefault()">
       <select class="rte-block-select" id="rteBlockSelect" onchange="rteBlock(this.value)" title="Text style">
-        <option value="p">Paragraph</option>
+        <option value="p">Normal</option>
         <option value="h2">Heading</option>
         <option value="h3">Subheading</option>
       </select>
       <span class="rte-sep"></span>
-      <button type="button" onclick="rteCmd('bold')" title="Bold"><b>B</b></button>
-      <button type="button" onclick="rteCmd('italic')" title="Italic"><i>I</i></button>
-      <button type="button" onclick="rteCmd('underline')" title="Underline"><u>U</u></button>
+      <button type="button" data-cmd="bold" onclick="rteCmd('bold')" title="Bold"><b>B</b></button>
+      <button type="button" data-cmd="italic" onclick="rteCmd('italic')" title="Italic"><i>I</i></button>
+      <button type="button" data-cmd="underline" onclick="rteCmd('underline')" title="Underline"><u>U</u></button>
       <span class="rte-sep"></span>
-      <div class="rte-color-wrap" id="rteColorWrap">
-        <button type="button" onclick="toggleRteColorPicker(event)" title="Text colour">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 17L11 5h2l4.5 12"/><path d="M7.5 13h9"/></svg>
-          <span class="rte-color-chip" id="rteColorChip" style="background:#1a2e4d"></span>
-        </button>
-        <div class="rte-color-pop" id="rteColorPop">
-          <div class="rte-color-grid">
-            <button type="button" class="rte-swatch" style="background:#1a2e4d" onclick="rteApplyColor('#1a2e4d')" title="Navy"></button>
-            <button type="button" class="rte-swatch" style="background:#009ddc" onclick="rteApplyColor('#009ddc')" title="Cyan"></button>
-            <button type="button" class="rte-swatch" style="background:#f26430" onclick="rteApplyColor('#f26430')" title="Orange"></button>
-            <button type="button" class="rte-swatch" style="background:#6761a8" onclick="rteApplyColor('#6761a8')" title="Purple"></button>
-            <button type="button" class="rte-swatch" style="background:#009b72" onclick="rteApplyColor('#009b72')" title="Green"></button>
-            <button type="button" class="rte-swatch" style="background:#d92d2d" onclick="rteApplyColor('#d92d2d')" title="Red"></button>
-            <button type="button" class="rte-swatch" style="background:#e0a800" onclick="rteApplyColor('#e0a800')" title="Gold"></button>
-            <button type="button" class="rte-swatch" style="background:#6b7280" onclick="rteApplyColor('#6b7280')" title="Grey"></button>
-            <button type="button" class="rte-swatch" style="background:#000000" onclick="rteApplyColor('#000000')" title="Black"></button>
-          </div>
-          <label class="rte-color-custom">
-            <input type="color" id="rteColorCustom" value="#1a2e4d" oninput="rteApplyColor(this.value)">
-            <span>Custom</span>
-          </label>
-        </div>
-      </div>
+      <button type="button" data-cmd="insertUnorderedList" onclick="rteCmd('insertUnorderedList')" title="Bullet list"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6h12M9 12h12M9 18h12"/><path d="M4 6h.01M4 12h.01M4 18h.01" stroke-width="3"/></svg></button>
+      <button type="button" data-cmd="insertOrderedList" onclick="rteCmd('insertOrderedList')" title="Numbered list"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 6h11M10 12h11M10 18h11"/><path d="M4 6h1v4M4 10h2"/><path d="M6 18H4c0-1 2-2 2-3s-1-1.5-2-1"/></svg></button>
       <span class="rte-sep"></span>
-      <button type="button" onclick="rteCmd('insertUnorderedList')" title="Bullet list">•≡</button>
-      <button type="button" onclick="rteCmd('insertOrderedList')" title="Numbered list">1≡</button>
+      <button type="button" id="rteLinkBtn" onclick="rteLink()" title="Add or remove link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 007.07 0l2.83-2.83a5 5 0 00-7.07-7.07L11.5 4.5"/><path d="M14 11a5 5 0 00-7.07 0L4.1 13.83a5 5 0 007.07 7.07L12.5 19.5"/></svg></button>
+      <button type="button" onclick="rteClear()" title="Clear formatting"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7V4h16v3"/><path d="M5 20h6"/><path d="M13 4 8 20"/><path d="m15 15 5 5"/><path d="m20 15-5 5"/></svg></button>
       <span class="rte-sep"></span>
-      <button type="button" onclick="rteCmd('justifyLeft')" title="Align left">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="15" y2="12"/><line x1="3" y1="18" x2="18" y2="18"/></svg>
-      </button>
-      <button type="button" onclick="rteCmd('justifyCenter')" title="Align center">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="6" y1="12" x2="18" y2="12"/><line x1="4" y1="18" x2="20" y2="18"/></svg>
-      </button>
-      <button type="button" onclick="rteCmd('justifyRight')" title="Align right">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="9" y1="12" x2="21" y2="12"/><line x1="6" y1="18" x2="21" y2="18"/></svg>
-      </button>
-      <span class="rte-sep"></span>
-      <button type="button" onclick="rteLink()" title="Insert link">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 007.07 0l2.83-2.83a5 5 0 00-7.07-7.07L11.5 4.5"/><path d="M14 11a5 5 0 00-7.07 0L4.1 13.83a5 5 0 007.07 7.07L12.5 19.5"/></svg>
-      </button>
-      <button type="button" onclick="rteCmd('unlink')" title="Remove link">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 007.07 0l1.41-1.41"/><path d="M14 11a5 5 0 00-7.07 0l-1.41 1.41"/><line x1="2" y1="2" x2="22" y2="22"/></svg>
-      </button>
-      <span class="rte-sep"></span>
-      <button type="button" onclick="rteCmd('undo')" title="Undo">↶</button>
-      <button type="button" onclick="rteCmd('redo')" title="Redo">↷</button>
+      <button type="button" onclick="rteCmd('undo')" title="Undo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7v6h6"/><path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13"/></svg></button>
+      <button type="button" onclick="rteCmd('redo')" title="Redo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 7v6h-6"/><path d="M3 17a9 9 0 0 1 9-9 9 9 0 0 1 6 2.3L21 13"/></svg></button>
     </div>
     <div class="rte-box" id="apInpDesc" contenteditable="true" oninput="updateAll();updateRteWordCount()" onmouseup="rteColorPenCheck()" ontouchend="rteColorPenCheck()" data-placeholder="Write a detailed product description...">Premium 100% Whey Protein Isolate, 24g protein per serving, gluten-free.</div>
-    <div class="rte-color-hint" id="rteColorHint">Colour pen active — select text to apply <button type="button" onclick="rteColorPenOff()">Done</button></div>
     <div class="rte-footer"><span id="rteWordCount">0 words</span></div>
   </div>
 
@@ -6391,12 +6360,57 @@ document.addEventListener('click', function(e){
   if(wrap && !wrap.contains(e.target)) document.getElementById('rteColorPop').classList.remove('open');
 });
 function rteLink(){
+  const box = document.getElementById('apInpDesc');
+  const sel = window.getSelection();
+  const node = sel && sel.anchorNode ? (sel.anchorNode.nodeType === 1 ? sel.anchorNode : sel.anchorNode.parentElement) : null;
+  box.focus();
+  if(node && box.contains(node) && node.closest('a')){
+    document.execCommand('unlink');
+    updateAll(); rteToolbarSync();
+    return;
+  }
   const url = prompt('Link URL:', 'https://');
   if(!url) return;
-  document.getElementById('apInpDesc').focus();
   document.execCommand('createLink', false, url);
-  updateAll();
+  updateAll(); rteToolbarSync();
 }
+function rteClear(){
+  document.getElementById('apInpDesc').focus();
+  document.execCommand('removeFormat');
+  document.execCommand('unlink');
+  document.execCommand('formatBlock', false, 'p');
+  updateAll(); rteToolbarSync();
+}
+function rteToolbarSync(){
+  const tb = document.getElementById('descToolbar'), box = document.getElementById('apInpDesc');
+  if(!tb || !box) return;
+  const sel = window.getSelection();
+  const inBox = sel && sel.rangeCount > 0 && box.contains(sel.anchorNode);
+  tb.querySelectorAll('button[data-cmd]').forEach(b => {
+    let on = false;
+    if(inBox){ try{ on = document.queryCommandState(b.dataset.cmd); }catch(e){} }
+    b.classList.toggle('on', !!on);
+  });
+  const node = inBox ? (sel.anchorNode.nodeType === 1 ? sel.anchorNode : sel.anchorNode.parentElement) : null;
+  const lk = document.getElementById('rteLinkBtn');
+  if(lk) lk.classList.toggle('on', !!(node && node.closest('a')));
+}
+function rteToolbarFade(){
+  const tb = document.getElementById('descToolbar');
+  if(!tb) return;
+  const max = tb.scrollWidth - tb.clientWidth;
+  tb.classList.toggle('fade-l', tb.scrollLeft > 4);
+  tb.classList.toggle('fade-r', max > 4 && tb.scrollLeft < max - 4);
+}
+(function(){
+  const tb = document.getElementById('descToolbar');
+  if(tb) tb.addEventListener('scroll', rteToolbarFade, { passive:true });
+  window.addEventListener('resize', rteToolbarFade);
+  if(tb && window.ResizeObserver) new ResizeObserver(rteToolbarFade).observe(tb);
+  document.addEventListener('selectionchange', rteToolbarSync);
+  setTimeout(rteToolbarFade, 0);
+  if(document.fonts && document.fonts.ready) document.fonts.ready.then(rteToolbarFade);
+})();
 function updateRteWordCount(){
   const el = document.getElementById('apInpDesc');
   const countEl = document.getElementById('rteWordCount');
