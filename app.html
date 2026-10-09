@@ -8043,7 +8043,15 @@ html[data-theme="dark"] #alertsTabContent .proxy-item-block { background: rgba(2
 .dc-meta-row.address-row span, .rw-crow.addr .rw-ctxt, .tx-addr-text, #alertsTabContent .customer-meta-row.address-row span {
   white-space: normal; overflow: visible; text-overflow: clip; overflow-wrap: anywhere; word-break: break-word;
 }
-/* Draft cards show the full address (collapsed and expanded); the rule above already wraps it */
+/* Draft cards stay compact: one line when collapsed, full address when expanded */
+.draft-card:not(.expanded) .dc-meta-row.address-row, .draft-card:not(.expanded) .rw-crow.addr { align-items: center; }
+.draft-card:not(.expanded) .dc-meta-row.address-row svg { margin-top: 0; }
+.draft-card:not(.expanded) .dc-meta-row.address-row span, .draft-card:not(.expanded) .rw-crow.addr .rw-ctxt {
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; overflow-wrap: normal; word-break: normal; min-width: 0;
+}
+/* Ready to Ship (web order) draft card, collapsed: address uses the full card width on one line (like Sales); amount sits on the row below */
+.rw-card:not(.expanded) .rw-crow.addr { grid-column: 1 / -1; grid-row: 4; }
+.rw-card:not(.expanded) .draft-row-amount { grid-column: 2; grid-row: 5; align-self: end; }
 /* Sales + Alerts cards: one line with … (Sales shows the full address when the card is expanded) */
 .tx-card-expand:not(.expanded) .tx-addr-rw { align-items: center; }
 .tx-card-expand:not(.expanded) .tx-addr-rw .rw-ctxt, .tx-card-expand:not(.expanded) .tx-addr-text,
