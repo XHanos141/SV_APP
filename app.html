@@ -1017,6 +1017,10 @@ html[data-theme="dark"] .cr-sum { color: rgba(255,255,255,.6); }
 .cr-chip .cr-txt { font-family: "Plus Jakarta Sans", sans-serif; font-size: 12px; font-weight: 800; color: #0B1220; }
 .cr-chip.on { border-color: #7c6ff7; box-shadow: 0 0 0 3px rgba(124,111,247,.3); }
 .cr-chip[disabled] { opacity: .35; pointer-events: none; }
+.cr-seg { display: flex; gap: 6px; margin-bottom: 12px; justify-content: center; }
+.cr-seg button { height: 32px; padding: 0 14px; border-radius: 10px; border: 1.5px solid #d9dde5; background: transparent; color: #6b7280; font-family: "Plus Jakarta Sans", sans-serif; font-size: 12px; font-weight: 800; cursor: pointer; }
+html[data-theme="dark"] .cr-seg button { border-color: rgba(255,255,255,.18); color: rgba(255,255,255,.6); }
+.cr-seg button.on { border-color: #7c6ff7; background: rgba(124,111,247,.14); color: #7c6ff7; }
 .cr-note { width: 100%; min-height: 54px; resize: none; border-radius: 12px; border: 1.5px solid #d9dde5; background: transparent; color: inherit; font-family: "DM Sans", sans-serif; font-size: 13px; padding: 9px 12px; margin-bottom: 10px; box-sizing: border-box; }
 html[data-theme="dark"] .cr-note { border-color: rgba(255,255,255,.18); color: #fff; }
 .cr-test { display: flex; align-items: center; justify-content: center; gap: 7px; font-size: 12px; font-weight: 700; color: #b45309; margin-bottom: 10px; cursor: pointer; }
@@ -20922,7 +20926,7 @@ const CR_LOGOS = {"steadfast": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBo
 
 async function rwBookCourier(orderUuid, pick) {
   const { data, error } = await sb.functions.invoke('courier', {
-    body: { courier: pick.courier, action: 'book', order_id: orderUuid, note: pick.note || '', dry_run: !!pick.test }
+    body: { courier: pick.courier, action: 'book', order_id: orderUuid, note: pick.note || '', delivery_type: pick.delivery_type || 0, dry_run: !!pick.test }
   });
   if (error) {
     let msg = '';
@@ -20952,13 +20956,14 @@ async function rwCourierSheet(d) {
       + '<h3>Send ' + escapeHtml(d.orderId) + '</h3>'
       + '<div class="cr-sum">' + escapeHtml(d.name || '') + ' · ' + escapeHtml(d.phone || '') + '<br>' + (d.cod ? 'COD ' + rwMoney(d.total) : 'Prepaid') + '</div>'
       + '<div class="cr-chips">' + chips + '</div>'
+      + '<div class="cr-seg"><button type="button" class="on" data-dt="0">Home delivery</button><button type="button" data-dt="1">Point delivery</button></div>'
       + '<textarea class="cr-note" maxlength="480" placeholder="Note for rider (optional)"></textarea>'
       + '<label class="cr-test"><input type="checkbox" class="cr-testbox" checked> Test only — check, do not book</label>'
       + '<div class="cr-err"></div>'
       + '<div class="svc-fp"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 11c0 3-1 5-2 7M8 15c.5-1 1-2.3 1-4a3 3 0 0 1 6 0c0 2.5-.5 5-1.5 7M5 12a7 7 0 0 1 14 0c0 2-.2 3.5-.6 5M4.5 17c.3-1.5.5-3 .5-5"/></svg>Fingerprint required</div>'
       + '<div class="svc-btns"><button type="button" class="svc-no">Cancel</button><button type="button" class="svc-yes">Test</button></div>'
       + '<button type="button" class="cr-manual">Mark shipped without courier</button></div>';
-    let chosen = '';
+    let chosen = '', dtype = 0;
     const yes = ov.querySelector('.svc-yes'), err = ov.querySelector('.cr-err'), box = ov.querySelector('.cr-testbox');
     const done = v => {
       ov.classList.remove('show');
@@ -20973,13 +20978,18 @@ async function rwCourierSheet(d) {
       chosen = b.dataset.code; err.classList.remove('show');
       ov.querySelectorAll('.cr-chip').forEach(x => x.classList.toggle('on', x === b));
     }));
+    ov.querySelectorAll('.cr-seg button').forEach(b => b.addEventListener('click', e => {
+      e.stopPropagation();
+      dtype = Number(b.dataset.dt);
+      ov.querySelectorAll('.cr-seg button').forEach(x => x.classList.toggle('on', x === b));
+    }));
     box.addEventListener('change', () => { yes.textContent = box.checked ? 'Test' : 'Send'; });
     ov.querySelector('.svc-no').addEventListener('click', e => { e.stopPropagation(); done(null); });
     ov.querySelector('.cr-manual').addEventListener('click', e => { e.stopPropagation(); done({ courier: null }); });
     yes.addEventListener('click', e => {
       e.stopPropagation();
       if (!chosen) { err.textContent = 'Pick a courier first.'; err.classList.add('show'); return; }
-      done({ courier: chosen, note: ov.querySelector('.cr-note').value.trim(), test: box.checked });
+      done({ courier: chosen, note: ov.querySelector('.cr-note').value.trim(), test: box.checked, delivery_type: dtype });
     });
     document.addEventListener('keydown', onKey);
     document.body.appendChild(ov);
@@ -21012,7 +21022,7 @@ async function rwAdvance(idx, event) {
           return;
         }
         if (pick.test) {
-          await svConfirmSheet({ tone: 'info', title: 'Test passed', text: 'Nothing was booked. ' + res.payload.invoice + ' · COD ' + rwMoney(res.payload.cod_amount) + ' · ' + res.payload.phone, confirmLabel: 'OK', fingerprint: false });
+          await svConfirmSheet({ tone: 'info', title: 'Test passed', text: 'Nothing was booked. ' + res.payload.invoice + ' · ' + res.payload.name + ' · ' + res.payload.phone + ' · ' + (res.payload.cod_amount ? 'COD ' + rwMoney(res.payload.cod_amount) : 'Prepaid') + ' · ' + (res.payload.delivery_type === 1 ? 'Point delivery' : 'Home delivery') + '. Address: ' + res.payload.address, confirmLabel: 'OK', fingerprint: false });
           return;
         }
         if (res.stage_error) { showToast('⚠ Parcel booked (' + res.tracking_code + ') but order not marked shipped — use "Mark shipped without courier"'); return; }
