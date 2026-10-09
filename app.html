@@ -21003,7 +21003,12 @@ async function rwAdvance(idx, event) {
       if (!pick) return;
       await requireFingerprint();
       if (pick.courier) {
-        const res = await rwBookCourier(uuid, pick);
+        let res;
+        try { res = await rwBookCourier(uuid, pick); }
+        catch (e) {
+          await svConfirmSheet({ tone: 'danger', title: 'Could not send ' + oid, text: _dbErrMsg(e), confirmLabel: 'OK', fingerprint: false });
+          return;
+        }
         if (pick.test) {
           await svConfirmSheet({ tone: 'info', title: 'Test passed', text: 'Nothing was booked. ' + res.payload.invoice + ' · COD ' + rwMoney(res.payload.cod_amount) + ' · ' + res.payload.phone, confirmLabel: 'OK', fingerprint: false });
           return;
@@ -26820,10 +26825,10 @@ function renderOrderDetailsCustomer(o) {
 function openOrderDetailsModal(order) {
   const overlay = document.getElementById("orderDetailsModal");
   if (!overlay || !order) return;
-  renderOrderDetailsCustomerorder;
-  renderOrderDetailsHeadorder;
+  renderOrderDetailsCustomer(order);
+  renderOrderDetailsHead(order);
   renderOrderDetailsItems(order.items);
-  renderOrderDetailsSummaryorder;
+  renderOrderDetailsSummary(order);
   renderOrderDetailsPayment(order.payment);
   requestAnimationFrame(() => requestAnimationFrame(() => {
     overlay.classList.add("active");
