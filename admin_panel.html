@@ -6378,7 +6378,9 @@ function rteClear(){
   document.getElementById('apInpDesc').focus();
   document.execCommand('removeFormat');
   document.execCommand('unlink');
-  document.execCommand('formatBlock', false, 'p');
+  const sel = window.getSelection();
+  const n = sel && sel.anchorNode ? (sel.anchorNode.nodeType === 1 ? sel.anchorNode : sel.anchorNode.parentElement) : null;
+  if(!(n && n.closest('li'))) document.execCommand('formatBlock', false, 'P');
   updateAll(); rteToolbarSync();
 }
 function rteToolbarSync(){
@@ -6394,6 +6396,12 @@ function rteToolbarSync(){
   const node = inBox ? (sel.anchorNode.nodeType === 1 ? sel.anchorNode : sel.anchorNode.parentElement) : null;
   const lk = document.getElementById('rteLinkBtn');
   if(lk) lk.classList.toggle('on', !!(node && node.closest('a')));
+  const bs = document.getElementById('rteBlockSelect');
+  if(bs && node && document.activeElement !== bs){
+    const blk = node.closest('h2,h3');
+    const v = blk && box.contains(blk) ? blk.tagName.toLowerCase() : 'p';
+    if(bs.value !== v) bs.value = v;
+  }
 }
 function rteToolbarFade(){
   const tb = document.getElementById('descToolbar');
