@@ -434,10 +434,20 @@ input.input-error{border-color:var(--red)!important;background:var(--red-soft)!i
 .rte-toolbar button svg{width:19px;height:19px}
 .rte-block-select{height:40px;border:1px solid var(--border);border-radius:8px;background:var(--surface);color:var(--text);font-size:13.5px;font-weight:600;padding:0 10px;cursor:pointer;font-family:var(--font-body);flex-shrink:0}
 .rte-footer{display:flex;justify-content:flex-end;padding:5px 2px 0;font-size:10.5px;color:var(--text3)}
-.rte-color-wrap{position:static}
+.rte-tb-wrap{position:relative}
+.rte-color-wrap{position:static;flex-shrink:0}
+.rte-style-btn{width:auto!important;padding:0 10px 0 14px;gap:6px;border:1px solid var(--border)!important;background:var(--surface)!important;font-size:13.5px!important;font-weight:600;flex-shrink:0}
+.rte-style-btn svg{width:14px!important;height:14px!important;color:var(--text3)}
+.rte-pop{display:none;position:absolute;top:calc(100% + 6px);left:0;z-index:30}
+.rte-pop.open{display:block}
+.rte-style-menu{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:6px;box-shadow:0 8px 24px rgba(0,0,0,.18);min-width:170px}
+.rte-style-menu button{width:100%;height:auto;justify-content:flex-start;padding:10px 12px;border-radius:8px;border:none;background:transparent;color:var(--text);cursor:pointer;font-family:var(--font-body);text-align:left}
+.rte-style-menu button.on{background:var(--accent-soft);color:var(--accent)}
+.rte-style-menu .s-h2{font-size:18px;font-weight:800}
+.rte-style-menu .s-h3{font-size:15px;font-weight:700}
 .rte-color-wrap button{position:relative;flex-direction:column;gap:3px}
 .rte-color-chip{width:16px;height:3px;border-radius:2px;flex-shrink:0}
-.rte-color-pop{display:none;position:absolute;top:calc(100% + 6px);left:0;right:auto;z-index:20;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:10px;box-shadow:0 8px 24px rgba(0,0,0,.18);width:150px;max-width:calc(100vw - 80px)}
+.rte-color-pop{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:10px;box-shadow:0 8px 24px rgba(0,0,0,.18);width:150px;max-width:calc(100vw - 80px)}
 .rte-color-pop.open{display:block}
 .rte-color-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:8px}
 .rte-swatch{width:26px;height:26px;border-radius:8px;border:1.5px solid var(--border);cursor:pointer;padding:0}
@@ -2492,16 +2502,19 @@ fill="#ed1d24"><rect width="512" height="512" rx="15%" fill="#ed1d24"/><path d="
 
   <div class="form-card">
     <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7V4h16v3M9 20h6M12 4v16"/></svg>Description</h3>
-    <div class="rte-toolbar rte-scroll" id="descToolbar" onmousedown="event.preventDefault()">
-      <select class="rte-block-select" id="rteBlockSelect" onchange="rteBlock(this.value)" title="Text style">
-        <option value="p">Normal</option>
-        <option value="h2">Heading</option>
-        <option value="h3">Subheading</option>
-      </select>
+    <div class="rte-tb-wrap" id="rteTbWrap">
+    <div class="rte-toolbar rte-scroll" id="descToolbar" onmousedown="if(!event.target.closest('select,input'))event.preventDefault()">
+      <button type="button" class="rte-style-btn" id="rteStyleBtn" onclick="rteTogglePop('rteStyleMenu',this,event)" title="Text style"><span id="rteStyleLabel">Normal</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
       <span class="rte-sep"></span>
       <button type="button" data-cmd="bold" onclick="rteCmd('bold')" title="Bold"><b>B</b></button>
       <button type="button" data-cmd="italic" onclick="rteCmd('italic')" title="Italic"><i>I</i></button>
       <button type="button" data-cmd="underline" onclick="rteCmd('underline')" title="Underline"><u>U</u></button>
+      <div class="rte-color-wrap" id="rteColorWrap">
+        <button type="button" onclick="toggleRteColorPicker(event)" title="Text colour">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 17L11 5h2l4.5 12"/><path d="M7.5 13h9"/></svg>
+          <span class="rte-color-chip" id="rteColorChip" style="background:#009ddc"></span>
+        </button>
+      </div>
       <span class="rte-sep"></span>
       <button type="button" data-cmd="insertUnorderedList" onclick="rteCmd('insertUnorderedList')" title="Bullet list"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6h12M9 12h12M9 18h12"/><path d="M4 6h.01M4 12h.01M4 18h.01" stroke-width="3"/></svg></button>
       <button type="button" data-cmd="insertOrderedList" onclick="rteCmd('insertOrderedList')" title="Numbered list"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 6h11M10 12h11M10 18h11"/><path d="M4 6h1v4M4 10h2"/><path d="M6 18H4c0-1 2-2 2-3s-1-1.5-2-1"/></svg></button>
@@ -2512,6 +2525,30 @@ fill="#ed1d24"><rect width="512" height="512" rx="15%" fill="#ed1d24"/><path d="
       <button type="button" onclick="rteCmd('undo')" title="Undo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7v6h6"/><path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13"/></svg></button>
       <button type="button" onclick="rteCmd('redo')" title="Redo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 7v6h-6"/><path d="M3 17a9 9 0 0 1 9-9 9 9 0 0 1 6 2.3L21 13"/></svg></button>
     </div>
+    <div class="rte-pop rte-style-menu" id="rteStyleMenu" onmousedown="event.preventDefault()">
+      <button type="button" data-v="p" onclick="rtePickStyle('p')">Normal</button>
+      <button type="button" data-v="h2" class="s-h2" onclick="rtePickStyle('h2')">Heading</button>
+      <button type="button" data-v="h3" class="s-h3" onclick="rtePickStyle('h3')">Subheading</button>
+    </div>
+    <div class="rte-pop rte-color-pop" id="rteColorPop">
+      <div class="rte-color-grid">
+            <button type="button" class="rte-swatch" style="background:#1a2e4d" onclick="rteApplyColor('#1a2e4d')" title="Navy"></button>
+            <button type="button" class="rte-swatch" style="background:#009ddc" onclick="rteApplyColor('#009ddc')" title="Cyan"></button>
+            <button type="button" class="rte-swatch" style="background:#f26430" onclick="rteApplyColor('#f26430')" title="Orange"></button>
+            <button type="button" class="rte-swatch" style="background:#6761a8" onclick="rteApplyColor('#6761a8')" title="Purple"></button>
+            <button type="button" class="rte-swatch" style="background:#009b72" onclick="rteApplyColor('#009b72')" title="Green"></button>
+            <button type="button" class="rte-swatch" style="background:#d92d2d" onclick="rteApplyColor('#d92d2d')" title="Red"></button>
+            <button type="button" class="rte-swatch" style="background:#e0a800" onclick="rteApplyColor('#e0a800')" title="Gold"></button>
+            <button type="button" class="rte-swatch" style="background:#6b7280" onclick="rteApplyColor('#6b7280')" title="Grey"></button>
+            <button type="button" class="rte-swatch" style="background:#000000" onclick="rteApplyColor('#000000')" title="Black"></button>
+      </div>
+      <label class="rte-color-custom">
+        <input type="color" id="rteColorCustom" value="#009ddc" oninput="rteApplyColor(this.value)">
+        <span>Custom</span>
+      </label>
+    </div>
+    </div>
+    <div class="rte-color-hint" id="rteColorHint">Colour pen active — select text to apply <button type="button" onclick="rteColorPenOff()">Done</button></div>
     <div class="rte-box" id="apInpDesc" contenteditable="true" oninput="updateAll();updateRteWordCount()" onmouseup="rteColorPenCheck()" ontouchend="rteColorPenCheck()" data-placeholder="Write a detailed product description...">Premium 100% Whey Protein Isolate, 24g protein per serving, gluten-free.</div>
     <div class="rte-footer"><span id="rteWordCount">0 words</span></div>
   </div>
@@ -6325,13 +6362,28 @@ function rteBlock(tag){
   updateAll();
 }
 let rteActiveColor = null;
+function rteClosePops(){
+  ['rteStyleMenu','rteColorPop'].forEach(id => { const e = document.getElementById(id); if(e) e.classList.remove('open'); });
+}
+function rteTogglePop(id, btn, evt){
+  if(evt) evt.stopPropagation();
+  const pop = document.getElementById(id), wrap = document.getElementById('rteTbWrap');
+  if(!pop || !wrap) return;
+  const was = pop.classList.contains('open');
+  rteClosePops();
+  if(was) return;
+  pop.classList.add('open');
+  const wr = wrap.getBoundingClientRect(), br = btn.getBoundingClientRect();
+  pop.style.left = Math.max(0, Math.min(br.left - wr.left, wr.width - pop.offsetWidth)) + 'px';
+}
 function toggleRteColorPicker(evt){
-  evt.stopPropagation();
-  if(rteActiveColor){
-    rteColorPenOff();
-    return;
-  }
-  document.getElementById('rteColorPop').classList.toggle('open');
+  if(rteActiveColor){ evt.stopPropagation(); rteColorPenOff(); return; }
+  rteTogglePop('rteColorPop', evt.currentTarget, evt);
+}
+function rtePickStyle(v){
+  rteBlock(v);
+  rteClosePops();
+  rteToolbarSync();
 }
 function rteApplyColor(hex){
   rteActiveColor = hex;
@@ -6340,6 +6392,7 @@ function rteApplyColor(hex){
   document.getElementById('rteColorPop').classList.remove('open');
   document.getElementById('rteColorWrap').classList.add('pen-active');
   document.getElementById('rteColorHint').classList.add('show');
+  rteColorPenCheck();
 }
 function rteColorPenCheck(){
   if(!rteActiveColor) return;
@@ -6356,8 +6409,7 @@ function rteColorPenOff(){
   document.getElementById('rteColorHint').classList.remove('show');
 }
 document.addEventListener('click', function(e){
-  const wrap = document.getElementById('rteColorWrap');
-  if(wrap && !wrap.contains(e.target)) document.getElementById('rteColorPop').classList.remove('open');
+  if(!e.target.closest('#rteTbWrap')) rteClosePops();
 });
 function rteLink(){
   const box = document.getElementById('apInpDesc');
@@ -6396,11 +6448,12 @@ function rteToolbarSync(){
   const node = inBox ? (sel.anchorNode.nodeType === 1 ? sel.anchorNode : sel.anchorNode.parentElement) : null;
   const lk = document.getElementById('rteLinkBtn');
   if(lk) lk.classList.toggle('on', !!(node && node.closest('a')));
-  const bs = document.getElementById('rteBlockSelect');
-  if(bs && node && document.activeElement !== bs){
+  if(node){
     const blk = node.closest('h2,h3');
     const v = blk && box.contains(blk) ? blk.tagName.toLowerCase() : 'p';
-    if(bs.value !== v) bs.value = v;
+    const lbl = document.getElementById('rteStyleLabel');
+    if(lbl) lbl.textContent = v === 'h2' ? 'Heading' : (v === 'h3' ? 'Subheading' : 'Normal');
+    document.querySelectorAll('#rteStyleMenu button').forEach(b => b.classList.toggle('on', b.dataset.v === v));
   }
 }
 function rteToolbarFade(){
