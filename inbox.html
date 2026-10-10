@@ -1346,6 +1346,9 @@
 
   .cs-notes__head{ display:flex; align-items:center; justify-content:space-between; gap:8px; margin:18px 0 8px; }
   .cs-notes__head .cust-sheet__section-label{ margin:0; }
+  .cs-orders__head{ margin:20px 0 9px; }
+  .cs-viewall{ font-size:12px; font-weight:700; color:var(--cyan); padding:4px 0 4px 8px; cursor:pointer; }
+  .cs-viewall:active{ opacity:.6; }
   .cs-private{
     display:inline-flex; align-items:center; gap:4px; font-size:10.5px; font-weight:700; color:var(--orange);
     background:rgba(242,100,48,.12); padding:3px 9px; border-radius:100px;
@@ -3001,8 +3004,11 @@ function closeOrderDetailsModal() {
     if(!o) return;
     openOrderDetailsModal(Object.assign(buildOdmOrder(cust, o), { hideCustomer:true }));
   }
+  function currentOrdersOf(cust){
+    return cust.current_orders || (cust.current_order ? [cust.current_order] : []);
+  }
   function allOrdersOf(cust){
-    return [...(cust.current_order ? [cust.current_order] : []), ...(cust.past_orders || [])];
+    return [...currentOrdersOf(cust), ...(cust.past_orders || [])];
   }
   const isOrderRecord = (o) => /^(SV|PX)-/.test(o.id);
   function orderKind(id){ return /^PX-/.test(id) ? "Proxy order" : /^RT-/.test(id) ? "Return" : "Order"; }
@@ -3297,18 +3303,19 @@ function closeOrderDetailsModal() {
         <div class="platform-list">${platformsHtml}</div>`;
     }
 
-    const recs = allOrdersOf(cust);
-    const currentHtml = cust.current_order
-      ? orderCardHtml(cust.current_order, true)
+    const ORDERS_SHOWN = 2;   // each section shows at most 2 cards; "View all" appears only when there are more
+    const curAll = currentOrdersOf(cust);
+    const prevAll = cust.past_orders || [];
+    const sectionHead = (icon, label, total) => `<div class="cs-notes__head cs-orders__head">
+        <div class="cust-sheet__section-label">${icon}${label}</div>
+        ${total > ORDERS_SHOWN ? `<button type="button" class="cs-viewall" data-act="all-orders">View all</button>` : ""}
+      </div>`;
+    const currentHtml = curAll.length
+      ? curAll.slice(0, ORDERS_SHOWN).map(orderCardHtml).join("")
       : `<div class="empty-note">No order currently in progress.</div>`;
-    const prev = cust.past_orders || [];
-    const PREV_MAX = 3;
-    const prevHtml = prev.length
-      ? prev.slice(0, PREV_MAX).map(orderRowHtml).join("")
+    const prevHtml = prevAll.length
+      ? prevAll.slice(0, ORDERS_SHOWN).map(orderRowHtml).join("")
       : `<div class="empty-note">No previous orders.</div>`;
-    const viewAll = recs.length
-      ? `<button type="button" class="cs-linkbtn" data-act="all-orders">${ICONS.list}View all orders (${recs.length})</button>`
-      : "";
 
     return `
       ${idCardHtml(cust)}
@@ -3317,12 +3324,11 @@ function closeOrderDetailsModal() {
       <div class="cust-sheet__section-label">${ICONS.chan}Connected channels</div>
       <div class="platform-list">${platformsHtml}</div>
 
-      <div class="cust-sheet__section-label">${ICONS.bag}Current order</div>
+      ${sectionHead(ICONS.bag, curAll.length > 1 ? "Current orders" : "Current order", curAll.length)}
       ${currentHtml}
 
-      <div class="cust-sheet__section-label">${ICONS.clock}Previous orders</div>
+      ${sectionHead(ICONS.clock, "Previous orders", prevAll.length)}
       ${prevHtml}
-      ${viewAll}
 
       <div class="cust-sheet__section-label">${ICONS.tag}Customer tags</div>
       <div id="csTags">${tagsSectionHtml()}</div>
