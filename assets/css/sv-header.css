@@ -5,17 +5,20 @@
      <button class="sv-header__back" aria-label="Back"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg></button>
      <div class="sv-header__title"><div class="sv-header__t">Title</div><div class="sv-header__sub">Subtitle</div></div>
      <div class="sv-header__spacer" aria-hidden="true"></div>
+     (optional) <div class="sv-header__end">…badge/actions…</div> instead of the spacer
    </div> */
 .sv-header{
-  position:relative;z-index:10;flex-shrink:0;
+  position:relative;z-index:10;flex-shrink:0;container-type:inline-size;--sv-side:44px;
   height:var(--sv-header-h,56px);padding:0 16px;
-  display:grid;grid-template-columns:36px 1fr 36px;align-items:center;column-gap:8px;
+  display:grid;grid-template-columns:minmax(36px,1fr) auto minmax(36px,1fr);align-items:center;column-gap:8px;
   background:radial-gradient(ellipse 80% 60% at 50% -10%,rgba(255,255,255,.03) 0%,transparent 65%),radial-gradient(ellipse 60% 80% at -10% 0%,rgba(124,111,247,.18) 0%,transparent 55%),linear-gradient(180deg,#0f3258 0%,#002248 22%,#001f3c 55%,#001532 82%,#000d20 100%);
   box-shadow:inset 0 1px 0 rgba(255,255,255,.06),inset 0 -1px 0 rgba(0,0,0,.65),0 6px 28px rgba(0,0,0,.55),0 1px 2px rgba(0,0,0,.7);
   border-bottom:1px solid rgba(0,0,0,.5);
 }
+.sv-header:has(.sv-header__end){--sv-side:96px}
 .sv-header--sticky{position:sticky;top:0;z-index:50}
 .sv-header__back{
+  justify-self:start;
   width:36px;height:36px;padding:0;border-radius:10px;cursor:pointer;color:#fff;
   background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);
   display:flex;align-items:center;justify-content:center;transition:background .2s,transform .15s;
@@ -23,7 +26,8 @@
 .sv-header__back:hover{background:rgba(255,255,255,.18)}
 .sv-header__back:active{transform:scale(.92);background:rgba(255,255,255,.18)}
 .sv-header__back svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
-.sv-header__title{min-width:0;text-align:center}
+.sv-header__title{min-width:0;max-width:calc(100cqw - 2 * var(--sv-side));text-align:center}
+.sv-header__end{justify-self:end;display:flex;align-items:center;gap:8px;min-width:0}
 .sv-header__t{font-family:"Plus Jakarta Sans",system-ui,sans-serif;font-size:16px;font-weight:800;letter-spacing:-.3px;line-height:1.2;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .sv-header__sub{font-size:10px;font-weight:600;line-height:1.3;color:rgba(255,255,255,.5);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .sv-header__spacer{width:36px;height:36px}

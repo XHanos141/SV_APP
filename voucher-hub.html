@@ -2584,21 +2584,11 @@ html[data-theme="light"]{
 
 .app-shell{width:100%;max-width:420px;height:100vh;background:var(--surface);display:flex;flex-direction:column;overflow:hidden;box-shadow:0 0 80px rgba(0,0,0,.5);transition:background .4s ease;position:relative}
 
-/* HEADER */
-.analytics-header{
-  flex-shrink:0;
-  background:radial-gradient(ellipse 80% 60% at 50% -10%,rgba(124,111,247,.12) 0%,transparent 60%),linear-gradient(180deg,#0f3258 0%,#001f3c 70%);
-  padding:0 16px;height:56px;display:flex;align-items:center;gap:10px;
-  border-bottom:1px solid rgba(0,0,0,.4);box-shadow:0 4px 18px rgba(0,0,0,.4);z-index:10;
-}
-html[data-theme="light"] .analytics-header{background:linear-gradient(180deg,#1e4a7c 0%,#163a62 100%)}
+/* HEADER (shared: assets/css/sv-header.css) */
 .back-btn{width:32px;height:32px;border-radius:9px;background:rgba(255,255,255,.1);border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#fff;flex-shrink:0;transition:background .2s ease}
 .back-btn:hover{background:rgba(255,255,255,.18)}
 .back-btn svg{width:16px;height:16px}
-.header-info{flex:1;min-width:0}
-.header-code{font-family:"Roboto Mono",monospace;font-size:13px;font-weight:700;color:#fff;letter-spacing:.04em}
-.header-name{font-size:11px;font-weight:500;color:rgba(255,255,255,.5);margin-top:1px}
-.header-right{display:flex;align-items:center;gap:8px}
+.sv-header__t.header-code{font-family:"Roboto Mono",monospace;font-size:15px;letter-spacing:.04em}
 .header-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:99px;font-size:10px;font-weight:800;background:var(--success-dim);color:var(--success);border:1px solid rgba(47,155,104,.25);flex-shrink:0}
 .header-badge.paused{background:rgba(148,163,184,.1);color:#94a3b8;border:1px solid rgba(148,163,184,.2)}
 .header-badge.archived{background:rgba(100,116,139,.1);color:#64748b;border:1px solid rgba(100,116,139,.15)}
@@ -3013,17 +3003,16 @@ html[data-theme="light"] .channel-filter-bar .slide-indicator{
 <div class="app-shell">
 
   <!-- HEADER -->
-  <div class="analytics-header">
-    <button class="back-btn" onclick="hubGoBack()">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+  <div class="sv-header">
+    <button class="sv-header__back" onclick="hubGoBack()" aria-label="Back">
+      <svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg>
     </button>
-    <div class="header-info">
-      <div class="header-code" id="headerCode">SUP-EVT-EID24</div>
-      <div class="header-name" id="headerName">EID SPECIAL · Analytics</div>
+    <div class="sv-header__title">
+      <div class="sv-header__t header-code" id="headerCode">SUP-EVT-EID24</div>
+      <div class="sv-header__sub" id="headerName">EID SPECIAL · Analytics</div>
     </div>
-    <div class="header-right">
+    <div class="sv-header__end">
       <div class="header-badge" id="headerBadge"><div class="pulse-dot"></div> Active</div>
-
     </div>
   </div>
 
