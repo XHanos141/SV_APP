@@ -428,8 +428,8 @@ input.input-error{border-color:var(--red)!important;background:var(--red-soft)!i
 .rte-box:focus{border-color:var(--accent)}
 .rte-box:empty:before{content:attr(data-placeholder);color:var(--text3)}
 .rte-box ul,.rte-box ol{padding-left:20px;margin:4px 0}
-.rte-box h2{font-family:var(--font-display);font-size:18px;font-weight:800;color:var(--text);margin:10px 0 4px;line-height:1.25}
-.rte-box h3{font-family:var(--font-display);font-size:15px;font-weight:700;color:var(--text);margin:8px 0 4px;line-height:1.3}
+.rte-box h2{font-family:var(--font-display);font-size:22px;font-weight:800;color:var(--text);margin:10px 0 4px;line-height:1.25}
+.rte-box h3{font-family:var(--font-display);font-size:17px;font-weight:700;color:var(--text);margin:8px 0 4px;line-height:1.3}
 .rte-box a{color:var(--accent);text-decoration:underline}
 .rte-toolbar button svg{width:19px;height:19px}
 .rte-block-select{height:40px;border:1px solid var(--border);border-radius:8px;background:var(--surface);color:var(--text);font-size:13.5px;font-weight:600;padding:0 10px;cursor:pointer;font-family:var(--font-body);flex-shrink:0}
@@ -6440,12 +6440,13 @@ function rteToolbarSync(){
   if(!tb || !box) return;
   const sel = window.getSelection();
   const inBox = sel && sel.rangeCount > 0 && box.contains(sel.anchorNode);
-  tb.querySelectorAll('button[data-cmd]').forEach(b => {
-    let on = false;
-    if(inBox){ try{ on = document.queryCommandState(b.dataset.cmd); }catch(e){} }
-    b.classList.toggle('on', !!on);
-  });
   const node = inBox ? (sel.anchorNode.nodeType === 1 ? sel.anchorNode : sel.anchorNode.parentElement) : null;
+  const MAP = { bold:'b,strong', italic:'i,em', underline:'u', insertUnorderedList:'ul', insertOrderedList:'ol' };
+  tb.querySelectorAll('button[data-cmd]').forEach(b => {
+    const q = MAP[b.dataset.cmd];
+    const hit = node && q ? node.closest(q) : null;
+    b.classList.toggle('on', !!(hit && box.contains(hit)));
+  });
   const lk = document.getElementById('rteLinkBtn');
   if(lk) lk.classList.toggle('on', !!(node && node.closest('a')));
   if(node){
@@ -6463,12 +6464,23 @@ function rteToolbarFade(){
   tb.classList.toggle('fade-l', tb.scrollLeft > 4);
   tb.classList.toggle('fade-r', max > 4 && tb.scrollLeft < max - 4);
 }
+let rteComposing = false, rteSyncT = 0;
+function rteToolbarSyncSoon(){
+  if(rteComposing) return;
+  clearTimeout(rteSyncT);
+  rteSyncT = setTimeout(rteToolbarSync, 150);
+}
 (function(){
   const tb = document.getElementById('descToolbar');
+  const bx = document.getElementById('apInpDesc');
+  if(bx){
+    bx.addEventListener('compositionstart', function(){ rteComposing = true; });
+    bx.addEventListener('compositionend', function(){ rteComposing = false; rteToolbarSyncSoon(); });
+  }
   if(tb) tb.addEventListener('scroll', rteToolbarFade, { passive:true });
   window.addEventListener('resize', rteToolbarFade);
   if(tb && window.ResizeObserver) new ResizeObserver(rteToolbarFade).observe(tb);
-  document.addEventListener('selectionchange', rteToolbarSync);
+  document.addEventListener('selectionchange', rteToolbarSyncSoon);
   setTimeout(rteToolbarFade, 0);
   if(document.fonts && document.fonts.ready) document.fonts.ready.then(rteToolbarFade);
 })();
