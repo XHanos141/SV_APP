@@ -2428,6 +2428,9 @@ function renderOrderDetailsHead(o) {
 function renderOrderDetailsCustomer(o) {
   const box = document.getElementById("odmCustomerSection");
   if (!box) return;
+  /* Opened from the customer profile: that customer is already on screen, so skip the Customer Info block */
+  box.style.display = o.hideCustomer ? "none" : "";
+  if (o.hideCustomer) { box.innerHTML = ""; return; }
   const label = `<div class="odm-section-label"><svg fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><use href="#icon-user-profile"/></svg>Customer Info</div>`;
   if (o.registered && window.SVCustomerCard) {
     box.innerHTML = `${label}<div id="odmProfileCard"></div>`;
@@ -2996,7 +2999,7 @@ function closeOrderDetailsModal() {
     const cust = getSheetCustomer();
     const o = allOrdersOf(cust).find(x => x.id === oid);
     if(!o) return;
-    openOrderDetailsModal(buildOdmOrder(cust, o));
+    openOrderDetailsModal(Object.assign(buildOdmOrder(cust, o), { hideCustomer:true }));
   }
   function allOrdersOf(cust){
     return [...(cust.current_order ? [cust.current_order] : []), ...(cust.past_orders || [])];
