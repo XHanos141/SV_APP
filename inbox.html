@@ -879,22 +879,22 @@
   }
   .platform-row.active{ border-color:var(--cyan); }
   .platform-row__icon{
-    width:26px;
-    height:26px;
-    border-radius:8px;
+    width:32px;
+    height:32px;
+    border-radius:9px;
     display:flex;
     align-items:center;
     justify-content:center;
     flex:0 0 auto;
   }
-  .platform-row__icon svg{ width:14px; height:14px; }
+  .platform-row__icon svg{ width:17px; height:17px; }
   .platform-row__icon.fb{ background:var(--fb); }
   .platform-row__icon.wa{ background:var(--wa); }
   .platform-row__icon.ig{ background:linear-gradient(135deg, var(--ig-a), var(--ig-b) 55%, var(--ig-c)); }
   .platform-row__label{
     flex:1;
     font-size:13px;
-    font-weight:600;
+    font-weight:700;
     color:var(--text-1);
   }
   .platform-row__tag{
@@ -1255,7 +1255,8 @@
   .platform-row.active{ background:rgba(0,157,220,.07); }
   .platform-row__text{ flex:1; min-width:0; display:flex; flex-direction:column; gap:1px; }
   .platform-row__text .platform-row__label{ flex:none; }
-  .platform-row__ident{ font-size:11.5px; color:var(--text-3); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .platform-row__ident{ font-size:12px; font-weight:600; color:var(--text-2); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .platform-row__ident.is-empty{ font-weight:500; font-style:italic; color:var(--text-3); }
 
   .order-card--btn{ display:block; width:100%; text-align:left; cursor:pointer; color:inherit; transition:border-color .15s, background .15s; }
   .order-card--btn:hover{ border-color:rgba(0,157,220,.45); }
@@ -2546,6 +2547,7 @@ function closeOrderDetailsModal() {
       email: "tanvir.ahmed@gmail.com",
       customer_since: "2025-11-08T00:00:00.000Z",   // mock
       channels: ["messenger", "whatsapp"],
+      channel_handles: { messenger:"Tanvir Ahmed" },   // mock; live = customer_channels.display_name
       current_order: { id:"SV-1014", payment_status:"Unpaid", amount:1800, status:"Pending", items:"Magnesium Glycinate", lines:[{ name:"Magnesium Glycinate", category:"supplement", subcategory:"Magnesium", qty:1, price:1800, spec:"400 mg \u2022 120 Capsules", sku:"DB-MAG-GLY-120" }], placed_at:new Date(Date.now()-6*86400000).toISOString() },
       past_orders: [
         { id:"SV-1012", payment_status:"Paid", payment_method:"bkash", txn:"BK3H8P2M1Z", sender:"01712345678", lines:[{ name:"Betaine HCL & Pepsin", category:"supplement", subcategory:"Digestive", qty:1, price:2400, spec:"650 mg \u2022 120 Capsules", sku:"DB-HCI-PEP-120" }], amount:2400, status:"Delivered", placed_at:new Date(Date.now()-32*86400000).toISOString() },
@@ -2579,6 +2581,7 @@ function closeOrderDetailsModal() {
       phone: null,
       email: null,
       channels: ["instagram", "messenger"],
+      channel_handles: { instagram:"@farzana.akter", messenger:"Farzana Akter" },   // mock
       current_order: null,
       past_orders: []
     }
@@ -3109,15 +3112,27 @@ function closeOrderDetailsModal() {
       </div>${closeBtn}`;
   }
 
+  /* What the customer is called on each platform — grabbed automatically, never typed by staff:
+     WhatsApp -> phone number, Messenger -> Facebook profile name, Instagram -> @username / profile name.
+     Live source: customer_channels.display_name (filled by the platform webhook); the chat's own name is the fallback. */
+  function channelIdentity(cust, ch){
+    const saved = cust.channel_handles && cust.channel_handles[ch];
+    if(saved) return saved;
+    if(ch === "whatsapp" && cust.phone) return cust.phone;
+    const key = sheet.conv && sheet.conv.customer_key;
+    const convs = [sheet.conv].concat(state.conversations || []);
+    const hit = convs.find(c => c && c.channel === ch && c.customer_name && (c === sheet.conv || (key && c.customer_key === key)));
+    return hit ? hit.customer_name : "";
+  }
   function platformsHtmlFor(cust){
     return cust.channels.map(ch => {
       const isActive = sheet.conv.channel && ch === sheet.conv.channel;
-      const ident = ch === "whatsapp" && cust.phone ? cust.phone : "";
+      const ident = channelIdentity(cust, ch);
       return `<div class="platform-row${isActive ? " active" : ""}"${isActive ? ' aria-current="true"' : ""}>
         <span class="platform-row__icon ${CHANNEL_ICON_CLASS[ch]}">${channelBadgeSvg(ch)}</span>
         <span class="platform-row__text">
           <span class="platform-row__label">${(CHANNEL_META[ch] && CHANNEL_META[ch].label) || ch}</span>
-          ${ident ? `<span class="platform-row__ident">${escapeHtml(ident)}</span>` : ""}
+          ${ident ? `<span class="platform-row__ident">${escapeHtml(ident)}</span>` : `<span class="platform-row__ident is-empty">Not available yet</span>`}
         </span>
         ${isActive ? `<span class="platform-row__tag">Viewing now</span>` : ""}
       </div>`;
