@@ -2002,12 +2002,12 @@ html:not([data-theme="light"]) .odm-card { background: rgba(124,111,247,0.08); b
   .filter-tab[aria-selected="true"]::after{ opacity:1; }
 
   /* status pills: one navy pill slides behind the active tab */
-  .status-tabs{ position:relative; padding:5px 8px; margin:-5px -8px 7px; }
+  .status-tabs{ position:relative; padding:8px 8px; margin:-8px -8px 4px; }
   .status-slide{
     position:absolute; left:0; top:0; border-radius:999px; box-sizing:border-box; z-index:0; pointer-events:none;
-    background:linear-gradient(180deg,#1e3a5f 0%,#0f2847 100%);
-    border:1px solid rgba(255,255,255,.08);
-    box-shadow:0 2px 8px rgba(15,40,71,.35), 0 1px 0 rgba(255,255,255,.08) inset, 0 -1px 0 rgba(0,0,0,.15) inset;
+    background:var(--cyan);
+    border:1px solid var(--cyan);
+    box-shadow:0 3px 8px rgba(10,155,220,.32), 0 1px 0 rgba(255,255,255,.22) inset;
     transition:left .5s cubic-bezier(.4,0,.2,1), width .5s cubic-bezier(.4,0,.2,1), top .3s ease, height .3s ease;
   }
   .status-tab{ position:relative; z-index:1; border-radius:999px;
