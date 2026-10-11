@@ -437,6 +437,7 @@
     transition:opacity 0.16s ease, transform 0.16s ease;
   }
   .fab-menu.open .fab-menu-item{ opacity:1; transform:translateY(0) scale(1); }
+  .fab-menu:not(.open) .fab-menu-item{ pointer-events:none; }
   .fab-menu.open .fab-menu-item:nth-child(1){ transition-delay:0.02s; }
   .fab-menu.open .fab-menu-item:nth-child(2){ transition-delay:0.06s; }
   .fab-menu.open .fab-menu-item:nth-child(3){ transition-delay:0.1s; }
@@ -1894,6 +1895,81 @@ html:not([data-theme="light"]) .odm-card { background: rgba(124,111,247,0.08); b
 #csIdCard.cs-idcard{ margin-bottom:10px; }
 .odm-header{ display:flex; align-items:center; }
 
+
+  /* =====================================================================
+     Motion layer — smooth, premium transitions (no layout changes)
+     ===================================================================== */
+  :root{ --ease-out:cubic-bezier(.22,1,.36,1); --ease-io:cubic-bezier(.65,0,.35,1); --ease-spring:cubic-bezier(.34,1.4,.64,1); }
+
+  /* screen-to-screen: slide + fade */
+  @keyframes svInFwd { from{ opacity:0; transform:translate3d(32px,0,0); } to{ opacity:1; transform:translate3d(0,0,0); } }
+  @keyframes svInBack{ from{ opacity:0; transform:translate3d(-22px,0,0);} to{ opacity:1; transform:translate3d(0,0,0); } }
+  @keyframes svOutRight{ from{ opacity:1; transform:translate3d(0,0,0);} to{ opacity:0; transform:translate3d(36px,0,0); } }
+  @keyframes svRise  { from{ opacity:0; transform:translate3d(0,10px,0);} to{ opacity:1; transform:translate3d(0,0,0); } }
+  @keyframes svFade  { from{ opacity:0; } to{ opacity:1; } }
+  @keyframes svPop   { from{ opacity:0; transform:scale(.82);} to{ opacity:1; transform:scale(1); } }
+  @keyframes svMsgIn { from{ opacity:0; transform:translate3d(0,12px,0) scale(.97);} to{ opacity:1; transform:translate3d(0,0,0) scale(1); } }
+  .v-in-fwd { animation:svInFwd  .34s var(--ease-out) both; }
+  .v-in-back{ animation:svInBack .30s var(--ease-out) both; }
+  .v-out    { animation:svOutRight .24s var(--ease-io) both; pointer-events:none; }
+  #customersView.v-in-fwd, #ordersView.v-in-fwd{ box-shadow:-18px 0 40px rgba(0,0,0,.28); }
+
+  /* list: rows rise in softly when the filter / search / tab changes */
+  .list-anim .conv-row{ animation:svRise .36s var(--ease-out) both; }
+  .list-anim .conv-row:nth-child(2){ animation-delay:.03s; } .list-anim .conv-row:nth-child(3){ animation-delay:.06s; }
+  .list-anim .conv-row:nth-child(4){ animation-delay:.09s; } .list-anim .conv-row:nth-child(5){ animation-delay:.12s; }
+  .list-anim .conv-row:nth-child(6){ animation-delay:.15s; } .list-anim .conv-row:nth-child(7){ animation-delay:.18s; }
+  .list-anim .conv-row:nth-child(n+8){ animation-delay:.21s; }
+  .empty-state{ animation:svFade .35s var(--ease-out) both; }
+  .cust-list-scroll .cust-list-row, .order-list-scroll .order-card{ animation:svRise .36s var(--ease-out) both; }
+  .cust-list-scroll .cust-list-row:nth-child(2), .order-list-scroll .order-card:nth-child(2){ animation-delay:.04s; }
+  .cust-list-scroll .cust-list-row:nth-child(3), .order-list-scroll .order-card:nth-child(3){ animation-delay:.08s; }
+  .cust-list-scroll .cust-list-row:nth-child(4), .order-list-scroll .order-card:nth-child(4){ animation-delay:.12s; }
+  .cust-list-scroll .cust-list-row:nth-child(n+5), .order-list-scroll .order-card:nth-child(n+5){ animation-delay:.16s; }
+
+  /* chat: thread fades up when opened, new bubbles glide in */
+  .thread-messages.msgs-in{ animation:svRise .32s var(--ease-out) both; }
+  .msg-new{ animation:svMsgIn .28s var(--ease-out) both; }
+
+  /* popovers & menus: scale/fade from their anchor instead of popping */
+  .chan-pop, .thread-menu{
+    display:flex !important; visibility:hidden; opacity:0; pointer-events:none;
+    transform:translate3d(0,-8px,0) scale(.94); transform-origin:top right;
+    transition:opacity .16s var(--ease-out), transform .22s var(--ease-out), visibility 0s linear .22s;
+  }
+  .chan-pop.open, .thread-menu.open{
+    visibility:visible; opacity:1; pointer-events:auto; transform:none;
+    transition:opacity .16s var(--ease-out), transform .22s var(--ease-out), visibility 0s;
+  }
+  .thread-menu.open button{ animation:svRise .26s var(--ease-out) both; }
+  .thread-menu.open button:nth-child(2){ animation-delay:.03s; } .thread-menu.open button:nth-child(3){ animation-delay:.06s; } .thread-menu.open button:nth-child(4){ animation-delay:.09s; }
+
+  /* bottom sheet: softer curve, backdrop fades with the slide, content swaps glide */
+  .cust-sheet{ transition:transform .38s var(--ease-out), border-radius .3s var(--ease-out), visibility 0s linear .38s; will-change:transform; }
+  .cust-sheet.open{ transition-delay:0s; }
+  .cust-sheet-backdrop{ transition:opacity .3s var(--ease-out); }
+  .cust-sheet__scroll.sheet-swap-fwd { animation:svInFwd  .3s var(--ease-out) both; }
+  .cust-sheet__scroll.sheet-swap-back{ animation:svInBack .28s var(--ease-out) both; }
+  .cs-chip.sv-pop{ animation:svPop .32s var(--ease-spring) both; }
+  .cs-note.sv-rise{ animation:svRise .32s var(--ease-out) both; }
+
+  /* order details page: gentler slide */
+  .odm-overlay{ transition:opacity .26s var(--ease-out); }
+  #orderDetailsModal .odm-panel{ transition:transform .38s var(--ease-out), opacity .26s var(--ease-out); }
+
+  /* tactile press + smooth state changes */
+  .conv-row, .cust-list-row, .order-card--btn, .status-tab, .filter-tab, .composer-mode, .quick-replies button,
+  .thread-menu button, .nav-item, .thread-back, .thread-more, .inbox-back-btn, .cust-list-back, .composer-send{
+    transition:transform .18s var(--ease-out), background-color .22s ease, border-color .22s ease, color .22s ease, opacity .2s ease, box-shadow .22s ease;
+  }
+  .conv-row:active, .cust-list-row:active, .order-card--btn:active{ transform:scale(.985); }
+  .status-tab:active, .filter-tab:active, .composer-mode:active, .quick-replies button:active, .thread-menu button:active,
+  .thread-back:active, .thread-more:active, .inbox-back-btn:active, .cust-list-back:active, .nav-item:active{ transform:scale(.94); }
+  .fab button.fab-main-btn:active{ transform:scale(.92); }
+  .fab-main-btn svg{ transition:transform .3s var(--ease-spring); }
+  .conv-unread-badge{ animation:svPop .3s var(--ease-spring) both; }
+  .sv-toast{ transition:opacity .24s var(--ease-out), transform .3s var(--ease-spring); }
+  @media (prefers-reduced-motion:reduce){ *,*::before,*::after{ transition:none !important; animation:none !important; scroll-behavior:auto !important; } }
 </style>
 <script>
 /* SuppVerse BD — responsive product image helper
@@ -2900,7 +2976,7 @@ function closeOrderDetailsModal() {
     if(!btn) return;
     state.statusFilter = btn.dataset.status;
     els.statusTabs.querySelectorAll(".status-tab").forEach(t => t.setAttribute("aria-selected", t === btn ? "true" : "false"));
-    render();
+    renderAnimated();
   });
 
   const syncStatusFade = () => els.statusTabs.classList.toggle("at-end", els.statusTabs.scrollLeft + els.statusTabs.clientWidth >= els.statusTabs.scrollWidth - 4);
@@ -2926,7 +3002,7 @@ function closeOrderDetailsModal() {
     else { trig.className = icon.className; trig.innerHTML = icon.innerHTML; }
     chanBtn.classList.toggle("is-filtered", state.activeFilter !== "all");
     setChanPop(false);
-    render();
+    renderAnimated();
   });
 
   let searchDebounce;
@@ -2934,7 +3010,7 @@ function closeOrderDetailsModal() {
     clearTimeout(searchDebounce);
     searchDebounce = setTimeout(() => {
       state.searchQuery = e.target.value;
-      render();
+      renderAnimated();
     }, 150);
   });
 
@@ -2943,6 +3019,31 @@ function closeOrderDetailsModal() {
     if(!row) return;
     openConversation(row.dataset.id);
   });
+
+  /* ---------- Motion helpers ---------- */
+  function svShow(el, dir){
+    const cls = dir === "back" ? "v-in-back" : "v-in-fwd";
+    clearTimeout(el._svT);
+    el.classList.remove("v-in-fwd", "v-in-back", "v-out");
+    el.hidden = false;
+    void el.offsetWidth;
+    el.classList.add(cls);
+    el._svT = setTimeout(() => el.classList.remove(cls), 450);
+  }
+  function svHide(el){
+    if(el.hidden) return;
+    clearTimeout(el._svT);
+    el.classList.remove("v-in-fwd", "v-in-back");
+    el.classList.add("v-out");
+    el._svT = setTimeout(() => { el.hidden = true; el.classList.remove("v-out"); }, 240);
+  }
+  function renderAnimated(){
+    els.list.classList.add("list-anim");
+    render();
+    clearTimeout(renderAnimated._t);
+    renderAnimated._t = setTimeout(() => els.list.classList.remove("list-anim"), 700);
+  }
+  let listScrollY = 0;
 
   /* ---------- Thread / chat view ---------- */
   function openConversation(id){
@@ -2957,8 +3058,9 @@ function closeOrderDetailsModal() {
       }
     }
 
+    listScrollY = window.scrollY || 0;
     els.listView.hidden = true;
-    els.threadView.hidden = false;
+    svShow(els.threadView, "fwd");
     state.activeConversationId = id;
 
     renderThreadHeader(conv);
@@ -2967,13 +3069,15 @@ function closeOrderDetailsModal() {
 
   function backToList(){
     els.threadView.hidden = true;
-    els.listView.hidden = false;
+    els.threadView.classList.remove("v-in-fwd", "v-in-back", "v-out");
+    svShow(els.listView, "back");
     state.activeConversationId = null;
     if(messagesRealtimeChannel && supabase){
       supabase.removeChannel(messagesRealtimeChannel);
       messagesRealtimeChannel = null;
     }
     render();
+    window.scrollTo(0, listScrollY);
   }
 
   function renderThreadHeader(conv){
@@ -3326,11 +3430,31 @@ function closeOrderDetailsModal() {
     els.custSheetHead.classList.toggle("is-condensed", els.custSheetScroll.scrollTop > card.offsetTop + card.offsetHeight - 24);
   }, { passive:true });
 
+  function animateSheetFull(full){
+    const sh = els.custSheet;
+    const from = sh.getBoundingClientRect().height;
+    sh.style.transition = "none"; sh.style.height = "";
+    sh.classList.toggle("is-full", full);
+    const to = sh.getBoundingClientRect().height;
+    if(Math.abs(from - to) < 2){ sh.style.transition = ""; return; }
+    sh.style.maxHeight = "100dvh";
+    sh.style.height = from + "px";
+    void sh.offsetHeight;
+    sh.style.transition = "height .4s cubic-bezier(.22,1,.36,1), border-radius .3s cubic-bezier(.22,1,.36,1), transform .38s cubic-bezier(.22,1,.36,1)";
+    sh.style.height = to + "px";
+    clearTimeout(sh._hT);
+    sh._hT = setTimeout(() => { sh.style.transition = ""; sh.style.height = ""; sh.style.maxHeight = ""; }, 440);
+  }
+
   function goView(view, orderId){
     sheet.view = view; sheet.orderId = orderId || null;
     sheet.tagInput = false; sheet.noteForm = false; sheet.noteEdit = null; sheet.noteDel = null;
     renderSheet({ focus:true });
     els.custSheetScroll.scrollTop = 0;
+    const sc = els.custSheetScroll;
+    sc.classList.remove("sheet-swap-fwd", "sheet-swap-back"); void sc.offsetWidth;
+    sc.classList.add(view === "profile" ? "sheet-swap-back" : "sheet-swap-fwd");
+    clearTimeout(sc._swT); sc._swT = setTimeout(() => sc.classList.remove("sheet-swap-fwd", "sheet-swap-back"), 400);
   }
 
   /* ---------- rendering ---------- */
@@ -3504,13 +3628,20 @@ function closeOrderDetailsModal() {
 
   function refreshTags(focusInput){
     const box = document.getElementById("csTags"); if(!box) return;
+    const sel = ".cs-chip:not(.cs-chip--add):not(.cs-chip--input)";
+    const before = box.querySelectorAll(sel).length;
     box.innerHTML = tagsSectionHtml();
+    const after = box.querySelectorAll(sel);
+    if(after.length > before && before > 0 || (after.length === 1 && before === 0)) after[after.length - 1].classList.add("sv-pop");
     const inp = document.getElementById("csTagInput");
     if(inp && focusInput){ inp.focus(); inp.scrollIntoView({ block:"nearest" }); }
   }
   function refreshNotes(focusForm){
     const box = document.getElementById("csNotes"); if(!box) return;
+    const before = box.querySelectorAll(".cs-note").length;
     box.innerHTML = notesSectionHtml();
+    const notesNow = box.querySelectorAll(".cs-note");
+    if(notesNow.length > before) notesNow[0].classList.add("sv-rise");
     const ta = document.getElementById("csNoteInput");
     if(ta && focusForm){ ta.focus(); ta.scrollIntoView({ block:"nearest" }); }
   }
@@ -3673,7 +3804,7 @@ function closeOrderDetailsModal() {
       }
       case "expand": {
         sheet.full = !sheet.full;
-        els.custSheet.classList.toggle("is-full", sheet.full);
+        animateSheetFull(sheet.full);
         el.setAttribute("aria-pressed", String(sheet.full));
         el.innerHTML = (sheet.full ? ICONS.collapse : ICONS.expand) + "<span>" + (sheet.full ? "Collapse" : "Full profile") + "</span>";
         break;
@@ -3880,6 +4011,7 @@ function closeOrderDetailsModal() {
 
   function renderMessages(messages){
     els.threadMessages.innerHTML = "";
+    els.threadMessages.classList.remove("msgs-in"); void els.threadMessages.offsetWidth; els.threadMessages.classList.add("msgs-in");
     state.activeMessages = messages.slice();
     lastMsg = null;
     let lastDateStr = null;
@@ -3919,6 +4051,7 @@ function closeOrderDetailsModal() {
     const tight = !note && !!lastMsg && lastMsg.sender === m.sender_type && (ts - lastMsg.ts) < GROUP_MS;
     if(tight && lastMsg.row){ const t = lastMsg.row.querySelector(".msg-bubble__time"); if(t) t.remove(); }
     const row = buildMessageRow(m, tight, true);
+    row.classList.add("msg-new");
     els.threadMessages.appendChild(row);
     lastMsg = note ? null : { sender:m.sender_type, ts, row };
     els.threadMessages.scrollTop = els.threadMessages.scrollHeight;
@@ -4095,12 +4228,12 @@ function closeOrderDetailsModal() {
       console.error("renderCustomersList failed:", err);
       els.customersListScroll.innerHTML = `<div class="cust-list-empty">Couldn't load customers (${escapeHtml(err.message || "unknown error")}). Check console.</div>`;
     }
-    els.customersView.hidden = false;
+    svShow(els.customersView, "fwd");
     window.scrollTo(0, 0);
     if(els.customersListScroll) els.customersListScroll.scrollTop = 0;
   }
   function closeCustomersView(){
-    els.customersView.hidden = true;
+    svHide(els.customersView);
   }
   document.getElementById("customersBackBtn").addEventListener("click", closeCustomersView);
 
@@ -4164,12 +4297,12 @@ function closeOrderDetailsModal() {
       console.error("renderOrdersList failed:", err);
       els.ordersListScroll.innerHTML = `<div class="cust-list-empty">Couldn't load orders (${escapeHtml(err.message || "unknown error")}). Check console.</div>`;
     }
-    els.ordersView.hidden = false;
+    svShow(els.ordersView, "fwd");
     window.scrollTo(0, 0);
     if(els.ordersListScroll) els.ordersListScroll.scrollTop = 0;
   }
   function closeOrdersView(){
-    els.ordersView.hidden = true;
+    svHide(els.ordersView);
   }
   document.getElementById("ordersBackBtn").addEventListener("click", closeOrdersView);
 
