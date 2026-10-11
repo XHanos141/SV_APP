@@ -2085,7 +2085,7 @@ window.addEventListener('message', function(e) {
   if (m.type === 'CLOSE_ANALYTICS') { closeAnalyticsOverlay(); return; }
   if (m.type !== 'sv-an-req') return;
   const reply = { type: 'sv-an-res', reqId: m.reqId };
-  svHub('analytics', { code: m.code, tf: m.tf }).then(function(data) {
+  svHub(m.op === 'cv_summary' ? 'cv_summary' : 'analytics', { code: m.code, tf: m.tf }).then(function(data) {
     reply.ok = true; reply.data = data;
   }).catch(function(err) {
     reply.ok = false; reply.error = String((err && err.message) || err);
@@ -2719,6 +2719,14 @@ html[data-theme="light"] .timeframe-bar .slide-indicator{
 }
 
 /* BASE CARD */
+.cv-sum{margin:12px 16px 0;padding:14px;border-radius:16px;background:linear-gradient(135deg,rgba(244,63,94,.10),var(--surface-2) 70%);border:1px solid rgba(244,63,94,.30)}
+.cv-sum-title{font-size:11px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;color:#fb7185;margin-bottom:10px}
+.cv-sum-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+.cv-sum-cell{display:flex;flex-direction:column;gap:2px;min-width:0}
+.cv-sum-val{font-family:'Plus Jakarta Sans',sans-serif;font-size:16px;font-weight:800;color:var(--text);white-space:nowrap}
+.cv-sum-val.red{color:var(--danger)}
+.cv-sum-val.green{color:var(--success)}
+.cv-sum-lbl{font-size:10.5px;color:var(--text-dim)}
 .kpi-card {
   background: var(--surface-2);
   border-radius: 14px;
@@ -3089,6 +3097,8 @@ html[data-theme="light"] .channel-filter-bar .slide-indicator{
   <!-- SCROLL BODY -->
   <div class="scroll-body" id="scrollBody">
 
+    <div class="cv-sum" id="cvSummary" style="display:none"></div>
+
     <div class="kpi-grid" id="kpiGrid" style="margin-top:12px">
 
     <!-- CARD 1: Total Redeemed -->
@@ -3332,6 +3342,7 @@ function selectType(type, btn) {
   moveSlideIndicator('typeSlide', btn, TYPES[type].color, 0.12, 0.35);
   try { const ts = document.getElementById('typeSelector'); ts.scrollTo({ left: btn.offsetLeft - (ts.clientWidth - btn.offsetWidth) / 2, behavior: 'smooth' }); } catch (e) { /* older browsers */ }
   renderSubSelector(type);
+  loadCvSummary();
   document.getElementById('scrollBody').scrollTop = 0;
 }
 
@@ -3406,16 +3417,52 @@ function setVoucherList(list) {
   });
 }
 
-function anFetch(code, tf) {
+function anFetch(code, tf, op) {
   return new Promise(function(resolve, reject) {
     const id = ++_anReq;
     const t = setTimeout(function() { delete _anPending[id]; reject(new Error('Request timed out - check your connection')); }, 25000);
     _anPending[id] = { resolve: resolve, reject: reject, t: t };
-    window.parent.postMessage({ type: 'sv-an-req', reqId: id, code: code, tf: tf }, '*');
+    window.parent.postMessage({ type: 'sv-an-req', reqId: id, code: code, tf: tf, op: op || 'analytics' }, '*');
   });
 }
 
+async function loadCvSummary() {
+  const box = $('cvSummary');
+  if (!box) return;
+  if (currentType !== 'customer') { box.style.display = 'none'; return; }
+  const tf = currentTimeframe;
+  try {
+    const s = await anFetch('', tf, 'cv_summary');
+    if (currentType !== 'customer' || tf !== currentTimeframe) return;
+    const cells = [
+      ['Assigned', String(s.assigned || 0), ''],
+      ['Used', (s.used_vouchers || 0) + ' of ' + (s.assigned || 0), 'green'],
+      ['Use rate', s.assigned ? Math.round((s.used_vouchers || 0) * 100 / s.assigned) + '%' : '—', ''],
+      ['Discount given', fmtBDT(s.discount_total || 0), 'red'],
+      ['Net revenue', fmtBDT(s.net_revenue || 0), 'green'],
+      ['Customers', String(s.customers || 0), '']
+    ];
+    box.textContent = '';
+    const title = document.createElement('div');
+    title.className = 'cv-sum-title';
+    title.textContent = 'Private vouchers · ' + (s.uses || 0) + ' redemption' + (s.uses === 1 ? '' : 's') + ' in period';
+    const grid = document.createElement('div');
+    grid.className = 'cv-sum-grid';
+    cells.forEach(function(c) {
+      const cell = document.createElement('div'); cell.className = 'cv-sum-cell';
+      const v = document.createElement('div'); v.className = 'cv-sum-val' + (c[2] ? ' ' + c[2] : ''); v.textContent = c[1];
+      const l = document.createElement('div'); l.className = 'cv-sum-lbl'; l.textContent = c[0];
+      cell.appendChild(v); cell.appendChild(l); grid.appendChild(cell);
+    });
+    box.appendChild(title); box.appendChild(grid);
+    box.style.display = '';
+  } catch (err) {
+    box.style.display = 'none';
+  }
+}
+
 async function loadAnalytics() {
+  loadCvSummary();
   const code = currentCode;
   if (!code) return;
   const seq = ++_loadSeq;
@@ -3497,7 +3544,7 @@ function renderData(d) {
   bar.style.transition = 'width .8s cubic-bezier(.4,0,.2,1)';
 
   $('kpiRevenue').textContent = fmtBDT(d.discount_total);
-  $('kpiRevenueSub').textContent = red ? 'avg ' + fmtBDT(d.discount_total / red) + ' per redemption' : 'no redemptions in this period';
+  $('kpiRevenueSub').textContent = red ? 'avg ' + fmtBDT(d.discount_total / red) + ' per use · net ' + fmtBDT(d.net_revenue || 0) + ' after discount' : 'no redemptions in this period';
 
   const uniq = d.unique_customers || 0;
   const repeat = Math.max(red - uniq, 0);
@@ -3765,8 +3812,8 @@ function renderLog(log, filterCh) {
 // =============================================
 // THEME TOGGLE
 // =============================================
-function hubToggleTheme() { svTheme.toggle(); }
-svTheme.onChange(function (t) {
+function hubToggleTheme() { if (window.svTheme) svTheme.toggle(); }
+if (window.svTheme) svTheme.onChange(function (t) {
   var ic = document.getElementById('themeIcon');
   if (!ic) return;
   ic.innerHTML = t === 'dark' ? '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>' : '<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>';
