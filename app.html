@@ -14706,6 +14706,10 @@ html[data-theme="dark"] .add-prod-btn{border-color:rgba(255,255,255,0.15)}
 .code-value.ready{color:#38bdf8}
 .generate-btn{width:100%;height:40px;border-radius:8px;border:none;background:#0c4a6e;color:#fff;font-family:'Inter',sans-serif;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:opacity 0.2s ease,transform 0.15s ease,box-shadow 0.15s ease;box-shadow:-4px -4px 10px rgba(56,189,248,0.2),5px 5px 14px rgba(0,0,0,0.55)}
 .generate-btn:hover{opacity:0.88}
+.png-btn{width:100%;height:40px;margin-top:10px;border-radius:8px;border:1.5px solid rgba(56,189,248,0.45);background:rgba(56,189,248,0.08);color:#38bdf8;font-family:'Inter',sans-serif;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:opacity .15s,transform .15s}
+.png-btn:active{transform:scale(0.97)}
+.png-btn:disabled{opacity:.4;cursor:not-allowed}
+html[data-theme="light"] .png-btn{color:#0369a1;border-color:rgba(3,105,161,0.4);background:rgba(3,105,161,0.07)}
 .generate-btn:active{transform:scale(0.97);box-shadow:inset -3px -3px 8px rgba(56,189,248,0.15),inset 4px 4px 10px rgba(0,0,0,0.5)}
 .generate-btn.generated{background:#0c4a6e}
 .generate-btn.generated:hover{opacity:0.9}
@@ -15259,7 +15263,11 @@ html[data-theme="light"] .vc-float-close{background:rgba(240,244,248,0.95);borde
           Generate Code
         </button>
       </div>
-      <div class="fs-label" style="margin-bottom:8px">Summary</div>
+      <button type="button" class="png-btn" id="png-btn" onclick="downloadVoucherPNG()" disabled>
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        <span id="png-btn-label">Download PNG</span>
+      </button>
+      <div class="fs-label" style="margin:14px 0 8px">Summary</div>
       <div class="summary-box">
         <div class="summary-row"><span class="summary-key">Theme</span><span class="summary-val" id="s-theme">—</span></div>
         <div class="summary-row"><span class="summary-key">Type</span><span class="summary-val" id="s-type">—</span></div>
@@ -16018,6 +16026,7 @@ async function generateCode() {
   genBtn.disabled = false;
   document.getElementById('code-display').textContent = S.code;
   document.getElementById('code-display').classList.add('ready');
+  { const pb = document.getElementById('png-btn'); if (pb) pb.disabled = false; }
   const btn = document.getElementById('gen-btn');
   btn.classList.add('generated');
   btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><use href="#icon-checkmark"/></svg> Code Generated';
@@ -16416,6 +16425,7 @@ function updateSummary() {
     document.getElementById('s-expiry').textContent = '—';
   }
   document.getElementById('s-code').textContent   = S.code || '—';
+  const pngBtn = document.getElementById('png-btn'); if (pngBtn) pngBtn.disabled = !S.code;
   const _cr = document.getElementById('s-customer-row');
   if (_cr) { _cr.style.display = (S.type === 'customer' && S.customer) ? 'flex' : 'none'; if (S.customer) document.getElementById('s-customer').textContent = (S.customer.name || 'Customer') + ' · ' + S.customer.customer_code; }
 
@@ -16514,19 +16524,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
 function downloadVoucherPNG() {
   const voucher = document.getElementById('voucher-preview');
+  const btn = document.getElementById('png-btn'), lbl = document.getElementById('png-btn-label');
   if (!voucher) return;
+  if (!S.code) { showToast('Generate the voucher code first.', null, true); return; }
+  if (btn && btn.dataset.busy) return;
+  if (btn) { btn.dataset.busy = '1'; btn.disabled = true; }
+  if (lbl) lbl.textContent = 'Preparing…';
 
   const clone = voucher.cloneNode(true);
-  clone.style.position = 'fixed';
-  clone.style.left = '-9999px';
-  clone.style.top = '0';
-  clone.style.transform = 'none';
-  clone.style.width = '1600px';
-  clone.style.height = '600px';
-  clone.style.margin = '0';
-  clone.style.marginLeft = '0';
-  clone.style.overflow = 'visible';
-  clone.style.boxShadow = 'none';
+  clone.removeAttribute('id');
+  clone.style.cssText += ';position:fixed;left:-9999px;top:0;transform:none;width:1600px;height:600px;margin:0;overflow:visible;box-shadow:none;';
   document.body.appendChild(clone);
 
   const origCanvas = voucher.querySelector('canvas');
@@ -16537,17 +16544,28 @@ function downloadVoucherPNG() {
     cloneCanvas.getContext('2d').drawImage(origCanvas, 0, 0);
   }
 
-  html2canvas(clone, { scale: 1, width: 1600, height: 600, backgroundColor: null, useCORS: true }).then(canvas => {
-    const link = document.createElement('a');
-    link.download = (S.code ? S.code : 'voucher-preview') + '.png';
-    link.href = canvas.toDataURL('image/png');
-    link.click();
-  }).catch(err => {
-    console.error(err);
-  }).finally(() => {
-    document.body.removeChild(clone);
+  const done = () => {
+    if (clone.parentNode) clone.parentNode.removeChild(clone);
+    if (btn) { delete btn.dataset.busy; btn.disabled = !S.code; }
+    if (lbl) lbl.textContent = 'Download PNG';
     syncVoucherPreviewScale();
-  });
+  };
+  const run = (window.html2canvas ? Promise.resolve() : Promise.reject(new Error('Image engine not loaded')));
+  run.then(() => html2canvas(clone, { scale: 2, width: 1600, height: 600, backgroundColor: null, useCORS: true, logging: false }))
+    .then(canvas => new Promise((res, rej) => canvas.toBlob(b => b ? res(b) : rej(new Error('Could not create image')), 'image/png')))
+    .then(blob => {
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.download = 'SuppVerse-' + S.code + '.png';
+      link.href = url;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 4000);
+      showToast('Voucher PNG saved.');
+    })
+    .catch(err => { console.error(err); showToast('PNG download failed. Try again.', null, true); })
+    .finally(done);
 }
 
 // Sync theme from parent app
