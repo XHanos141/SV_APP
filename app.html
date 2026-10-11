@@ -16575,14 +16575,19 @@ function downloadVoucherPNG() {
   };
   const render = async () => {
     if (!window.html2canvas) throw new Error('Image engine not loaded');
-    if (document.fonts && document.fonts.ready) { try { await document.fonts.ready; } catch (e) {} }
+    if (document.fonts) {
+      // make sure the brand font is decoded before the snapshot, otherwise the PNG falls back to a system font
+      try { await Promise.all([document.fonts.load("32px 'BARABARA-FINAL'", 'SUPPVERSE BD'), document.fonts.ready]); } catch (e) {}
+    }
     return html2canvas(voucher, {
       scale: 2, width: 1600, height: 600, backgroundColor: null, useCORS: true, logging: false,
       onclone: (doc) => {
         const v = doc.getElementById('voucher-preview');
         if (!v) return;
+        // PNG must be transparent: nothing behind the card, no shadow
+        doc.documentElement.style.background = 'transparent'; doc.body.style.background = 'transparent';
         // undo the on-screen fit-to-phone scaling, keep every ancestor-based style intact
-        v.style.cssText += ';transform:none;left:0;top:0;position:absolute;width:1600px;height:600px;box-shadow:none;';
+        v.style.cssText += ';transform:none;left:0;top:0;position:absolute;width:1600px;height:600px;box-shadow:none;border:none;background:transparent;filter:none;';
         const wrap = doc.getElementById('preview-wrap');
         if (wrap) wrap.style.cssText += ';height:600px;width:1600px;padding:0;overflow:visible;';
         for (let a = wrap ? wrap.parentElement : null; a && a !== doc.body; a = a.parentElement) {
