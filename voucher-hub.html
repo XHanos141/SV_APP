@@ -359,6 +359,7 @@ html[data-theme="light"] {
 .card-icon-wrap.product    { background: rgba(34,197,94,0.12); }
 .card-icon-wrap.newcustomer{ color:#a855f7; background: rgba(168,85,247,0.12); }
 .card-icon-wrap.freeship   { color:#14b8a6; background: rgba(20,184,166,0.14); }
+.card-icon-wrap.customer   { color:#f43f5e; background: rgba(244,63,94,0.14); }
 .card-info { flex: 1; min-width: 0; }
 .card-code {
   font-family: "Roboto Mono", monospace;
@@ -623,6 +624,18 @@ html[data-theme="dark"] .stat-item-val.offer-value {
   background-repeat: no-repeat;
   opacity: 0.9;
 }
+.stat-item.type-customer { background: rgba(244,63,94,0.08); border-color: rgba(244,63,94,0.28); }
+.stat-item.type-customer .stat-item-val { color: #fb7185 !important; }
+.stat-item.type-customer .stat-item-lbl { color: #fb7185; opacity: 0.7; }
+html[data-theme="light"] .stat-item.type-customer { background: rgba(244,63,94,0.12); border-color: rgba(244,63,94,0.4); }
+html[data-theme="light"] .stat-item.type-customer .stat-item-val { color: #be123c !important; }
+html[data-theme="light"] .stat-item.type-customer .stat-item-lbl { color: #be123c; opacity: 0.75; }
+.card-cust { display:flex; align-items:center; flex-wrap:wrap; gap:6px 8px; margin:10px 14px 10px; padding:8px 10px; border-radius:10px; background:rgba(244,63,94,0.08); border:1px solid rgba(244,63,94,0.28); font-size:11px; font-weight:700; color:#fb7185; font-family:"DM Sans",sans-serif; }
+.card-cust svg { width:14px; height:14px; flex-shrink:0; }
+.card-cust .cc-name { min-width:0; word-break:break-word; }
+.card-cust .cc-code { font-family:"Roboto Mono",monospace; font-size:10px; padding:2px 6px; border-radius:6px; background:rgba(244,63,94,0.14); }
+.card-cust .cc-ph { margin-left:auto; font-family:"Roboto Mono",monospace; font-size:10px; opacity:.8; }
+html[data-theme="light"] .card-cust { color:#be123c; background:rgba(244,63,94,0.1); border-color:rgba(244,63,94,0.35); }
 .stat-item.type-freeship .stat-item-val { color: #2dd4bf !important; }
 .stat-item.type-freeship .stat-item-lbl { color: #2dd4bf; opacity: 0.7; }
 html[data-theme="light"] .stat-item.type-freeship {
@@ -2145,7 +2158,7 @@ const HUB_THEMES = {
   green: { bg: 'linear-gradient(135deg,#14532d 0%,#0d3320 100%)', w1: '#166534', w2: '#22c55e', w3: '#86efac', pill: 'rgba(74,222,128,0.9)', pillText: '#0d2118', stripe: 'stripe-green' },
   vault: { bg: 'linear-gradient(135deg,#1a2a3a 0%,#243b4d 50%,#1e3345 100%)', w1: '#94a3b8', w2: '#bacee0', w3: '#dce8f4', pill: 'rgba(255,255,255,0.88)', pillText: '#1a2a3a', stripe: 'stripe-vault' }
 };
-const HUB_TYPE_LABEL = { regular: 'Regular', event: 'Event', product: 'Product', newcustomer: 'New Customer', freeship: 'Free Shipping' };
+const HUB_TYPE_LABEL = { regular: 'Regular', event: 'Event', product: 'Product', newcustomer: 'New Customer', freeship: 'Free Shipping', customer: 'Customer' };
 const HUB_CHANNELS = {
   facebook: { cls: 'fb', label: 'FB' }, instagram: { cls: 'ig', label: 'IG' },
   website: { cls: 'web', label: 'Web' }, whatsapp: { cls: 'wp', label: 'WP' },
@@ -2180,6 +2193,9 @@ function hubTabOf(v) {
 function hubTypeIcon(type, n) {
   if (type === 'event') {
     return '<svg viewBox="0 0 24 24" width="17" height="17" fill="none"><defs><linearGradient id="star3d-' + n + '" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#f4c55a"/><stop offset="100%" stop-color="#a16207"/></linearGradient></defs><path d="M12 1.5l3 7 7.5 1.5-5.5 5 1.5 7.5-6.5-4-6.5 4 1.5-7.5-5.5-5L9 8.5z" fill="url(#star3d-' + n + ')" stroke="#d4a017" stroke-width="2.5" stroke-linejoin="round"/><circle cx="12" cy="11" r="2.5" fill="#fff" stroke="#d4a017" stroke-width="1.5"/></svg>';
+  }
+  if (type === 'customer') {
+    return '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-3.6 3-6 6.5-6 1.2 0 2.3.3 3.2.8"/><rect x="14.5" y="14" width="7" height="6" rx="1.5"/><path d="M16 14v-1.5a2 2 0 0 1 4 0V14"/></svg>';
   }
   if (type === 'freeship') {
     return '<svg width="22" height="22" viewBox="0 0 24 24"><use href="#icon-free-shipping"/></svg>';
@@ -2216,11 +2232,20 @@ function hubDaysTile(v) {
   return { cls: d <= 7 ? 'days-critical' : d <= 30 ? 'days-warning' : 'days-left', val: val, lbl: lbl };
 }
 
+function hubCustChip(v) {
+  if (v.type !== 'customer' || !v.customer) return '';
+  const c = v.customer;
+  return '<div class="card-cust"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>'
+    + '<span class="cc-name">' + esc(c.name || 'Customer') + '</span><span class="cc-code">' + esc(c.customer_code) + '</span>'
+    + (c.phone ? '<span class="cc-ph">' + esc(c.phone) + '</span>' : '') + '</div>';
+}
+
 function hubRules(v) {
   const r = [];
   if (Number(v.min_order_amount) > 0) r.push('Min order ' + fmtBDT(v.min_order_amount));
   if (v.max_discount != null) r.push((v.type === 'freeship' ? 'Delivery cap ' : 'Max ') + fmtBDT(v.max_discount));
-  if (v.type === 'newcustomer') r.push('First order only');
+  if (v.type === 'customer') r.push('Private to one customer');
+  else if (v.type === 'newcustomer') r.push('First order only');
   else if (v.per_customer_once) r.push('Once per customer');
   if (v.type === 'product' && v.product_skus) r.push(v.product_skus.length + (v.product_skus.length === 1 ? ' product' : ' products'));
   if (v.derived_status === 'scheduled') r.push('Starts ' + fmtDateShort(v.start_date));
@@ -2277,7 +2302,7 @@ function hubCardHtml(v, idx) {
       }).join('') + '</div></div>';
   }
   const revenue = uses > 0 ? '<div class="revenue-row"><span class="revenue-label">Total Discount Given</span><span class="revenue-val">' + fmtBDT(v.discount_given) + '</span></div>' : '';
-  const search = (v.title + ' ' + v.subtitle + ' ' + v.code).toLowerCase();
+  const search = (v.title + ' ' + v.subtitle + ' ' + v.code + (v.customer ? ' ' + (v.customer.name || '') + ' ' + (v.customer.customer_code || '') + ' ' + (v.customer.phone || '') : '')).toLowerCase();
 
   return '<div class="voucher-card ' + cardCls + '" data-code="' + c + '" data-title="' + esc(v.title) + '" data-search="' + esc(search) + '">' +
     '<div class="card-top"><div class="card-icon-wrap ' + esc(v.type) + '">' + hubTypeIcon(v.type, idx) + '</div>' +
@@ -2290,7 +2315,7 @@ function hubCardHtml(v, idx) {
       '<div class="stat-item ' + days.cls + '"><div class="stat-item-val">' + days.val + '</div><div class="stat-item-lbl">' + days.lbl + '</div></div>' +
       '<div class="stat-item"><div class="stat-item-val offer-value">' + (ship ? 'FREE' : pct ? val + '%' : fmtBDT(val)) + '</div><div class="stat-item-lbl">' + offerLbl + '</div></div>' +
       '<div class="stat-item"><div class="stat-item-val">' + usesTxt + '</div><div class="stat-item-lbl">Uses</div></div>' +
-    '</div>' + hubRules(v) +
+    '</div>' + hubRules(v) + hubCustChip(v) +
     '<div class="usage-bar-wrap"><div class="usage-bar-header"><span class="usage-bar-label">Usage Limit</span><span class="center-group"><span class="divider"></span><span class="usage-bar-pct ' + usageCls + '">' + (max == null ? '—' : usagePct + '%') + '</span><span class="divider"></span></span><span class="usage-bar-count">' + usesTxt + '</span></div>' +
     '<div class="usage-bar-track"><div class="usage-bar-fill ' + usageCls + '" style="width:0%" data-w="' + usagePct + '%"></div></div></div>' +
     channels + revenue + hubActions(v) + '</div>';
@@ -2616,11 +2641,13 @@ html[data-theme="light"]{
 .type-tab svg{width:14px;height:14px;flex-shrink:0}
 .type-tab.newcustomer svg{color:#c084fc}
 .type-tab.freeship svg{color:#2dd4bf}
+.type-tab.customer svg{color:#fb7185}
 .type-tab.active.event  {background:rgba(244,197,90,.12);border-color:rgba(244,197,90,.35);color:#f4c55a}
 .type-tab.active.regular{background:rgba(56,189,248,.12);border-color:rgba(56,189,248,.35);color:#38bdf8}
 .type-tab.active.product{background:rgba(34,197,94,.12);border-color:rgba(34,197,94,.35);color:#22c55e}
 .type-tab.active.newcustomer{background:rgba(192,132,252,.12);border-color:rgba(192,132,252,.35);color:#c084fc}
 .type-tab.active.freeship{background:rgba(20,184,166,.12);border-color:rgba(20,184,166,.35);color:#2dd4bf}
+.type-tab.active.customer{background:rgba(244,63,94,.12);border-color:rgba(244,63,94,.35);color:#fb7185}
 
 /* VOUCHER SUB-SELECTOR */
 .voucher-sub{
@@ -3039,6 +3066,10 @@ html[data-theme="light"] .channel-filter-bar .slide-indicator{
       <svg viewBox="0 0 24 24"><use href="#icon-free-shipping"/></svg>
       Free Shipping
     </button>
+    <button class="type-tab customer" onclick="selectType('customer',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-3.6 3-6 6.5-6 1.2 0 2.3.3 3.2.8"/><rect x="14.5" y="14" width="7" height="6" rx="1.5"/><path d="M16 14v-1.5a2 2 0 0 1 4 0V14"/></svg>
+      Customer
+    </button>
   </div>
 
   <!-- VOUCHER SUB-SELECTOR (vouchers under selected type) -->
@@ -3208,7 +3239,8 @@ const TYPES = {
   regular:     { label: 'Regular',      color: '#38bdf8', vouchers: [] },
   product:     { label: 'Product',      color: '#22c55e', vouchers: [] },
   newcustomer: { label: 'New Customer', color: '#c084fc', vouchers: [] },
-  freeship:    { label: 'Free Shipping', color: '#2dd4bf', vouchers: [] }
+  freeship:    { label: 'Free Shipping', color: '#2dd4bf', vouchers: [] },
+  customer:    { label: 'Customer', color: '#fb7185', vouchers: [] }
 };
 const VOUCHERS = {};
 const CH_META = {
