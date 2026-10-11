@@ -2583,6 +2583,8 @@ hubSwitchTab = function(idx, btn) {
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Roboto+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/sv-header.css">
+<script src="assets/js/sv-theme.js"></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 html,body{height:100%;overflow:hidden;-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent}
@@ -2708,6 +2710,7 @@ html[data-theme="light"] .timeframe-bar .slide-indicator{
 
 /* SECTION HEADER */
 .section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;margin-top:4px}
+.kpi-grid + .section-header{margin-top:20px}
 .section-title{font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.07em;display:flex;align-items:center;gap:6px}
 .section-title svg{width:11px;height:11px}
 
@@ -2719,7 +2722,7 @@ html[data-theme="light"] .timeframe-bar .slide-indicator{
 }
 
 /* BASE CARD */
-.cv-sum{margin:12px 16px 0;padding:14px;border-radius:16px;background:linear-gradient(135deg,rgba(244,63,94,.10),var(--surface-2) 70%);border:1px solid rgba(244,63,94,.30)}
+.cv-sum{margin:0;padding:14px;border-radius:16px;background:linear-gradient(135deg,rgba(244,63,94,.10),var(--surface-2) 70%);border:1px solid rgba(244,63,94,.30)}
 .cv-sum-title{font-size:11px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;color:#fb7185;margin-bottom:10px}
 .cv-sum-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
 .cv-sum-cell{display:flex;flex-direction:column;gap:2px;min-width:0}
@@ -3650,7 +3653,7 @@ function renderTrendChart(data) {
 
   document.getElementById('yLabels').innerHTML = `
     <div class="chart-y-label">${max}</div>
-    <div class="chart-y-label">${Math.round(max/2)}</div>
+    <div class="chart-y-label">${max >= 2 ? Math.round(max/2) : ''}</div>
     <div class="chart-y-label">0</div>
   `;
 
@@ -3665,7 +3668,7 @@ function renderTrendChart(data) {
 
   // Grid lines
   let grid = '';
-  [0,0.33,0.66,1].forEach(t => {
+  [0,0.5,1].forEach(t => {
     const y = (padT + t*(H-padT-padB)).toFixed(1);
     grid += `<line x1="0" y1="${y}" x2="${W}" y2="${y}" stroke="var(--grid-line)" stroke-width="1"/>`;
   });
@@ -3704,8 +3707,9 @@ function renderTrendChart(data) {
   // X labels — show 6 evenly spaced dates
   const total = data.length;
   const labels = [];
-  for (let i = 0; i < 6; i++) {
-    const idx = Math.round((total-1) * (i/5));
+  const nLab = Math.max(2, Math.min(6, total));
+  for (let i = 0; i < nLab; i++) {
+    const idx = Math.round((total-1) * (i/(nLab-1)));
     labels.push(_trendDates[idx] ? fmtDay(_trendDates[idx]) : '');
   }
   document.getElementById('xLabels').innerHTML = labels.map(l => `<span class="chart-x-label">${l}</span>`).join('');
