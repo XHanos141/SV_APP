@@ -2244,7 +2244,7 @@ function hubRules(v) {
   const r = [];
   if (Number(v.min_order_amount) > 0) r.push('Min order ' + fmtBDT(v.min_order_amount));
   if (v.max_discount != null) r.push((v.type === 'freeship' ? 'Delivery cap ' : 'Max ') + fmtBDT(v.max_discount));
-  if (v.type === 'customer') r.push('Private to one customer');
+  if (v.type === 'customer') r.push('Website only \u00b7 one customer');
   else if (v.type === 'newcustomer') r.push('First order only');
   else if (v.per_customer_once) r.push('Once per customer');
   if (v.type === 'product' && v.product_skus) r.push(v.product_skus.length + (v.product_skus.length === 1 ? ' product' : ' products'));
