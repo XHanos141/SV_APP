@@ -14676,8 +14676,8 @@ html[data-theme="dark"] .add-prod-btn{border-color:rgba(255,255,255,0.15)}
 .wave-1{bottom:-120px;left:-107px;width:1227px;height:840px}
 .wave-2{bottom:7px;left:-53px;width:1173px;height:720px}
 .wave-3{bottom:133px;left:0;width:1120px;height:600px}
-.logo-row{display:flex;align-items:center;gap:21px;margin:0;padding:0;line-height:1;position:relative;z-index:3;transform:translateY(-8px)}
-.logo-text{font-family:'BARABARA-FINAL','Plus Jakarta Sans','DM Sans',sans-serif;font-size:36px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:#fff;line-height:1;white-space:nowrap}
+.logo-row{display:flex;align-items:center;gap:18px;margin:0;padding:0;line-height:1;position:relative;z-index:3;transform:translateY(-16px)}
+.logo-text{font-family:'BARABARA-FINAL','Plus Jakarta Sans','DM Sans',sans-serif;font-size:36px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:#fff;line-height:1;white-space:nowrap;transform:translateY(9px)}
 .title-block{margin:0;padding:0;line-height:1;position:relative;z-index:3}
 .main-title{font-family:'Alexandria',sans-serif;font-size:86px;font-weight:700;line-height:0.95;letter-spacing:0.02em;text-transform:uppercase;color:#fff;margin:0;padding:0}
 .sub-title{font-family:'Inter',sans-serif;font-size:55px;font-weight:700;margin:22px 0 0 0;padding:0;color:rgba(255,255,255,0.75);line-height:1}
@@ -14687,12 +14687,13 @@ html[data-theme="dark"] .add-prod-btn{border-color:rgba(255,255,255,0.15)}
 .meta-row{display:flex;flex-direction:column;align-items:flex-end;gap:2px}
 .meta-text{font-family:'Inter',sans-serif;font-size:28px;font-weight:500;color:rgba(255,255,255,0.45);display:flex;align-items:center;gap:11px}
 .sell-icon-wrap{position:absolute;right:59px;top:50%;transform:translateY(-50%);width:139px;height:139px;display:flex;align-items:center;justify-content:center;z-index:3}
-.middle-panel{width:5%;background:#fff;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}
+.middle-panel{width:5%;background:#fff;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;
+  /* ticket cut-outs: transparent half-circles at both ends of the tear line */
+  -webkit-mask-image:radial-gradient(circle 24px at 50% 0,transparent 20px,#000 20.5px),radial-gradient(circle 24px at 50% 100%,transparent 20px,#000 20.5px);
+  mask-image:radial-gradient(circle 24px at 50% 0,transparent 20px,#000 20.5px),radial-gradient(circle 24px at 50% 100%,transparent 20px,#000 20.5px);
+  -webkit-mask-composite:source-in;mask-composite:intersect}
 .tear-line{width:100%;height:100%;display:flex;align-items:center;justify-content:center;position:relative;flex-shrink:0}
 .tear-track{width:12px;height:100%;background:repeating-linear-gradient(to bottom,rgba(26,42,58,0.9) 0%,rgba(26,42,58,0.9) calc(100% / 24),transparent calc(100% / 24),transparent calc(100% / 12))}
-.tear-notch{position:absolute;width:40px;height:40px;background:#162130;border-radius:50%;left:50%;transform:translateX(-50%);z-index:20;transition:background 0.4s ease}
-.tear-notch.top{top:-20px}
-.tear-notch.bottom{bottom:-20px}
 .right-panel{width:25%;background:#fff;border-radius:0 32px 32px 0;display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:43px 37px;position:relative;gap:27px;overflow:hidden}
 .discount-box{text-align:center;display:flex;flex-direction:column;align-items:center}
 .discount-amount{font-family:'Righteous',cursive;font-size:147px;font-weight:400;line-height:0.95;letter-spacing:0.02em;color:#1a2a3a}
@@ -14764,7 +14765,6 @@ html[data-theme="light"] .s-step-current-label{color:rgba(0,0,0,0.45)}
 
 html[data-theme="light"] .voucher{border:none;box-shadow:0 28px 60px rgba(0,0,0,0.25),0 10px 20px rgba(0,0,0,0.14)}
 
-html[data-theme="light"] .tear-notch{background:#fff}
 /* tear-track locked to night mode style - removed light override */
 /* left-panel::before locked to dark - removed light override */
 
@@ -14969,7 +14969,7 @@ html[data-theme="light"] .vc-float-close{background:rgba(240,244,248,0.95);borde
               </svg>
             </div>
             <div class="logo-row">
-              <div class="logo-icon" style="width:85px;height:85px;display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:visible"><svg viewBox="321 55 1289 1743" width="52" height="70" aria-label="SuppVerse BD" role="img"><g transform="translate(0.000000,1844.000000) scale(0.100000,-0.100000)" fill="#ffffff" stroke="none"> <path d="M9884 17089 c-457 -25 -877 -89 -1324 -203 -335 -85 -551 -159 -837 -287 -481 -214 -841 -450 -1157 -759 -264 -259 -415 -460 -555 -738 -88 -176 -166 -436 -197 -661 -47 -334 27 -785 178 -1084 187 -372 440 -687 783 -972 321 -268 623 -463 1105 -713 179 -93 255 -128 655 -307 429 -191 1309 -535 1920 -750 99 -35 288 -103 420 -150 132 -48 355 -127 495 -175 140 -49 318 -112 395 -140 77 -29 257 -92 400 -140 271 -91 782 -269 993 -346 67 -24 132 -44 143 -44 31 0 79 53 79 88 0 42 -25 68 -173 183 -72 57 -188 149 -257 204 -69 56 -172 137 -230 180 -58 43 -148 113 -200 155 -52 42 -160 126 -240 186 -80 60 -224 170 -320 245 -96 74 -213 164 -260 199 -158 119 -603 484 -714 586 -136 124 -221 213 -318 335 -240 300 -315 477 -325 765 -5 129 -3 149 22 250 102 407 394 760 920 1114 179 120 510 293 725 378 200 79 574 198 749 237 411 92 655 124 1096 146 316 15 601 -3 997 -62 87 -13 88 -13 113 11 14 13 25 33 25 46 0 26 -100 181 -180 279 -161 196 -465 486 -750 714 -486 389 -1247 771 -1930 968 -724 208 -1523 302 -2246 262z M5330 14787 c-168 -141 -428 -435 -555 -627 -80 -121 -216 -352 -267 -455 -77 -152 -200 -508 -242 -695 -55 -251 -71 -404 -70 -685 0 -408 39 -651 164 -1025 107 -322 205 -529 394 -833 168 -269 449 -595 721 -834 422 -372 954 -695 1585 -963 258 -109 875 -328 1295 -459 600 -187 750 -233 960 -296 444 -134 1022 -324 1350 -445 1091 -401 1905 -884 2486 -1476 222 -227 422 -499 533 -728 187 -382 260 -633 286 -984 18 -248 -14 -525 -95 -806 -50 -175 -52 -193 -30 -236 20 -39 49 -53 94 -45 30 5 70 41 256 228 228 230 337 360 495 593 363 535 582 1175 621 1812 12 198 -1 493 -31 703 -51 361 -195 795 -372 1122 -69 129 -260 419 -342 521 -335 416 -796 801 -1319 1100 -357 204 -709 362 -1277 573 -167 62 -915 308 -1210 397 -266 81 -398 123 -1075 336 -309 98 -877 292 -1060 362 -71 28 -193 74 -270 103 -336 127 -854 367 -1110 515 -309 178 -580 359 -752 501 -331 273 -545 502 -728 779 -190 286 -287 507 -349 790 -73 335 -59 649 44 1035 31 118 31 119 12 144 -33 45 -68 39 -142 -22z M6686 8407 c-29 -29 -43 -86 -27 -115 6 -11 68 -64 138 -118 297 -227 912 -740 1184 -989 158 -145 417 -414 514 -534 213 -264 335 -502 406 -791 32 -132 33 -355 2 -481 -72 -286 -249 -572 -505 -815 -232 -219 -486 -394 -783 -539 -249 -121 -356 -166 -550 -231 -401 -133 -756 -206 -1240 -256 -198 -20 -932 -17 -1145 5 -254 26 -412 45 -517 62 -84 14 -95 14 -117 0 -31 -21 -50 -67 -41 -102 14 -59 366 -387 675 -630 481 -378 1167 -776 1750 -1016 483 -199 905 -333 1395 -442 320 -71 587 -113 975 -152 220 -22 933 -25 1160 -5 429 39 783 105 1169 219 1255 369 2109 1139 2355 2121 43 171 51 245 51 482 -1 409 -62 656 -259 1045 -124 244 -223 384 -450 638 -72 81 -305 295 -420 387 -186 148 -553 392 -796 528 -162 90 -651 335 -805 402 -746 326 -1488 590 -2730 971 -402 123 -1265 368 -1327 376 -30 4 -41 1 -62 -20z"/> </g></svg></div>
+              <div class="logo-icon" style="width:85px;height:85px;display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:visible"><svg viewBox="321 55 1289 1743" width="58" height="78" aria-label="SuppVerse BD" role="img"><g transform="translate(0.000000,1844.000000) scale(0.100000,-0.100000)" fill="#ffffff" stroke="none"> <path d="M9884 17089 c-457 -25 -877 -89 -1324 -203 -335 -85 -551 -159 -837 -287 -481 -214 -841 -450 -1157 -759 -264 -259 -415 -460 -555 -738 -88 -176 -166 -436 -197 -661 -47 -334 27 -785 178 -1084 187 -372 440 -687 783 -972 321 -268 623 -463 1105 -713 179 -93 255 -128 655 -307 429 -191 1309 -535 1920 -750 99 -35 288 -103 420 -150 132 -48 355 -127 495 -175 140 -49 318 -112 395 -140 77 -29 257 -92 400 -140 271 -91 782 -269 993 -346 67 -24 132 -44 143 -44 31 0 79 53 79 88 0 42 -25 68 -173 183 -72 57 -188 149 -257 204 -69 56 -172 137 -230 180 -58 43 -148 113 -200 155 -52 42 -160 126 -240 186 -80 60 -224 170 -320 245 -96 74 -213 164 -260 199 -158 119 -603 484 -714 586 -136 124 -221 213 -318 335 -240 300 -315 477 -325 765 -5 129 -3 149 22 250 102 407 394 760 920 1114 179 120 510 293 725 378 200 79 574 198 749 237 411 92 655 124 1096 146 316 15 601 -3 997 -62 87 -13 88 -13 113 11 14 13 25 33 25 46 0 26 -100 181 -180 279 -161 196 -465 486 -750 714 -486 389 -1247 771 -1930 968 -724 208 -1523 302 -2246 262z M5330 14787 c-168 -141 -428 -435 -555 -627 -80 -121 -216 -352 -267 -455 -77 -152 -200 -508 -242 -695 -55 -251 -71 -404 -70 -685 0 -408 39 -651 164 -1025 107 -322 205 -529 394 -833 168 -269 449 -595 721 -834 422 -372 954 -695 1585 -963 258 -109 875 -328 1295 -459 600 -187 750 -233 960 -296 444 -134 1022 -324 1350 -445 1091 -401 1905 -884 2486 -1476 222 -227 422 -499 533 -728 187 -382 260 -633 286 -984 18 -248 -14 -525 -95 -806 -50 -175 -52 -193 -30 -236 20 -39 49 -53 94 -45 30 5 70 41 256 228 228 230 337 360 495 593 363 535 582 1175 621 1812 12 198 -1 493 -31 703 -51 361 -195 795 -372 1122 -69 129 -260 419 -342 521 -335 416 -796 801 -1319 1100 -357 204 -709 362 -1277 573 -167 62 -915 308 -1210 397 -266 81 -398 123 -1075 336 -309 98 -877 292 -1060 362 -71 28 -193 74 -270 103 -336 127 -854 367 -1110 515 -309 178 -580 359 -752 501 -331 273 -545 502 -728 779 -190 286 -287 507 -349 790 -73 335 -59 649 44 1035 31 118 31 119 12 144 -33 45 -68 39 -142 -22z M6686 8407 c-29 -29 -43 -86 -27 -115 6 -11 68 -64 138 -118 297 -227 912 -740 1184 -989 158 -145 417 -414 514 -534 213 -264 335 -502 406 -791 32 -132 33 -355 2 -481 -72 -286 -249 -572 -505 -815 -232 -219 -486 -394 -783 -539 -249 -121 -356 -166 -550 -231 -401 -133 -756 -206 -1240 -256 -198 -20 -932 -17 -1145 5 -254 26 -412 45 -517 62 -84 14 -95 14 -117 0 -31 -21 -50 -67 -41 -102 14 -59 366 -387 675 -630 481 -378 1167 -776 1750 -1016 483 -199 905 -333 1395 -442 320 -71 587 -113 975 -152 220 -22 933 -25 1160 -5 429 39 783 105 1169 219 1255 369 2109 1139 2355 2121 43 171 51 245 51 482 -1 409 -62 656 -259 1045 -124 244 -223 384 -450 638 -72 81 -305 295 -420 387 -186 148 -553 392 -796 528 -162 90 -651 335 -805 402 -746 326 -1488 590 -2730 971 -402 123 -1265 368 -1327 376 -30 4 -41 1 -62 -20z"/> </g></svg></div>
               <div class="logo-text">SuppVerse BD</div>
             </div>
             <div class="title-block">
@@ -14991,8 +14991,6 @@ html[data-theme="light"] .vc-float-close{background:rgba(240,244,248,0.95);borde
           <div class="middle-panel">
             <div class="tear-line">
               <div class="tear-track"></div>
-              <div class="tear-notch top"></div>
-              <div class="tear-notch bottom"></div>
             </div>
           </div>
           <div class="right-panel">
@@ -16591,7 +16589,18 @@ function downloadVoucherPNG() {
       }
     });
   };
+  const punchTearCutouts = (canvas) => {
+    const mp = voucher.querySelector('.middle-panel');
+    if (!mp) return canvas;
+    const k = canvas.width / 1600, cx = (mp.offsetLeft + mp.offsetWidth / 2) * k, r = 20.5 * k;
+    const ctx = canvas.getContext('2d');
+    ctx.save(); ctx.globalCompositeOperation = 'destination-out';
+    [0, 600 * k].forEach(y => { ctx.beginPath(); ctx.arc(cx, y, r, 0, Math.PI * 2); ctx.fill(); });
+    ctx.restore();
+    return canvas;
+  };
   return render()
+    .then(punchTearCutouts)
     .then(canvas => new Promise((res, rej) => canvas.toBlob(b => b ? res(b) : rej(new Error('Could not create image')), 'image/png')))
     .then(blob => {
       const url = URL.createObjectURL(blob);
