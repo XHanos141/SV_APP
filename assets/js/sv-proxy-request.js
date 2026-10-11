@@ -59,7 +59,7 @@ function renderProxyRequest(row, fees){
   var registered=!!(c&&(row.customer_id||c.customer_code));
   var name=(c&&c.full_name)||snap.name_guess||'Guest';
   var phone=snap.whatsapp||(c&&c.phone)||'';
-  var address=c?[c.district,c.address_text].filter(Boolean).join(', '):'';
+  var address=c?([c.address_text,c.district].filter(Boolean).join(', ')||c._addr||''):'';
   var chKey=(snap.contact&&snap.contact.channel)||'website';
   var ch=CHANNELS[chKey]||CHANNELS.website;
   var reqNo=row.request_no||'';
@@ -136,6 +136,13 @@ async function load(id){
   ]);
   var row=res[0]&&res[0][0];
   if(!row) return null;
+  if(row.customer_id&&row.customers){
+    try{
+      var ct=await f('rpc/admin_customer_contact','POST',{p_customer_id:row.customer_id});
+      ct=Array.isArray(ct)?ct[0]:ct;
+      if(ct){ row.customers.phone=row.customers.phone||ct.phone||''; row.customers._addr=ct.address||''; }
+    }catch(e){ /* card falls back to the customer's own fields */ }
+  }
   return {row:row,fees:(res[1]&&res[1][0]&&res[1][0].content)||null};
 }
 window.SVProxyRequest={

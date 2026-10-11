@@ -21281,6 +21281,7 @@ async function rwEnrich(d) {
   if (!d.uuid) return d;
   try {
     if (d.customerId) {
+      const custUuid = d.customerId;
       const cr = await sbFetch('customers?id=eq.' + d.customerId + '&select=full_name,phone,email,customer_code,created_at,is_guest&limit=1');
       const c = Array.isArray(cr) ? cr[0] : null;
       if (c) {
@@ -21288,6 +21289,14 @@ async function rwEnrich(d) {
         d.customerId = c.customer_code || '';
         d.customerSince = c.created_at || '';
         d.email = c.email || '';
+      }
+      if (c && (!d.phone || !d.fullAddress)) {
+        // order row has no phone/address of its own -> fall back to the customer's profile / saved address
+        try {
+          const ct0 = await sbFetch('rpc/admin_customer_contact', 'POST', { p_customer_id: custUuid });
+          const ct = Array.isArray(ct0) ? ct0[0] : ct0;
+          if (ct) { d.phone = d.phone || ct.phone || c.phone || ''; d.fullAddress = d.fullAddress || ct.address || ''; }
+        } catch (e) { /* keep order's own values */ }
       }
     }
   } catch (err) { /* customer card falls back to the order's own name, phone and address */ }
