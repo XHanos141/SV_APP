@@ -16570,11 +16570,15 @@ function downloadVoucherPNG() {
   };
 
   const done = () => {
+    if (pinWasHidden && pin) pin.classList.remove('visible');
     if (btn) { delete btn.dataset.busy; btn.disabled = !S.code; }
     if (lbl) lbl.textContent = 'Download PNG';
   };
+  const pin = document.getElementById('preview-inner');
+  const pinWasHidden = !!(pin && !pin.classList.contains('visible'));
   const render = async () => {
     if (!window.html2canvas) throw new Error('Image engine not loaded');
+    if (pinWasHidden) { pin.classList.add('visible'); await new Promise(r => requestAnimationFrame(() => r())); }
     if (document.fonts) {
       // make sure the brand font is decoded before the snapshot, otherwise the PNG falls back to a system font
       try { await Promise.all([document.fonts.load("32px 'BARABARA-FINAL'", 'SUPPVERSE BD'), document.fonts.ready]); } catch (e) {}
@@ -16602,7 +16606,7 @@ function downloadVoucherPNG() {
     if (!mp) return canvas;
     const k = canvas.width / 1600, cx = (mp.offsetLeft + mp.offsetWidth / 2) * k, r = 20.5 * k;
     const ctx = canvas.getContext('2d');
-    ctx.save(); ctx.globalCompositeOperation = 'destination-out';
+    ctx.save(); ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.globalCompositeOperation = 'destination-out'; // html2canvas leaves a scale() on the context
     [0, 600 * k].forEach(y => { ctx.beginPath(); ctx.arc(cx, y, r, 0, Math.PI * 2); ctx.fill(); });
     ctx.restore();
     return canvas;
