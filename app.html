@@ -14556,6 +14556,25 @@ html[data-theme="dark"] .type-chip.selected-newcustomer{color:#c084fc}
 .type-card.selected[data-type="event"]{border-color:#f4c55a;background:rgba(244,197,90,0.1);box-shadow:0 0 0 3px rgba(244,197,90,0.15)}
 .type-card.selected[data-type="product"]{border-color:#22c55e;background:rgba(34,197,94,0.1);box-shadow:0 0 0 3px rgba(34,197,94,0.15)}
 .type-card.selected[data-type="newcustomer"]{border-color:#a855f7;background:rgba(168,85,247,0.1);box-shadow:0 0 0 3px rgba(168,85,247,0.15)}
+.type-card.selected[data-type="customer"]{border-color:#f43f5e;background:rgba(244,63,94,0.1);box-shadow:0 0 0 3px rgba(244,63,94,0.15)}
+.type-icon-wrap.customer{color:#f43f5e;background:rgba(244,63,94,0.12)}
+.cust-pick{display:none;margin-top:6px}
+.cust-pick.show{display:block}
+.cust-results{margin-top:6px;border-radius:10px;border:1px solid rgba(255,255,255,0.12);background:rgba(255,255,255,0.05);overflow:hidden}
+.cust-row{display:flex;align-items:center;gap:10px;padding:10px 12px;cursor:pointer;border-bottom:1px solid rgba(255,255,255,0.06)}
+.cust-row:last-child{border-bottom:none}
+.cust-row:active{background:rgba(244,63,94,0.1)}
+.cust-av{width:34px;height:34px;border-radius:50%;background:rgba(244,63,94,0.15);color:#f43f5e;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;flex-shrink:0;font-family:'Inter',sans-serif}
+.cust-nm{font-size:13px;font-weight:700;color:#fff;font-family:'Inter',sans-serif;line-height:1.3;word-break:break-word}
+.cust-sub{font-size:11px;color:rgba(255,255,255,0.55);font-family:'Inter',sans-serif;margin-top:2px}
+.cust-tag{font-size:9px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;padding:2px 6px;border-radius:6px;background:rgba(255,255,255,0.1);color:rgba(255,255,255,0.7);margin-left:4px;white-space:nowrap}
+.cust-sel{display:flex;align-items:flex-start;gap:12px;padding:12px;border-radius:12px;border:1.5px solid #f43f5e;background:rgba(244,63,94,0.08)}
+.cust-sel .cust-av{width:42px;height:42px;font-size:15px}
+.cust-stats{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.cust-stat{font-size:10px;font-weight:700;padding:3px 7px;border-radius:6px;background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.75);font-family:'Inter',sans-serif}
+.cust-warn{margin-top:6px;font-size:10.5px;font-weight:600;color:#F4A922;font-family:'Inter',sans-serif;line-height:1.35}
+.cust-change{margin-left:auto;font-size:11px;font-weight:700;color:#f43f5e;background:none;border:none;padding:6px;cursor:pointer;font-family:'Inter',sans-serif}
+.cust-empty{padding:12px;font-size:12px;color:rgba(255,255,255,0.5);font-family:'Inter',sans-serif;text-align:center}
 .type-card.selected[data-type="freeship"]{border-color:#14b8a6;background:rgba(20,184,166,0.1);box-shadow:0 0 0 3px rgba(20,184,166,0.15)}
 .type-icon-wrap.freeship{color:#14b8a6;background:rgba(20,184,166,0.12)}
 .badge-freeship{background:rgba(20,184,166,0.12);color:#0d9488}
@@ -14741,6 +14760,15 @@ html[data-theme="light"] .type-card.selected{border-color:#38bdf8;background:rgb
 html[data-theme="light"] .type-card.selected[data-type="event"]{border-color:#f4c55a;background:rgba(244,197,90,0.1);box-shadow:0 0 0 3px rgba(244,197,90,0.15)}
 html[data-theme="light"] .type-card.selected[data-type="product"]{border-color:#22c55e;background:rgba(34,197,94,0.08);box-shadow:0 0 0 3px rgba(34,197,94,0.15)}
 html[data-theme="light"] .type-card.selected[data-type="newcustomer"]{border-color:#a855f7;background:rgba(168,85,247,0.08);box-shadow:0 0 0 3px rgba(168,85,247,0.15)}
+html[data-theme="light"] .type-card.selected[data-type="customer"]{border-color:#f43f5e;background:rgba(244,63,94,0.08);box-shadow:0 0 0 3px rgba(244,63,94,0.15)}
+html[data-theme="light"] .type-icon-wrap.customer{color:#e11d48;background:rgba(244,63,94,0.1)}
+html[data-theme="light"] .cust-results{background:#fff;border-color:rgba(0,0,0,0.12)}
+html[data-theme="light"] .cust-row{border-bottom-color:rgba(0,0,0,0.06)}
+html[data-theme="light"] .cust-nm{color:#1a2a3a}
+html[data-theme="light"] .cust-sub,html[data-theme="light"] .cust-empty{color:#64748b}
+html[data-theme="light"] .cust-tag,html[data-theme="light"] .cust-stat{background:rgba(0,0,0,0.06);color:#475569}
+html[data-theme="light"] .cust-warn{color:#b45309}
+html[data-theme="light"] .cust-av,html[data-theme="light"] .cust-change{color:#e11d48}
 html[data-theme="light"] .type-card.selected[data-type="freeship"]{border-color:#14b8a6;background:rgba(20,184,166,0.08);box-shadow:0 0 0 3px rgba(20,184,166,0.15)}
 html[data-theme="light"] .type-icon-wrap.freeship{color:#14b8a6;background:rgba(20,184,166,0.1)}
 html[data-theme="light"] .badge-freeship{background:rgba(20,184,166,0.12);color:#0d9488}
@@ -15056,6 +15084,16 @@ html[data-theme="light"] .vc-float-close{background:rgba(240,244,248,0.95);borde
         <div class="type-card" id="card-product" onclick="selectType('product',this,'card')"><div class="type-icon-wrap product"><svg width="24" height="24" viewBox="0 0 24 24"><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" fill="#22c55e" stroke="#16a34a" stroke-width="2.5" stroke-linejoin="round" opacity="0.9"/><path d="M3.3 7L12 12l8.7-5" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" opacity="0.8"/><path d="M12 22V12" stroke="#fff" stroke-width="2" stroke-linecap="round" opacity="0.6"/></svg></div><div class="type-text"><div class="type-name">Specific Product</div><div class="type-desc">Only valid for selected product(s). Strict validation on apply.</div></div></div>
         <div class="type-card" id="card-newcustomer" onclick="selectType('newcustomer',this,'card')"><div class="type-icon-wrap newcustomer"><svg width="24" height="24" viewBox="0 0 24 24"><use href="#icon-new-customer"/></svg></div><div class="type-text"><div class="type-name">New Customer</div><div class="type-desc">First-time buyer offer. Single use, non-stackable. Auto-expires after first order.</div></div></div>
         <div class="type-card" id="card-freeship" onclick="selectType('freeship',this,'card')"><div class="type-icon-wrap freeship"><svg width="24" height="24" viewBox="0 0 24 24"><use href="#icon-free-shipping"/></svg></div><div class="type-text"><div class="type-name">Free Shipping</div><div class="type-desc">Waives the delivery fee on the order. Optional cap on how much shipping is covered.</div></div></div>
+        <div class="type-card" id="card-customer" onclick="selectType('customer',this,'card')"><div class="type-icon-wrap customer"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-3.6 3-6 6.5-6 1.2 0 2.3.3 3.2.8"/><rect x="14.5" y="14" width="7" height="6" rx="1.5"/><path d="M16 14v-1.5a2 2 0 0 1 4 0V14"/></svg></div><div class="type-text"><div class="type-name">Customer</div><div class="type-desc">Private voucher locked to one customer profile. Only they can use it.</div></div></div>
+        <div class="cust-pick" id="cust-pick">
+          <label class="fs-label">Customer <span style="opacity:.55;font-weight:500">locked to this profile</span></label>
+          <div id="cust-selected"></div>
+          <div id="cust-search-wrap">
+            <input type="text" class="fs-input" id="cust-q" placeholder="Search name, phone or CU-ID" autocomplete="off" maxlength="60" oninput="custSearch()">
+            <div class="cust-results" id="cust-results" style="display:none"></div>
+          </div>
+          <p class="field-hint">Only this customer's account can use the code. On the website they must be logged in.</p>
+        </div>
       </div>
     </div>
 
@@ -15206,6 +15244,7 @@ html[data-theme="light"] .vc-float-close{background:rgba(240,244,248,0.95);borde
         <div class="summary-row" id="s-start-row" style="display:none"><span class="summary-key">Starts</span><span class="summary-val" id="s-start">—</span></div>
         <div class="summary-row"><span class="summary-key">Usage</span><span class="summary-val" id="s-usage">—</span></div>
         <div class="summary-row"><span class="summary-key">Per-Customer</span><span class="summary-val" id="s-percustomer">—</span></div>
+        <div class="summary-row" id="s-customer-row" style="display:none"><span class="summary-key">Customer</span><span class="summary-val" id="s-customer">—</span></div>
         <div class="summary-row"><span class="summary-key">Expiry</span><span class="summary-val" id="s-expiry">—</span></div>
         <div class="summary-row" id="s-products-row" style="display:none"><span class="summary-key">Products</span><span class="summary-products" id="s-products">—</span></div>
         <div class="summary-row"><span class="summary-key">Code</span><span class="summary-val mono" id="s-code">—</span></div>
@@ -15381,7 +15420,7 @@ const themes = {
   vault: { name: 'Vault', leftBg: 'linear-gradient(135deg,#1a2a3a 0%,#243b4d 50%,#1e3345 100%)', wave1: '#94a3b8', wave2: '#bacee0', wave3: '#dce8f4', pill: 'rgba(255,255,255,0.88)', pillText: '#1a2a3a' }
 };
 
-const typeMap = { regular: 'SUP-REG', event: 'SUP-EVT', product: 'SUP-PRD', newcustomer: 'SUP-NEW', freeship: 'SUP-SHP' };
+const typeMap = { regular: 'SUP-REG', event: 'SUP-EVT', product: 'SUP-PRD', newcustomer: 'SUP-NEW', freeship: 'SUP-SHP', customer: 'SUP-CUS' };
 
 function toggleDark() {
   const html = document.documentElement;
@@ -15423,6 +15462,7 @@ function showToast(msg, code, isError) {
 function validateStep() {
   switch (S.step) {
     case 2:
+      if (S.type === 'customer' && !S.customer) { showToast('Select the customer for this voucher.', null, true); return false; }
       if (!S.type) {
         showToast('Select a voucher type to continue.', null, true);
         return false;
@@ -15550,7 +15590,7 @@ function selectType(type, el, source) {
   }
   S.type = type;
   applyTypeUI(type);
-  ['regular', 'event', 'product', 'newcustomer', 'freeship'].forEach(t => {
+  ['regular', 'event', 'product', 'newcustomer', 'freeship', 'customer'].forEach(t => {
     const chip = document.getElementById('chip-' + t);
     const card = document.getElementById('card-' + t);
     if (chip) { chip.className = 'type-chip'; chip.removeAttribute('data-type'); }
@@ -15570,7 +15610,73 @@ function selectType(type, el, source) {
   render();
 }
 
+S.customer = null; S.customerLocked = false;
+let _custT = null, _custSeq = 0, _custRows = [];
+function custEsc(x) { const d = document.createElement('div'); d.textContent = x == null ? '' : String(x); return d.innerHTML; }
+function custApplyType(type) {
+  const on = type === 'customer';
+  const box = document.getElementById('cust-pick');
+  if (box) box.classList.toggle('show', on);
+  const pc = document.getElementById('pill-nolimit');
+  const f = pc && pc.closest('.fs-field');
+  if (f) f.style.display = on ? 'none' : '';
+  if (on) { S.perCustomer = 'no'; custPaint(); }
+}
+function custUse(c) {
+  if (!c) return '';
+  if (c.has_login && c.phone) return '';
+  if (c.has_login) return 'No phone on file: usable on the website only (login), not on admin orders.';
+  if (c.phone) return 'No website login yet: usable on admin orders (by phone) until they sign up.';
+  return 'No phone and no login: this voucher cannot be used yet.';
+}
+function custPaint() {
+  const sel = document.getElementById('cust-selected'), wrap = document.getElementById('cust-search-wrap');
+  if (!sel || !wrap) return;
+  const c = S.customer;
+  if (!c) { sel.innerHTML = ''; wrap.style.display = ''; return; }
+  wrap.style.display = 'none';
+  const warn = custUse(c);
+  sel.innerHTML = '<div class="cust-sel"><div class="cust-av">' + custEsc((String(c.name || '?').trim().charAt(0) || '?').toUpperCase()) + '</div>'
+    + '<div style="min-width:0;flex:1"><div class="cust-nm">' + custEsc(c.name || 'Unnamed customer') + '<span class="cust-tag">' + custEsc(c.customer_code) + '</span></div>'
+    + '<div class="cust-sub">' + custEsc(c.phone || 'No phone') + '</div>'
+    + (c.orders != null ? '<div class="cust-stats"><span class="cust-stat">' + (c.orders || 0) + ' paid orders</span><span class="cust-stat">\u09f3' + Number(c.spent || 0).toLocaleString('en-US') + '</span><span class="cust-stat">' + (c.has_login ? 'Has login' : 'No login') + '</span></div>' : '')
+    + (warn ? '<div class="cust-warn">' + custEsc(warn) + '</div>' : '') + '</div>'
+    + (S.customerLocked ? '' : '<button type="button" class="cust-change" onclick="custSet(null)">Change</button>') + '</div>';
+}
+function custSet(c) {
+  S.customer = c || null;
+  if (!c) {
+    const q = document.getElementById('cust-q'); if (q) q.value = '';
+    const r = document.getElementById('cust-results'); if (r) { r.style.display = 'none'; r.innerHTML = ''; }
+  }
+  custPaint();
+  render();
+}
+function custLock() { S.customerLocked = true; custPaint(); }
+function custSearch() {
+  clearTimeout(_custT);
+  const q = (document.getElementById('cust-q').value || '').trim();
+  const box = document.getElementById('cust-results');
+  if (q.length < 2) { box.style.display = 'none'; box.innerHTML = ''; return; }
+  const my = ++_custSeq;
+  _custT = setTimeout(async function() {
+    let rows;
+    try { rows = await svCall('find_customers', { q: q }); }
+    catch (err) { if (my === _custSeq) { box.style.display = ''; box.innerHTML = '<div class="cust-empty">' + custEsc(err.message) + '</div>'; } return; }
+    if (my !== _custSeq) return;
+    _custRows = rows || [];
+    box.style.display = '';
+    box.innerHTML = _custRows.length ? _custRows.map(function(c, i) {
+      return '<div class="cust-row" onclick="custPick(' + i + ')"><div class="cust-av">' + custEsc((String(c.name || '?').trim().charAt(0) || '?').toUpperCase()) + '</div>'
+        + '<div style="min-width:0"><div class="cust-nm">' + custEsc(c.name || 'Unnamed customer') + '<span class="cust-tag">' + custEsc(c.customer_code) + '</span>' + (c.is_guest ? '<span class="cust-tag">Guest</span>' : '') + '</div>'
+        + '<div class="cust-sub">' + custEsc(c.phone || 'No phone') + '</div></div></div>';
+    }).join('') : '<div class="cust-empty">No customer found</div>';
+  }, 300);
+}
+function custPick(i) { const c = _custRows[i]; if (c) custSet(c); }
+
 function applyTypeUI(type) {
+  custApplyType(type);
   const fs = type === 'freeship';
   const lbl = document.getElementById('maxdisc-label');
   const inp = document.getElementById('max-discount');
@@ -15871,6 +15977,7 @@ function collectVoucherFields() {
     f.max_uses = S.maxUses === 'limited' ? (parseInt(document.getElementById('max-count').value) || null) : null;
   }
   if (S.type === 'product') f.product_skus = [...new Set(products)];
+  if (S.type === 'customer' && S.customer) f.customer_id = S.customer.id;
   const start = document.getElementById('v-start').value;
   if (start) f.start_date = start;
   return f;
@@ -15965,6 +16072,7 @@ function prefillVoucherFields(data) {
   const typeCard = document.getElementById('card-' + data.type);
   if (typeCard) selectType(data.type, typeCard, 'card');
 
+  if (data.type === 'customer') custSet(data.customer || null);
   document.getElementById('v-title').value    = data.title || '';
   document.getElementById('v-subtitle').value = data.subtitle || '';
   document.getElementById('v-desc').value     = data.description || '';
@@ -16015,6 +16123,7 @@ function loadVoucherForClone(data) {
   const expired = !d.no_expiry && d.expiry_date && d.expiry_date < todayISO();
   if (expired) d.no_expiry = false;
   prefillVoucherFields(d);
+  if (d.type === 'customer') custSet(null);
   if (expired) {
     selectExpiryMode('date', document.getElementById('pill-exp-date'));
     document.getElementById('v-expiry').value = '';
@@ -16039,6 +16148,7 @@ function loadVoucherForEdit(data) {
 
   // --- Now apply locks (after prefill so the calls above weren't blocked) ---
   S.lockedFields.type = true;
+  custLock();
   S.lockedFields.discount = S.editRedemptions > 0;
 
   document.querySelectorAll('.type-card').forEach(c => {
@@ -16087,6 +16197,7 @@ async function saveVoucherChanges() {
     return;
   }
   delete f.type;
+  delete f.customer_id;
   if (S.lockedFields.discount) delete f.start_date;
   setSaving(true, 'Saving...');
   try {
@@ -16255,7 +16366,7 @@ function updateSummary() {
   const t = themes[S.theme];
   document.getElementById('s-theme').textContent = t ? t.name : '—';
   document.getElementById('s-type').textContent  = S.type
-    ? (S.type === 'freeship' ? 'Free Shipping' : S.type === 'newcustomer' ? 'New Customer' : S.type.charAt(0).toUpperCase() + S.type.slice(1))
+    ? (S.type === 'freeship' ? 'Free Shipping' : S.type === 'customer' ? 'Customer' : S.type === 'newcustomer' ? 'New Customer' : S.type.charAt(0).toUpperCase() + S.type.slice(1))
     : '—';
 
   const amt = document.getElementById('disc-amount').value;
@@ -16272,7 +16383,7 @@ function updateSummary() {
     }
   }
   document.getElementById('s-usage').textContent       = usage;
-  document.getElementById('s-percustomer').textContent = S.perCustomer === 'yes' ? 'Once per Customer' : 'No Limit';
+  document.getElementById('s-percustomer').textContent = S.type === 'customer' ? 'One customer only' : S.perCustomer === 'yes' ? 'Once per Customer' : 'No Limit';
 
   const expiryVal = document.getElementById('v-expiry').value;
   if (S.expiryMode === 'none') {
@@ -16285,6 +16396,8 @@ function updateSummary() {
     document.getElementById('s-expiry').textContent = '—';
   }
   document.getElementById('s-code').textContent   = S.code || '—';
+  const _cr = document.getElementById('s-customer-row');
+  if (_cr) { _cr.style.display = (S.type === 'customer' && S.customer) ? 'flex' : 'none'; if (S.customer) document.getElementById('s-customer').textContent = (S.customer.name || 'Customer') + ' · ' + S.customer.customer_code; }
 
   const minV = parseFloat(document.getElementById('min-order').value);
   document.getElementById('s-minorder-row').style.display = minV > 0 ? 'flex' : 'none';
@@ -23657,6 +23770,7 @@ async function svVoucherRpc(op, payload) {
   else if (op === 'create') r = await sb.rpc('create_voucher', { p: payload });
   else if (op === 'update') r = await sb.rpc('update_voucher', { p_code: payload.code, p: payload.patch });
   else if (op === 'get') r = await sb.rpc('admin_get_voucher', { p_code: payload.code });
+  else if (op === 'find_customers') r = await sb.rpc('admin_search_customers', { p_q: String(payload.q || '').slice(0, 60) });
   else throw new Error('Unknown request');
   if (r.error) throw new Error(r.error.message || 'Request failed');
   return r.data;
@@ -23681,7 +23795,8 @@ const VQ_TYPE = {
   event:       { label:'Event',         c:'#f4c55a', c2:'#f59e0b', icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z"/></svg>' },
   product:     { label:'Product',       c:'#22c55e', c2:'#16a34a', icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8l-9-5-9 5 9 5 9-5z"/><path d="M3 8v8l9 5 9-5V8M12 13v8"/></svg>' },
   newcustomer: { label:'New Customer',  c:'#a78bfa', c2:'#7c3aed', icon:'<svg viewBox="0 0 24 24"><use href="#icon-new-customer"/></svg>' },
-  freeship:    { label:'Free Shipping', c:'#2dd4bf', c2:'#0d9488', icon:'<svg viewBox="0 0 24 24"><use href="#icon-free-shipping"/></svg>' }
+  freeship:    { label:'Free Shipping', c:'#2dd4bf', c2:'#0d9488', icon:'<svg viewBox="0 0 24 24"><use href="#icon-free-shipping"/></svg>' },
+  customer:    { label:'Customer',      c:'#fb7185', c2:'#e11d48', icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-3.6 3-6 6.5-6 1.2 0 2.3.3 3.2.8"/><rect x="14.5" y="14" width="7" height="6" rx="1.5"/><path d="M16 14v-1.5a2 2 0 0 1 4 0V14"/></svg>' }
 };
 const VQ_STATUS = { active:'#2f9b68', scheduled:'#F4A922', paused:'#d95353', expired:'#94a3b8', exhausted:'#94a3b8', archived:'#94a3b8' };
 async function svCopyText(t) {
@@ -23714,7 +23829,7 @@ function vqSummaryRows(v) {
   if (v.type === 'freeship' && maxD > 0) rows.push(['Delivery Cap', '\u09f3' + maxD]);
   if (v.start_date) rows.push(['Starts', vqDate(v.start_date) + ' \u00b7 ' + (vqLeft(v.start_date) === 'Expired' ? 'Started' : vqLeft(v.start_date) === 'Today' ? 'Today' : 'in ' + vqLeft(v.start_date).replace(' left', ''))]);
   rows.push(['Usage', v.usage_mode === 'single' ? 'Single Use' : 'Multiple Use' + (v.max_uses ? ' (' + v.max_uses + ' max)' : ' (Unlimited)')]);
-  rows.push(['Per-Customer', v.per_customer_once || v.type === 'newcustomer' ? 'Once per Customer' : 'No Limit']);
+  rows.push(v.type === 'customer' && v.customer ? ['Customer', (v.customer.name || 'Customer') + ' \u00b7 ' + v.customer.customer_code] : ['Per-Customer', v.per_customer_once || v.type === 'newcustomer' ? 'Once per Customer' : 'No Limit']);
   rows.push(['Expiry', v.no_expiry || !v.expiry_date ? 'No expiry' : vqDate(v.expiry_date) + ' \u00b7 ' + vqLeft(v.expiry_date)]);
   if (v.type === 'product' && Array.isArray(v.product_skus) && v.product_skus.length) rows.push(['Products', v.product_skus.join(', ')]);
   rows.push(['Code', v.code, true]);
@@ -23864,7 +23979,8 @@ function svVoucherToForm(v) {
     products: v.product_skus || null,
     min_order_amount: Number(v.min_order_amount) || 0,
     max_discount: v.max_discount == null ? null : Number(v.max_discount),
-    redemptions: v.uses || 0
+    redemptions: v.uses || 0,
+    customer: v.customer || null
   };
 }
 
