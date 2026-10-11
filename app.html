@@ -15085,6 +15085,12 @@ html[data-theme="light"] .vc-float-close{background:rgba(240,244,248,0.95);borde
         <div class="type-card" id="card-newcustomer" onclick="selectType('newcustomer',this,'card')"><div class="type-icon-wrap newcustomer"><svg width="24" height="24" viewBox="0 0 24 24"><use href="#icon-new-customer"/></svg></div><div class="type-text"><div class="type-name">New Customer</div><div class="type-desc">First-time buyer offer. Single use, non-stackable. Auto-expires after first order.</div></div></div>
         <div class="type-card" id="card-freeship" onclick="selectType('freeship',this,'card')"><div class="type-icon-wrap freeship"><svg width="24" height="24" viewBox="0 0 24 24"><use href="#icon-free-shipping"/></svg></div><div class="type-text"><div class="type-name">Free Shipping</div><div class="type-desc">Waives the delivery fee on the order. Optional cap on how much shipping is covered.</div></div></div>
         <div class="type-card" id="card-customer" onclick="selectType('customer',this,'card')"><div class="type-icon-wrap customer"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-3.6 3-6 6.5-6 1.2 0 2.3.3 3.2.8"/><rect x="14.5" y="14" width="7" height="6" rx="1.5"/><path d="M16 14v-1.5a2 2 0 0 1 4 0V14"/></svg></div><div class="type-text"><div class="type-name">Customer</div><div class="type-desc">Private voucher locked to one customer profile. Only they can use it.</div></div></div>
+      </div>
+    </div>
+
+    <div class="step-panel" id="step-3">
+      <div class="step-heading">Discount &amp; Limits</div>
+      <div class="step-subheading">Set how much discount and usage rules.</div>
         <div class="cust-pick" id="cust-pick">
           <label class="fs-label">Customer <span style="opacity:.55;font-weight:500">locked to this profile</span></label>
           <div id="cust-selected"></div>
@@ -15094,12 +15100,6 @@ html[data-theme="light"] .vc-float-close{background:rgba(240,244,248,0.95);borde
           </div>
           <p class="field-hint">Only this customer's account can use the code. On the website they must be logged in.</p>
         </div>
-      </div>
-    </div>
-
-    <div class="step-panel" id="step-3">
-      <div class="step-heading">Discount &amp; Limits</div>
-      <div class="step-subheading">Set how much discount and usage rules.</div>
       <div class="discount-lock-group" id="discount-lock-group">
         <p class="field-hint" id="freeship-hint" style="display:none;margin-bottom:12px">Waives the customer's delivery fee on the order. Set a cap to cover only part of the fee; leave it empty to waive the full fee.</p>
         <div class="fs-field" id="f-disctype">
@@ -15462,13 +15462,13 @@ function showToast(msg, code, isError) {
 function validateStep() {
   switch (S.step) {
     case 2:
-      if (S.type === 'customer' && !S.customer) { showToast('Select the customer for this voucher.', null, true); return false; }
       if (!S.type) {
         showToast('Select a voucher type to continue.', null, true);
         return false;
       }
       break;
     case 3: {
+      if (S.type === 'customer' && !S.customer) { showToast('Select the customer for this voucher.', null, true); return false; }
       const amtEl = document.getElementById('disc-amount');
       const amt   = parseFloat(amtEl.value);
       if (S.type !== 'freeship' && (!amt || amt <= 0)) {
