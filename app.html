@@ -16538,27 +16538,60 @@ function downloadVoucherPNG() {
   if (btn) { btn.dataset.busy = '1'; btn.disabled = true; }
   if (lbl) lbl.textContent = 'Preparing…';
 
-  const clone = voucher.cloneNode(true);
-  clone.removeAttribute('id');
-  clone.style.cssText += ';position:fixed;left:-9999px;top:0;transform:none;width:1600px;height:600px;margin:0;overflow:visible;box-shadow:none;';
-  document.body.appendChild(clone);
-
-  const origCanvas = voucher.querySelector('canvas');
-  const cloneCanvas = clone.querySelector('canvas');
-  if (origCanvas && cloneCanvas) {
-    cloneCanvas.width = origCanvas.width;
-    cloneCanvas.height = origCanvas.height;
-    cloneCanvas.getContext('2d').drawImage(origCanvas, 0, 0);
-  }
+  // html2canvas can't follow <use href="#symbol"> (logo, globe, phone, tag icons) and loses
+  // currentColor / gradient+mask refs when it turns inline SVG into an image. Inline them in the
+  // CLONE it renders so the PNG matches the on-screen card exactly.
+  const SVGNS = 'http://www.w3.org/2000/svg';
+  const fixSvgForExport = (doc, root) => {
+    root.querySelectorAll('use').forEach(u => {
+      const id = (u.getAttribute('href') || u.getAttribute('xlink:href') || '').replace(/^#/, '');
+      const src = id && doc.getElementById(id);
+      if (!src) return;
+      const g = doc.createElementNS(SVGNS, 'g');
+      Array.from(src.childNodes).forEach(n => g.appendChild(n.cloneNode(true)));
+      u.parentNode.replaceChild(g, u);
+    });
+    root.querySelectorAll('svg').forEach(svg => {
+      const col = doc.defaultView.getComputedStyle(svg).color;
+      if (col) svg.setAttribute('style', (svg.getAttribute('style') || '') + ';color:' + col);
+      const html = svg.innerHTML;
+      const missing = new Set();
+      (html.match(/url\(#([^)]+)\)/g) || []).forEach(m => {
+        const id = m.slice(5, -1).replace(/["']/g, '');
+        if (!svg.querySelector('[id="' + id + '"]')) missing.add(id);
+      });
+      if (missing.size) {
+        const defs = doc.createElementNS(SVGNS, 'defs');
+        missing.forEach(id => { const d = doc.getElementById(id); if (d) defs.appendChild(d.cloneNode(true)); });
+        svg.insertBefore(defs, svg.firstChild);
+      }
+    });
+  };
 
   const done = () => {
-    if (clone.parentNode) clone.parentNode.removeChild(clone);
     if (btn) { delete btn.dataset.busy; btn.disabled = !S.code; }
     if (lbl) lbl.textContent = 'Download PNG';
-    syncVoucherPreviewScale();
   };
-  const run = (window.html2canvas ? Promise.resolve() : Promise.reject(new Error('Image engine not loaded')));
-  return run.then(() => html2canvas(clone, { scale: 2, width: 1600, height: 600, backgroundColor: null, useCORS: true, logging: false }))
+  const render = async () => {
+    if (!window.html2canvas) throw new Error('Image engine not loaded');
+    if (document.fonts && document.fonts.ready) { try { await document.fonts.ready; } catch (e) {} }
+    return html2canvas(voucher, {
+      scale: 2, width: 1600, height: 600, backgroundColor: null, useCORS: true, logging: false,
+      onclone: (doc) => {
+        const v = doc.getElementById('voucher-preview');
+        if (!v) return;
+        // undo the on-screen fit-to-phone scaling, keep every ancestor-based style intact
+        v.style.cssText += ';transform:none;left:0;top:0;position:absolute;width:1600px;height:600px;box-shadow:none;';
+        const wrap = doc.getElementById('preview-wrap');
+        if (wrap) wrap.style.cssText += ';height:600px;width:1600px;padding:0;overflow:visible;';
+        for (let a = wrap ? wrap.parentElement : null; a && a !== doc.body; a = a.parentElement) {
+          a.style.overflow = 'visible'; a.style.transform = 'none';
+        }
+        fixSvgForExport(doc, v);
+      }
+    });
+  };
+  return render()
     .then(canvas => new Promise((res, rej) => canvas.toBlob(b => b ? res(b) : rej(new Error('Could not create image')), 'image/png')))
     .then(blob => {
       const url = URL.createObjectURL(blob);
