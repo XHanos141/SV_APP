@@ -5270,7 +5270,14 @@ html[data-theme="dark"] .vq,html[data-theme="dark"] .vqi-sh{--vq-card:#1b2738;--
 .vq-cp:active{transform:scale(.86)}
 .vq-cp svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
 .vq-cp.ok{background:rgba(47,155,104,.14);color:#2f9b68}
-.vq-info{width:28px;height:28px;border-radius:50%;border:0;flex:none;display:grid;place-items:center;background:#7c6ff7;color:#fff;font:italic 800 15px/1 Georgia,'Times New Roman',serif;cursor:pointer;box-shadow:0 3px 8px -2px rgba(124,111,247,.55);-webkit-tap-highlight-color:transparent;transition:transform .15s}
+.vq-acts{display:flex;flex-direction:column;gap:5px;align-self:flex-start;flex:none}
+.vq-info{width:22px;height:22px;border-radius:50%;border:0;flex:none;display:grid;place-items:center;background:#7c6ff7;color:#fff;font:italic 800 12px/1 Georgia,'Times New Roman',serif;cursor:pointer;box-shadow:0 2px 6px -2px rgba(124,111,247,.55);-webkit-tap-highlight-color:transparent;transition:transform .15s}
+.vq-dl{width:22px;height:22px;border-radius:50%;border:0;flex:none;display:grid;place-items:center;background:color-mix(in srgb,var(--vc) 16%,transparent);color:var(--vc2);cursor:pointer;-webkit-tap-highlight-color:transparent;transition:transform .15s,opacity .2s}
+.vq-dl svg{width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+.vq-dl:active{transform:scale(.88)}
+.vq-dl.busy{opacity:.45;pointer-events:none;animation:vqPulse 1s ease-in-out infinite}
+@keyframes vqPulse{50%{opacity:.2}}
+html[data-theme="dark"] .vq-dl{color:var(--vc)}
 .vq-info:active{transform:scale(.88)}
 .vqi-ov{position:fixed;inset:0;z-index:100000;background:rgba(8,14,28,.5);backdrop-filter:blur(3px);display:flex;align-items:flex-end;justify-content:center;opacity:0;transition:opacity .2s}
 .vqi-ov.open{opacity:1}
@@ -16525,9 +16532,9 @@ document.addEventListener('DOMContentLoaded', () => {
 function downloadVoucherPNG() {
   const voucher = document.getElementById('voucher-preview');
   const btn = document.getElementById('png-btn'), lbl = document.getElementById('png-btn-label');
-  if (!voucher) return;
-  if (!S.code) { showToast('Generate the voucher code first.', null, true); return; }
-  if (btn && btn.dataset.busy) return;
+  if (!voucher) return Promise.resolve(false);
+  if (!S.code) { showToast('Generate the voucher code first.', null, true); return Promise.resolve(false); }
+  if (btn && btn.dataset.busy) return Promise.resolve(false);
   if (btn) { btn.dataset.busy = '1'; btn.disabled = true; }
   if (lbl) lbl.textContent = 'Preparing…';
 
@@ -16551,7 +16558,7 @@ function downloadVoucherPNG() {
     syncVoucherPreviewScale();
   };
   const run = (window.html2canvas ? Promise.resolve() : Promise.reject(new Error('Image engine not loaded')));
-  run.then(() => html2canvas(clone, { scale: 2, width: 1600, height: 600, backgroundColor: null, useCORS: true, logging: false }))
+  return run.then(() => html2canvas(clone, { scale: 2, width: 1600, height: 600, backgroundColor: null, useCORS: true, logging: false }))
     .then(canvas => new Promise((res, rej) => canvas.toBlob(b => b ? res(b) : rej(new Error('Could not create image')), 'image/png')))
     .then(blob => {
       const url = URL.createObjectURL(blob);
@@ -16563,8 +16570,9 @@ function downloadVoucherPNG() {
       link.remove();
       setTimeout(() => URL.revokeObjectURL(url), 4000);
       showToast('Voucher PNG saved.');
+      return true;
     })
-    .catch(err => { console.error(err); showToast('PNG download failed. Try again.', null, true); })
+    .catch(err => { console.error(err); showToast('PNG download failed. Try again.', null, true); return false; })
     .finally(done);
 }
 
@@ -23835,7 +23843,8 @@ window.addEventListener('message', async function(e) {
 
 const VQ_ICON = {
   copy: '<svg viewBox="0 0 24 24"><rect x="9" y="9" width="12" height="12" rx="2.5"/><path d="M5 15V6a2 2 0 0 1 2-2h9"/></svg>',
-  check: '<svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>'
+  check: '<svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>',
+  dl: '<svg viewBox="0 0 24 24"><path d="M12 4v11"/><path d="M7 11l5 5 5-5"/><path d="M5 20h14"/></svg>'
 };
 const VQ_TYPE = {
   regular:     { label:'Regular',       c:'#38bdf8', c2:'#0ea5e9', icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.6 13.4l-7.2 7.2a2 2 0 0 1-2.8 0L3 13V3h10l7.6 7.6a2 2 0 0 1 0 2.8z"/><circle cx="7.5" cy="7.5" r="1.2"/></svg>' },
@@ -23909,12 +23918,49 @@ document.addEventListener('click', async e => {
   if (!e.target.closest('#voucherListContainer')) return;
   const inf = e.target.closest('.vq-info');
   if (inf) { vqOpenInfo(inf.dataset.code); return; }
+  const dl = e.target.closest('.vq-dl');
+  if (dl) { svDrawerVoucherPng(dl); return; }
   const b = e.target.closest('.vq-cp');
   if (!b) return;
   if (!await svCopyText(b.dataset.code)) return;
   b.classList.add('ok'); b.innerHTML = VQ_ICON.check;
   setTimeout(() => { b.classList.remove('ok'); b.innerHTML = VQ_ICON.copy; }, 1200);
 });
+
+
+async function svDrawerVoucherPng(btn) {
+  if (btn.classList.contains('busy')) return;
+  btn.classList.add('busy');
+  let frame = null;
+  try {
+    const v = await svVoucherRpc('get', { code: btn.dataset.code });
+    const src = document.getElementById('vc-src');
+    const dark = document.documentElement.getAttribute('data-theme') === 'dark';
+    const html = src.value.replace(/\<\\\/textarea\>/g, '</textarea>').replace('data-theme="dark"', 'data-theme="' + (dark ? 'dark' : 'light') + '"');
+    frame = document.createElement('iframe');
+    frame.setAttribute('aria-hidden', 'true');
+    frame.style.cssText = 'position:fixed;left:-9999px;top:0;width:430px;height:900px;border:0;visibility:hidden';
+    document.body.appendChild(frame);
+    await new Promise(function(res, rej) {
+      frame.onload = res; frame.onerror = rej; frame.srcdoc = html;
+    });
+    const w = frame.contentWindow;
+    w.postMessage({ type: 'LOAD_EDIT', voucher: svVoucherToForm(v) }, '*');
+    // wait for the builder to apply the voucher + load its image engine
+    const code = btn.dataset.code;
+    const ready = function() { const el = w.document.getElementById('code-display'); return !!(w.html2canvas && w.downloadVoucherPNG && el && el.textContent.trim() === code); };
+    for (let i = 0; i < 40 && !ready(); i++) await new Promise(function(r) { setTimeout(r, 100); });
+    if (!ready()) throw new Error('Voucher builder not ready');
+    await new Promise(function(r) { setTimeout(r, 500); }); // fonts + barcode paint
+    const ok = await w.downloadVoucherPNG();
+    showToast(ok ? 'Voucher PNG saved.' : 'PNG download failed. Try again.', ok ? 'success' : 'error');
+  } catch (err) {
+    showToast('PNG download failed. Try again.', 'error');
+  } finally {
+    if (frame && frame.parentNode) frame.parentNode.removeChild(frame);
+    btn.classList.remove('busy');
+  }
+}
 
 let _svDrawerVouchers = [];
 async function renderDrawerVouchers() {
@@ -23951,7 +23997,7 @@ async function renderDrawerVouchers() {
       </div>
       <div class="vq-row">
         <div class="vq-cd"><span class="vq-code">${vqEsc(v.code)}</span><button type="button" class="vq-cp" data-code="${vqEsc(v.code)}" aria-label="Copy code ${vqEsc(v.code)}">${VQ_ICON.copy}</button></div>
-        <button type="button" class="vq-info" data-code="${vqEsc(v.code)}" aria-label="Voucher details">i</button>
+        <div class="vq-acts"><button type="button" class="vq-info" data-code="${vqEsc(v.code)}" aria-label="Voucher details">i</button><button type="button" class="vq-dl" data-code="${vqEsc(v.code)}" aria-label="Download voucher PNG ${vqEsc(v.code)}">${VQ_ICON.dl}</button></div>
       </div>
     </div>`;
   }).join('');
