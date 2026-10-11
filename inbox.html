@@ -1593,16 +1593,11 @@
   .chan-switch .filter-tab-icon svg{ width:10px; height:10px; }
   .chan-switch .unread-pip{ position:absolute; top:-3px; right:-2px; width:9px; height:9px; border-radius:50%; background:var(--orange); border:2px solid var(--body-bg); }
 
-  /* ---------- Chat: order context strip ---------- */
-  .order-strip{ display:flex; align-items:center; gap:8px; width:100%; padding:9px 12px; text-align:left; background:var(--surface); border-bottom:1px solid var(--hairline); }
+  /* ---------- Chat: order context (same order card as everywhere else) ---------- */
+  .order-strip{ padding:7px 12px 1px; background:var(--body-bg); border-bottom:1px solid var(--hairline); }
   .order-strip[hidden]{ display:none; }
-  .order-strip__ico{ width:30px; height:30px; border-radius:9px; display:flex; align-items:center; justify-content:center; background:rgba(10,155,220,.12); color:var(--cyan); flex:0 0 auto; }
-  .order-strip__ico svg{ width:16px; height:16px; }
-  .order-strip__main{ flex:1; min-width:0; display:flex; flex-direction:column; gap:2px; }
-  .order-strip__label{ font-size:10.5px; font-weight:700; color:var(--text-3); }
-  .order-strip__line{ display:flex; align-items:center; gap:6px; min-width:0; }
-  .order-strip__amount{ margin-left:auto; font-size:12px; font-weight:800; color:var(--text-1); white-space:nowrap; }
-  .order-strip__chev{ width:18px; height:18px; color:var(--text-3); flex:0 0 auto; }
+  .order-strip__label{ display:block; font-size:10.5px; font-weight:700; color:var(--text-3); margin:0 2px 5px; }
+  .order-strip .oc-card{ margin-bottom:8px; }
 
   /* ---------- Chat: actions menu ---------- */
   .thread-menu-backdrop{ position:fixed; inset:0; z-index:40; display:none; }
@@ -2069,7 +2064,7 @@ html:not([data-theme="light"]) .odm-card { background: rgba(124,111,247,0.08); b
     <span class="thread-status" id="threadStatus"></span>
     <span class="chan-switch" id="threadChanSwitch" role="tablist" aria-label="Switch channel"></span>
   </div>
-  <button type="button" class="order-strip" id="orderStrip" hidden></button>
+  <div class="order-strip" id="orderStrip" hidden></div>
   <div class="thread-menu-backdrop" id="threadMenuBackdrop"></div>
   <div class="thread-menu" id="threadMenu" role="menu" aria-label="Conversation actions"></div>
 
@@ -3074,21 +3069,13 @@ function closeOrderDetailsModal() {
   function renderOrderStrip(conv, messages){
     const pick = pickStripOrder(conv, messages);
     if(!pick){ orderStripEl.hidden = true; orderStripEl.onclick = null; return; }
-    const o = pick.o, px = /^PX-/.test(o.id);
+    const o = pick.o;
     orderStripEl.hidden = false;
-    orderStripEl.setAttribute("aria-label", `${pick.mentioned ? "Order mentioned in chat" : "Current order"} ${o.id}, ${o.status}. Open details`);
-    orderStripEl.innerHTML = `
-      <span class="order-strip__ico">${ICONS.bag}</span>
-      <span class="order-strip__main">
-        <span class="order-strip__label">${pick.mentioned ? "Order mentioned in this chat" : "Current order"}</span>
-        <span class="order-strip__line">
-          <span class="oc-card__id${px ? " proxy" : ""}">${escapeHtml(o.id)}</span>
-          <span class="oc-card__pill ${ocPillClass(o)}">${escapeHtml(o.status)}</span>
-          ${o.amount ? `<span class="order-strip__amount">${money(o.amount)}</span>` : ""}
-        </span>
-      </span>
-      ${ICONS.chevron.replace("<svg ", '<svg class="order-strip__chev" ')}`;
-    orderStripEl.onclick = () => { sheet.conv = conv; openOrderModal(o.id); };
+    orderStripEl.innerHTML = `<span class="order-strip__label">${pick.mentioned ? "Order mentioned in this chat" : "Current order"}</span>${orderCardHtml(o)}`;
+    orderStripEl.onclick = (e) => {
+      if(!e.target.closest(".oc-card")) return;
+      sheet.conv = conv; openOrderModal(o.id);
+    };
   }
 
   /* actions menu ("…") */
