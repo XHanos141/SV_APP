@@ -166,55 +166,38 @@
   }
   #searchInput::placeholder{ color:var(--text-3); }
 
-  /* ---------- Filter tabs (underline, messaging-app style) ---------- */
-  .filter-tabs{
-    display:flex;
-    gap:22px;
-    overflow-x:auto;
-    scrollbar-width:none;
-    padding-bottom:0;
+  /* ---------- Channel filter (popover next to search) ---------- */
+  .search-row{ display:flex; gap:8px; align-items:center; margin-bottom:12px; position:relative; }
+  .search-row .search-wrap{ flex:1; min-width:0; margin-bottom:0; }
+  .chan-filter-btn{
+    position:relative; flex:0 0 auto; height:42px; padding:0 9px 0 8px; display:inline-flex; align-items:center; gap:4px;
+    background:var(--surface); border:1px solid var(--hairline); border-radius:11px; color:var(--text-2);
   }
-  .filter-tabs::-webkit-scrollbar{ display:none; }
-  .filter-tab{
-    flex:0 0 auto;
-    display:inline-flex;
-    align-items:center;
-    gap:6px;
-    font-size:13.5px;
-    font-weight:600;
-    color:var(--text-3);
-    padding:0 2px 10px;
-    border-bottom:2px solid transparent;
-    white-space:nowrap;
-  }
-  .filter-tab-icon{
-    width:18px;
-    height:18px;
-    border-radius:6px;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    flex:0 0 auto;
-  }
-  .filter-tab-icon svg{ width:10.5px; height:10.5px; }
+  .chan-filter-btn[aria-expanded="true"]{ border-color:var(--cyan); }
+  .chan-filter-btn > svg{ width:14px; height:14px; }
+  .chan-filter-ico{ width:22px; height:22px; border-radius:7px; display:flex; align-items:center; justify-content:center; flex:0 0 auto; color:var(--text-2); }
+  .chan-filter-ico svg{ width:16px; height:16px; }
+  .chan-filter-dot{ position:absolute; top:-3px; right:-3px; width:10px; height:10px; border-radius:50%; background:var(--cyan); border:2px solid var(--body-bg); display:none; }
+  .chan-filter-btn.is-filtered .chan-filter-dot{ display:block; }
+  .filter-tab-icon{ width:22px; height:22px; border-radius:7px; display:flex; align-items:center; justify-content:center; flex:0 0 auto; }
+  .filter-tab-icon svg{ width:12px; height:12px; }
   .filter-tab-icon.fb{ background:var(--fb); }
   .filter-tab-icon.wa{ background:var(--wa); }
   .filter-tab-icon.ig{ background:linear-gradient(135deg, var(--ig-a), var(--ig-b) 55%, var(--ig-c)); }
-  .filter-tab-icon.all{
-    background:var(--surface-2);
-    color:var(--text-2);
+  .filter-tab-icon.all{ background:var(--surface-2); color:var(--text-2); border:1px solid var(--hairline); }
+  .filter-tab-icon.all svg{ width:13px; height:13px; }
+  .chan-pop{
+    position:absolute; top:calc(100% + 6px); right:0; z-index:30; min-width:210px; padding:6px;
+    background:var(--surface); border:1px solid var(--hairline); border-radius:14px; box-shadow:0 14px 34px rgba(0,0,0,.28);
+    display:none; flex-direction:column;
   }
-  .filter-tab-icon.all svg{ width:12px; height:12px; }
-  .filter-tab[aria-selected="true"] .filter-tab-icon.all{ background:var(--cyan); color:#fff; }
-  .filter-tab[aria-selected="true"]{
-    color:var(--text-1);
-    border-bottom-color:var(--cyan);
+  .chan-pop.open{ display:flex; }
+  .filter-tab{
+    display:flex; align-items:center; gap:10px; padding:9px 10px; border-radius:9px; font-size:13.5px; font-weight:600; color:var(--text-1); text-align:left; width:100%;
   }
-  .filter-tab .count{
-    color:var(--text-3);
-    font-weight:500;
-    margin-left:4px;
-  }
+  .filter-tab:hover{ background:var(--surface-2); }
+  .filter-tab[aria-selected="true"]{ background:rgba(10,155,220,.12); color:var(--cyan); }
+  .filter-tab .count{ margin-left:auto; color:var(--text-3); font-weight:600; font-size:12px; }
   .filter-tab[aria-selected="true"] .count{ color:var(--cyan); }
 
   /* ---------- Status filters (primary, filled pills) ---------- */
@@ -226,6 +209,7 @@
     margin-bottom:12px;
   }
   .status-tabs::-webkit-scrollbar{ display:none; }
+  .status-tabs:not(.at-end){ -webkit-mask-image:linear-gradient(90deg,#000 86%,transparent); mask-image:linear-gradient(90deg,#000 86%,transparent); }
   .status-tab{
     flex:0 0 auto;
     display:inline-flex;
@@ -268,17 +252,6 @@
     text-align:left;
   }
   .conv-row:hover{ background:var(--surface); }
-  .conv-row.is-unread{ background:rgba(0,157,220,0.05); }
-
-  .unread-dot{
-    flex:0 0 auto;
-    width:8px;
-    height:8px;
-    border-radius:50%;
-    background:var(--cyan);
-    opacity:0;
-  }
-  .conv-row.is-unread .unread-dot{ opacity:1; }
 
   .avatar-wrap{
     position:relative;
@@ -319,6 +292,9 @@
     justify-content:center;
   }
   .channel-badge svg{ width:9px; height:9px; }
+  .channel-badges{ position:absolute; bottom:-3px; right:-5px; display:flex; flex-direction:row-reverse; }
+  .channel-badges .channel-badge{ position:static; margin-left:-6px; }
+  .channel-badges .channel-badge:last-child{ margin-left:0; }
   .channel-badge.messenger{ background:var(--fb); }
   .channel-badge.whatsapp{ background:var(--wa); }
   .channel-badge.instagram{
@@ -363,15 +339,21 @@
     color:var(--text-3);
   }
   .is-unread .conv-time{ color:var(--cyan); font-weight:600; }
+  .conv-main__bottom{ display:flex; align-items:center; gap:8px; margin-top:2px; }
+  .conv-unread-badge{
+    flex:0 0 auto; min-width:20px; height:20px; padding:0 6px; border-radius:10px; background:var(--cyan); color:#fff;
+    font-size:11px; font-weight:800; display:inline-flex; align-items:center; justify-content:center;
+  }
   .conv-snippet{
-    margin-top:2px;
+    display:block; flex:1; min-width:0;
     font-size:13px;
     color:var(--text-3);
     white-space:nowrap;
     overflow:hidden;
     text-overflow:ellipsis;
   }
-  .is-unread .conv-snippet{ color:var(--text-2); font-weight:500; }
+  .is-unread .conv-snippet{ color:var(--text-1); font-weight:600; }
+  .conv-row.is-unread .conv-time{ color:var(--cyan); }
 
   .empty-state{
     padding:70px 32px 0;
@@ -410,6 +392,8 @@
   }
   .fab button:active{ transform:scale(0.96); }
   .fab svg{ width:16px; height:16px; }
+  .fab button.fab-main-btn{ width:54px; height:54px; padding:0; justify-content:center; gap:0; border-radius:50%; }
+  .fab button.fab-main-btn svg{ width:24px; height:24px; }
 
   /* ---------- FAB menu (customer type filter) ---------- */
   .fab-menu-backdrop{
@@ -613,10 +597,6 @@
   .nav-item span{ font-size:10px; font-weight:600; }
   .nav-item[aria-current="page"]{ color:var(--cyan); }
 
-  @media (max-width:340px){
-    .filter-tabs{ gap:16px; }
-  }
-
   /* ---------- Thread / chat view ---------- */
   #threadView:not([hidden]){
     display:flex;
@@ -631,9 +611,11 @@
     display:flex;
     align-items:center;
     gap:10px;
-    padding:12px 12px;
-    background:var(--body-bg);
-    border-bottom:1px solid var(--hairline);
+    padding:10px 12px;
+    background:linear-gradient(180deg,#0f3258 0%,#002248 22%,#001f3c 55%,#001532 82%,#000d20 100%);
+    border-bottom:1px solid rgba(255,255,255,.06);
+    box-shadow:0 6px 24px rgba(0,0,0,.28);
+    color:#fff;
   }
   .thread-back, .thread-more{
     flex:0 0 auto;
@@ -642,10 +624,12 @@
     display:flex;
     align-items:center;
     justify-content:center;
-    border-radius:9px;
-    color:var(--text-2);
+    border-radius:10px;
+    color:#fff;
+    border:1px solid rgba(255,255,255,.15);
+    background:rgba(255,255,255,.08);
   }
-  .thread-back:hover, .thread-more:hover{ background:var(--surface); color:var(--text-1); }
+  .thread-back:hover, .thread-more:hover{ background:rgba(255,255,255,.16); }
   .thread-back svg{ width:19px; height:19px; }
   .thread-more svg{ width:17px; height:17px; }
 
@@ -678,18 +662,19 @@
     font-family:var(--font-head);
     font-weight:700;
     font-size:15px;
-    color:var(--text-1);
+    color:#fff;
     white-space:nowrap;
     overflow:hidden;
     text-overflow:ellipsis;
   }
+  .thread-avatar-wrap .channel-badge{ border-color:#001f3c; }
   .thread-channel{
     font-size:11.5px;
     font-weight:600;
     margin-top:1px;
   }
-  .thread-channel.messenger{ color:var(--fb); }
-  .thread-channel.whatsapp{ color:var(--wa); }
+  .thread-channel.messenger{ color:#6db3ff; }
+  .thread-channel.whatsapp{ color:#45e07f; }
   .thread-channel.instagram{
     background:linear-gradient(90deg, var(--ig-a), var(--ig-b), var(--ig-c));
     -webkit-background-clip:text;
@@ -710,9 +695,9 @@
     gap:4px;
     font-size:11px;
     font-weight:700;
-    color:var(--text-2);
-    background:var(--surface-2);
-    border:1px solid var(--hairline);
+    color:#dbe7f5;
+    background:rgba(255,255,255,.1);
+    border:1px solid rgba(255,255,255,.18);
     border-radius:100px;
     padding:2px 8px 2px 4px;
   }
@@ -727,7 +712,7 @@
     display:flex;
     align-items:center;
     justify-content:center;
-    border:1.5px solid var(--surface-2);
+    border:1.5px solid #12304f;
     margin-left:-4px;
   }
   .identity-chip .mini-badges span:first-child{ margin-left:0; }
@@ -735,7 +720,7 @@
   .identity-chip .mini-badges .fb{ background:var(--fb); }
   .identity-chip .mini-badges .wa{ background:var(--wa); }
   .identity-chip .mini-badges .ig{ background:linear-gradient(135deg, var(--ig-a), var(--ig-b) 55%, var(--ig-c)); }
-  .identity-chip.guest{ color:var(--text-3); }
+  .identity-chip.guest{ color:#9fb2c8; }
 
   /* ---------- Customer panel (bottom sheet on mobile) ---------- */
   .cust-sheet-backdrop{
@@ -1453,8 +1438,9 @@
     word-break:break-word;
   }
   .from-customer .msg-bubble__text{
-    background:var(--surface-2);
+    background:var(--surface);
     color:var(--text-1);
+    border:1px solid var(--hairline);
     border-bottom-left-radius:4px;
   }
   .from-admin .msg-bubble__text{
@@ -1589,6 +1575,58 @@
   .composer-send:disabled{ opacity:0.4; }
   .composer-send:not(:disabled):active{ transform:scale(0.92); }
   .composer-send svg{ width:16px; height:16px; margin-left:-1px; }
+
+
+  /* ---------- Chat: status + channel switch toolbar ---------- */
+  .thread-toolbar{ display:flex; align-items:center; justify-content:space-between; gap:8px; flex-wrap:nowrap; padding:8px 12px; background:var(--body-bg); border-bottom:1px solid var(--hairline); min-height:46px; }
+  .thread-status{ flex:0 1 auto; min-width:0; overflow:hidden; text-overflow:ellipsis; display:inline-flex; align-items:center; gap:5px; font-size:11.5px; font-weight:800; padding:4px 10px; border-radius:100px; border:1px solid transparent; white-space:nowrap; }
+  .thread-status::before{ content:""; width:7px; height:7px; border-radius:50%; background:currentColor; }
+  .thread-status.waiting{ color:var(--orange); background:rgba(242,100,48,.10); border-color:rgba(242,100,48,.35); }
+  .thread-status.assigned{ color:var(--cyan); background:rgba(10,155,220,.12); border-color:rgba(10,155,220,.38); }
+  .thread-status.done{ color:var(--green); background:rgba(0,155,114,.12); border-color:rgba(0,155,114,.38); }
+  .chan-switch{ display:flex; gap:6px; }
+  .chan-switch button{ display:inline-flex; align-items:center; gap:6px; height:28px; padding:0 10px 0 5px; border-radius:100px; font-size:11.5px; font-weight:700; color:var(--text-2); background:var(--surface-2); border:1px solid var(--hairline); position:relative; }
+  .chan-switch button[aria-selected="true"]{ color:var(--cyan); background:rgba(10,155,220,.12); border-color:rgba(10,155,220,.45); }
+  .chan-switch button[aria-selected="false"]{ padding:0 5px; }
+  .chan-switch button[aria-selected="false"] .lbl{ display:none; }
+  .chan-switch .filter-tab-icon{ width:18px; height:18px; border-radius:6px; }
+  .chan-switch .filter-tab-icon svg{ width:10px; height:10px; }
+  .chan-switch .unread-pip{ position:absolute; top:-3px; right:-2px; width:9px; height:9px; border-radius:50%; background:var(--orange); border:2px solid var(--body-bg); }
+
+  /* ---------- Chat: order context strip ---------- */
+  .order-strip{ display:flex; align-items:center; gap:8px; width:100%; padding:9px 12px; text-align:left; background:var(--surface); border-bottom:1px solid var(--hairline); }
+  .order-strip[hidden]{ display:none; }
+  .order-strip__ico{ width:30px; height:30px; border-radius:9px; display:flex; align-items:center; justify-content:center; background:rgba(10,155,220,.12); color:var(--cyan); flex:0 0 auto; }
+  .order-strip__ico svg{ width:16px; height:16px; }
+  .order-strip__main{ flex:1; min-width:0; display:flex; flex-direction:column; gap:2px; }
+  .order-strip__label{ font-size:10.5px; font-weight:700; color:var(--text-3); }
+  .order-strip__line{ display:flex; align-items:center; gap:6px; min-width:0; }
+  .order-strip__amount{ margin-left:auto; font-size:12px; font-weight:800; color:var(--text-1); white-space:nowrap; }
+  .order-strip__chev{ width:18px; height:18px; color:var(--text-3); flex:0 0 auto; }
+
+  /* ---------- Chat: actions menu ---------- */
+  .thread-menu-backdrop{ position:fixed; inset:0; z-index:40; display:none; }
+  .thread-menu-backdrop.open{ display:block; }
+  .thread-menu{ position:fixed; top:58px; right:10px; z-index:41; min-width:220px; padding:6px; background:var(--surface); border:1px solid var(--hairline); border-radius:14px; box-shadow:0 16px 38px rgba(0,0,0,.32); display:none; flex-direction:column; }
+  .thread-menu.open{ display:flex; }
+  .thread-menu button{ display:flex; align-items:center; gap:10px; padding:11px 12px; border-radius:9px; font-size:13.5px; font-weight:600; color:var(--text-1); text-align:left; }
+  .thread-menu button:hover{ background:var(--surface-2); }
+  .thread-menu button svg{ width:16px; height:16px; color:var(--text-2); flex:0 0 auto; }
+
+  /* ---------- Chat: composer (Reply / Private note + quick replies) ---------- */
+  .thread-composer{ flex-wrap:wrap; }
+  .composer-top{ flex:1 0 100%; display:flex; align-items:center; gap:8px; min-width:0; }
+  .composer-modes{ display:inline-flex; flex:0 0 auto; padding:3px; background:var(--surface-2); border:1px solid var(--hairline); border-radius:100px; }
+  .composer-mode{ display:inline-flex; align-items:center; gap:5px; height:26px; padding:0 12px; border-radius:100px; font-size:12px; font-weight:700; color:var(--text-2); }
+  .composer-mode svg{ width:12px; height:12px; }
+  .composer-mode.is-active{ background:var(--cyan); color:#fff; }
+  .thread-composer.note-mode .composer-mode.is-active{ background:var(--orange); }
+  .quick-replies{ display:flex; flex:1; min-width:0; gap:6px; overflow-x:auto; scrollbar-width:none; padding-bottom:1px; }
+  .quick-replies::-webkit-scrollbar{ display:none; }
+  .quick-replies[hidden]{ display:none; }
+  .quick-replies button{ flex:0 0 auto; height:30px; padding:0 12px; border-radius:100px; font-size:12px; font-weight:700; color:var(--cyan); background:rgba(10,155,220,.10); border:1px solid rgba(10,155,220,.3); white-space:nowrap; }
+  .quick-replies button:active{ background:rgba(10,155,220,.22); }
+  .msg-bubble__text{ box-shadow:0 1px 1px rgba(15,22,33,.05); }
 
   /* ===== Order Details modal — copied from SV_APP app.html (#orderDetailsModal) ===== */
 .odm-overlay {
@@ -1934,9 +1972,22 @@ html:not([data-theme="light"]) .odm-card { background: rgba(124,111,247,0.08); b
     </div>
 
     <div class="inbox-header__body">
-    <div class="search-wrap">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
-      <input id="searchInput" type="text" placeholder="Search conversations..." autocomplete="off">
+    <div class="search-row">
+      <div class="search-wrap">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+        <input id="searchInput" type="text" placeholder="Search conversations..." autocomplete="off">
+      </div>
+      <button type="button" class="chan-filter-btn" id="chanFilterBtn" aria-haspopup="true" aria-expanded="false" aria-label="Filter by channel">
+        <span class="chan-filter-ico" id="chanFilterIcon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5h18l-7 8v6l-4-2v-4Z"/></svg></span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+        <span class="chan-filter-dot"></span>
+      </button>
+      <div class="chan-pop" id="filterTabs" role="tablist" aria-label="Filter by channel">
+        <button class="filter-tab" role="tab" data-channel="all" aria-selected="true"><span class="filter-tab-icon all"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/></svg></span>All channels <span class="count" data-count="all"></span></button>
+        <button class="filter-tab" role="tab" data-channel="messenger" aria-selected="false"><span class="filter-tab-icon fb"><svg viewBox="0 0 24 24" fill="#fff"><path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z"/></svg></span>Facebook <span class="count" data-count="messenger"></span></button>
+        <button class="filter-tab" role="tab" data-channel="instagram" aria-selected="false"><span class="filter-tab-icon ig"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="3.6"/><circle cx="17.2" cy="6.8" r="1"/></svg></span>Instagram <span class="count" data-count="instagram"></span></button>
+        <button class="filter-tab" role="tab" data-channel="whatsapp" aria-selected="false"><span class="filter-tab-icon wa"><svg viewBox="0 0 24 24" fill="#fff"><path d="M12 2a10 10 0 0 0-8.6 15L2 22l5.2-1.4A10 10 0 1 0 12 2zm5.6 14.1c-.2.6-1.3 1.2-1.8 1.2-.5.1-1 .1-3.2-.7-2.7-1.1-4.4-3.8-4.6-4-.1-.2-1.1-1.5-1.1-2.8 0-1.3.7-2 1-2.2.2-.3.5-.3.7-.3h.5c.2 0 .4 0 .6.5.2.6.7 1.9.8 2 .1.2.1.4 0 .6-.1.2-.2.3-.3.5-.2.2-.3.3-.1.6.2.3.9 1.5 1.9 2.4 1.3 1.2 2.4 1.5 2.7 1.7.3.1.5.1.6-.1.2-.2.7-.8.9-1.1.2-.3.4-.2.6-.1.2.1 1.5.7 1.8.8.3.1.5.2.5.3.1.3.1.7-.1 1.2z"/></svg></span>WhatsApp <span class="count" data-count="whatsapp"></span></button>
+      </div>
     </div>
 
     <div class="status-tabs" id="statusTabs" role="tablist" aria-label="Filter by status">
@@ -1947,12 +1998,6 @@ html:not([data-theme="light"]) .odm-card { background: rgba(124,111,247,0.08); b
       <button class="status-tab" role="tab" data-status="done" aria-selected="false">Done <span class="count" data-status-count="done"></span></button>
     </div>
 
-    <div class="filter-tabs" id="filterTabs" role="tablist" aria-label="Filter by channel">
-      <button class="filter-tab" role="tab" data-channel="all" aria-selected="true"><span class="filter-tab-icon all"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/></svg></span>All <span class="count" data-count="all"></span></button>
-      <button class="filter-tab" role="tab" data-channel="messenger" aria-selected="false"><span class="filter-tab-icon fb"><svg viewBox="0 0 24 24" fill="#fff"><path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z"/></svg></span>Facebook <span class="count" data-count="messenger"></span></button>
-      <button class="filter-tab" role="tab" data-channel="instagram" aria-selected="false"><span class="filter-tab-icon ig"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="3.6"/><circle cx="17.2" cy="6.8" r="1"/></svg></span>Instagram <span class="count" data-count="instagram"></span></button>
-      <button class="filter-tab" role="tab" data-channel="whatsapp" aria-selected="false"><span class="filter-tab-icon wa"><svg viewBox="0 0 24 24" fill="#fff"><path d="M12 2a10 10 0 0 0-8.6 15L2 22l5.2-1.4A10 10 0 1 0 12 2zm5.6 14.1c-.2.6-1.3 1.2-1.8 1.2-.5.1-1 .1-3.2-.7-2.7-1.1-4.4-3.8-4.6-4-.1-.2-1.1-1.5-1.1-2.8 0-1.3.7-2 1-2.2.2-.3.5-.3.7-.3h.5c.2 0 .4 0 .6.5.2.6.7 1.9.8 2 .1.2.1.4 0 .6-.1.2-.2.3-.3.5-.2.2-.3.3-.1.6.2.3.9 1.5 1.9 2.4 1.3 1.2 2.4 1.5 2.7 1.7.3.1.5.1.6-.1.2-.2.7-.8.9-1.1.2-.3.4-.2.6-.1.2.1 1.5.7 1.8.8.3.1.5.2.5.3.1.3.1.7-.1 1.2z"/></svg></span>WhatsApp <span class="count" data-count="whatsapp"></span></button>
-    </div>
     </div><!-- /inbox-header__body -->
   </header>
 
@@ -1969,10 +2014,9 @@ html:not([data-theme="light"]) .odm-card { background: rgba(124,111,247,0.08); b
     <button class="fab-menu-item" type="button" id="newMessageMenuItem"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" width="14" height="14"><path d="M12 5v14M5 12h14"/></svg>New Message</button>
   </div>
   <div class="fab">
-    <button id="fabMainBtn" type="button" class="fab-main-btn" style="position:relative;">
+    <button id="fabMainBtn" type="button" class="fab-main-btn" style="position:relative;" aria-label="Actions: new message, customers, filters" aria-haspopup="true">
       <span class="fab-filter-dot" id="fabFilterDot"></span>
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
-      Menu
     </button>
   </div>
 
@@ -2021,14 +2065,26 @@ html:not([data-theme="light"]) .odm-card { background: rgba(124,111,247,0.08); b
     </button>
   </header>
 
+  <div class="thread-toolbar" id="threadToolbar">
+    <span class="thread-status" id="threadStatus"></span>
+    <span class="chan-switch" id="threadChanSwitch" role="tablist" aria-label="Switch channel"></span>
+  </div>
+  <button type="button" class="order-strip" id="orderStrip" hidden></button>
+  <div class="thread-menu-backdrop" id="threadMenuBackdrop"></div>
+  <div class="thread-menu" id="threadMenu" role="menu" aria-label="Conversation actions"></div>
+
   <main class="thread-messages" id="threadMessages" aria-live="polite"></main>
 
   <form class="thread-composer" id="composerForm">
+    <div class="composer-top">
+      <div class="composer-modes" role="tablist" aria-label="Message type">
+        <button type="button" role="tab" class="composer-mode is-active" data-mode="reply" aria-selected="true">Reply</button>
+        <button type="button" role="tab" class="composer-mode" data-mode="note" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>Private note</button>
+      </div>
+      <div class="quick-replies" id="quickReplies" aria-label="Quick replies"></div>
+    </div>
     <button type="button" class="composer-attach" id="attachBtn" aria-label="Attach file">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.5 12.5 21a5 5 0 0 1-7-7L14 5.5a3.5 3.5 0 0 1 5 5L10.5 19a2 2 0 0 1-3-3L15 8.5"/></svg>
-    </button>
-    <button type="button" class="composer-lock" id="noteToggleBtn" aria-label="Toggle internal note mode" aria-pressed="false">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
     </button>
     <textarea id="composerInput" rows="1" placeholder="Message..."></textarea>
     <button type="submit" class="composer-send" id="sendBtn" aria-label="Send message" disabled>
@@ -2536,7 +2592,6 @@ function closeOrderDetailsModal() {
     composerForm: document.getElementById("composerForm"),
     composerInput: document.getElementById("composerInput"),
     sendBtn: document.getElementById("sendBtn"),
-    noteToggleBtn: document.getElementById("noteToggleBtn"),
     customersView: document.getElementById("customersView"),
     customersListScroll: document.getElementById("customersListScroll"),
     customersCount: document.getElementById("customersCount"),
@@ -2764,58 +2819,81 @@ function closeOrderDetailsModal() {
     });
   }
 
+  /* One row per customer: conversations that belong to the same customer_key are merged (latest message wins) */
+  function groupRows(convs){
+    const map = new Map();
+    convs.forEach(c => {
+      const key = c.customer_key || ("conv:" + c.id);
+      if(!map.has(key)) map.set(key, []);
+      map.get(key).push(c);
+    });
+    return [...map.values()].map(list => {
+      list.sort((a,b) => new Date(b.updated_at) - new Date(a.updated_at));
+      const latest = list[0];
+      const unread = list.reduce((n, c) => n + (c.unread_count || 0), 0);
+      const channels = [...new Set(list.map(c => c.channel))];
+      return { latest, convs:list, unread, channels };
+    }).sort((a,b) => new Date(b.latest.updated_at) - new Date(a.latest.updated_at));
+  }
+  const rowCount = (convs) => new Set(convs.map(c => c.customer_key || ("conv:" + c.id))).size;
+
   function updateCounts(){
+    const all = state.conversations;
     els.tabs.querySelectorAll(".count").forEach(el => {
       const key = el.dataset.count;
-      const n = key === "all" ? state.conversations.length
-        : state.conversations.filter(c => c.channel === key).length;
+      const n = rowCount(key === "all" ? all : all.filter(c => c.channel === key));
       el.textContent = n > 0 ? n : "";
     });
     els.statusTabs.querySelectorAll(".count").forEach(el => {
       const key = el.dataset.statusCount;
-      let n;
-      if(key === "all") n = state.conversations.length;
-      else if(key === "unread") n = state.conversations.filter(c => (c.unread_count || 0) > 0).length;
-      else if(key === "assigned") n = state.conversations.filter(c => !!c.assigned_to).length;
-      else n = state.conversations.filter(c => (c.convo_status || "waiting") === key).length;
+      let list;
+      if(key === "all") list = all;
+      else if(key === "unread") list = all.filter(c => (c.unread_count || 0) > 0);
+      else if(key === "assigned") list = all.filter(c => !!c.assigned_to);
+      else list = all.filter(c => (c.convo_status || "waiting") === key);
+      const n = rowCount(list);
       el.textContent = n > 0 ? n : "";
     });
   }
 
   function render(){
     updateCounts();
-    const items = getFiltered().sort((a,b) => new Date(b.updated_at) - new Date(a.updated_at));
+    const rows = groupRows(getFiltered());
 
-    if(items.length === 0){
+    if(rows.length === 0){
       els.list.innerHTML = `
         <div class="empty-state">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 5h16v11a2 2 0 0 1-2 2H9l-5 4V5Z"/></svg>
-          <p>${state.searchQuery ? "No conversations match your search." : "No conversations in this channel yet."}</p>
+          <p>${state.searchQuery ? "No conversations match your search." : "No conversations here yet."}</p>
         </div>`;
       return;
     }
 
-    els.list.innerHTML = items.map(c => {
-      const unread = (c.unread_count || 0) > 0;
+    els.list.innerHTML = rows.map(r => {
+      const c = r.latest;
+      const unread = r.unread > 0;
       const rowCust = c.customer_key ? MOCK_CUSTOMERS[c.customer_key] : null;
       const rowIsRegistered = !!rowCust && rowCust.status === "registered";
       const avatarHtml = c.customer_avatar
-        ? `<img class="avatar" src="${escapeHtml(c.customer_avatar)}" alt="" onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'avatar-initials',style:'background:${hashColor(c.customer_name||'?')}',textContent:'${initials(c.customer_name)}'}))">`
+        ? `<img class="avatar" src="${escapeHtml(c.customer_avatar)}" alt="" onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'avatar-initials',style:'background:${hashColor(c.customer_name || "?")}',textContent:'${initials(c.customer_name)}'}))">`
         : `<div class="avatar-initials" style="background:${hashColor(c.customer_name || "?")}">${initials(c.customer_name)}</div>`;
+      const badges = r.channels.slice(0,3).map(ch => `<span class="channel-badge ${ch}">${channelBadgeSvg(ch)}</span>`).join("");
 
       return `
         <button class="conv-row ${unread ? "is-unread" : ""}" data-id="${escapeHtml(c.id)}">
-          <span class="unread-dot"></span>
           <span class="avatar-wrap">
             ${avatarHtml}
-            <span class="channel-badge ${c.channel}">${channelBadgeSvg(c.channel)}</span>
+            <span class="channel-badges">${badges}</span>
           </span>
           <span class="conv-main">
             <span class="conv-main__top">
               <span class="conv-name"><span>${escapeHtml(c.customer_name || "Unknown")}</span>${rowIsRegistered ? VERIFIED_BADGE_SVG : ""}</span>
               <span class="conv-time">${formatRelativeTime(c.updated_at)}</span>
             </span>
-            <span class="conv-snippet">${escapeHtml(c.last_message || "")}</span>
+            <span class="conv-main__bottom">
+              <span class="conv-snippet">${escapeHtml(c.last_message || "")}</span>
+              ${unread ? `<span class="conv-unread-badge" aria-label="${r.unread} unread">${r.unread > 99 ? "99+" : r.unread}</span>` : ""}
+            </span>
           </span>
         </button>`;
     }).join("");
@@ -2830,11 +2908,29 @@ function closeOrderDetailsModal() {
     render();
   });
 
+  const syncStatusFade = () => els.statusTabs.classList.toggle("at-end", els.statusTabs.scrollLeft + els.statusTabs.clientWidth >= els.statusTabs.scrollWidth - 4);
+  els.statusTabs.addEventListener("scroll", syncStatusFade, { passive:true });
+  syncStatusFade();
+  const chanBtn = document.getElementById("chanFilterBtn");
+  function setChanPop(open){
+    els.tabs.classList.toggle("open", open);
+    chanBtn.setAttribute("aria-expanded", String(open));
+  }
+  chanBtn.addEventListener("click", (e) => { e.stopPropagation(); setChanPop(!els.tabs.classList.contains("open")); });
+  document.addEventListener("click", (e) => {
+    if(els.tabs.classList.contains("open") && !els.tabs.contains(e.target)) setChanPop(false);
+  });
   els.tabs.addEventListener("click", (e) => {
     const btn = e.target.closest(".filter-tab");
     if(!btn) return;
     state.activeFilter = btn.dataset.channel;
     els.tabs.querySelectorAll(".filter-tab").forEach(t => t.setAttribute("aria-selected", t === btn ? "true" : "false"));
+    const icon = btn.querySelector(".filter-tab-icon");
+    const trig = document.getElementById("chanFilterIcon");
+    if(state.activeFilter === "all"){ trig.className = "chan-filter-ico"; trig.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5h18l-7 8v6l-4-2v-4Z"/></svg>'; }
+    else { trig.className = icon.className; trig.innerHTML = icon.innerHTML; }
+    chanBtn.classList.toggle("is-filtered", state.activeFilter !== "all");
+    setChanPop(false);
     render();
   });
 
@@ -2893,8 +2989,12 @@ function closeOrderDetailsModal() {
     els.threadName.textContent = conv.customer_name || "Unknown";
     els.threadChannel.textContent = (CHANNEL_META[conv.channel] && CHANNEL_META[conv.channel].label) || conv.channel;
     els.threadChannel.className = "thread-channel " + conv.channel;
-    els.composerInput.placeholder = `Message via ${(CHANNEL_META[conv.channel] && CHANNEL_META[conv.channel].label) || "chat"}...`;
     renderIdentityChip(conv);
+    renderThreadToolbar(conv);
+    renderOrderStrip(conv, []);
+    closeThreadMenu();
+    applyComposerMode(false);
+    renderQuickReplies(conv);
   }
 
   const CHANNEL_ICON_CLASS = { messenger:"fb", instagram:"ig", whatsapp:"wa" };
@@ -2918,6 +3018,167 @@ function closeOrderDetailsModal() {
     els.identityChipBtn.innerHTML = `<span class="mini-badges">${miniBadges}</span>Also on ${cust.channels.length - 1} more`;
     els.identityChipBtn.onclick = () => openCustomerPanel(conv);
   }
+
+
+  /* ---------- Chat: status, channel switch, order strip, actions menu, composer modes ---------- */
+  const STAFF_ME = "You";   // live: replace with the signed-in staff member's name
+  const threadStatusEl = document.getElementById("threadStatus");
+  const threadChanSwitch = document.getElementById("threadChanSwitch");
+  const orderStripEl = document.getElementById("orderStrip");
+  const threadMenu = document.getElementById("threadMenu");
+  const threadMenuBackdrop = document.getElementById("threadMenuBackdrop");
+  const quickRepliesEl = document.getElementById("quickReplies");
+  const activeConv = () => state.conversations.find(c => c.id === state.activeConversationId);
+
+  function convStatusInfo(conv){
+    if((conv.convo_status || "waiting") === "done") return { cls:"done", label:"Done" };
+    if(conv.assigned_to) return { cls:"assigned", label:"Assigned · " + conv.assigned_to };
+    return { cls:"waiting", label:"Waiting for reply" };
+  }
+  function renderThreadToolbar(conv){
+    const info = convStatusInfo(conv);
+    threadStatusEl.className = "thread-status " + info.cls;
+    threadStatusEl.textContent = info.label;
+    const sibs = conv.customer_key ? state.conversations.filter(c => c.customer_key === conv.customer_key) : [conv];
+    threadChanSwitch.innerHTML = sibs.length < 2 ? "" : sibs.map(c => {
+      const active = c.id === conv.id;
+      const lbl = (CHANNEL_META[c.channel] && CHANNEL_META[c.channel].label) || c.channel;
+      return `<button type="button" role="tab" aria-selected="${active}" data-id="${escapeHtml(c.id)}" aria-label="${lbl}">
+        <span class="filter-tab-icon ${CHANNEL_ICON_CLASS[c.channel]}">${channelBadgeSvg(c.channel)}</span><span class="lbl">${lbl}</span>${!active && (c.unread_count || 0) > 0 ? '<span class="unread-pip"></span>' : ""}
+      </button>`;
+    }).join("");
+  }
+  threadChanSwitch.addEventListener("click", (e) => {
+    const b = e.target.closest("button[data-id]");
+    if(!b || b.getAttribute("aria-selected") === "true") return;
+    openConversation(b.dataset.id);
+  });
+
+  function pickStripOrder(conv, messages){
+    const cust = getCustomerRecord(conv);
+    if(!cust) return null;
+    const orders = allOrdersOf(cust);
+    if(!orders.length) return null;
+    const ids = [];
+    (messages || []).forEach(m => {
+      if(isNoteMsg(m)) return;
+      (String(m.content || "").match(/\b(?:SV|PX)-\d{3,}\b/gi) || []).forEach(x => ids.push(x.toUpperCase()));
+    });
+    for(let i = ids.length - 1; i >= 0; i--){
+      const o = orders.find(x => x.id === ids[i]);
+      if(o) return { o, mentioned:true };
+    }
+    const cur = currentOrdersOf(cust)[0];
+    return cur ? { o:cur, mentioned:false } : null;
+  }
+  function renderOrderStrip(conv, messages){
+    const pick = pickStripOrder(conv, messages);
+    if(!pick){ orderStripEl.hidden = true; orderStripEl.onclick = null; return; }
+    const o = pick.o, px = /^PX-/.test(o.id);
+    orderStripEl.hidden = false;
+    orderStripEl.setAttribute("aria-label", `${pick.mentioned ? "Order mentioned in chat" : "Current order"} ${o.id}, ${o.status}. Open details`);
+    orderStripEl.innerHTML = `
+      <span class="order-strip__ico">${ICONS.bag}</span>
+      <span class="order-strip__main">
+        <span class="order-strip__label">${pick.mentioned ? "Order mentioned in this chat" : "Current order"}</span>
+        <span class="order-strip__line">
+          <span class="oc-card__id${px ? " proxy" : ""}">${escapeHtml(o.id)}</span>
+          <span class="oc-card__pill ${ocPillClass(o)}">${escapeHtml(o.status)}</span>
+          ${o.amount ? `<span class="order-strip__amount">${money(o.amount)}</span>` : ""}
+        </span>
+      </span>
+      ${ICONS.chevron.replace("<svg ", '<svg class="order-strip__chev" ')}`;
+    orderStripEl.onclick = () => { sheet.conv = conv; openOrderModal(o.id); };
+  }
+
+  /* actions menu ("…") */
+  const MENU_ICONS = {
+    assign:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3.5"/><path d="M5 20c0-3.6 3.1-6 7-6s7 2.4 7 6"/></svg>',
+    done:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="m8 12 3 3 5-6"/></svg>',
+    unread:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>',
+    profile:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M2.5 20c0-3.6 2.9-6.5 6.5-6.5s6.5 2.9 6.5 6.5"/><path d="M17 8h4M19 6v4"/></svg>'
+  };
+  function openThreadMenu(){
+    const conv = activeConv(); if(!conv) return;
+    const done = (conv.convo_status || "waiting") === "done";
+    const mine = conv.assigned_to === STAFF_ME;
+    const items = [
+      ["assign", mine ? "Unassign" : "Assign to me"],
+      ["done", done ? "Reopen conversation" : "Mark as done"],
+      ["unread", "Mark as unread"],
+      ["profile", "View customer profile"]
+    ];
+    threadMenu.innerHTML = items.map(([k, label]) => `<button type="button" role="menuitem" data-menu="${k}">${MENU_ICONS[k]}${label}</button>`).join("");
+    threadMenu.classList.add("open"); threadMenuBackdrop.classList.add("open");
+  }
+  function closeThreadMenu(){ threadMenu.classList.remove("open"); threadMenuBackdrop.classList.remove("open"); }
+  function updateConv(conv, fields){
+    Object.assign(conv, fields);
+    if(supabase) supabase.from("conversations").update(fields).eq("id", conv.id)
+      .then(({ error }) => { if(error) console.error("update conversation error:", error); });
+  }
+  threadMenuBackdrop.addEventListener("click", closeThreadMenu);
+  threadMenu.addEventListener("click", (e) => {
+    const b = e.target.closest("button[data-menu]"); if(!b) return;
+    const conv = activeConv(); if(!conv) return;
+    closeThreadMenu();
+    switch(b.dataset.menu){
+      case "assign":
+        if(conv.assigned_to === STAFF_ME){ updateConv(conv, { assigned_to:null, convo_status:"waiting" }); showToast("Unassigned"); }
+        else { updateConv(conv, { assigned_to:STAFF_ME, convo_status:"assigned" }); showToast("Assigned to you"); }
+        renderThreadToolbar(conv); break;
+      case "done":
+        if((conv.convo_status || "waiting") === "done"){ updateConv(conv, { convo_status: conv.assigned_to ? "assigned" : "waiting" }); showToast("Conversation reopened"); }
+        else { updateConv(conv, { convo_status:"done" }); showToast("Marked as done"); }
+        renderThreadToolbar(conv); break;
+      case "unread":
+        updateConv(conv, { unread_count: Math.max(1, conv.unread_count || 0) });
+        backToList(); showToast("Marked as unread"); break;
+      case "profile":
+        openCustomerPanel(conv); break;
+    }
+  });
+
+  /* composer: Reply / Private note + quick replies */
+  const QUICK_REPLIES = [   // live: move to a table so staff can edit them
+    { label:"Ask order ID", text:"Hi {name}, could you please share your order ID so I can check it for you?" },
+    { label:"Checking now", text:"Thanks for reaching out, {name}! Let me check that for you and get back to you shortly." },
+    { label:"Order update", text:"Thanks for your patience, {name}. I'm checking your order status and will update you here shortly." },
+    { label:"Need details", text:"Could you share a few more details so I can help you better?" },
+    { label:"Thank you", text:"Thank you for shopping with SuppVerse! Let us know if you need anything else." }
+  ];
+  function renderQuickReplies(conv){
+    quickRepliesEl.innerHTML = QUICK_REPLIES.map((q, i) => `<button type="button" data-qr="${i}">${escapeHtml(q.label)}</button>`).join("");
+    syncQuickReplies();
+  }
+  function syncQuickReplies(){
+    quickRepliesEl.hidden = state.noteMode || els.composerInput.value.trim().length > 0;
+  }
+  quickRepliesEl.addEventListener("click", (e) => {
+    const b = e.target.closest("button[data-qr]"); if(!b) return;
+    const conv = activeConv();
+    const first = ((conv && conv.customer_name) || "").trim().split(/\s+/)[0] || "there";
+    els.composerInput.value = QUICK_REPLIES[Number(b.dataset.qr)].text.replace("{name}", first);
+    updateSendState(); autoResizeComposer(); syncQuickReplies();
+    els.composerInput.focus();
+  });
+  function applyComposerMode(note, focus){
+    state.noteMode = note;
+    els.composerForm.classList.toggle("note-mode", note);
+    els.composerForm.querySelectorAll(".composer-mode").forEach(b => {
+      const on = (b.dataset.mode === "note") === note;
+      b.classList.toggle("is-active", on); b.setAttribute("aria-selected", String(on));
+    });
+    const conv = activeConv();
+    const label = (conv && CHANNEL_META[conv.channel] && CHANNEL_META[conv.channel].label) || "chat";
+    els.composerInput.placeholder = note ? "Private note (the customer can't see this)..." : `Message via ${label}...`;
+    syncQuickReplies();
+    if(focus) els.composerInput.focus();
+  }
+  els.composerForm.querySelector(".composer-modes").addEventListener("click", (e) => {
+    const b = e.target.closest(".composer-mode"); if(!b) return;
+    applyComposerMode(b.dataset.mode === "note", true);
+  });
 
   /* ---------- Customer profile sheet (frontend-only; tags/notes live in local mock state) ---------- */
   const profileLocal = {};            // { [customer_key]: { tags:[], notes:[{text, at}] } }
@@ -3604,7 +3865,8 @@ function closeOrderDetailsModal() {
     return row;
   }
 
-  function buildMessageRow(m, tight){
+  function buildMessageRow(m, tight, showTime){
+    if(showTime === undefined) showTime = true;
     if(m.sender_type === "note" || m.is_internal === true){
       return buildNoteRow(m);
     }
@@ -3619,26 +3881,41 @@ function closeOrderDetailsModal() {
     time.className = "msg-bubble__time";
     time.textContent = new Date(m.created_at).toLocaleTimeString(undefined, { hour:"numeric", minute:"2-digit", hour12:true });
     bubble.appendChild(text);
-    bubble.appendChild(time);
+    if(showTime) bubble.appendChild(time);
     row.appendChild(bubble);
     return row;
   }
 
+  /* Messages from the same sender within 5 minutes read as one group: tight spacing, time only on the last one */
+  const GROUP_MS = 5 * 60 * 1000;
+  const isNoteMsg = (m) => !!m && (m.sender_type === "note" || m.is_internal === true);
+  let lastMsg = null;   // { sender, ts, row } of the newest bubble on screen
+
   function renderMessages(messages){
     els.threadMessages.innerHTML = "";
+    state.activeMessages = messages.slice();
+    lastMsg = null;
     let lastDateStr = null;
-    let lastSender = null;
-    messages.forEach(m => {
+    messages.forEach((m, i) => {
       const dateStr = new Date(m.created_at).toDateString();
       if(dateStr !== lastDateStr){
         els.threadMessages.appendChild(buildDayDivider(m.created_at));
         lastDateStr = dateStr;
-        lastSender = null;
+        lastMsg = null;
       }
-      els.threadMessages.appendChild(buildMessageRow(m, m.sender_type === lastSender));
-      lastSender = m.sender_type;
+      const note = isNoteMsg(m);
+      const ts = new Date(m.created_at).getTime();
+      const tight = !note && !!lastMsg && lastMsg.sender === m.sender_type && (ts - lastMsg.ts) < GROUP_MS;
+      const next = messages[i + 1];
+      const groupedWithNext = !note && !!next && !isNoteMsg(next) && next.sender_type === m.sender_type &&
+        new Date(next.created_at).toDateString() === dateStr && (new Date(next.created_at).getTime() - ts) < GROUP_MS;
+      const row = buildMessageRow(m, tight, !groupedWithNext);
+      els.threadMessages.appendChild(row);
+      lastMsg = note ? null : { sender:m.sender_type, ts, row };
     });
     els.threadMessages.scrollTop = els.threadMessages.scrollHeight;
+    const conv = state.conversations.find(c => c.id === state.activeConversationId);
+    if(conv) renderOrderStrip(conv, state.activeMessages);
   }
 
   function appendMessage(m, opts){
@@ -3648,12 +3925,21 @@ function closeOrderDetailsModal() {
     const label = formatDayLabel(m.created_at);
     if(!lastDivider || lastDivider.textContent !== label){
       els.threadMessages.appendChild(buildDayDivider(m.created_at));
+      lastMsg = null;
     }
-    els.threadMessages.appendChild(buildMessageRow(m, false));
+    const note = isNoteMsg(m);
+    const ts = new Date(m.created_at).getTime();
+    const tight = !note && !!lastMsg && lastMsg.sender === m.sender_type && (ts - lastMsg.ts) < GROUP_MS;
+    if(tight && lastMsg.row){ const t = lastMsg.row.querySelector(".msg-bubble__time"); if(t) t.remove(); }
+    const row = buildMessageRow(m, tight, true);
+    els.threadMessages.appendChild(row);
+    lastMsg = note ? null : { sender:m.sender_type, ts, row };
     els.threadMessages.scrollTop = els.threadMessages.scrollHeight;
+    (state.activeMessages = state.activeMessages || []).push(m);
 
-    if(opts.skipLastMessage) return;
     const conv = state.conversations.find(c => c.id === m.conversation_id);
+    if(conv && state.activeConversationId === conv.id) renderOrderStrip(conv, state.activeMessages);
+    if(opts.skipLastMessage) return;
     if(conv){
       conv.last_message = m.content;
       conv.updated_at = m.created_at;
@@ -3672,6 +3958,7 @@ function closeOrderDetailsModal() {
   els.composerInput.addEventListener("input", () => {
     updateSendState();
     autoResizeComposer();
+    syncQuickReplies();
   });
 
   els.composerInput.addEventListener("keydown", (e) => {
@@ -3702,6 +3989,7 @@ function closeOrderDetailsModal() {
       els.composerInput.value = "";
       autoResizeComposer();
       updateSendState();
+      syncQuickReplies();
       if(supabase){
         const { error } = await supabase.from("messages").insert(note);
         if(error) console.error("sendNote error:", error);
@@ -3725,6 +4013,7 @@ function closeOrderDetailsModal() {
     els.composerInput.value = "";
     autoResizeComposer();
     updateSendState();
+    syncQuickReplies();
 
     if(supabase){
       const { error } = await supabase.from("messages").insert(message);
@@ -3744,17 +4033,8 @@ function closeOrderDetailsModal() {
     console.log("Attach tapped");
   });
 
-  els.noteToggleBtn.addEventListener("click", () => {
-    state.noteMode = !state.noteMode;
-    els.noteToggleBtn.classList.toggle("active", state.noteMode);
-    els.noteToggleBtn.setAttribute("aria-pressed", String(state.noteMode));
-    els.composerForm.classList.toggle("note-mode", state.noteMode);
-    els.composerInput.placeholder = state.noteMode ? "Add an internal note..." : `Message via ${(CHANNEL_META[state.activeChannel] && CHANNEL_META[state.activeChannel].label) || "chat"}...`;
-    els.composerInput.focus();
-  });
-
   document.getElementById("threadMoreBtn").addEventListener("click", () => {
-    console.log("Thread options tapped");
+    threadMenu.classList.contains("open") ? closeThreadMenu() : openThreadMenu();
   });
 
   document.getElementById("newMessageMenuItem").addEventListener("click", () => {
