@@ -5299,6 +5299,16 @@ html[data-theme="dark"] .vq-type,html[data-theme="dark"] .vq-cp{color:var(--vc)}
 }
 .voucher-status.success { display: block; background: rgba(47,155,104,0.1); color: #2f9b68; border: 1px solid rgba(47,155,104,0.25); }
 .voucher-status.error { display: block; background: rgba(217,83,83,0.08); color: #d95353; border: 1px solid rgba(217,83,83,0.2); }
+.cust-vchips { margin-top: 8px; }
+.cust-vlabel { font-size: 10px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; color: #f43f5e; margin-bottom: 6px; display: flex; align-items: center; gap: 6px; }
+.cust-vlabel svg { width: 12px; height: 12px; flex-shrink: 0; }
+.cust-vrow { display: flex; flex-wrap: wrap; gap: 6px; }
+.cust-vchip { display: inline-flex; align-items: center; gap: 8px; max-width: 100%; padding: 8px 10px; border-radius: 10px; border: 1.5px solid rgba(244,63,94,0.35); background: rgba(244,63,94,0.08); color: #f43f5e; font-family: 'DM Sans', sans-serif; font-size: 11px; font-weight: 700; cursor: pointer; transition: transform .15s ease, background .2s ease, border-color .2s ease; -webkit-tap-highlight-color: transparent; }
+.cust-vchip:active { transform: scale(0.97); }
+.cust-vchip.sel { background: rgba(244,63,94,0.18); border-color: #f43f5e; }
+.cust-vchip .cv-code { font-family: 'Roboto Mono', ui-monospace, monospace; font-size: 10.5px; letter-spacing: .03em; }
+.cust-vchip .cv-off { padding: 2px 6px; border-radius: 6px; background: rgba(244,63,94,0.16); }
+.cust-vchip .cv-min { opacity: .75; font-weight: 600; }
 .discount-summary-chip {
   display: flex; align-items: center; gap: 6px;
   font-family: "Plus Jakarta Sans", sans-serif;
@@ -16648,6 +16658,7 @@ svLoadProducts();
             <button class="voucher-apply-btn" onclick="applyVoucher()">Apply</button>
           </div>
           <div class="voucher-status" id="noVoucherStatus"></div>
+          <div class="cust-vchips" id="noCustVouchers" style="display:none"></div>
         </div>
       </div>
       <div class="fs-field">
@@ -20219,6 +20230,7 @@ function onPhoneInput(val) {
   var n = String(val || '').replace(/\D/g, '').length;
   if (phone || n < 11) setPhoneHint(''); else validatePhoneField();
   _scheduleVoucherRevalidate();
+  _scheduleCustVouchers();
   if (!phone) { strip.style.display = 'none'; return; }
   strip.className = 'cust-strip loading';
   strip.style.display = 'flex';
@@ -20684,6 +20696,50 @@ async function _validateVoucher(code) {
   const r = await sbFetch('rpc/validate_voucher', 'POST', { p_code: code, p_lines: _voucherLines(), p_phone: _voucherPhone(), p_order_id: _voucherOrderId(), p_shipping: _voucherShipping() });
   return Array.isArray(r) ? r[0] : r;
 }
+let _custVTimer = null, _custVSeq = 0;
+function _scheduleCustVouchers() {
+  clearTimeout(_custVTimer);
+  if (document.getElementById('noDiscountType')?.value !== 'voucher') return;
+  _custVTimer = setTimeout(_loadCustVouchers, 450);
+}
+function _hideCustVouchers() {
+  const box = document.getElementById('noCustVouchers');
+  if (box) { box.style.display = 'none'; box.innerHTML = ''; }
+}
+async function _loadCustVouchers() {
+  const box = document.getElementById('noCustVouchers');
+  if (!box) return;
+  const seq = ++_custVSeq;
+  const np = normalizeBdPhone(document.getElementById('noPhone')?.value || '');
+  if (!np || document.getElementById('noDiscountType')?.value !== 'voucher') { _hideCustVouchers(); return; }
+  let r;
+  try { r = await sbFetch('rpc/admin_customer_vouchers', 'POST', { p_phone: np }); }
+  catch (e) { if (seq === _custVSeq) _hideCustVouchers(); return; }
+  if (seq !== _custVSeq) return;
+  r = Array.isArray(r) ? r[0] : r;
+  const list = (r && r.vouchers) || [];
+  if (!list.length) { _hideCustVouchers(); return; }
+  const nm = (r.customer && (r.customer.name || r.customer.customer_code)) || 'this customer';
+  box.innerHTML = '<div class="cust-vlabel"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>Private vouchers for ' + escapeHtml(nm) + '</div><div class="cust-vrow">'
+    + list.map(function(v) {
+      const off = v.discount_type === 'percent' ? Number(v.discount_value) + '% OFF' : '\u09f3' + Number(v.discount_value).toLocaleString('en-IN') + ' OFF';
+      const min = Number(v.min_order_amount) > 0 ? '<span class="cv-min">min \u09f3' + Number(v.min_order_amount).toLocaleString('en-IN') + '</span>' : '';
+      return '<button type="button" class="cust-vchip" data-code="' + escapeHtml(v.code) + '" onclick="_pickCustVoucher(this.dataset.code)"><span class="cv-code">' + escapeHtml(v.code) + '</span><span class="cv-off">' + off + '</span>' + min + '</button>';
+    }).join('') + '</div>';
+  box.style.display = 'block';
+  _markCustVoucher();
+}
+function _markCustVoucher() {
+  const cur = _appliedVoucher ? _appliedVoucher.code : null;
+  document.querySelectorAll('#noCustVouchers .cust-vchip').forEach(function(b) { b.classList.toggle('sel', !!cur && b.dataset.code === cur); });
+}
+async function _pickCustVoucher(code) {
+  const inp = document.getElementById('noVoucherCode');
+  if (!inp) return;
+  inp.value = code;
+  await applyVoucher();
+  _markCustVoucher();
+}
 function _setVoucherStatus(cls, text) {
   const el = document.getElementById('noVoucherStatus');
   if (!el) return;
@@ -20716,6 +20772,7 @@ function updateDiscountType() {
       input.removeAttribute('max'); input.step = '1'; input.placeholder = 'max 50% of order';
     }
   }
+  _loadCustVouchers();
   updateNewOrderSummary();
 }
 
