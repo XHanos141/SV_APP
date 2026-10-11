@@ -14575,6 +14575,30 @@ html[data-theme="dark"] .type-chip.selected-newcustomer{color:#c084fc}
 .cust-warn{margin-top:6px;font-size:10.5px;font-weight:600;color:#F4A922;font-family:'Inter',sans-serif;line-height:1.35}
 .cust-meta{margin-top:8px;display:flex;flex-wrap:wrap;align-items:center;gap:6px}
 .cust-change{margin-left:auto;font-size:11px;font-weight:700;color:#f43f5e;background:none;border:none;padding:6px;cursor:pointer;font-family:'Inter',sans-serif}
+/* Voucher builder profile card — same compact sizing as Order Details + Buy For Me */
+#cust-card .idc-info { gap: 2px; margin-top: 7px; padding-top: 5px; }
+#cust-card .idc-row { gap: 5px; --idc-h: 19px; --idc-cb: 20px; }
+#cust-card .idc-row__icon { width: 19px; height: 19px; border-radius: 6px; }
+#cust-card .idc-row__icon svg { width: 11px; height: 11px; }
+#cust-card .idc-copy { width: 20px; height: 20px; border-radius: 6px; }
+#cust-card .idc-copy svg { width: 10px; height: 10px; }
+#cust-card .idc-copy::before { inset: -12px -8px; }
+#cust-card .idc-row__val { line-height: 1.25; }
+#cust-card .cs-idcard { padding: 9px 12px 6px; border-radius: 14px; }
+#cust-card .idc-top { gap: 7px; }
+#cust-card .idc-avatar { width: 50px; height: 50px; font-size: 18px; }
+#cust-card .idc-name-row { gap: 6px; }
+#cust-card .idc-name { font-size: 15px; line-height: 1.2; }
+#cust-card .idc-verified { font-size: 10px; }
+#cust-card .idc-verified svg { width: 12px; height: 12px; }
+#cust-card .idc-since { font-size: 10px; margin-top: 1px; }
+#cust-card .cid-wrap { gap: 5px; margin-top: 3px; }
+#cust-card .cid-label { font-size: 10px; }
+#cust-card .cid-row { padding: 1px 4px 1px 6px; border-radius: 7px; gap: 3px; }
+#cust-card .cid-value { font-size: 10px; }
+#cust-card .cid-copy { width: 14px; height: 14px; }
+#cust-card .cid-copy svg { width: 10px; height: 10px; }
+
 .cust-empty{padding:12px;font-size:12px;color:rgba(255,255,255,0.5);font-family:'Inter',sans-serif;text-align:center}
 .type-card.selected[data-type="freeship"]{border-color:#14b8a6;background:rgba(20,184,166,0.1);box-shadow:0 0 0 3px rgba(20,184,166,0.15)}
 .type-icon-wrap.freeship{color:#14b8a6;background:rgba(20,184,166,0.12)}
@@ -15100,7 +15124,6 @@ html[data-theme="light"] .vc-float-close{background:rgba(240,244,248,0.95);borde
             <input type="text" class="fs-input" id="cust-q" placeholder="Search registered customer: name, phone or CU-ID" autocomplete="off" maxlength="60" oninput="custSearch()">
             <div class="cust-results" id="cust-results" style="display:none"></div>
           </div>
-          <p class="field-hint">Only website-registered customers can be picked (no guest or admin-created profiles). They must be logged in to use it, and it works on website orders only.</p>
         </div>
       <div class="discount-lock-group" id="discount-lock-group">
         <p class="field-hint" id="freeship-hint" style="display:none;margin-bottom:12px">Waives the customer's delivery fee on the order. Set a cap to cover only part of the fee; leave it empty to waive the full fee.</p>
@@ -15633,7 +15656,6 @@ function custPaint() {
   wrap.style.display = 'none';
   const warn = custUse(c);
   sel.innerHTML = '<div id="cust-card"></div><div class="cust-meta">'
-    + (c.orders != null ? '<span class="cust-stat">' + (c.orders || 0) + ' paid orders</span><span class="cust-stat">\u09f3' + Number(c.spent || 0).toLocaleString('en-US') + '</span>' : '')
     + (S.customerLocked ? '' : '<button type="button" class="cust-change" onclick="custSet(null)">Change customer</button>') + '</div>'
     + (warn ? '<div class="cust-warn">' + custEsc(warn) + '</div>' : '');
   const host = document.getElementById('cust-card');
