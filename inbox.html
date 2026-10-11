@@ -1983,15 +1983,9 @@ html:not([data-theme="light"]) .odm-card { background: rgba(124,111,247,0.08); b
   .chan-filter-btn[aria-expanded="true"] > svg{ transform:rotate(180deg); }
   .chan-filter-dot{ background:#7C6FF7; }
 
-  /* filtered: the whole button fills with the channel colour (like the Products category button) */
-  .chan-filter-btn.is-filtered{ color:#fff; border-color:transparent; }
-  .chan-filter-btn.is-filtered[data-channel="messenger"]{ background:var(--fb); }
-  .chan-filter-btn.is-filtered[data-channel="whatsapp"]{ background:var(--wa); }
-  .chan-filter-btn.is-filtered[data-channel="instagram"]{ background:linear-gradient(135deg, var(--ig-a), var(--ig-b) 55%, var(--ig-c)); }
-  .chan-filter-btn.is-filtered #chanFilterIcon{ background:none; border:0; }
-  .chan-filter-btn.is-filtered #chanFilterIcon svg{ width:19px; height:19px; }
-  .chan-filter-btn.is-filtered .chan-filter-dot{ display:none; }
-  .chan-filter-btn.is-filtered[aria-expanded="true"]{ box-shadow:0 0 0 3px rgba(124,111,247,.18); }
+  /* chevron sits on the left of the square channel badge */
+  .chan-filter-btn{ padding:0 8px 0 9px; }
+  .chan-filter-btn > svg{ order:-1; }
 
   /* dropdown surface: same fade + scale-from-corner as the Products menus */
   .chan-pop{
