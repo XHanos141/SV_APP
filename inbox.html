@@ -1969,6 +1969,51 @@ html:not([data-theme="light"]) .odm-card { background: rgba(124,111,247,0.08); b
   .fab-main-btn svg{ transition:transform .3s var(--ease-spring); }
   .conv-unread-badge{ animation:svPop .3s var(--ease-spring) both; }
   .sv-toast{ transition:opacity .24s var(--ease-out), transform .3s var(--ease-spring); }
+
+  /* =====================================================================
+     Search / filter / status pills — matches the Products tab (app.html)
+     ===================================================================== */
+  #searchInput{ height:38px; padding-top:0; padding-bottom:0; border-radius:10px; outline:none;
+    transition:border-color .2s ease, box-shadow .2s ease; }
+  #searchInput:focus{ border-color:#7C6FF7; box-shadow:0 0 0 3px rgba(124,111,247,.12); }
+  .chan-filter-btn{ height:38px; border-radius:10px; transition:background .2s ease, border-color .2s ease, box-shadow .2s ease, transform .18s var(--ease-out); }
+  .chan-filter-btn:hover{ background:var(--surface-2); }
+  .chan-filter-btn[aria-expanded="true"]{ border-color:#7C6FF7; box-shadow:0 0 0 3px rgba(124,111,247,.12); }
+  .chan-filter-btn > svg{ transition:transform .28s cubic-bezier(.4,0,.2,1); }
+  .chan-filter-btn[aria-expanded="true"] > svg{ transform:rotate(180deg); }
+  .chan-filter-dot{ background:#7C6FF7; }
+
+  /* dropdown surface: same fade + scale-from-corner as the Products menus */
+  .chan-pop{
+    top:46px; border-radius:12px; box-shadow:0 8px 28px rgba(0,0,0,.14); border-color:var(--hairline);
+    transform:translateY(-6px) scale(.97); transform-origin:top right;
+    transition:opacity .2s cubic-bezier(.4,0,.2,1), transform .2s cubic-bezier(.4,0,.2,1), visibility .2s;
+  }
+  .chan-pop.open{ transform:translateY(0) scale(1); transition:opacity .2s cubic-bezier(.4,0,.2,1), transform .2s cubic-bezier(.4,0,.2,1), visibility 0s; }
+  html:not([data-theme="light"]) .chan-pop{ box-shadow:0 8px 28px rgba(0,0,0,.4); }
+  .filter-tab{ min-height:44px; border-radius:8px; font-size:12.5px; transition:background .15s ease, color .15s ease; }
+  .filter-tab[aria-selected="true"]{ background:transparent; color:#7C6FF7; font-weight:800; }
+  html:not([data-theme="light"]) .filter-tab[aria-selected="true"]{ color:#9d94ff; }
+  .filter-tab[aria-selected="true"] .count{ color:inherit; }
+  .filter-tab::after{
+    content:""; flex:0 0 16px; width:16px; height:16px; opacity:0; transition:opacity .15s ease;
+    background:no-repeat center/16px url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%237C6FF7' stroke-width='2.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m5 12 5 5L20 7'/%3E%3C/svg%3E");
+  }
+  .filter-tab[aria-selected="true"]::after{ opacity:1; }
+
+  /* status pills: one navy pill slides behind the active tab */
+  .status-tabs{ position:relative; padding:5px 8px; margin:-5px -8px 7px; }
+  .status-slide{
+    position:absolute; left:0; top:0; border-radius:999px; box-sizing:border-box; z-index:0; pointer-events:none;
+    background:linear-gradient(180deg,#1e3a5f 0%,#0f2847 100%);
+    border:1px solid rgba(255,255,255,.08);
+    box-shadow:0 2px 8px rgba(15,40,71,.35), 0 1px 0 rgba(255,255,255,.08) inset, 0 -1px 0 rgba(0,0,0,.15) inset;
+    transition:left .5s cubic-bezier(.4,0,.2,1), width .5s cubic-bezier(.4,0,.2,1), top .3s ease, height .3s ease;
+  }
+  .status-tab{ position:relative; z-index:1; border-radius:999px;
+    transition:color .22s ease, background-color .22s ease, border-color .22s ease, transform .18s var(--ease-out); }
+  .status-tab:hover{ border-color:var(--text-3); }
+  .status-tab[aria-selected="true"]{ background:transparent; border-color:transparent; color:#fff; text-shadow:0 1px 2px rgba(0,0,0,.3); }
   @media (prefers-reduced-motion:reduce){ *,*::before,*::after{ transition:none !important; animation:none !important; scroll-behavior:auto !important; } }
 </style>
 <script>
@@ -2929,6 +2974,7 @@ function closeOrderDetailsModal() {
 
   function render(){
     updateCounts();
+    placeStatusSlide();
     const rows = groupRows(getFiltered());
 
     if(rows.length === 0){
@@ -2976,12 +3022,31 @@ function closeOrderDetailsModal() {
     if(!btn) return;
     state.statusFilter = btn.dataset.status;
     els.statusTabs.querySelectorAll(".status-tab").forEach(t => t.setAttribute("aria-selected", t === btn ? "true" : "false"));
+    placeStatusSlide();
     renderAnimated();
   });
 
+  function placeStatusSlide(instant){
+    const tabs = els.statusTabs;
+    const act = tabs.querySelector('.status-tab[aria-selected="true"]');
+    if(!act || !act.offsetWidth) return;                 // list hidden (chat open) — keep last position
+    let ind = tabs.querySelector(".status-slide");
+    if(!ind){ ind = document.createElement("div"); ind.className = "status-slide"; tabs.insertBefore(ind, tabs.firstChild); instant = true; }
+    if(instant) ind.style.transition = "none";
+    ind.style.left = act.offsetLeft + "px"; ind.style.top = act.offsetTop + "px";
+    ind.style.width = act.offsetWidth + "px"; ind.style.height = act.offsetHeight + "px";
+    if(instant){ void ind.offsetWidth; ind.style.transition = ""; }
+    const left = act.offsetLeft, right = left + act.offsetWidth;
+    if(left < tabs.scrollLeft + 8) tabs.scrollTo({ left:Math.max(0, left - 16), behavior:"smooth" });
+    else if(right > tabs.scrollLeft + tabs.clientWidth - 8) tabs.scrollTo({ left:right - tabs.clientWidth + 16, behavior:"smooth" });
+  }
   const syncStatusFade = () => els.statusTabs.classList.toggle("at-end", els.statusTabs.scrollLeft + els.statusTabs.clientWidth >= els.statusTabs.scrollWidth - 4);
   els.statusTabs.addEventListener("scroll", syncStatusFade, { passive:true });
   syncStatusFade();
+  placeStatusSlide(true);
+  window.addEventListener("load", () => placeStatusSlide(true));
+  if(document.fonts && document.fonts.ready) document.fonts.ready.then(() => placeStatusSlide(true));
+  window.addEventListener("resize", () => placeStatusSlide(true));
   const chanBtn = document.getElementById("chanFilterBtn");
   function setChanPop(open){
     els.tabs.classList.toggle("open", open);
