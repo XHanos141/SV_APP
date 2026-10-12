@@ -5275,10 +5275,12 @@ html[data-theme="dark"] .vq,html[data-theme="dark"] .vqi-sh{--vq-card:#1b2738;--
 .vq-dl{width:22px;height:22px;border-radius:50%;border:0;flex:none;display:grid;place-items:center;background:color-mix(in srgb,var(--vc) 16%,transparent);color:var(--vc2);cursor:pointer;-webkit-tap-highlight-color:transparent;transition:transform .15s,opacity .2s}
 .vq-dl svg{width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
 .vq-dl:active{transform:scale(.88)}
-.vq-rm{width:22px;height:22px;border-radius:50%;border:0;flex:none;display:grid;place-items:center;background:rgba(217,83,83,.14);color:#d95353;cursor:pointer;-webkit-tap-highlight-color:transparent}
-.vq-rm svg{width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round}
-.vq-rm:active{transform:scale(.88)}
-.vq-rm.busy{opacity:.45;pointer-events:none}
+.vq-sw{position:relative;margin-bottom:8px;border-radius:16px;overflow:hidden;background:#d95353}
+.vq-sw .vq{margin-bottom:0;position:relative;touch-action:pan-y;transition:transform .22s ease;will-change:transform}
+.vq-sw .vq.drag{transition:none}
+.vq-sw-bg{position:absolute;inset:0;display:flex;align-items:center;justify-content:flex-end;gap:7px;padding-right:20px;color:#fff;font:800 13px/1 'Plus Jakarta Sans','DM Sans',sans-serif;letter-spacing:.02em}
+.vq-sw-bg svg{width:16px;height:16px;stroke:#fff;fill:none;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round}
+.vq-hint{text-align:center;font-size:11px;color:#8c92a1;padding:2px 0 6px}
 .vq-dl.busy{opacity:.45;pointer-events:none;animation:vqPulse 1s ease-in-out infinite}
 @keyframes vqPulse{50%{opacity:.2}}
 html[data-theme="dark"] .vq-dl{color:var(--vc)}
@@ -23980,8 +23982,6 @@ document.addEventListener('click', async e => {
   if (inf) { vqOpenInfo(inf.dataset.code); return; }
   const dl = e.target.closest('.vq-dl');
   if (dl) { svDrawerVoucherPng(dl); return; }
-  const rm = e.target.closest('.vq-rm');
-  if (rm) { svDrawerArchiveVoucher(rm); return; }
   const b = e.target.closest('.vq-cp');
   if (!b) return;
   if (!await svCopyText(b.dataset.code)) return;
@@ -24022,22 +24022,56 @@ async function svDrawerVoucherPng(btn) {
   }
 }
 
-async function svDrawerArchiveVoucher(btn) {
-  if (btn.classList.contains('busy')) return;
-  const code = btn.dataset.code;
-  const ok = await svConfirmSheet({ tone: 'danger', title: 'Remove ' + code + '?', text: 'Moves to Archive in Vouchers & Promos. You can restore it from there.', confirmLabel: 'Remove', fingerprint: false });
-  if (!ok) return;
-  btn.classList.add('busy');
+let _svRmBusy = false;
+async function svDrawerArchiveVoucher(code, card) {
+  if (_svRmBusy) return;
+  _svRmBusy = true;
   try {
+    const ok = await svConfirmSheet({ tone: 'danger', title: 'Remove ' + code + '?', text: 'Moves to Archive in Vouchers & Promos. You can restore it from there.', confirmLabel: 'Remove' });
+    if (!ok) { if (card) card.style.transform = ''; return; }
     await svHubRpc('status', { code: code, status: 'archived' });
     _svDrawerVouchers = _svDrawerVouchers.filter(function(x) { return x.code !== code; });
     showToast('Voucher removed from list.', 'success');
     await renderDrawerVouchers();
   } catch (err) {
-    btn.classList.remove('busy');
+    if (card) card.style.transform = '';
     showToast('Could not remove: ' + String((err && err.message) || err), 'error');
-  }
+  } finally { _svRmBusy = false; }
 }
+
+(function svDrawerSwipe() {
+  const THRESH = 90;
+  let card = null, sx = 0, sy = 0, dx = 0, lock = '';
+  function wrapOf(t) { return t.closest ? t.closest('.vq-sw') : null; }
+  document.addEventListener('touchstart', function(e) {
+    const w = wrapOf(e.target);
+    if (!w || e.touches.length !== 1 || _svRmBusy) { card = null; return; }
+    card = w.querySelector('.vq'); sx = e.touches[0].clientX; sy = e.touches[0].clientY; dx = 0; lock = '';
+  }, { passive: true });
+  document.addEventListener('touchmove', function(e) {
+    if (!card) return;
+    const t = e.touches[0], mx = t.clientX - sx, my = t.clientY - sy;
+    if (!lock) {
+      if (Math.abs(mx) < 8 && Math.abs(my) < 8) return;
+      lock = Math.abs(mx) > Math.abs(my) ? 'x' : 'y';
+      if (lock === 'x') card.classList.add('drag');
+    }
+    if (lock !== 'x') return;
+    dx = Math.min(0, mx);
+    card.style.transform = 'translateX(' + dx + 'px)';
+  }, { passive: true });
+  function end() {
+    if (!card) return;
+    const c = card, w = wrapOf(c); card = null;
+    c.classList.remove('drag');
+    if (lock === 'x' && dx <= -THRESH && w) {
+      c.style.transform = 'translateX(-96px)';
+      svDrawerArchiveVoucher(w.dataset.code, c);
+    } else { c.style.transform = ''; }
+  }
+  document.addEventListener('touchend', end, { passive: true });
+  document.addEventListener('touchcancel', end, { passive: true });
+})();
 
 let _svDrawerVouchers = [];
 async function renderDrawerVouchers() {
@@ -24064,7 +24098,8 @@ async function renderDrawerVouchers() {
     const st = v.derived_status || v.status;
     const label = v.type in VQ_TYPE ? m.label : v.type;
     const title = v.title || label;
-    return `<div class="vq" style="--vc:${m.c};--vc2:${m.c2}">
+    const removable = (st === 'expired' || st === 'exhausted');
+    return `${removable ? '<div class="vq-sw" data-code="' + vqEsc(v.code) + '"><div class="vq-sw-bg"><span>Remove</span>' + VQ_ICON.rm + '</div>' : ''}<div class="vq" style="--vc:${m.c};--vc2:${m.c2}">
       <div class="vq-top">
         <div class="vq-ic">${m.icon}</div>
         <div class="vq-bd">
@@ -24074,10 +24109,13 @@ async function renderDrawerVouchers() {
       </div>
       <div class="vq-row">
         <div class="vq-cd"><span class="vq-code">${vqEsc(v.code)}</span><button type="button" class="vq-cp" data-code="${vqEsc(v.code)}" aria-label="Copy code ${vqEsc(v.code)}">${VQ_ICON.copy}</button></div>
-        <div class="vq-acts"><button type="button" class="vq-info" data-code="${vqEsc(v.code)}" aria-label="Voucher details">i</button><button type="button" class="vq-dl" data-code="${vqEsc(v.code)}" aria-label="Download voucher PNG ${vqEsc(v.code)}">${VQ_ICON.dl}</button>${(st === 'expired' || st === 'exhausted') ? `<button type="button" class="vq-rm" data-code="${vqEsc(v.code)}" aria-label="Remove ${vqEsc(v.code)} from list">${VQ_ICON.rm}</button>` : ''}</div>
+        <div class="vq-acts"><button type="button" class="vq-info" data-code="${vqEsc(v.code)}" aria-label="Voucher details">i</button><button type="button" class="vq-dl" data-code="${vqEsc(v.code)}" aria-label="Download voucher PNG ${vqEsc(v.code)}">${VQ_ICON.dl}</button></div>
       </div>
-    </div>`;
+    </div>${removable ? '</div>' : ''}`;
   }).join('');
+  if (vouchers.slice(0, 5).some(function(x) { const q = x.derived_status || x.status; return q === 'expired' || q === 'exhausted'; })) {
+    container.innerHTML += '<div class="vq-hint">Swipe an expired voucher left to remove it</div>';
+  }
   if (vouchers.length > 5) {
     container.innerHTML += `<div style="text-align:center;font-size:11px;color:#8c92a1;padding:4px 0">${vouchers.length - 5} more \u2014 tap Manage Vouchers</div>`;
   }
