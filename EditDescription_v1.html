@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Edit Description · SuppVerse BD</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&family=Noto+Sans+Bengali:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f6f8fb;--hdr:#eaf3ff;--surface:#fff;--surface2:#f4f6f9;--border:#d9dfe8;--text:#101828;--muted:#667085;--accent:#5b21ff;--accent-soft:rgba(91,33,255,.12);--btn:#5b21ff;--paper:#fff;--ink:#14181f;--ink-muted:#6b7280;--shadow:0 12px 32px rgba(16,24,40,.18);--font:'DM Sans','Noto Sans Bengali',system-ui,sans-serif;--display:'Plus Jakarta Sans','Noto Sans Bengali',system-ui,sans-serif}
+:root[data-theme=dark]{--bg:#0f1621;--hdr:#162130;--surface:#162130;--surface2:#1d2c3e;--border:#2a3b52;--text:#e8eef7;--muted:#8fa0b6;--accent:#a99fff;--accent-soft:rgba(139,124,255,.2);--btn:#6d5ef0;--shadow:0 12px 32px rgba(0,0,0,.5)}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{font-family:var(--font);background:var(--bg);color:var(--text);overscroll-behavior:none}
+.screen{height:100dvh;display:flex;flex-direction:column}
+header{display:flex;align-items:center;gap:18px;padding:calc(env(safe-area-inset-top,0px) + 14px) 16px 14px;background:var(--hdr)}
+header h1{font:700 21px/1.2 var(--display)}
+.back{width:44px;height:44px;border:0;background:transparent;color:var(--text);border-radius:12px;display:grid;place-items:center;cursor:pointer}
+.card{flex:1;min-height:0;display:flex;flex-direction:column;gap:12px;margin-top:14px;background:var(--surface);border-radius:26px 26px 0 0;padding:14px 14px calc(env(safe-area-inset-bottom,0px) + 14px)}
+svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
+/* toolbar */
+.tbw{position:relative;flex-shrink:0;background:var(--surface2);border-radius:14px}
+.tb{display:flex;align-items:center;gap:2px;padding:6px;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain}
+.tb::-webkit-scrollbar{display:none}
+.tb button{min-width:44px;height:44px;border:0;border-radius:11px;background:transparent;color:var(--text);cursor:pointer;display:grid;place-items:center;font:600 18px var(--display);flex-shrink:0}
+.tb button:active{background:var(--accent-soft)}
+.tb button.on{background:var(--accent-soft);color:var(--accent)}
+.tb button.sel{display:flex;gap:6px;align-items:center;padding:0 10px 0 14px;font:600 14.5px var(--font)}
+.tb button.sel svg{width:16px;height:16px}
+.sep{width:1px;height:24px;background:var(--border);margin:0 6px;flex-shrink:0}
+.edge{position:absolute;top:0;bottom:0;width:34px;border:0;display:grid;place-items:center;color:var(--muted);cursor:pointer;border-radius:14px}
+.edge svg{width:18px;height:18px}
+.edge[hidden]{display:none}
+.edge.l{left:0;background:linear-gradient(90deg,var(--surface2) 55%,transparent)}
+.edge.r{right:0;background:linear-gradient(270deg,var(--surface2) 55%,transparent)}
+/* editor: fills the remaining height, scrolls inside itself, never overflows the card */
+.paper{flex:1;min-height:0;display:flex}
+#ed{flex:1;min-width:0;overflow-y:auto;-webkit-overflow-scrolling:touch;border:1px solid var(--border);border-radius:16px;background:var(--paper);color:var(--ink);padding:16px 18px 28px;font:400 17px/1.6 var(--font);outline:none;overflow-wrap:anywhere}
+#ed:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+#ed:empty:before{content:attr(data-ph);color:var(--ink-muted)}
+#ed p{margin:0 0 8px}
+#ed h2{font:800 25px/1.25 var(--display);margin:14px 0 6px}
+#ed h3{font:700 19px/1.3 var(--display);margin:12px 0 4px}
+#ed ul,#ed ol{padding-left:26px;margin:4px 0 10px}
+#ed li{margin:3px 0;padding-left:2px}
+#ed blockquote{border-left:4px solid #e1e4ea;padding:2px 0 2px 16px;margin:8px 0;color:var(--ink-muted)}
+#ed a{color:#0b7bc4;text-decoration:underline}
+#ed :lang(bn),#ed{line-height:1.7}
+.save{flex-shrink:0;height:54px;border:0;border-radius:16px;background:var(--btn);color:#fff;font:700 17px var(--display);cursor:pointer;transition:transform .12s,filter .12s}
+.save:active{transform:scale(.98);filter:brightness(.92)}
+/* popups are fixed so the card can never clip them */
+.pop{position:fixed;z-index:50;background:var(--surface);border:1px solid var(--border);border-radius:16px;box-shadow:var(--shadow);padding:8px;opacity:0;visibility:hidden;transform:translateY(-6px) scale(.97);transform-origin:top left;transition:opacity .16s,transform .16s,visibility 0s .16s}
+.pop.open{opacity:1;visibility:visible;transform:none;transition:opacity .16s,transform .16s}
+.menu{min-width:190px}
+.menu button{display:block;width:100%;text-align:left;border:0;background:transparent;color:var(--text);padding:12px 14px;border-radius:10px;font:600 15px var(--font);cursor:pointer}
+.menu button.on{background:var(--accent-soft);color:var(--accent)}
+.menu .h2{font:800 20px var(--display)}.menu .h3{font:700 16px var(--display)}
+.cp{width:176px;padding:12px}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px}
+.sw{height:38px;border-radius:10px;border:1.5px solid var(--border);cursor:pointer;padding:0}
+.sw:active{transform:scale(.92)}
+.custom{display:flex;align-items:center;gap:10px;border-top:1px solid var(--border);padding-top:10px;cursor:pointer;font:600 13px var(--font);color:var(--text)}
+.custom input{width:30px;height:30px;border:1.5px solid var(--border);border-radius:8px;padding:0;background:none;cursor:pointer}
+.hint{display:none;align-items:center;justify-content:space-between;gap:8px;flex-shrink:0;background:var(--accent-soft);color:var(--accent);font:600 13px var(--font);padding:9px 12px;border-radius:12px}
+.hint.show{display:flex}
+.hint button{background:var(--btn);color:#fff;border:0;border-radius:8px;padding:7px 14px;font:700 12.5px var(--font);cursor:pointer;flex-shrink:0}
+.toast{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 90px);transform:translate(-50%,12px);background:#101828;color:#fff;padding:11px 18px;border-radius:999px;font:600 14px var(--font);opacity:0;pointer-events:none;transition:.2s;z-index:60}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+<symbol id="i-back" viewBox="0 0 24 24"><path d="M19 12H5M12 19l-7-7 7-7"/></symbol>
+<symbol id="i-clear" viewBox="0 0 24 24"><path d="M4 7V4h16v3M5 20h6M13 4 8 20M15 15l5 5M20 15l-5 5"/></symbol>
+<symbol id="i-chev" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></symbol>
+<symbol id="i-l" viewBox="0 0 24 24"><path d="m15 6-6 6 6 6"/></symbol>
+<symbol id="i-r" viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></symbol>
+<symbol id="i-color" viewBox="0 0 24 24"><path d="M6 16 12 3l6 13M8.4 11h7.2"/><rect x="4" y="19" width="16" height="3" rx="1.5" style="fill:var(--chip,#009ddc);stroke:none"/></symbol>
+<symbol id="i-ol" viewBox="0 0 24 24"><path d="M10 6h11M10 12h11M10 18h11M4 6h1v4M4 10h2M6 18H4c0-1 2-2 2-3s-1-1.5-2-1"/></symbol>
+<symbol id="i-ul" viewBox="0 0 24 24"><path d="M9 6h12M9 12h12M9 18h12" /><path d="M4 6h.01M4 12h.01M4 18h.01" stroke-width="3"/></symbol>
+<symbol id="i-quote" viewBox="0 0 24 24"><path d="M5 8h4v4c0 2.5-1 4-4 5M14 8h4v4c0 2.5-1 4-4 5"/></symbol>
+<symbol id="i-in" viewBox="0 0 24 24"><path d="M3 5h18M11 11h10M11 17h10M3 9l3 3-3 3"/></symbol>
+<symbol id="i-out" viewBox="0 0 24 24"><path d="M3 5h18M11 11h10M11 17h10M7 9l-3 3 3 3"/></symbol>
+<symbol id="i-link" viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.07 0l2.83-2.83a5 5 0 0 0-7.07-7.07L11.5 4.5M14 11a5 5 0 0 0-7.07 0L4.1 13.83a5 5 0 0 0 7.07 7.07l1.33-1.4"/></symbol>
+<symbol id="i-undo" viewBox="0 0 24 24"><path d="M3 7v6h6M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13"/></symbol>
+<symbol id="i-redo" viewBox="0 0 24 24"><path d="M21 7v6h-6M3 17a9 9 0 0 1 9-9 9 9 0 0 1 6 2.3L21 13"/></symbol>
+</svg>
+
+<div class="screen">
+  <header>
+    <button class="back" id="back" aria-label="Back"><svg><use href="#i-back"/></svg></button>
+    <h1>Edit Description</h1>
+  </header>
+
+  <main class="card">
+    <div class="tbw">
+      <div class="tb" id="tb" role="toolbar" aria-label="Text formatting">
+        <button class="sel" id="bStyle" data-c="style" aria-label="Text style"><span id="styleLbl">Normal</span><svg><use href="#i-chev"/></svg></button>
+        <i class="sep"></i>
+        <button data-c="bold" aria-label="Bold">B</button>
+        <button data-c="italic" aria-label="Italic" style="font-style:italic">I</button>
+        <button data-c="underline" aria-label="Underline" style="text-decoration:underline">U</button>
+        <button data-c="strikeThrough" aria-label="Strikethrough" style="text-decoration:line-through">S</button>
+        <button data-c="removeFormat" aria-label="Clear formatting"><svg><use href="#i-clear"/></svg></button>
+        <button id="bColor" data-c="color" aria-label="Text colour"><svg><use href="#i-color"/></svg></button>
+        <i class="sep"></i>
+        <button data-c="insertOrderedList" aria-label="Numbered list"><svg><use href="#i-ol"/></svg></button>
+        <button data-c="insertUnorderedList" aria-label="Bullet list"><svg><use href="#i-ul"/></svg></button>
+        <button data-c="quote" aria-label="Quote"><svg><use href="#i-quote"/></svg></button>
+        <button data-c="indent" aria-label="Indent"><svg><use href="#i-in"/></svg></button>
+        <button data-c="outdent" aria-label="Outdent"><svg><use href="#i-out"/></svg></button>
+        <i class="sep"></i>
+        <button data-c="link" aria-label="Link"><svg><use href="#i-link"/></svg></button>
+        <i class="sep"></i>
+        <button data-c="undo" aria-label="Undo"><svg><use href="#i-undo"/></svg></button>
+        <button data-c="redo" aria-label="Redo"><svg><use href="#i-redo"/></svg></button>
+      </div>
+      <button class="edge l" id="eL" aria-label="Scroll tools left" hidden><svg><use href="#i-l"/></svg></button>
+      <button class="edge r" id="eR" aria-label="Scroll tools right" hidden><svg><use href="#i-r"/></svg></button>
+    </div>
+
+    <div class="hint" id="hint"><span>Colour pen active — select text to apply</span><button type="button" id="penOff">Done</button></div>
+
+    <div class="paper">
+<div id="ed" contenteditable="true" spellcheck="false" role="textbox" aria-multiline="true" aria-label="Product description" data-ph="Write a detailed product description…"><h2>Product Overview</h2><p>Doctor’s Best Magnesium Glycinate features TRAACS® chelated magnesium, a highly absorbable form bound with glycine for superior absorption and excellent stomach tolerance.</p><p>It supports muscle relaxation, nervous system function, heart health, stress reduction, and quality sleep without the laxative effect common in other magnesium forms.</p><h2>Key Features</h2><ul><li>Highly Absorbable Chelated Magnesium (Glycinate)</li><li>Gentle on the Stomach – No Laxative Effect</li><li>Supports Muscle Relaxation &amp; Cramp Relief</li><li>Helps Improve Sleep Quality</li></ul><h2>Suggested Use</h2><ul><li>Take <b>2 capsules</b> daily, preferably with food, or as directed by a healthcare professional.</li></ul><h2>Important Notes ⚠️</h2><blockquote><p>Suitable for long-term daily use</p><p>Not intended to diagnose, treat, cure, or prevent any disease</p></blockquote></div>
+    </div>
+
+    <button class="save" id="save">Save</button>
+  </main>
+</div>
+
+<div class="pop menu" id="menu" role="menu">
+  <button data-v="p" role="menuitem">Normal</button>
+  <button data-v="h2" class="h2" role="menuitem">Heading</button>
+  <button data-v="h3" class="h3" role="menuitem">Subheading</button>
+</div>
+<div class="pop cp" id="cp" aria-label="Text colour">
+  <div class="grid" id="grid"></div>
+</div>
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+(function(){
+const $=s=>document.querySelector(s), hint=$('#hint'), ed=$('#ed'), tb=$('#tb'), menu=$('#menu'), cp=$('#cp'), L=$('#eL'), R=$('#eR');
+const COLORS=[['#1a2e4d','Navy'],['#009ddc','Cyan'],['#f26430','Orange'],['#6761a8','Purple'],['#009b72','Green'],['#d92d2d','Red'],['#e0a800','Gold'],['#6b7280','Grey'],['#000000','Black']];
+let saved=null, dirty=false, tt=0, pt=0;
+
+/* theme: follows the device, or the host app via postMessage({type:'theme',theme:'dark'|'light'}) */
+const mq=matchMedia('(prefers-color-scheme: dark)');
+const setTheme=t=>document.documentElement.setAttribute('data-theme',t);
+setTheme(mq.matches?'dark':'light'); mq.addEventListener&&mq.addEventListener('change',e=>setTheme(e.matches?'dark':'light'));
+addEventListener('message',e=>{if(e.data&&e.data.type==='theme')setTheme(e.data.theme)});
+
+document.execCommand('defaultParagraphSeparator',false,'p');
+
+/* selection is remembered so toolbar taps never lose the caret */
+document.addEventListener('selectionchange',()=>{
+  const s=getSelection();
+  if(s.rangeCount&&ed.contains(s.anchorNode)){saved=s.getRangeAt(0).cloneRange();sync();clearTimeout(pt);pt=setTimeout(penCheck,350);}
+});
+function restore(){ed.focus();if(saved){const s=getSelection();s.removeAllRanges();s.addRange(saved);}}
+function run(c,v){restore();document.execCommand(c,false,v==null?null:v);ed.focus();changed();sync();}
+function changed(){dirty=true;if(!ed.textContent.trim()&&!ed.querySelector('li,img'))ed.innerHTML='';}
+ed.addEventListener('input',changed);
+ed.addEventListener('paste',e=>{e.preventDefault();document.execCommand('insertText',false,(e.clipboardData||window.clipboardData).getData('text/plain'));});
+
+/* toolbar */
+document.querySelectorAll('.tb,.menu,.pop,.hint').forEach(el=>el.addEventListener('mousedown',e=>{if(!e.target.closest('input'))e.preventDefault()}));
+tb.addEventListener('click',e=>{
+  const b=e.target.closest('button'); if(!b)return; const c=b.dataset.c;
+  if(c==='style')return openPop(menu,b);
+  if(c==='color'){if(pen){penOff();return;}return openPop(cp,b);}
+  closePops();
+  if(c==='quote')return quote();
+  if(c==='link')return link();
+  run(c);
+});
+function quote(){restore();const n=curEl(),inQ=n&&n.closest('blockquote');document.execCommand('formatBlock',false,inQ?'p':'blockquote');changed();sync();}
+function curEl(){const s=getSelection();if(!s.anchorNode||!ed.contains(s.anchorNode))return null;return s.anchorNode.nodeType===1?s.anchorNode:s.anchorNode.parentElement}
+const esc=t=>t.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function link(){
+  restore(); const n=curEl(), a=n&&n.closest('a');
+  if(a){document.execCommand('unlink');changed();sync();return;}
+  let u=prompt('Link URL','https://'); if(!u)return; u=u.trim();
+  if(!/^(https?:|mailto:|tel:)/i.test(u))return toast('Link must start with https://, mailto: or tel:');
+  restore();
+  if(getSelection().isCollapsed)document.execCommand('insertHTML',false,'<a href="'+esc(u)+'">'+esc(u)+'</a>');
+  else document.execCommand('createLink',false,u);
+  changed();sync();
+}
+function sync(){
+  const n=curEl();
+  tb.querySelectorAll('[data-c]').forEach(b=>{
+    const c=b.dataset.c; let on=false;
+    if(c==='color')return;
+    if(n){
+      if(/^(bold|italic|underline|strikeThrough|insertOrderedList|insertUnorderedList)$/.test(c))on=document.queryCommandState(c);
+      else if(c==='quote')on=!!n.closest('blockquote');
+      else if(c==='link')on=!!n.closest('a');
+    }
+    b.classList.toggle('on',on); if(c!=='style'&&c!=='color')b.setAttribute('aria-pressed',on);
+  });
+  const blk=n&&n.closest('h2,h3'), v=blk?blk.tagName.toLowerCase():'p';
+  $('#styleLbl').textContent=v==='h2'?'Heading':v==='h3'?'Subheading':'Normal';
+  menu.querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.v===v));
+}
+
+/* style menu + colour picker */
+menu.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;restore();document.execCommand('formatBlock',false,b.dataset.v);closePops();changed();sync();});
+const grid=$('#grid');
+COLORS.forEach(([c,n])=>{const b=document.createElement('button');b.className='sw';b.style.background=c;b.title=n;b.setAttribute('aria-label',n);b.onclick=()=>color(c);grid.appendChild(b);});
+const cu=document.createElement('label');cu.className='custom';cu.innerHTML='<input type="color" value="#009ddc" aria-label="Custom colour"><span>Custom</span>';
+cu.querySelector('input').addEventListener('input',e=>color(e.target.value));grid.appendChild(cu);
+/* colour pen (same model as the admin panel): pick a colour, then every text selection gets it until Done */
+let pen=null, penKey='';
+function color(v){
+  pen=v;penKey='';$('#bColor').style.setProperty('--chip',v);$('#bColor').classList.add('on');
+  hint.classList.add('show');closePops();restore();penCheck();
+}
+function penCheck(){
+  if(!pen)return;
+  const s=getSelection();
+  if(!s.rangeCount||s.isCollapsed||!ed.contains(s.anchorNode))return;
+  const k=pen+'|'+s.getRangeAt(0).toString();
+  if(k===penKey)return;
+  document.execCommand('styleWithCSS',false,true);document.execCommand('foreColor',false,pen);document.execCommand('styleWithCSS',false,false);
+  penKey=k;changed();
+}
+function penOff(){pen=null;penKey='';$('#bColor').classList.remove('on');hint.classList.remove('show');}
+$('#penOff').onclick=penOff;
+['mouseup','touchend'].forEach(ev=>ed.addEventListener(ev,()=>setTimeout(penCheck,0)));
+function openPop(el,btn){
+  const was=el.classList.contains('open');closePops();if(was)return;
+  const r=btn.getBoundingClientRect();el.classList.add('open');
+  el.style.top=(r.bottom+8)+'px';el.style.left=Math.max(12,Math.min(r.left,innerWidth-el.offsetWidth-12))+'px';
+}
+function closePops(){menu.classList.remove('open');cp.classList.remove('open');}
+document.addEventListener('pointerdown',e=>{if(!e.target.closest('.pop,[data-c=style],[data-c=color]'))closePops();});
+tb.addEventListener('scroll',()=>{closePops();edges();},{passive:true});
+
+/* scroll hints at both ends of the toolbar */
+function edges(){const m=tb.scrollWidth-tb.clientWidth;L.hidden=tb.scrollLeft<6;R.hidden=m<6||tb.scrollLeft>m-6;}
+L.onclick=()=>tb.scrollBy({left:-180,behavior:'smooth'});R.onclick=()=>tb.scrollBy({left:180,behavior:'smooth'});
+addEventListener('resize',edges);if(window.ResizeObserver)new ResizeObserver(edges).observe(tb);
+document.fonts&&document.fonts.ready.then(edges);edges();
+
+/* sanitiser: only safe tags/attrs ever leave the editor (this HTML is shown on the public storefront) */
+const OK={B:1,STRONG:1,I:1,EM:1,U:1,S:1,STRIKE:1,P:1,BR:1,H2:1,H3:1,UL:1,OL:1,LI:1,BLOCKQUOTE:1,A:1,SPAN:1};
+const COL=/^(#[0-9a-f]{3,8}|rgb\(\s*\d+\s*,\s*\d+\s*,\s*\d+\s*\))$/i, URL_=/^(https?:|mailto:|tel:)/i;
+function unwrap(n){while(n.firstChild)n.parentNode.insertBefore(n.firstChild,n);n.remove();}
+function rename(n,t){const e=document.createElement(t);while(n.firstChild)e.appendChild(n.firstChild);n.replaceWith(e);return e;}
+function clean(root){
+  [...root.childNodes].forEach(n=>{
+    if(n.nodeType===3)return;
+    if(n.nodeType!==1||/^(SCRIPT|STYLE|IFRAME|OBJECT|EMBED)$/.test(n.tagName)){n.remove();return;}
+    clean(n);
+    let t=n.tagName;
+    const c=(n.getAttribute('color')||n.style.color||'').trim(), h=(n.getAttribute('href')||'').trim();
+    if(t==='DIV'){n=rename(n,'P');t='P';}else if(t==='FONT'){n=rename(n,'SPAN');t='SPAN';}
+    if(!OK[t]){unwrap(n);return;}
+    [...n.attributes].forEach(a=>n.removeAttribute(a.name));
+    if(t==='SPAN'){if(COL.test(c))n.style.color=c;else unwrap(n);}
+    if(t==='A'){if(URL_.test(h)){n.setAttribute('href',h);n.setAttribute('rel','noopener noreferrer');n.setAttribute('target','_blank');}else unwrap(n);}
+  });
+}
+function getHTML(){const d=document.createElement('div');d.innerHTML=ed.innerHTML;clean(d);return d.innerHTML;}
+
+/* save / back — hooks for the main app */
+$('#save').onclick=()=>{
+  const html=getHTML();dirty=false;
+  parent.postMessage({type:'sv-desc-save',html},'*');
+  dispatchEvent(new CustomEvent('sv-desc-save',{detail:{html}}));
+  toast('Description saved');
+};
+$('#back').onclick=()=>{
+  if(dirty&&!confirm('Discard unsaved changes?'))return;
+  parent!==window?parent.postMessage({type:'sv-desc-close'},'*'):history.back();
+};
+function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('show');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('show'),2200);}
+window.SVDescEditor={getHTML,setHTML(h){ed.innerHTML=h||'';clean(ed);dirty=false;}};
+})();
+</script>
+</body>
+</html>
