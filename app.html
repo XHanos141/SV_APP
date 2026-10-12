@@ -16550,13 +16550,29 @@ function downloadVoucherPNG() {
   // CLONE it renders so the PNG matches the on-screen card exactly.
   const SVGNS = 'http://www.w3.org/2000/svg';
   const fixSvgForExport = (doc, root) => {
+    const hosts = new Set();
     root.querySelectorAll('use').forEach(u => {
       const id = (u.getAttribute('href') || u.getAttribute('xlink:href') || '').replace(/^#/, '');
       const src = id && doc.getElementById(id);
       if (!src) return;
+      if (u.ownerSVGElement) hosts.add(u.ownerSVGElement);
       const g = doc.createElementNS(SVGNS, 'g');
-      Array.from(src.childNodes).forEach(n => g.appendChild(n.cloneNode(true)));
+      // <use> children inherit fill/stroke from the host <svg>; put them on the group so they survive rasterising
+      const hcs = u.ownerSVGElement ? doc.defaultView.getComputedStyle(u.ownerSVGElement) : null;
+      if (hcs && hcs.fill) g.setAttribute('fill', hcs.fill);
+      Array.from(src.childNodes).forEach(n => {
+        const c = n.cloneNode(true);
+        // html2canvas stamps every node with its *computed* style (fill:black...) which would beat the real
+        // presentation attributes / inherited fill from the host <svg>, so drop it from the copied icon parts
+        if (c.nodeType === 1) { c.removeAttribute('style'); c.querySelectorAll('[style]').forEach(x => x.removeAttribute('style')); }
+        g.appendChild(c);
+      });
       u.parentNode.replaceChild(g, u);
+    });
+    // icon outline/fill styling comes from page CSS, which is lost when the SVG is rasterised on its own: bake it in
+    hosts.forEach(svg => {
+      const c = doc.defaultView.getComputedStyle(svg);
+      svg.setAttribute('style', (svg.getAttribute('style') || '') + ';fill:' + c.fill + ';stroke:' + c.stroke + ';stroke-width:' + c.strokeWidth + ';stroke-linecap:' + c.strokeLinecap + ';stroke-linejoin:' + c.strokeLinejoin + ';opacity:' + c.opacity);
     });
     root.querySelectorAll('svg').forEach(svg => {
       const col = doc.defaultView.getComputedStyle(svg).color;
@@ -16602,6 +16618,26 @@ function downloadVoucherPNG() {
         if (wrap) wrap.style.cssText += ';height:600px;width:1600px;padding:0;overflow:visible;';
         for (let a = wrap ? wrap.parentElement : null; a && a !== doc.body; a = a.parentElement) {
           a.style.overflow = 'visible'; a.style.transform = 'none';
+        }
+        // html2canvas can't paint repeating/tiled gradients, so rebuild those two decorations with plain elements
+        const track = v.querySelector('.tear-track');
+        if (track) {
+          track.style.cssText += ';background:none;position:relative;';
+          for (let i = 0; i < 12; i++) {
+            const d = doc.createElement('div');
+            d.style.cssText = 'position:absolute;left:0;width:100%;top:' + (i * 100 / 12) + '%;height:' + (100 / 24) + '%;background:rgba(26,42,58,0.9);';
+            track.appendChild(d);
+          }
+        }
+        const lp = v.querySelector('.left-panel');
+        if (lp) {
+          const st = doc.createElement('style');
+          st.textContent = '#voucher-preview .left-panel::before{display:none!important}';
+          doc.head.appendChild(st);
+          const tile = "<svg xmlns='http://www.w3.org/2000/svg' width='75' height='75'><circle cx='15' cy='22.5' r='10' fill='rgba(255,255,255,0.08)'/></svg>";
+          const dots = doc.createElement('div');
+          dots.style.cssText = 'position:absolute;left:0;top:0;right:0;bottom:0;z-index:2;opacity:.6;pointer-events:none;background-size:75px 75px;background-repeat:repeat;background-image:url("data:image/svg+xml;utf8,' + encodeURIComponent(tile) + '");';
+          lp.appendChild(dots);
         }
         fixSvgForExport(doc, v);
       }
