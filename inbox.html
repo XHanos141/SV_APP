@@ -475,8 +475,7 @@
   #customersView:not([hidden]){
     display:flex;
     position:fixed;
-    top:0; left:0; right:0; bottom:0;
-    height:100dvh;
+    top:0; left:0; right:0; bottom:var(--bnav-h, 0px);
   }
   .cust-list-header{
     display:flex;
@@ -2195,6 +2194,14 @@ html:not([data-theme="light"]) .odm-card { background: rgba(124,111,247,0.08); b
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M2.5 20c0-3.6 2.9-6.5 6.5-6.5s6.5 2.9 6.5 6.5"/><path d="M16 8.2a3 3 0 1 1 3.2 3M17.5 13.6c2.4.5 4 2.6 4 6.4"/></svg>
       <span>Customers</span>
     </button>
+    <button class="nav-item" data-nav="wishlist">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20.5s-7.5-4.6-9.2-9.3C1.7 8 3.6 5 6.8 5c2 0 3.5 1.1 5.2 3 1.7-1.9 3.2-3 5.2-3 3.2 0 5.1 3 4 6.2-1.7 4.7-9.2 9.3-9.2 9.3Z"/></svg>
+      <span>Wishlist</span>
+    </button>
+    <button class="nav-item" data-nav="subscribers">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>
+      <span>Subscribers</span>
+    </button>
   </nav>
 
 </div><!-- /listView -->
@@ -2263,7 +2270,7 @@ html:not([data-theme="light"]) .odm-card { background: rgba(124,111,247,0.08); b
     <span class="cust-list-count" id="customersCount"></span>
   </div>
   <div class="hub-bar">
-    <div class="status-tabs at-end" id="hubTabs" role="tablist" aria-label="Customer sections">
+    <div class="status-tabs at-end" id="hubTabs" role="tablist" aria-label="Customer sections" style="display:none">
       <button class="status-tab" role="tab" data-hub="customers" aria-selected="true">Customers</button>
       <button class="status-tab" role="tab" data-hub="wishlist" aria-selected="false">Wishlist</button>
       <button class="status-tab" role="tab" data-hub="subscribers" aria-selected="false">Subscribers</button>
@@ -4324,9 +4331,8 @@ function closeOrderDetailsModal() {
   document.querySelectorAll(".nav-item").forEach(btn => {
     btn.addEventListener("click", () => {
       const dest = btn.dataset.nav;
-      if(dest === "customers"){
-        setNavActive("customers");
-        openCustomersView();
+      if(dest === "customers" || dest === "wishlist" || dest === "subscribers"){
+        openCustomersView(dest);
         return;
       }
       if(dest === "inbox"){
@@ -4339,11 +4345,22 @@ function closeOrderDetailsModal() {
   });
 
   /* ---------- Customers screen (all registered customers) ---------- */
-  function openCustomersView(){
+  function openCustomersView(tab){
+    tab = tab || "customers";
+    const nav = document.querySelector(".bottom-nav");
+    if(nav) els.customersView.style.setProperty("--bnav-h", nav.offsetHeight + "px");
+    if(!els.customersView.hidden){          // already open: just switch tab
+      if(hub.tab !== tab) setHubTab(tab);
+      else setNavActive(tab);
+      return;
+    }
+    hub.tab = tab; hub.q = ""; els.hubSearch.value = "";
+    els.hubTabs.querySelectorAll(".status-tab").forEach(t => t.setAttribute("aria-selected", t.dataset.hub === tab ? "true" : "false"));
+    els.hubSearch.placeholder = tab === "customers" ? "Search name, email or phone..." : tab === "wishlist" ? "Search product or customer..." : "Search email...";
+    setNavActive(tab);
     svShow(els.customersView, "fwd");
     window.scrollTo(0, 0);
     els.customersListScroll.scrollTop = 0;
-    placeTabSlide(els.hubTabs, true);
     hubLoad(true);
   }
   function closeCustomersView(){
@@ -4432,6 +4449,7 @@ function closeOrderDetailsModal() {
   function hubRender(noAnim){
     const box = els.customersListScroll;
     box.classList.toggle("hub-noanim", !!noAnim);
+    document.querySelector("#customersView h1").textContent = { customers:"Customers", wishlist:"Wishlist", subscribers:"Subscribers" }[hub.tab];
     // chips + header count
     let chips = "", count = "";
     if(hub.tab === "wishlist"){
@@ -4597,6 +4615,8 @@ function closeOrderDetailsModal() {
     els.hubTabs.querySelectorAll(".status-tab").forEach(t => t.setAttribute("aria-selected", t.dataset.hub === tab ? "true" : "false"));
     els.hubSearch.placeholder = tab === "customers" ? "Search name, email or phone..." : tab === "wishlist" ? "Search product or customer..." : "Search email...";
     placeTabSlide(els.hubTabs);
+    setNavActive(tab);
+    els.customersListScroll.scrollTop = 0;
     hubLoad(true);
   }
 
