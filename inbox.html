@@ -1792,6 +1792,7 @@ html:not([data-theme="light"]) .odm-oh-pill.verifying, html:not([data-theme="lig
 .odm-oh-pill.cancelled { background: rgba(217,83,83,0.10); color: #d95353; border-color: rgba(217,83,83,0.4); }
 .odm-oh-date { font-size: 10.5px; font-weight: 600; color: #8794A8; }
 html:not([data-theme="light"]) .odm-oh-date { color: #8794A8; }
+.vcode{font-family:'Courier Prime','Courier New',monospace;font-weight:700;letter-spacing:.03em}
 .odm-pi-sku { font-family: "Courier Prime", "Courier New", monospace; font-size: 9px; font-weight: 700; color: #0891b2; letter-spacing: 0.13em; text-transform: uppercase; margin-top: 1px; }
 html:not([data-theme="light"]) .odm-pi-sku { color: #22d3ee; }
 /* Ordered Products rows — same info layout as the SV-Web cart card (badge + subcategory, name, spec, price + qty), SKU added below */
@@ -2598,7 +2599,7 @@ function renderOrderDetailsSummary(o) {
   if (!box) return;
   const money = n => '৳' + Number(n || 0).toLocaleString('en-IN');
   const free = Number(o.shipping) === 0;
-  const disc = Number(o.discount) > 0 ? `<div class="odm-mc-row discount"><span>${ODM_ICO_TAG}Discount (${escapeHtml(o.voucher_code || 'Manual')})</span><span>-${money(o.discount)}</span></div>` : '';
+  const disc = Number(o.discount) > 0 ? `<div class="odm-mc-row discount"><span>${ODM_ICO_TAG}Discount (${o.voucher_code ? '<span class="vcode">' + escapeHtml(o.voucher_code) + '</span>' : 'Manual'})</span><span>-${money(o.discount)}</span></div>` : '';
   box.innerHTML = `<div class="odm-mc">
     <div class="odm-mc-row sub"><span>Subtotal</span><span>${money(o.subtotal)}</span></div>
     ${disc}
