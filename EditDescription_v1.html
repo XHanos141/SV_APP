@@ -47,6 +47,7 @@ svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2;stroke-l
 #ed a{color:#0b7bc4;text-decoration:underline}
 #ed :lang(bn),#ed{line-height:1.7}
 .save{flex-shrink:0;height:54px;border:0;border-radius:16px;background:var(--btn);color:#fff;font:700 17px var(--display);cursor:pointer;transition:transform .12s,filter .12s}
+.save:disabled{opacity:.5;pointer-events:none}
 .save:active{transform:scale(.98);filter:brightness(.92)}
 /* popups are fixed so the card can never clip them */
 .pop{position:fixed;z-index:50;background:var(--surface);border:1px solid var(--border);border-radius:16px;box-shadow:var(--shadow);padding:8px;opacity:0;visibility:hidden;transform:translateY(-6px) scale(.97);transform-origin:top left;transition:opacity .16s,transform .16s,visibility 0s .16s}
@@ -80,6 +81,9 @@ svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2;stroke-l
 <symbol id="i-ol" viewBox="0 0 24 24"><path d="M10 6h11M10 12h11M10 18h11M4 6h1v4M4 10h2M6 18H4c0-1 2-2 2-3s-1-1.5-2-1"/></symbol>
 <symbol id="i-ul" viewBox="0 0 24 24"><path d="M9 6h12M9 12h12M9 18h12" /><path d="M4 6h.01M4 12h.01M4 18h.01" stroke-width="3"/></symbol>
 <symbol id="i-quote" viewBox="0 0 24 24"><path d="M5 8h4v4c0 2.5-1 4-4 5M14 8h4v4c0 2.5-1 4-4 5"/></symbol>
+<symbol id="i-al" viewBox="0 0 24 24"><path d="M3 5h18M3 10h11M3 15h18M3 20h11"/></symbol>
+<symbol id="i-ac" viewBox="0 0 24 24"><path d="M3 5h18M7 10h10M3 15h18M7 20h10"/></symbol>
+<symbol id="i-ar" viewBox="0 0 24 24"><path d="M3 5h18M10 10h11M3 15h18M10 20h11"/></symbol>
 <symbol id="i-in" viewBox="0 0 24 24"><path d="M3 5h18M11 11h10M11 17h10M3 9l3 3-3 3"/></symbol>
 <symbol id="i-out" viewBox="0 0 24 24"><path d="M3 5h18M11 11h10M11 17h10M7 9l-3 3 3 3"/></symbol>
 <symbol id="i-link" viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.07 0l2.83-2.83a5 5 0 0 0-7.07-7.07L11.5 4.5M14 11a5 5 0 0 0-7.07 0L4.1 13.83a5 5 0 0 0 7.07 7.07l1.33-1.4"/></symbol>
@@ -108,6 +112,11 @@ svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2;stroke-l
         <button data-c="insertOrderedList" aria-label="Numbered list"><svg><use href="#i-ol"/></svg></button>
         <button data-c="insertUnorderedList" aria-label="Bullet list"><svg><use href="#i-ul"/></svg></button>
         <button data-c="quote" aria-label="Quote"><svg><use href="#i-quote"/></svg></button>
+        <i class="sep"></i>
+        <button data-c="justifyLeft" aria-label="Align left"><svg><use href="#i-al"/></svg></button>
+        <button data-c="justifyCenter" aria-label="Align center"><svg><use href="#i-ac"/></svg></button>
+        <button data-c="justifyRight" aria-label="Align right"><svg><use href="#i-ar"/></svg></button>
+        <i class="sep"></i>
         <button data-c="indent" aria-label="Indent"><svg><use href="#i-in"/></svg></button>
         <button data-c="outdent" aria-label="Outdent"><svg><use href="#i-out"/></svg></button>
         <i class="sep"></i>
@@ -154,6 +163,15 @@ addEventListener('message',e=>{if(e.data&&e.data.type==='theme')setTheme(e.data.
 
 document.execCommand('defaultParagraphSeparator',false,'p');
 
+/* embedded in the admin panel: start empty + locked until the host sends the real description (prevents saving blank/sample text) */
+const EMBED=parent!==window;
+if(EMBED){ed.innerHTML='';$('#save').disabled=true;}
+addEventListener('message',e=>{
+  const d=e.data;if(!d||d.type!=='sv-desc-load')return;
+  loadHTML(d.html);dirty=false;saved=null;penOff();closePops();ed.scrollTop=0;
+  if(d.theme)setTheme(d.theme);$('#save').disabled=false;edges();sync();
+});
+
 /* selection is remembered so toolbar taps never lose the caret */
 document.addEventListener('selectionchange',()=>{
   const s=getSelection();
@@ -195,7 +213,7 @@ function sync(){
     const c=b.dataset.c; let on=false;
     if(c==='color')return;
     if(n){
-      if(/^(bold|italic|underline|strikeThrough|insertOrderedList|insertUnorderedList)$/.test(c))on=document.queryCommandState(c);
+      if(/^(bold|italic|underline|strikeThrough|insertOrderedList|insertUnorderedList|justifyLeft|justifyCenter|justifyRight)$/.test(c))on=document.queryCommandState(c);
       else if(c==='quote')on=!!n.closest('blockquote');
       else if(c==='link')on=!!n.closest('a');
     }
@@ -256,14 +274,17 @@ function clean(root){
     if(n.nodeType!==1||/^(SCRIPT|STYLE|IFRAME|OBJECT|EMBED)$/.test(n.tagName)){n.remove();return;}
     clean(n);
     let t=n.tagName;
-    const c=(n.getAttribute('color')||n.style.color||'').trim(), h=(n.getAttribute('href')||'').trim();
+    const c=(n.getAttribute('color')||n.style.color||'').trim(), h=(n.getAttribute('href')||'').trim(), al=(n.style.textAlign||n.getAttribute('align')||'').toLowerCase();
     if(t==='DIV'){n=rename(n,'P');t='P';}else if(t==='FONT'){n=rename(n,'SPAN');t='SPAN';}
     if(!OK[t]){unwrap(n);return;}
     [...n.attributes].forEach(a=>n.removeAttribute(a.name));
-    if(t==='SPAN'){if(COL.test(c))n.style.color=c;else unwrap(n);}
+    if(/^(P|H2|H3|LI|BLOCKQUOTE)$/.test(t)&&/^(center|right)$/.test(al))n.style.textAlign=al;
+    if(t!=='BR'&&COL.test(c))n.style.color=c;
+    if(t==='SPAN'&&!n.style.color){unwrap(n);return;}
     if(t==='A'){if(URL_.test(h)){n.setAttribute('href',h);n.setAttribute('rel','noopener noreferrer');n.setAttribute('target','_blank');}else unwrap(n);}
   });
 }
+function loadHTML(h){const t=document.createElement('template');t.innerHTML=h||'';clean(t.content);ed.replaceChildren(t.content);}
 function getHTML(){const d=document.createElement('div');d.innerHTML=ed.innerHTML;clean(d);return d.innerHTML;}
 
 /* save / back — hooks for the main app */
@@ -278,7 +299,8 @@ $('#back').onclick=()=>{
   parent!==window?parent.postMessage({type:'sv-desc-close'},'*'):history.back();
 };
 function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('show');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('show'),2200);}
-window.SVDescEditor={getHTML,setHTML(h){ed.innerHTML=h||'';clean(ed);dirty=false;}};
+if(EMBED)parent.postMessage({type:'sv-desc-ready'},'*');
+window.SVDescEditor={getHTML,setHTML(h){loadHTML(h);dirty=false;}};
 })();
 </script>
 </body>
