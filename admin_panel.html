@@ -6,7 +6,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>SuppVerse BD — Product Editor</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@600;700;800&family=Outfit:wght@400;500;600;700;800&family=Noto+Sans+Bengali:wght@600;700;800&family=Courier+Prime:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@600;700;800&family=Outfit:wght@400;500;600;700;800&family=Noto+Sans+Bengali:wght@400;500;600;700;800&family=Courier+Prime:wght@400;700&display=swap" rel="stylesheet">
 <style>
 :root{
   --p2p-border:rgba(10,22,40,0.14);
@@ -1258,6 +1258,18 @@ fieldset:disabled :is(.img-thumb-item,.img-thumb-add,.img-thumb-remove){touch-ac
 .web-linked-name{font-weight:800;font-size:15px;color:var(--text)}
 .web-linked-sub{font-size:12px;color:var(--text2);margin-top:2px}
 #storeProductGroup .form-card:not(:has(#descToolbar)){min-height:0;max-height:none;overflow-y:visible;overflow-x:hidden}
+/* Description: preview card + full-screen editor overlay */
+.desc-prev{position:relative;cursor:pointer}
+.rte-box.desc-readonly{min-height:92px;max-height:210px;overflow:hidden;border-radius:12px;font-family:var(--font-body),'Noto Sans Bengali',sans-serif;overflow-wrap:anywhere;-webkit-user-select:none;user-select:none}
+.desc-readonly blockquote{border-left:3px solid var(--border);padding-left:12px;margin:6px 0;color:var(--text3)}
+.desc-readonly p{margin:0 0 6px}
+.desc-fade{position:absolute;left:1px;right:1px;bottom:1px;height:44px;border-radius:0 0 11px 11px;background:linear-gradient(transparent,var(--surface2));pointer-events:none}
+.desc-edit-btn{width:100%;height:46px;margin-top:10px;border:none;border-radius:12px;background:var(--accent);color:#fff;font-family:var(--font-display);font-weight:700;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px}
+.desc-edit-btn svg{width:17px;height:17px}
+.desc-edit-btn:active{filter:brightness(.92)}
+#descEdOverlay{position:fixed;inset:0;z-index:20000;background:var(--bg,#0f1621);display:none}
+#descEdOverlay.open{display:block}
+#descEdOverlay iframe{width:100%;height:100%;border:0;display:block;background:transparent}
 .wr-pill{font-size:9.5px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;padding:2px 7px;border-radius:999px;border:1px solid transparent}
 .wr-pill.draft{color:#0284c7;background:#0284c71a;border-color:#0284c740}
 .wr-pill.live{color:#16a34a;background:#16a34a1a;border-color:#16a34a40}
@@ -2502,54 +2514,11 @@ fill="#ed1d24"><rect width="512" height="512" rx="15%" fill="#ed1d24"/><path d="
 
   <div class="form-card">
     <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7V4h16v3M9 20h6M12 4v16"/></svg>Description</h3>
-    <div class="rte-tb-wrap" id="rteTbWrap">
-    <div class="rte-toolbar rte-scroll" id="descToolbar" onmousedown="if(!event.target.closest('select,input'))event.preventDefault()">
-      <button type="button" class="rte-style-btn" id="rteStyleBtn" onclick="rteTogglePop('rteStyleMenu',this,event)" title="Text style"><span id="rteStyleLabel">Normal</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
-      <span class="rte-sep"></span>
-      <button type="button" data-cmd="bold" onclick="rteCmd('bold')" title="Bold"><b>B</b></button>
-      <button type="button" data-cmd="italic" onclick="rteCmd('italic')" title="Italic"><i>I</i></button>
-      <button type="button" data-cmd="underline" onclick="rteCmd('underline')" title="Underline"><u>U</u></button>
-      <div class="rte-color-wrap" id="rteColorWrap">
-        <button type="button" onclick="toggleRteColorPicker(event)" title="Text colour">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 17L11 5h2l4.5 12"/><path d="M7.5 13h9"/></svg>
-          <span class="rte-color-chip" id="rteColorChip" style="background:#009ddc"></span>
-        </button>
-      </div>
-      <span class="rte-sep"></span>
-      <button type="button" data-cmd="insertUnorderedList" onclick="rteCmd('insertUnorderedList')" title="Bullet list"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6h12M9 12h12M9 18h12"/><path d="M4 6h.01M4 12h.01M4 18h.01" stroke-width="3"/></svg></button>
-      <button type="button" data-cmd="insertOrderedList" onclick="rteCmd('insertOrderedList')" title="Numbered list"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 6h11M10 12h11M10 18h11"/><path d="M4 6h1v4M4 10h2"/><path d="M6 18H4c0-1 2-2 2-3s-1-1.5-2-1"/></svg></button>
-      <span class="rte-sep"></span>
-      <button type="button" id="rteLinkBtn" onclick="rteLink()" title="Add or remove link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 007.07 0l2.83-2.83a5 5 0 00-7.07-7.07L11.5 4.5"/><path d="M14 11a5 5 0 00-7.07 0L4.1 13.83a5 5 0 007.07 7.07L12.5 19.5"/></svg></button>
-      <button type="button" onclick="rteClear()" title="Clear formatting"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7V4h16v3"/><path d="M5 20h6"/><path d="M13 4 8 20"/><path d="m15 15 5 5"/><path d="m20 15-5 5"/></svg></button>
-      <span class="rte-sep"></span>
-      <button type="button" onclick="rteCmd('undo')" title="Undo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7v6h6"/><path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13"/></svg></button>
-      <button type="button" onclick="rteCmd('redo')" title="Redo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 7v6h-6"/><path d="M3 17a9 9 0 0 1 9-9 9 9 0 0 1 6 2.3L21 13"/></svg></button>
+    <div class="desc-prev" onclick="openDescEditor()" role="button" tabindex="0" aria-label="Edit description" onkeydown="if(event.key==='Enter')openDescEditor()">
+      <div class="rte-box desc-readonly" id="apInpDesc" data-placeholder="No description yet — tap to write one…">Premium 100% Whey Protein Isolate, 24g protein per serving, gluten-free.</div>
+      <div class="desc-fade"></div>
     </div>
-    <div class="rte-pop rte-style-menu" id="rteStyleMenu" onmousedown="event.preventDefault()">
-      <button type="button" data-v="p" onclick="rtePickStyle('p')">Normal</button>
-      <button type="button" data-v="h2" class="s-h2" onclick="rtePickStyle('h2')">Heading</button>
-      <button type="button" data-v="h3" class="s-h3" onclick="rtePickStyle('h3')">Subheading</button>
-    </div>
-    <div class="rte-pop rte-color-pop" id="rteColorPop">
-      <div class="rte-color-grid">
-            <button type="button" class="rte-swatch" style="background:#1a2e4d" onclick="rteApplyColor('#1a2e4d')" title="Navy"></button>
-            <button type="button" class="rte-swatch" style="background:#009ddc" onclick="rteApplyColor('#009ddc')" title="Cyan"></button>
-            <button type="button" class="rte-swatch" style="background:#f26430" onclick="rteApplyColor('#f26430')" title="Orange"></button>
-            <button type="button" class="rte-swatch" style="background:#6761a8" onclick="rteApplyColor('#6761a8')" title="Purple"></button>
-            <button type="button" class="rte-swatch" style="background:#009b72" onclick="rteApplyColor('#009b72')" title="Green"></button>
-            <button type="button" class="rte-swatch" style="background:#d92d2d" onclick="rteApplyColor('#d92d2d')" title="Red"></button>
-            <button type="button" class="rte-swatch" style="background:#e0a800" onclick="rteApplyColor('#e0a800')" title="Gold"></button>
-            <button type="button" class="rte-swatch" style="background:#6b7280" onclick="rteApplyColor('#6b7280')" title="Grey"></button>
-            <button type="button" class="rte-swatch" style="background:#000000" onclick="rteApplyColor('#000000')" title="Black"></button>
-      </div>
-      <label class="rte-color-custom">
-        <input type="color" id="rteColorCustom" value="#009ddc" oninput="rteApplyColor(this.value)">
-        <span>Custom</span>
-      </label>
-    </div>
-    </div>
-    <div class="rte-color-hint" id="rteColorHint">Colour pen active — select text to apply <button type="button" onclick="rteColorPenOff()">Done</button></div>
-    <div class="rte-box" id="apInpDesc" contenteditable="true" oninput="updateAll();updateRteWordCount()" onmouseup="rteColorPenCheck()" ontouchend="rteColorPenCheck()" data-placeholder="Write a detailed product description...">Premium 100% Whey Protein Isolate, 24g protein per serving, gluten-free.</div>
+    <button type="button" class="desc-edit-btn" onclick="openDescEditor()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>Edit Description</button>
     <div class="rte-footer"><span id="rteWordCount">0 words</span></div>
   </div>
 
@@ -6484,6 +6453,44 @@ function rteToolbarSyncSoon(){
   setTimeout(rteToolbarFade, 0);
   if(document.fonts && document.fonts.ready) document.fonts.ready.then(rteToolbarFade);
 })();
+/* ---- Description editor: full-screen overlay (EditDescription_v1.html) ---- */
+let _descFrame = null, _descReady = false;
+function _descSend(){
+  try{
+    _descFrame.contentWindow.postMessage({
+      type:'sv-desc-load',
+      html: document.getElementById('apInpDesc').innerHTML,
+      theme: document.documentElement.getAttribute('data-theme') || 'dark'
+    }, '*');
+  }catch(e){}
+}
+function openDescEditor(){
+  const box = document.getElementById('apInpDesc');
+  const fs = box.closest('fieldset');
+  if(fs && fs.disabled){ if(typeof T === 'function') T('Tap Edit first to change the description', '🔒'); return; }
+  let ov = document.getElementById('descEdOverlay');
+  if(!ov){ ov = document.createElement('div'); ov.id = 'descEdOverlay'; document.body.appendChild(ov); }
+  if(!_descFrame){
+    _descFrame = document.createElement('iframe');
+    _descFrame.title = 'Edit Description';
+    _descFrame.src = '/EditDescription_v1.html';
+    ov.appendChild(_descFrame);
+  } else if(_descReady){ _descSend(); }
+  ov.classList.add('open');
+}
+function closeDescEditor(){ const ov = document.getElementById('descEdOverlay'); if(ov) ov.classList.remove('open'); }
+window.addEventListener('message', function(e){
+  const d = e.data;
+  if(!d || !_descFrame || e.source !== _descFrame.contentWindow) return;
+  if(d.type === 'sv-desc-ready'){ _descReady = true; _descSend(); }
+  else if(d.type === 'sv-desc-save'){
+    document.getElementById('apInpDesc').innerHTML = d.html || '';
+    updateAll(); updateRteWordCount(); closeDescEditor();
+    if(typeof T === 'function') T('Description updated', '✅');
+  }
+  else if(d.type === 'sv-desc-close'){ closeDescEditor(); }
+});
+(function(){ const b = document.getElementById('apInpDesc'); if(b) new MutationObserver(updateRteWordCount).observe(b, {childList:true, subtree:true, characterData:true}); })();
 function updateRteWordCount(){
   const el = document.getElementById('apInpDesc');
   const countEl = document.getElementById('rteWordCount');
