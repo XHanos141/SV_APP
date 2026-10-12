@@ -16601,6 +16601,8 @@ function downloadVoucherPNG() {
   const render = async () => {
     if (!window.html2canvas) throw new Error('Image engine not loaded');
     if (pinWasHidden) { pin.classList.add('visible'); await new Promise(r => requestAnimationFrame(() => r())); }
+    // the barcode is sized from its parent's width, so a draw made while the card was hidden is empty: redraw now
+    try { if (typeof B128 !== 'undefined' && S.code) B128.draw(S.code, 'bar-canvas', 101); } catch (e) {}
     if (document.fonts) {
       // make sure the brand font is decoded before the snapshot, otherwise the PNG falls back to a system font
       try { await Promise.all([document.fonts.load("32px 'BARABARA-FINAL'", 'SUPPVERSE BD'), document.fonts.ready]); } catch (e) {}
@@ -16643,6 +16645,15 @@ function downloadVoucherPNG() {
       }
     });
   };
+  const clipRounded = (canvas) => {
+    const k = canvas.width / 1600, r = 32 * k, w = canvas.width, h = canvas.height;
+    const ctx = canvas.getContext('2d');
+    ctx.save(); ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.globalCompositeOperation = 'destination-in';
+    ctx.beginPath(); ctx.moveTo(r, 0); ctx.lineTo(w - r, 0); ctx.arcTo(w, 0, w, r, r); ctx.lineTo(w, h - r); ctx.arcTo(w, h, w - r, h, r);
+    ctx.lineTo(r, h); ctx.arcTo(0, h, 0, h - r, r); ctx.lineTo(0, r); ctx.arcTo(0, 0, r, 0, r); ctx.closePath(); ctx.fill();
+    ctx.restore();
+    return canvas;
+  };
   const punchTearCutouts = (canvas) => {
     const mp = voucher.querySelector('.middle-panel');
     if (!mp) return canvas;
@@ -16654,6 +16665,7 @@ function downloadVoucherPNG() {
     return canvas;
   };
   return render()
+    .then(clipRounded)
     .then(punchTearCutouts)
     .then(canvas => new Promise((res, rej) => canvas.toBlob(b => b ? res(b) : rej(new Error('Could not create image')), 'image/png')))
     .then(blob => {
