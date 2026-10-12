@@ -2022,16 +2022,31 @@ html:not([data-theme="light"]) .odm-card { background: rgba(124,111,247,0.08); b
   .status-tab[aria-selected="true"]{ background:transparent; border-color:transparent; color:#fff; text-shadow:0 1px 2px rgba(0,0,0,.3); }
 
   /* ---------- Customers hub (Customers / Wishlist / Subscribers) ---------- */
-  .hub-bar{ flex:0 0 auto; padding:10px 16px 0; border-bottom:1px solid var(--hairline); }
-  .hub-bar .status-tabs{ margin:0 -8px 4px; }
-  .hub-bar .search-wrap{ margin:0 0 10px; }
+  #customersView .inbox-header{ flex:0 0 auto; }
+  #customersView .inbox-header__body{ padding-bottom:0; }
+  #customersView .search-row{ margin-bottom:12px; }
+  #customersView .status-tabs{ margin-bottom:-4px; }
   #hubSearch{ width:100%; height:38px; background:var(--surface); border:1px solid var(--hairline); border-radius:10px;
     padding:0 14px 0 38px; font-size:14.5px; color:var(--text-1); font-family:var(--font-body); outline:none;
     transition:border-color .2s ease, box-shadow .2s ease; }
   #hubSearch::placeholder{ color:var(--text-3); }
   #hubSearch:focus{ border-color:#7C6FF7; box-shadow:0 0 0 3px rgba(124,111,247,.12); }
-  .hub-chips{ display:flex; gap:6px; flex-wrap:wrap; padding-bottom:10px; }
-  .hub-chips:empty{ display:none; }
+  .hub-count{ font-size:11px; font-weight:800; padding:4px 10px; border-radius:999px; background:rgba(255,255,255,.12); color:#fff; white-space:nowrap; }
+  .hub-count:empty{ display:none; }
+  .title-swap{ animation:svFadeUp .26s var(--ease-out) both; }
+  /* list rows: same rhythm as the Inbox conversation rows */
+  .cust-list-scroll{ padding:0 0 24px; }
+  .cust-list-row{ padding:13px 16px; transition:background .2s ease, transform .18s var(--ease-out); }
+  .cust-list-row:hover{ background:var(--surface); }
+  .cust-list-row__avatar{ width:46px; height:46px; }
+  .hub-detail{ margin:0 16px 10px; }
+  .hub-skel{ margin:10px 16px; }
+  .hub-note{ margin:16px 16px 4px; }
+  /* tab-style transition (fade + small rise) instead of an overlay slide */
+  @keyframes svFadeUp{ from{ opacity:0; transform:translate3d(0,8px,0); } to{ opacity:1; transform:translate3d(0,0,0); } }
+  @keyframes svFadeOut{ from{ opacity:1; } to{ opacity:0; } }
+  .v-in-fade{ animation:svFadeUp .3s var(--ease-out) both; }
+  .v-out-fade{ animation:svFadeOut .18s ease both; pointer-events:none; }
   .hub-chip{ padding:6px 12px; border-radius:999px; border:1px solid var(--hairline); background:var(--surface); color:var(--text-2);
     font-size:12px; font-weight:700; transition:background .2s ease, border-color .2s ease, color .2s ease, transform .18s var(--ease-out); }
   .hub-chip:active{ transform:scale(.95); }
@@ -2265,25 +2280,39 @@ html:not([data-theme="light"]) .odm-card { background: rgba(124,111,247,0.08); b
 </div>
 
 <div id="customersView" hidden>
-  <div class="cust-list-header">
-    <button class="cust-list-back" id="customersBackBtn" aria-label="Back to inbox">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
-    </button>
-    <h1>Customers</h1>
-    <span class="cust-list-count" id="customersCount"></span>
-  </div>
-  <div class="hub-bar">
-    <div class="status-tabs at-end" id="hubTabs" role="tablist" aria-label="Customer sections" style="display:none">
-      <button class="status-tab" role="tab" data-hub="customers" aria-selected="true">Customers</button>
-      <button class="status-tab" role="tab" data-hub="wishlist" aria-selected="false">Wishlist</button>
-      <button class="status-tab" role="tab" data-hub="subscribers" aria-selected="false">Subscribers</button>
+  <header class="inbox-header">
+    <div class="inbox-header__top">
+      <button class="inbox-back-btn" id="hubBackBtn" type="button" aria-label="Back">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+      </button>
+      <h1 class="inbox-header__title" id="hubTitle">Customers</h1>
+      <div class="header-actions">
+        <span class="hub-count" id="customersCount"></span>
+        <button class="bell-btn" aria-label="Notifications">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+          <span class="bell-dot"></span>
+        </button>
+      </div>
     </div>
-    <div class="search-wrap">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
-      <input id="hubSearch" type="text" placeholder="Search name, email or phone..." autocomplete="off">
+    <div class="inbox-header__body">
+      <div class="search-row">
+        <div class="search-wrap">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+          <input id="hubSearch" type="text" placeholder="Search name, email or phone..." autocomplete="off">
+        </div>
+      </div>
+      <div class="status-tabs at-end" id="hubModeTabs" role="tablist" aria-label="Wishlist view" style="display:none">
+        <button class="status-tab" role="tab" data-wlmode="product" aria-selected="true">By product</button>
+        <button class="status-tab" role="tab" data-wlmode="customer" aria-selected="false">By customer</button>
+      </div>
+      <div class="status-tabs" id="hubStatusTabs" role="tablist" aria-label="Subscriber status" style="display:none">
+        <button class="status-tab" role="tab" data-substatus="" aria-selected="true">All <span class="count" data-sub-count="all"></span></button>
+        <button class="status-tab" role="tab" data-substatus="pending" aria-selected="false">Pending <span class="count" data-sub-count="pending"></span></button>
+        <button class="status-tab" role="tab" data-substatus="subscribed" aria-selected="false">Subscribed <span class="count" data-sub-count="subscribed"></span></button>
+        <button class="status-tab" role="tab" data-substatus="unsubscribed" aria-selected="false">Unsubscribed <span class="count" data-sub-count="unsubscribed"></span></button>
+      </div>
     </div>
-    <div class="hub-chips" id="hubChips"></div>
-  </div>
+  </header>
   <div class="cust-list-scroll" id="customersListScroll"></div>
 </div>
 
@@ -3147,20 +3176,21 @@ function closeOrderDetailsModal() {
 
   /* ---------- Motion helpers ---------- */
   function svShow(el, dir){
-    const cls = dir === "back" ? "v-in-back" : "v-in-fwd";
+    const cls = dir === "back" ? "v-in-back" : dir === "fade" ? "v-in-fade" : "v-in-fwd";
     clearTimeout(el._svT);
-    el.classList.remove("v-in-fwd", "v-in-back", "v-out");
+    el.classList.remove("v-in-fwd", "v-in-back", "v-in-fade", "v-out", "v-out-fade");
     el.hidden = false;
     void el.offsetWidth;
     el.classList.add(cls);
     el._svT = setTimeout(() => el.classList.remove(cls), 450);
   }
-  function svHide(el){
+  function svHide(el, mode){
     if(el.hidden) return;
+    const out = mode === "fade" ? "v-out-fade" : "v-out";
     clearTimeout(el._svT);
-    el.classList.remove("v-in-fwd", "v-in-back");
-    el.classList.add("v-out");
-    el._svT = setTimeout(() => { el.hidden = true; el.classList.remove("v-out"); }, 240);
+    el.classList.remove("v-in-fwd", "v-in-back", "v-in-fade");
+    el.classList.add(out);
+    el._svT = setTimeout(() => { el.hidden = true; el.classList.remove(out); }, mode === "fade" ? 190 : 240);
   }
   function renderAnimated(){
     els.list.classList.add("list-anim");
@@ -4358,19 +4388,18 @@ function closeOrderDetailsModal() {
       return;
     }
     hub.tab = tab; hub.q = ""; els.hubSearch.value = "";
-    els.hubTabs.querySelectorAll(".status-tab").forEach(t => t.setAttribute("aria-selected", t.dataset.hub === tab ? "true" : "false"));
     els.hubSearch.placeholder = tab === "customers" ? "Search name, email or phone..." : tab === "wishlist" ? "Search product or customer..." : "Search email...";
     setNavActive(tab);
-    svShow(els.customersView, "fwd");
+    svShow(els.customersView, "fade");
     window.scrollTo(0, 0);
     els.customersListScroll.scrollTop = 0;
     hubLoad(true);
   }
   function closeCustomersView(){
     setNavActive("inbox");
-    svHide(els.customersView);
+    svHide(els.customersView, "fade");
   }
-  document.getElementById("customersBackBtn").addEventListener("click", closeCustomersView);
+  document.getElementById("hubBackBtn").addEventListener("click", () => document.getElementById("inboxBackBtn").click());
 
   /* ---------- Customers hub: live data through the admin session ----------
      Reads go through admin-only RPCs (admin_list_customers / admin_list_wishlists /
@@ -4382,9 +4411,10 @@ function closeOrderDetailsModal() {
     wl:{ rows:null, mode:"product" }
   };
   const HUB_PAGE = 30;
-  els.hubTabs = document.getElementById("hubTabs");
   els.hubSearch = document.getElementById("hubSearch");
-  els.hubChips = document.getElementById("hubChips");
+  els.hubModeTabs = document.getElementById("hubModeTabs");
+  els.hubStatusTabs = document.getElementById("hubStatusTabs");
+  els.hubTitle = document.getElementById("hubTitle");
 
   function hubClient(){
     try{ return window.parent !== window ? (window.parent.svSupabase || null) : null; }catch(_){ return null; }
@@ -4446,24 +4476,32 @@ function closeOrderDetailsModal() {
     hubRender(!reset);
   }
 
+  function syncPills(el, show, selectedSel){
+    const wasHidden = el.style.display === "none";
+    el.style.display = show ? "" : "none";
+    if(!show) return;
+    el.querySelectorAll(".status-tab").forEach(t => t.setAttribute("aria-selected", t.matches(selectedSel) ? "true" : "false"));
+    placeTabSlide(el, wasHidden);
+  }
+  function syncHubHeader(){
+    const title = { customers:"Customers", wishlist:"Wishlist", subscribers:"Subscribers" }[hub.tab];
+    if(els.hubTitle.textContent !== title){
+      els.hubTitle.textContent = title;
+      els.hubTitle.classList.remove("title-swap"); void els.hubTitle.offsetWidth; els.hubTitle.classList.add("title-swap");
+    }
+    syncPills(els.hubModeTabs, hub.tab === "wishlist" && !hub.error, `[data-wlmode="${hub.wl.mode}"]`);
+    syncPills(els.hubStatusTabs, hub.tab === "subscribers" && !hub.error, `[data-substatus="${hub.subs.status}"]`);
+    const c = hub.subs.counts;
+    els.hubStatusTabs.querySelectorAll("[data-sub-count]").forEach(n => { n.textContent = c ? c[n.dataset.subCount] : ""; });
+  }
   function emptyBlock(title, body){ return `<div class="cust-list-empty"><b>${escapeHtml(title)}</b>${escapeHtml(body)}</div>`; }
   function moreBtn(shown, total){ return shown < total ? `<button class="hub-chip hub-more" data-more>Load more (${total - shown} left)</button>` : ""; }
 
   function hubRender(noAnim){
     const box = els.customersListScroll;
     box.classList.toggle("hub-noanim", !!noAnim);
-    document.querySelector("#customersView h1").textContent = { customers:"Customers", wishlist:"Wishlist", subscribers:"Subscribers" }[hub.tab];
-    // chips + header count
-    let chips = "", count = "";
-    if(hub.tab === "wishlist"){
-      chips = [["product","By product"],["customer","By customer"]].map(([m,l]) =>
-        `<button class="hub-chip" data-wlmode="${m}" aria-pressed="${hub.wl.mode === m}">${l}</button>`).join("");
-    }else if(hub.tab === "subscribers" && hub.subs.counts){
-      const c = hub.subs.counts;
-      chips = [["","All",c.all],["pending","Pending",c.pending],["subscribed","Subscribed",c.subscribed],["unsubscribed","Unsubscribed",c.unsubscribed]].map(([v,l,n]) =>
-        `<button class="hub-chip" data-substatus="${v}" aria-pressed="${hub.subs.status === v}">${l} ${n}</button>`).join("");
-    }
-    els.hubChips.innerHTML = hub.error ? "" : chips;
+    syncHubHeader();
+    let count = "";
 
     if(hub.error){
       els.customersCount.textContent = "";
@@ -4615,28 +4653,26 @@ function closeOrderDetailsModal() {
   function setHubTab(tab, keepQuery){
     hub.tab = tab;
     if(!keepQuery){ hub.q = ""; els.hubSearch.value = ""; }
-    els.hubTabs.querySelectorAll(".status-tab").forEach(t => t.setAttribute("aria-selected", t.dataset.hub === tab ? "true" : "false"));
     els.hubSearch.placeholder = tab === "customers" ? "Search name, email or phone..." : tab === "wishlist" ? "Search product or customer..." : "Search email...";
-    placeTabSlide(els.hubTabs);
+    syncHubHeader();
     setNavActive(tab);
     els.customersListScroll.scrollTop = 0;
     hubLoad(true);
   }
 
-  els.hubTabs.addEventListener("click", e => {
-    const btn = e.target.closest(".status-tab");
-    if(btn && btn.dataset.hub !== hub.tab) setHubTab(btn.dataset.hub);
-  });
   let hubSearchT = null;
   els.hubSearch.addEventListener("input", () => {
     hub.q = els.hubSearch.value;
     clearTimeout(hubSearchT);
     hubSearchT = setTimeout(() => { hub.tab === "wishlist" ? hubRender() : hubLoad(true); }, 300);
   });
-  els.hubChips.addEventListener("click", e => {
-    const wl = e.target.closest("[data-wlmode]"), st = e.target.closest("[data-substatus]");
-    if(wl){ hub.wl.mode = wl.dataset.wlmode; hubRender(); }
-    else if(st){ hub.subs.status = st.dataset.substatus; hubLoad(true); }
+  els.hubModeTabs.addEventListener("click", e => {
+    const b = e.target.closest("[data-wlmode]");
+    if(b && b.dataset.wlmode !== hub.wl.mode){ hub.wl.mode = b.dataset.wlmode; hubRender(); }
+  });
+  els.hubStatusTabs.addEventListener("click", e => {
+    const b = e.target.closest("[data-substatus]");
+    if(b && b.dataset.substatus !== hub.subs.status){ hub.subs.status = b.dataset.substatus; syncHubHeader(); hubLoad(true); }
   });
   els.customersListScroll.addEventListener("click", e => {
     if(e.target.closest("[data-more]")){ hubLoad(false); return; }
