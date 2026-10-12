@@ -2018,6 +2018,51 @@ html:not([data-theme="light"]) .odm-card { background: rgba(124,111,247,0.08); b
     transition:color .22s ease, background-color .22s ease, border-color .22s ease, transform .18s var(--ease-out); }
   .status-tab:hover{ border-color:var(--text-3); }
   .status-tab[aria-selected="true"]{ background:transparent; border-color:transparent; color:#fff; text-shadow:0 1px 2px rgba(0,0,0,.3); }
+
+  /* ---------- Customers hub (Customers / Wishlist / Subscribers) ---------- */
+  .hub-bar{ flex:0 0 auto; padding:10px 16px 0; border-bottom:1px solid var(--hairline); }
+  .hub-bar .status-tabs{ margin:0 -8px 4px; }
+  .hub-bar .search-wrap{ margin:0 0 10px; }
+  #hubSearch{ width:100%; height:38px; background:var(--surface); border:1px solid var(--hairline); border-radius:10px;
+    padding:0 14px 0 38px; font-size:14.5px; color:var(--text-1); font-family:var(--font-body); outline:none;
+    transition:border-color .2s ease, box-shadow .2s ease; }
+  #hubSearch::placeholder{ color:var(--text-3); }
+  #hubSearch:focus{ border-color:#7C6FF7; box-shadow:0 0 0 3px rgba(124,111,247,.12); }
+  .hub-chips{ display:flex; gap:6px; flex-wrap:wrap; padding-bottom:10px; }
+  .hub-chips:empty{ display:none; }
+  .hub-chip{ padding:6px 12px; border-radius:999px; border:1px solid var(--hairline); background:var(--surface); color:var(--text-2);
+    font-size:12px; font-weight:700; transition:background .2s ease, border-color .2s ease, color .2s ease, transform .18s var(--ease-out); }
+  .hub-chip:active{ transform:scale(.95); }
+  .hub-chip[aria-pressed="true"]{ background:rgba(0,157,220,.14); border-color:var(--cyan); color:var(--cyan); }
+  .cust-list-scroll.hub-noanim .cust-list-row{ animation:none; }
+  .hub-row{ cursor:pointer; }
+  .hub-row__sub{ font-size:12px; color:var(--text-3); margin-top:2px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .hub-pill{ flex:0 0 auto; font-size:11px; font-weight:800; padding:3px 9px; border-radius:999px; background:rgba(0,157,220,.14); color:var(--cyan); white-space:nowrap; }
+  .hub-badge{ flex:0 0 auto; font-size:11px; font-weight:800; padding:3px 9px; border-radius:999px; white-space:nowrap; background:var(--surface-2); color:var(--text-3); }
+  .hub-badge.is-pending{ background:rgba(244,169,34,.16); color:#e0a020; }
+  .hub-badge.is-subscribed{ background:rgba(47,216,138,.16); color:#2fd88a; }
+  .hub-badge.is-warn{ background:rgba(217,83,83,.16); color:#e46a6a; }
+  .hub-thumb{ width:42px; height:42px; border-radius:10px; flex:0 0 auto; background:var(--surface-2); color:var(--text-3);
+    display:flex; align-items:center; justify-content:center; overflow:hidden; }
+  .hub-thumb img{ width:100%; height:100%; object-fit:cover; display:block; }
+  .hub-thumb svg{ width:20px; height:20px; }
+  .hub-detail{ margin:2px 4px 10px; padding:10px 12px; background:var(--surface); border:1px solid var(--hairline); border-radius:12px;
+    font-size:12.5px; animation:svRise .24s var(--ease-out) both; }
+  .hub-detail[hidden]{ display:none; }
+  .hub-detail dl{ display:grid; grid-template-columns:auto 1fr; gap:6px 14px; margin:0; }
+  .hub-detail dt{ color:var(--text-3); }
+  .hub-detail dd{ margin:0; color:var(--text-1); word-break:break-word; }
+  .hub-sub{ display:flex; align-items:center; gap:10px; padding:7px 0; }
+  .hub-sub + .hub-sub{ border-top:1px solid var(--hairline); }
+  .hub-sub__main{ flex:1; min-width:0; }
+  .hub-sub__name{ font-size:13px; font-weight:700; color:var(--text-1); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .hub-link{ flex:0 0 auto; font-size:11.5px; font-weight:800; color:var(--cyan); padding:5px 10px; border-radius:8px; border:1px solid var(--hairline); }
+  .hub-note{ margin:4px 4px 10px; padding:10px 12px; border-radius:12px; font-size:12px; line-height:1.45; color:var(--text-2);
+    background:rgba(244,169,34,.1); border:1px solid rgba(244,169,34,.28); }
+  .hub-more{ display:block; margin:14px auto 4px; }
+  .hub-skel{ height:64px; border-radius:12px; margin:8px 4px; background:linear-gradient(90deg,var(--surface) 25%,var(--surface-2) 50%,var(--surface) 75%); background-size:200% 100%; animation:hubShimmer 1.2s linear infinite; }
+  @keyframes hubShimmer{ from{ background-position:200% 0; } to{ background-position:-200% 0; } }
+  .cust-list-empty b{ display:block; color:var(--text-1); font-size:14px; margin-bottom:4px; }
   @media (prefers-reduced-motion:reduce){ *,*::before,*::after{ transition:none !important; animation:none !important; scroll-behavior:auto !important; } }
 </style>
 <script>
@@ -2214,8 +2259,20 @@ html:not([data-theme="light"]) .odm-card { background: rgba(124,111,247,0.08); b
     <button class="cust-list-back" id="customersBackBtn" aria-label="Back to inbox">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
     </button>
-    <h1>Registered Customers</h1>
+    <h1>Customers</h1>
     <span class="cust-list-count" id="customersCount"></span>
+  </div>
+  <div class="hub-bar">
+    <div class="status-tabs at-end" id="hubTabs" role="tablist" aria-label="Customer sections">
+      <button class="status-tab" role="tab" data-hub="customers" aria-selected="true">Customers</button>
+      <button class="status-tab" role="tab" data-hub="wishlist" aria-selected="false">Wishlist</button>
+      <button class="status-tab" role="tab" data-hub="subscribers" aria-selected="false">Subscribers</button>
+    </div>
+    <div class="search-wrap">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+      <input id="hubSearch" type="text" placeholder="Search name, email or phone..." autocomplete="off">
+    </div>
+    <div class="hub-chips" id="hubChips"></div>
   </div>
   <div class="cust-list-scroll" id="customersListScroll"></div>
 </div>
@@ -3018,8 +3075,8 @@ function closeOrderDetailsModal() {
     renderAnimated();
   });
 
-  function placeStatusSlide(instant){
-    const tabs = els.statusTabs;
+  function placeStatusSlide(instant){ placeTabSlide(els.statusTabs, instant); }
+  function placeTabSlide(tabs, instant){
     const act = tabs.querySelector('.status-tab[aria-selected="true"]');
     if(!act || !act.offsetWidth) return;                 // list hidden (chat open) — keep last position
     let ind = tabs.querySelector(".status-slide");
@@ -4283,15 +4340,11 @@ function closeOrderDetailsModal() {
 
   /* ---------- Customers screen (all registered customers) ---------- */
   function openCustomersView(){
-    try{
-      renderCustomersList();
-    }catch(err){
-      console.error("renderCustomersList failed:", err);
-      els.customersListScroll.innerHTML = `<div class="cust-list-empty">Couldn't load customers (${escapeHtml(err.message || "unknown error")}). Check console.</div>`;
-    }
     svShow(els.customersView, "fwd");
     window.scrollTo(0, 0);
-    if(els.customersListScroll) els.customersListScroll.scrollTop = 0;
+    els.customersListScroll.scrollTop = 0;
+    placeTabSlide(els.hubTabs, true);
+    hubLoad(true);
   }
   function closeCustomersView(){
     setNavActive("inbox");
@@ -4299,51 +4352,280 @@ function closeOrderDetailsModal() {
   }
   document.getElementById("customersBackBtn").addEventListener("click", closeCustomersView);
 
-  function findConversationForCustomerKey(key){
-    const matches = state.conversations.filter(c => c.customer_key === key);
-    if(!matches.length) return null;
-    return matches.sort((a,b) => new Date(b.updated_at) - new Date(a.updated_at))[0];
+  /* ---------- Customers hub: live data through the admin session ----------
+     Reads go through admin-only RPCs (admin_list_customers / admin_list_wishlists /
+     admin_list_subscribers). The Supabase client is the admin app's own signed-in client. */
+  const hub = {
+    tab:"customers", q:"", token:0, error:null, autoOpen:null,
+    cust:{ rows:[], total:0 },
+    subs:{ rows:[], total:0, counts:null, status:"" },
+    wl:{ rows:null, mode:"product" }
+  };
+  const HUB_PAGE = 30;
+  els.hubTabs = document.getElementById("hubTabs");
+  els.hubSearch = document.getElementById("hubSearch");
+  els.hubChips = document.getElementById("hubChips");
+
+  function hubClient(){
+    try{ return window.parent !== window ? (window.parent.svSupabase || null) : null; }catch(_){ return null; }
+  }
+  async function hubRpc(fn, args){
+    const c = hubClient();
+    if(!c){ const e = new Error("no-client"); e.code = "no-client"; throw e; }
+    const { data, error } = await c.rpc(fn, args || {});
+    if(error) throw error;
+    return data;
+  }
+  function hubErrInfo(err){
+    const msg = String((err && (err.message || err.details)) || err || "");
+    if(err && err.code === "no-client") return { title:"Live data isn't connected", body:"Open the inbox from the admin app while signed in as an admin to load this.", retry:false };
+    if(/not authorized/i.test(msg)) return { title:"Admin access required", body:"This account isn't an active admin, or the session ended. Sign in again in the admin app.", retry:false };
+    if(/jwt|expired|PGRST30|401/i.test(msg)) return { title:"Session expired", body:"Sign in again in the admin app, then reopen this screen.", retry:false };
+    return { title:"Couldn't load data", body:"Check your connection and try again.", retry:true };
+  }
+  const fmtDate = iso => { try{ return new Date(iso).toLocaleDateString(undefined, { day:"numeric", month:"short", year:"numeric" }); }catch(_){ return "—"; } };
+  const dash = v => (v === null || v === undefined || String(v).trim() === "") ? "—" : escapeHtml(String(v));
+  const safeUrl = u => (typeof u === "string" && /^(https?:\/\/|\/|data:image\/)/i.test(u)) ? u : "";
+  function imgOf(raw){
+    if(!raw) return "";
+    if(typeof raw === "string") return safeUrl(raw);
+    return safeUrl(raw.url || raw.src || raw.image || raw.thumb || "");
+  }
+  const THUMB_FALLBACK = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8 12 3 3 8v8l9 5 9-5V8Z"/><path d="m3 8 9 5 9-5M12 13v8"/></svg>`;
+  const thumbHtml = raw => { const u = imgOf(raw); return `<div class="hub-thumb">${u ? `<img src="${escapeHtml(u)}" alt="" loading="lazy" onerror="this.remove()">` : THUMB_FALLBACK}</div>`; };
+  const skeleton = () => `<div class="hub-skel"></div><div class="hub-skel"></div><div class="hub-skel"></div><div class="hub-skel"></div>`;
+
+  async function hubLoad(reset){
+    const my = ++hub.token, tab = hub.tab;
+    const box = els.customersListScroll;
+    try{
+      if(tab === "customers"){
+        const d = hub.cust;
+        if(reset){ d.rows = []; d.total = 0; box.innerHTML = skeleton(); }
+        const res = await hubRpc("admin_list_customers", { p_q:hub.q, p_limit:HUB_PAGE, p_offset:reset ? 0 : d.rows.length });
+        if(my !== hub.token) return;
+        d.total = res.total || 0; d.rows = reset ? (res.rows || []) : d.rows.concat(res.rows || []);
+      }else if(tab === "subscribers"){
+        const d = hub.subs;
+        if(reset){ d.rows = []; d.total = 0; box.innerHTML = skeleton(); }
+        const res = await hubRpc("admin_list_subscribers", { p_q:hub.q, p_status:d.status, p_limit:HUB_PAGE, p_offset:reset ? 0 : d.rows.length });
+        if(my !== hub.token) return;
+        d.counts = res.counts; d.total = res.total || 0; d.rows = reset ? (res.rows || []) : d.rows.concat(res.rows || []);
+      }else{
+        box.innerHTML = skeleton();
+        const rows = await hubRpc("admin_list_wishlists");
+        if(my !== hub.token) return;
+        hub.wl.rows = rows || [];
+      }
+      hub.error = null;
+    }catch(err){
+      if(my !== hub.token) return;
+      console.error("Customers hub load failed:", err);
+      hub.error = hubErrInfo(err);
+    }
+    hubRender(!reset);
   }
 
-  function renderCustomersList(){
-    const registered = Object.entries(MOCK_CUSTOMERS)
-      .filter(([, cust]) => cust.status === "registered")
-      .map(([key, cust]) => ({ key, ...cust }))
-      .sort((a, b) => a.name.localeCompare(b.name));
+  function emptyBlock(title, body){ return `<div class="cust-list-empty"><b>${escapeHtml(title)}</b>${escapeHtml(body)}</div>`; }
+  function moreBtn(shown, total){ return shown < total ? `<button class="hub-chip hub-more" data-more>Load more (${total - shown} left)</button>` : ""; }
 
-    els.customersCount.textContent = registered.length
-      ? `${registered.length} customer${registered.length === 1 ? "" : "s"}`
-      : "";
+  function hubRender(noAnim){
+    const box = els.customersListScroll;
+    box.classList.toggle("hub-noanim", !!noAnim);
+    // chips + header count
+    let chips = "", count = "";
+    if(hub.tab === "wishlist"){
+      chips = [["product","By product"],["customer","By customer"]].map(([m,l]) =>
+        `<button class="hub-chip" data-wlmode="${m}" aria-pressed="${hub.wl.mode === m}">${l}</button>`).join("");
+    }else if(hub.tab === "subscribers" && hub.subs.counts){
+      const c = hub.subs.counts;
+      chips = [["","All",c.all],["pending","Pending",c.pending],["subscribed","Subscribed",c.subscribed],["unsubscribed","Unsubscribed",c.unsubscribed]].map(([v,l,n]) =>
+        `<button class="hub-chip" data-substatus="${v}" aria-pressed="${hub.subs.status === v}">${l} ${n}</button>`).join("");
+    }
+    els.hubChips.innerHTML = hub.error ? "" : chips;
 
-    if(!registered.length){
-      els.customersListScroll.innerHTML = `<div class="cust-list-empty">No registered customers have messaged in yet.</div>`;
+    if(hub.error){
+      els.customersCount.textContent = "";
+      box.innerHTML = `<div class="cust-list-empty"><b>${escapeHtml(hub.error.title)}</b>${escapeHtml(hub.error.body)}${hub.error.retry ? `<br><br><button class="hub-chip" data-retry>Try again</button>` : ""}</div>`;
       return;
     }
-
-    els.customersListScroll.innerHTML = registered.map(cust => {
-      const platformsHtml = cust.channels.map(ch =>
-        `<span class="${CHANNEL_ICON_CLASS[ch]}">${channelBadgeSvg(ch)}</span>`
-      ).join("");
-      return `
-        <div class="cust-list-row" data-cust-key="${cust.key}" role="button" tabindex="0">
-          <div class="cust-list-row__avatar" style="background:${hashColor(cust.name)}">${initials(cust.name)}</div>
-          <div class="cust-list-row__main">
-            <div class="cust-list-row__name">${escapeHtml(cust.name)}<svg viewBox="0 0 24 24" fill="none"><path fill="currentColor" d="m21.5609 10.7386-1.36-1.58001c-.26-.3-.47-.86-.47-1.26v-1.7c0-1.06-.87-1.93-1.93-1.93h-1.7c-.39 0-.96-.21-1.26-.47l-1.58-1.36c-.69-.59-1.82-.59-2.52 0l-1.57004 1.37c-.3.25-.87.46-1.26.46h-1.73c-1.06 0-1.93.87-1.93 1.93v1.71c0 .39-.21.95-.46 1.25l-1.35 1.59001c-.58.69-.58 1.81 0 2.5l1.35 1.59c.25.3.46.86.46 1.25v1.71c0 1.06.87 1.93 1.93 1.93h1.73c.39 0 .96.21 1.26.47l1.58004 1.36c.69.59 1.82.59 2.52 0l1.58-1.36c.3-.26.86-.47 1.26-.47h1.7c1.06 0 1.93-.87 1.93-1.93v-1.7c0-.39.21-.96.47-1.26l1.36-1.58c.58-.69.58-1.83-.01-2.52m-5.4-.63-4.83 4.83c-.14.14-.33.22-.53.22s-.39-.08-.53-.22l-2.42004-2.42c-.29-.29-.29-.77 0-1.06s.77-.29 1.06 0l1.89004 1.89 4.3-4.30001c.29-.29.77-.29 1.06 0s.29.77 0 1.06001"/></svg></div>
-            <span class="cust-list-row__id">${escapeHtml(cust.customer_id)}</span>
-          </div>
-          <div class="cust-list-row__platforms">${platformsHtml}</div>
-        </div>
-      `;
-    }).join("");
-
-    els.customersListScroll.querySelectorAll("[data-cust-key]").forEach(row => {
-      row.addEventListener("click", () => {
-        const conv = findConversationForCustomerKey(row.dataset.custKey);
-        closeCustomersView();
-        if(conv) openConversation(conv.id);
-      });
-    });
+    let html = "";
+    if(hub.tab === "customers"){
+      const d = hub.cust;
+      count = d.total ? `${d.total} customer${d.total === 1 ? "" : "s"}` : "";
+      html = d.rows.length ? d.rows.map(customerRowHtml).join("") + moreBtn(d.rows.length, d.total)
+        : (hub.q ? emptyBlock("No matches", "No registered customer matches that search.") : emptyBlock("No registered customers yet", "Customers who create a website account will appear here."));
+    }else if(hub.tab === "subscribers"){
+      const d = hub.subs;
+      count = d.counts ? `${d.counts.all} total` : "";
+      html = `<div class="hub-note">Only <b>Subscribed</b> records have confirmed marketing consent. Pending sign-ups have not confirmed, and the website doesn't send a confirmation email yet, so nobody is marked Subscribed automatically.</div>`
+        + (d.rows.length ? d.rows.map(subscriberRowHtml).join("") + moreBtn(d.rows.length, d.total)
+          : ((hub.q || d.status) ? emptyBlock("No matches", "No subscriber matches that search or filter.") : emptyBlock("No subscribers yet", "Emails entered in the landing-page signup box will appear here as Pending.")));
+    }else{
+      const q = hub.q.trim().toLowerCase();
+      html = hub.wl.mode === "product" ? wishlistByProductHtml(q) : wishlistByCustomerHtml(q);
+      count = wishlistCount();
+    }
+    els.customersCount.textContent = count;
+    box.innerHTML = html;
+    if(hub.autoOpen && hub.tab === "customers"){
+      const row = box.querySelector(`[data-hub-row][data-code="${CSS.escape(hub.autoOpen)}"]`);
+      hub.autoOpen = null;
+      if(row){ toggleHubRow(row, true); row.scrollIntoView({ block:"center" }); }
+    }
   }
+
+  function avatarHtml(name, url){
+    const u = safeUrl(url);
+    return u ? `<div class="cust-list-row__avatar" style="background:var(--surface-2);overflow:hidden"><img src="${escapeHtml(u)}" alt="" style="width:100%;height:100%;object-fit:cover" onerror="this.remove()"></div>`
+             : `<div class="cust-list-row__avatar" style="background:${hashColor(name || "?")}">${initials(name || "?")}</div>`;
+  }
+  const rowAttrs = (extra) => `class="cust-list-row hub-row" data-hub-row role="button" tabindex="0" aria-expanded="false" ${extra || ""}`;
+
+  function customerRowHtml(c){
+    const sub = [c.email, c.phone].filter(Boolean).join(" · ");
+    const orders = Number(c.orders) || 0;
+    return `
+      <div ${rowAttrs(`data-code="${escapeHtml(c.customer_code || "")}"`)}>
+        ${avatarHtml(c.name, c.avatar_url)}
+        <div class="cust-list-row__main">
+          <div class="cust-list-row__name">${escapeHtml(c.name || "Unnamed customer")}</div>
+          ${c.customer_code ? `<span class="cust-list-row__id">${escapeHtml(c.customer_code)}</span>` : ""}
+          <div class="hub-row__sub">${escapeHtml(sub || "No contact on file")}</div>
+        </div>
+        <span class="hub-pill">${orders} order${orders === 1 ? "" : "s"}</span>
+      </div>
+      <div class="hub-detail" hidden><dl>
+        <dt>Customer ID</dt><dd>${dash(c.customer_code)}</dd>
+        <dt>Email</dt><dd>${dash(c.email)}</dd>
+        <dt>Phone</dt><dd>${dash(c.phone)}</dd>
+        <dt>Address</dt><dd>${dash(c.address)}</dd>
+        <dt>Joined</dt><dd>${c.since ? fmtDate(c.since) : "—"}</dd>
+        <dt>Paid orders</dt><dd>${orders}</dd>
+        <dt>Total spent</dt><dd>৳${Number(c.spent || 0).toLocaleString("en-US")}</dd>
+      </dl></div>`;
+  }
+
+  function statusBadge(item){
+    if(item.missing) return `<span class="hub-badge is-warn">Removed</span>`;
+    if(item.archived) return `<span class="hub-badge">Archived</span>`;
+    if(item.is_active === false) return `<span class="hub-badge">Inactive</span>`;
+    return "";
+  }
+  const itemName = it => it.missing ? "Product no longer available" : (it.name || "Unnamed product");
+  const itemSub = it => it.missing ? "" : [it.brand, it.sku].filter(Boolean).join(" · ");
+
+  function wishlistCount(){
+    const rows = hub.wl.rows || [];
+    const entries = rows.reduce((n, r) => n + r.items.length, 0);
+    return entries ? `${entries} saved` : "";
+  }
+  function wishlistByProductHtml(q){
+    const map = new Map();
+    (hub.wl.rows || []).forEach(r => r.items.forEach(it => {
+      if(!map.has(it.product_id)) map.set(it.product_id, { item:it, customers:[] });
+      map.get(it.product_id).customers.push(r.customer);
+    }));
+    let list = [...map.values()];
+    if(q) list = list.filter(g => (itemName(g.item) + " " + itemSub(g.item)).toLowerCase().includes(q)
+      || g.customers.some(c => `${c.name || ""} ${c.email || ""} ${c.code || ""}`.toLowerCase().includes(q)));
+    list.sort((a, b) => b.customers.length - a.customers.length || itemName(a.item).localeCompare(itemName(b.item)));
+    if(!list.length) return q ? emptyBlock("No matches", "No saved product or customer matches that search.") : emptyBlock("No wishlist entries yet", "Products customers save on the website will appear here.");
+    return list.map(g => `
+      <div ${rowAttrs()}>
+        ${thumbHtml(g.item.image)}
+        <div class="cust-list-row__main">
+          <div class="cust-list-row__name">${escapeHtml(itemName(g.item))}</div>
+          <div class="hub-row__sub">${escapeHtml(itemSub(g.item) || " ")}</div>
+        </div>
+        ${statusBadge(g.item)}<span class="hub-pill">${g.customers.length} saved</span>
+      </div>
+      <div class="hub-detail" hidden>${g.customers.map(c => `
+        <div class="hub-sub"><div class="hub-sub__main"><div class="hub-sub__name">${escapeHtml(c.name || "Unnamed customer")}</div><div class="hub-row__sub">${escapeHtml([c.code, c.email].filter(Boolean).join(" · "))}</div></div>
+        ${c.code ? `<button class="hub-link" data-focus-cust="${escapeHtml(c.code)}">View</button>` : ""}</div>`).join("")}</div>`).join("");
+  }
+  function wishlistByCustomerHtml(q){
+    let list = (hub.wl.rows || []).slice();
+    if(q) list = list.filter(r => `${r.customer.name || ""} ${r.customer.email || ""} ${r.customer.code || ""}`.toLowerCase().includes(q)
+      || r.items.some(it => (itemName(it) + " " + itemSub(it)).toLowerCase().includes(q)));
+    if(!list.length) return q ? emptyBlock("No matches", "No saved product or customer matches that search.") : emptyBlock("No wishlist entries yet", "Products customers save on the website will appear here.");
+    return list.map(r => `
+      <div ${rowAttrs()}>
+        ${avatarHtml(r.customer.name, "")}
+        <div class="cust-list-row__main">
+          <div class="cust-list-row__name">${escapeHtml(r.customer.name || "Unnamed customer")}</div>
+          ${r.customer.code ? `<span class="cust-list-row__id">${escapeHtml(r.customer.code)}</span>` : ""}
+          <div class="hub-row__sub">${escapeHtml(r.customer.email || "")}</div>
+        </div>
+        <span class="hub-pill">${r.items.length} saved</span>
+      </div>
+      <div class="hub-detail" hidden>${r.items.map(it => `
+        <div class="hub-sub">${thumbHtml(it.image)}<div class="hub-sub__main"><div class="hub-sub__name">${escapeHtml(itemName(it))}</div><div class="hub-row__sub">${escapeHtml(itemSub(it) || " ")}</div></div>${statusBadge(it)}</div>`).join("")}
+        ${r.customer.code ? `<button class="hub-link" style="margin-top:8px" data-focus-cust="${escapeHtml(r.customer.code)}">View customer</button>` : ""}</div>`).join("");
+  }
+
+  const SUB_LABEL = { pending:"Pending", subscribed:"Subscribed", unsubscribed:"Unsubscribed" };
+  function subscriberRowHtml(r){
+    const cls = r.status === "pending" ? "is-pending" : r.status === "subscribed" ? "is-subscribed" : "";
+    const when = r.status === "subscribed" && r.confirmed_at ? `Confirmed ${fmtDate(r.confirmed_at)}`
+      : r.status === "unsubscribed" && r.unsubscribed_at ? `Unsubscribed ${fmtDate(r.unsubscribed_at)}` : `Signed up ${fmtDate(r.created_at)}`;
+    return `
+      <div class="cust-list-row">
+        <div class="hub-thumb" style="border-radius:50%"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg></div>
+        <div class="cust-list-row__main">
+          <div class="cust-list-row__name" style="word-break:break-all">${escapeHtml(r.email)}</div>
+          <div class="hub-row__sub">${escapeHtml(when)}${r.source ? ` · ${escapeHtml(r.source)}` : ""}</div>
+        </div>
+        <span class="hub-badge ${cls}">${escapeHtml(SUB_LABEL[r.status] || "Unknown")}</span>
+      </div>`;
+  }
+
+  function toggleHubRow(row, force){
+    const detail = row.nextElementSibling;
+    if(!detail || !detail.classList.contains("hub-detail")) return;
+    const open = force !== undefined ? force : detail.hidden;
+    detail.hidden = !open;
+    row.setAttribute("aria-expanded", open ? "true" : "false");
+  }
+  function focusCustomer(code){
+    hub.autoOpen = code; hub.q = code; els.hubSearch.value = code;
+    setHubTab("customers", true);
+  }
+  function setHubTab(tab, keepQuery){
+    hub.tab = tab;
+    if(!keepQuery){ hub.q = ""; els.hubSearch.value = ""; }
+    els.hubTabs.querySelectorAll(".status-tab").forEach(t => t.setAttribute("aria-selected", t.dataset.hub === tab ? "true" : "false"));
+    els.hubSearch.placeholder = tab === "customers" ? "Search name, email or phone..." : tab === "wishlist" ? "Search product or customer..." : "Search email...";
+    placeTabSlide(els.hubTabs);
+    hubLoad(true);
+  }
+
+  els.hubTabs.addEventListener("click", e => {
+    const btn = e.target.closest(".status-tab");
+    if(btn && btn.dataset.hub !== hub.tab) setHubTab(btn.dataset.hub);
+  });
+  let hubSearchT = null;
+  els.hubSearch.addEventListener("input", () => {
+    hub.q = els.hubSearch.value;
+    clearTimeout(hubSearchT);
+    hubSearchT = setTimeout(() => { hub.tab === "wishlist" ? hubRender() : hubLoad(true); }, 300);
+  });
+  els.hubChips.addEventListener("click", e => {
+    const wl = e.target.closest("[data-wlmode]"), st = e.target.closest("[data-substatus]");
+    if(wl){ hub.wl.mode = wl.dataset.wlmode; hubRender(); }
+    else if(st){ hub.subs.status = st.dataset.substatus; hubLoad(true); }
+  });
+  els.customersListScroll.addEventListener("click", e => {
+    if(e.target.closest("[data-more]")){ hubLoad(false); return; }
+    if(e.target.closest("[data-retry]")){ hubLoad(true); return; }
+    const f = e.target.closest("[data-focus-cust]");
+    if(f){ focusCustomer(f.dataset.focusCust); return; }
+    const row = e.target.closest("[data-hub-row]");
+    if(row) toggleHubRow(row);
+  });
+  els.customersListScroll.addEventListener("keydown", e => {
+    if((e.key === "Enter" || e.key === " ") && e.target.matches("[data-hub-row]")){ e.preventDefault(); toggleHubRow(e.target); }
+  });
 
   /* ---------- Orders screen (every order, tagged with its customer) ---------- */
   function openCustomerPanelByKey(key){

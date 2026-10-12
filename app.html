@@ -23336,6 +23336,7 @@ const SB_HDR  = { 'Content-Type': 'application/json', 'apikey': SB_KEY, 'Authori
 // aborted every save once a passkey was registered (killing the fingerprint gate
 // entirely, not just the duplicate-SKU check downstream of it).
 const sb = window.supabase.createClient(SB_URL, SB_KEY);
+window.svSupabase = sb; // shared with the embedded Unified Inbox (same admin session, no second client)
 
 async function sbFetch(path, method='GET', body=null) {
   // Writes need the signed-in admin's session token, not the anon key —
