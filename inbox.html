@@ -3269,7 +3269,9 @@ function closeOrderDetailsModal() {
     ).join("");
     els.identityChipBtn.hidden = false;
     els.identityChipBtn.className = "identity-chip" + (cust.status === "guest" ? " guest" : "");
-    els.identityChipBtn.innerHTML = `<span class="mini-badges">${miniBadges}</span>Also on ${cust.channels.length - 1} more`;
+    const more = cust.channels.length - 1;
+    els.identityChipBtn.setAttribute("aria-label", `Also on ${more} more channel${more === 1 ? "" : "s"}`);
+    els.identityChipBtn.innerHTML = `<span class="mini-badges">${miniBadges}</span>`;
     els.identityChipBtn.onclick = () => openCustomerPanel(conv);
   }
 
