@@ -5281,7 +5281,6 @@ html[data-theme="dark"] .vq,html[data-theme="dark"] .vqi-sh{--vq-card:#1b2738;--
 .vq-sw .vq.drag{transition:none}
 .vq-sw-bg{position:absolute;inset:0;display:flex;align-items:center;justify-content:flex-end;gap:7px;padding-right:20px;color:#fff;font:800 13px/1 'Plus Jakarta Sans','DM Sans',sans-serif;letter-spacing:.02em}
 .vq-sw-bg svg{width:16px;height:16px;stroke:#fff;fill:none;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round}
-.vq-hint{text-align:center;font-size:11px;color:#8c92a1;padding:2px 0 6px}
 .vq-dl.busy{opacity:.45;pointer-events:none;animation:vqPulse 1s ease-in-out infinite}
 @keyframes vqPulse{50%{opacity:.2}}
 html[data-theme="dark"] .vq-dl{color:#a79cff;background:rgba(124,111,247,.22)}
@@ -24132,7 +24131,11 @@ async function renderDrawerVouchers() {
     if (r.error) throw r.error;
     _svDrawerVouchers = r.data || [];
   } catch (err) { /* not signed in yet or offline: keep the last list */ }
-  const vouchers = _svDrawerVouchers.filter(function(x) { return (x.derived_status || x.status) !== 'archived'; });
+  const vqDead = function(x) { const q = x.derived_status || x.status; return q === 'expired' || q === 'exhausted'; };
+  const vouchers = _svDrawerVouchers.filter(function(x) { return (x.derived_status || x.status) !== 'archived'; })
+    .map(function(x, i) { return { x: x, i: i }; })
+    .sort(function(a, b) { return (vqDead(a.x) ? 1 : 0) - (vqDead(b.x) ? 1 : 0) || a.i - b.i; })
+    .map(function(o) { return o.x; });
   if (!vouchers.length) {
     if (emptyEl) emptyEl.style.display = '';
     container.innerHTML = '';
@@ -24162,9 +24165,6 @@ async function renderDrawerVouchers() {
       </div>
     </div>${removable ? '</div>' : ''}`;
   }).join('');
-  if (vouchers.slice(0, 5).some(function(x) { const q = x.derived_status || x.status; return q === 'expired' || q === 'exhausted'; })) {
-    container.innerHTML += '<div class="vq-hint">Swipe an expired voucher left to remove it</div>';
-  }
   if (vouchers.length > 5) {
     container.innerHTML += `<div style="text-align:center;font-size:11px;color:#8c92a1;padding:4px 0">${vouchers.length - 5} more \u2014 tap Manage Vouchers</div>`;
   }
