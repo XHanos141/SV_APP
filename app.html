@@ -5275,6 +5275,10 @@ html[data-theme="dark"] .vq,html[data-theme="dark"] .vqi-sh{--vq-card:#1b2738;--
 .vq-dl{width:22px;height:22px;border-radius:50%;border:0;flex:none;display:grid;place-items:center;background:color-mix(in srgb,var(--vc) 16%,transparent);color:var(--vc2);cursor:pointer;-webkit-tap-highlight-color:transparent;transition:transform .15s,opacity .2s}
 .vq-dl svg{width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
 .vq-dl:active{transform:scale(.88)}
+.vq-rm{width:22px;height:22px;border-radius:50%;border:0;flex:none;display:grid;place-items:center;background:rgba(217,83,83,.14);color:#d95353;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.vq-rm svg{width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round}
+.vq-rm:active{transform:scale(.88)}
+.vq-rm.busy{opacity:.45;pointer-events:none}
 .vq-dl.busy{opacity:.45;pointer-events:none;animation:vqPulse 1s ease-in-out infinite}
 @keyframes vqPulse{50%{opacity:.2}}
 html[data-theme="dark"] .vq-dl{color:var(--vc)}
@@ -23899,6 +23903,7 @@ window.addEventListener('message', async function(e) {
 const VQ_ICON = {
   copy: '<svg viewBox="0 0 24 24"><rect x="9" y="9" width="12" height="12" rx="2.5"/><path d="M5 15V6a2 2 0 0 1 2-2h9"/></svg>',
   check: '<svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>',
+  rm: '<svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg>',
   dl: '<svg viewBox="0 0 24 24"><path d="M12 4v11"/><path d="M7 11l5 5 5-5"/><path d="M5 20h14"/></svg>'
 };
 const VQ_TYPE = {
@@ -23975,6 +23980,8 @@ document.addEventListener('click', async e => {
   if (inf) { vqOpenInfo(inf.dataset.code); return; }
   const dl = e.target.closest('.vq-dl');
   if (dl) { svDrawerVoucherPng(dl); return; }
+  const rm = e.target.closest('.vq-rm');
+  if (rm) { svDrawerArchiveVoucher(rm); return; }
   const b = e.target.closest('.vq-cp');
   if (!b) return;
   if (!await svCopyText(b.dataset.code)) return;
@@ -24015,6 +24022,23 @@ async function svDrawerVoucherPng(btn) {
   }
 }
 
+async function svDrawerArchiveVoucher(btn) {
+  if (btn.classList.contains('busy')) return;
+  const code = btn.dataset.code;
+  const ok = await svConfirmSheet({ tone: 'danger', title: 'Remove ' + code + '?', text: 'Moves to Archive in Vouchers & Promos. You can restore it from there.', confirmLabel: 'Remove', fingerprint: false });
+  if (!ok) return;
+  btn.classList.add('busy');
+  try {
+    await svHubRpc('status', { code: code, status: 'archived' });
+    _svDrawerVouchers = _svDrawerVouchers.filter(function(x) { return x.code !== code; });
+    showToast('Voucher removed from list.', 'success');
+    await renderDrawerVouchers();
+  } catch (err) {
+    btn.classList.remove('busy');
+    showToast('Could not remove: ' + String((err && err.message) || err), 'error');
+  }
+}
+
 let _svDrawerVouchers = [];
 async function renderDrawerVouchers() {
   const container = document.getElementById('voucherListContainer');
@@ -24025,7 +24049,7 @@ async function renderDrawerVouchers() {
     if (r.error) throw r.error;
     _svDrawerVouchers = r.data || [];
   } catch (err) { /* not signed in yet or offline: keep the last list */ }
-  const vouchers = _svDrawerVouchers;
+  const vouchers = _svDrawerVouchers.filter(function(x) { return (x.derived_status || x.status) !== 'archived'; });
   if (!vouchers.length) {
     if (emptyEl) emptyEl.style.display = '';
     container.innerHTML = '';
@@ -24050,7 +24074,7 @@ async function renderDrawerVouchers() {
       </div>
       <div class="vq-row">
         <div class="vq-cd"><span class="vq-code">${vqEsc(v.code)}</span><button type="button" class="vq-cp" data-code="${vqEsc(v.code)}" aria-label="Copy code ${vqEsc(v.code)}">${VQ_ICON.copy}</button></div>
-        <div class="vq-acts"><button type="button" class="vq-info" data-code="${vqEsc(v.code)}" aria-label="Voucher details">i</button><button type="button" class="vq-dl" data-code="${vqEsc(v.code)}" aria-label="Download voucher PNG ${vqEsc(v.code)}">${VQ_ICON.dl}</button></div>
+        <div class="vq-acts"><button type="button" class="vq-info" data-code="${vqEsc(v.code)}" aria-label="Voucher details">i</button><button type="button" class="vq-dl" data-code="${vqEsc(v.code)}" aria-label="Download voucher PNG ${vqEsc(v.code)}">${VQ_ICON.dl}</button>${(st === 'expired' || st === 'exhausted') ? `<button type="button" class="vq-rm" data-code="${vqEsc(v.code)}" aria-label="Remove ${vqEsc(v.code)} from list">${VQ_ICON.rm}</button>` : ''}</div>
       </div>
     </div>`;
   }).join('');
