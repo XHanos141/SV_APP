@@ -11701,6 +11701,66 @@ function marginFromY(y) {
 }
 
 const DATA = { today: [], week: [], month: [], '3months': [], all: [] };
+const MT_DEMO_DATA = {
+  today: [
+    { label: '9am', margin: 22.5, revenue: 18500, units: 5, topSku: 'NW-OMG3-UTA-180', topCat: 'supplement' },
+    { label: '10am', margin: 24.1, revenue: 22100, units: 7, topSku: 'DB-MAG-GLY-120', topCat: 'supplement' },
+    { label: '11am', margin: 27.8, revenue: 28400, units: 9, topSku: 'DB-MAG-GLY-120', topCat: 'supplement' },
+    { label: '12pm', margin: 31.2, revenue: 35200, units: 11, topSku: 'DB-MAG-GLY-120', topCat: 'supplement' },
+    { label: '1pm', margin: 33.5, revenue: 38900, units: 12, topSku: 'DB-HCI-PEP-120', topCat: 'supplement' },
+    { label: '2pm', margin: 29.4, revenue: 31000, units: 10, topSku: 'NW-OMG3-UTA-180', topCat: 'supplement' },
+    { label: '3pm', margin: 26.1, revenue: 26800, units: 8, topSku: 'NW-OMG3-UTA-180', topCat: 'supplement' },
+    { label: '4pm', margin: 28.7, revenue: 29500, units: 9, topSku: 'DB-MAG-GLY-120', topCat: 'supplement' },
+    { label: '5pm', margin: 35.2, revenue: 42100, units: 13, topSku: 'DB-MAG-GLY-120', topCat: 'supplement' },
+    { label: '6pm', margin: 38.9, revenue: 46800, units: 15, topSku: 'DB-HCI-PEP-120', topCat: 'supplement' },
+    { label: '7pm', margin: 36.4, revenue: 44500, units: 14, topSku: 'DB-MAG-GLY-120', topCat: 'supplement' },
+    { label: '8pm', margin: 32.1, revenue: 37800, units: 12, topSku: 'NW-OMG3-UTA-180', topCat: 'supplement' },
+    { label: '9pm', margin: 30.5, revenue: 34100, units: 11, topSku: 'DB-HCI-PEP-120', topCat: 'supplement' }
+  ],
+  week: [
+    { label: 'Mon', margin: 18.2, revenue: 28400, units: 9, topSku: 'NW-OMG3-UTA-180', topCat: 'supplement', sublabel: '17 Apr' },
+    { label: 'Tue', margin: 22.5, revenue: 32100, units: 10, topSku: 'DB-MAG-GLY-120', topCat: 'supplement', sublabel: '18 Apr' },
+    { label: 'Wed', margin: 28.3, revenue: 38500, units: 12, topSku: 'DB-MAG-GLY-120', topCat: 'supplement', sublabel: '19 Apr' },
+    { label: 'Thu', margin: 35.7, revenue: 45200, units: 14, topSku: 'DB-HCI-PEP-120', topCat: 'supplement', sublabel: '20 Apr' },
+    { label: 'Fri', margin: 41.6, revenue: 52800, units: 16, topSku: 'DB-MAG-GLY-120', topCat: 'supplement', sublabel: '21 Apr' },
+    { label: 'Sat', margin: 39.2, revenue: 42250, units: 13, topSku: 'DB-MAG-GLY-120', topCat: 'supplement', sublabel: '22 Apr' }
+  ],
+  month: [
+    { label: 'W1', margin: 15.3, revenue: 68200, units: 22, topSku: 'NW-OMG3-UTA-180', topCat: 'supplement', sublabel: '10-16 Apr' },
+    { label: 'W2', margin: 24.7, revenue: 84500, units: 28, topSku: 'DB-MAG-GLY-120', topCat: 'supplement', sublabel: '17-23 Apr' },
+    { label: 'W3', margin: 33.1, revenue: 112000, units: 35, topSku: 'DB-HCI-PEP-120', topCat: 'supplement', sublabel: '24-30 Apr' },
+    { label: 'W4', margin: 38.5, revenue: 128500, units: 40, topSku: 'DB-MAG-GLY-120', topCat: 'supplement', sublabel: '1-7 May' },
+    { label: 'W5', margin: 42.3, revenue: 95400, units: 30, topSku: 'DB-MAG-GLY-120', topCat: 'supplement', sublabel: '8-10 May' }
+  ],
+  '3months': [
+    { label: 'Feb', sublabel: '2026', margin: 14.8, revenue: 245000, units: 78, topSku: 'NW-OMG3-UTA-180', topCat: 'supplement' },
+    { label: 'Mar', sublabel: '2026', margin: 26.2, revenue: 312000, units: 98, topSku: 'DB-MAG-GLY-120', topCat: 'supplement' },
+    { label: 'Apr', sublabel: '2026', margin: 39.2, revenue: 422500, units: 133, topSku: 'DB-MAG-GLY-120', topCat: 'supplement' }
+  ],
+  all: [
+    { label: 'Jun', sublabel: "'25", margin: 12.5, revenue: 180000, units: 60, topSku: 'NW-OMG3-UTA-180', topCat: 'supplement' },
+    { label: 'Jul', sublabel: "'25", margin: 15.2, revenue: 210000, units: 68, topSku: 'NW-OMG3-UTA-180', topCat: 'supplement' },
+    { label: 'Aug', sublabel: "'25", margin: 18.7, revenue: 245000, units: 76, topSku: 'DB-MAG-GLY-120', topCat: 'supplement' },
+    { label: 'Sep', sublabel: "'25", margin: 22.4, revenue: 278000, units: 85, topSku: 'DB-MAG-GLY-120', topCat: 'supplement' },
+    { label: 'Oct', sublabel: "'25", margin: 27.1, revenue: 320000, units: 98, topSku: 'DB-HCI-PEP-120', topCat: 'supplement' },
+    { label: 'Nov', sublabel: "'25", margin: 31.5, revenue: 365000, units: 112, topSku: 'DB-MAG-GLY-120', topCat: 'supplement' },
+    { label: 'Dec', sublabel: "'25", margin: 35.8, revenue: 410000, units: 128, topSku: 'DB-MAG-GLY-120', topCat: 'supplement' },
+    { label: 'Jan', sublabel: "'26", margin: 38.2, revenue: 445000, units: 138, topSku: 'DB-HCI-PEP-120', topCat: 'supplement' },
+    { label: 'Feb', sublabel: "'26", margin: 14.8, revenue: 245000, units: 78, topSku: 'NW-OMG3-UTA-180', topCat: 'supplement' },
+    { label: 'Mar', sublabel: "'26", margin: 26.2, revenue: 312000, units: 98, topSku: 'DB-MAG-GLY-120', topCat: 'supplement' },
+    { label: 'Apr', sublabel: "'26", margin: 39.2, revenue: 422500, units: 133, topSku: 'DB-MAG-GLY-120', topCat: 'supplement' }
+  ]
+};
+
+let MT_DEMO = true; // true = demo margin chart (mock data); false = live Supabase data
+function mtDemoPrep() {
+  const d = currentData, n = d.length;
+  d.forEach(function(x, i) { x.t = i; x.saleRev = x.revenue; });
+  X_T0 = 0; X_T1 = Math.max(1, n - 1);
+  X_TICKS = d.map(function(x, i) { return { t: i, label: x.label }; });
+  Y_STEP = 10; Y_MIN = 10; Y_MAX = 60;
+}
+Object.keys(MT_DEMO_DATA).forEach(function(k) { DATA[k] = MT_DEMO_DATA[k]; });
 let ovMarginMsg = 'Loading…';
 
 let currentTf = 'month';
@@ -11777,6 +11837,7 @@ function generateSmoothSamples(data) {
 
 function renderChart() {
   try {
+  if (MT_DEMO) mtDemoPrep();
   const data = currentData;
   const gridGroup = document.getElementById('gridGroup');
   const lineGroup = document.getElementById('lineGroup');
@@ -12717,6 +12778,7 @@ function ovBuildSeries(tf, series) {
 }
 
 function ovRefreshMargin() {
+  if (MT_DEMO) { currentData = DATA[currentTf]; renderChart(); return; }
   const tf = ovTf(currentTf);
   const k = ovKey(kpiMode, tf, 'cur');
   const hit = OV_LIVE[k];
