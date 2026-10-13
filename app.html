@@ -11670,9 +11670,22 @@ function yScale(val) {
   return PLOT_BOTTOM - ((clamped - Y_MIN) / (Y_MAX - Y_MIN)) * PLOT_H;
 }
 
+const X_PAD = 8;
+let X_T0 = 0, X_T1 = 0, X_TICKS = [], DOT_MAX_REV = 0;
+function xTime(t) {
+  const span = X_T1 - X_T0;
+  if (!(span > 0)) return PLOT_LEFT + PLOT_W / 2;
+  const f = Math.max(0, Math.min(1, (t - X_T0) / span));
+  return PLOT_LEFT + X_PAD + f * (PLOT_W - 2 * X_PAD);
+}
 function xScale(index, total) {
+  const d = currentData[index];
+  if (d && d.t != null) return xTime(d.t);
   if (total <= 1) return PLOT_LEFT + PLOT_W / 2;
   return PLOT_LEFT + (index / (total - 1)) * PLOT_W;
+}
+function dotR(d) {
+  return DOT_MAX_REV > 0 ? 3.5 + 3 * Math.sqrt((d.saleRev || 0) / DOT_MAX_REV) : 4;
 }
 
 function marginFromY(y) {
@@ -11698,8 +11711,8 @@ function getControlPoints(p0, p1, p2, p3, t = 0.3) {
   const d2 = Math.sqrt(Math.pow(p2.x - p1.x, 2) + Math.pow(p2.y - p1.y, 2));
   const d3 = Math.sqrt(Math.pow(p3.x - p2.x, 2) + Math.pow(p3.y - p2.y, 2));
 
-  const fa = t * d2 / (d1 + d2);
-  const fb = t * d2 / (d2 + d3);
+  const fa = t * d2 / ((d1 + d2) || 1);
+  const fb = t * d2 / ((d2 + d3) || 1);
 
   const cp1x = p1.x + fa * (p2.x - p0.x);
   const cp1y = p1.y + fa * (p2.y - p0.y);
@@ -11726,29 +11739,32 @@ function sampleBezier(p0, p1, p2, p3, samples = 40) {
 }
 
 function generateSmoothSamples(data) {
-  const points = data.map((d, i) => ({
-    x: xScale(i, data.length),
-    y: yScale(d.margin),
-    margin: d.margin
-  }));
-
-  const allSamples = [];
-  for (let i = 0; i < points.length - 1; i++) {
-    const p0 = points[Math.max(0, i - 1)];
-    const p1 = points[i];
-    const p2 = points[i + 1];
-    const p3 = points[Math.min(points.length - 1, i + 2)];
-
-    const [cp1, cp2] = getControlPoints(p0, p1, p2, p3, 0.35);
-    const segSamples = sampleBezier(p1, cp1, cp2, p2, 50);
-
-    if (i === 0) {
-      allSamples.push(...segSamples);
-    } else {
-      allSamples.push(...segSamples.slice(1));
+  const pts = data.map((d, i) => ({ x: xScale(i, data.length), y: yScale(d.margin) }));
+  const n = pts.length;
+  const dx = [], m = [], tg = [];
+  for (let i = 0; i < n - 1; i++) {
+    dx[i] = pts[i + 1].x - pts[i].x;
+    m[i] = dx[i] > 0 ? (pts[i + 1].y - pts[i].y) / dx[i] : 0;
+  }
+  tg[0] = m[0];
+  tg[n - 1] = m[n - 2];
+  for (let i = 1; i < n - 1; i++) tg[i] = (m[i - 1] * m[i] <= 0) ? 0 : (m[i - 1] + m[i]) / 2;
+  for (let i = 0; i < n - 1; i++) {
+    if (m[i] === 0) { tg[i] = 0; tg[i + 1] = 0; continue; }
+    const a = tg[i] / m[i], b = tg[i + 1] / m[i], h = a * a + b * b;
+    if (h > 9) { const tau = 3 / Math.sqrt(h); tg[i] = tau * a * m[i]; tg[i + 1] = tau * b * m[i]; }
+  }
+  const samples = [];
+  for (let i = 0; i < n - 1; i++) {
+    for (let j = (i === 0 ? 0 : 1); j <= 40; j++) {
+      const t = j / 40, t2 = t * t, t3 = t2 * t;
+      let y = (2 * t3 - 3 * t2 + 1) * pts[i].y + (t3 - 2 * t2 + t) * dx[i] * tg[i]
+            + (-2 * t3 + 3 * t2) * pts[i + 1].y + (t3 - t2) * dx[i] * tg[i + 1];
+      y = Math.max(PLOT_TOP, Math.min(PLOT_BOTTOM, y));
+      samples.push({ x: pts[i].x + t * dx[i], y: y, margin: marginFromY(y) });
     }
   }
-  return allSamples;
+  return samples;
 }
 
 function renderChart() {
@@ -11780,6 +11796,7 @@ function renderChart() {
   lineGroup.innerHTML = '';
   pointsGroup.innerHTML = '';
 
+  if (data.length) {
   // Y grid & labels
   const ySteps = [];
   for (let v = Y_MIN; v <= Y_MAX; v += Y_STEP) ySteps.push(v);
@@ -11816,18 +11833,27 @@ function renderChart() {
   tlabel.setAttribute('y', ty - 4);
   tlabel.setAttribute('class', 'threshold-label');
   tlabel.textContent = '30% min';
+  const tpill = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+  tpill.setAttribute('x', PLOT_LEFT);
+  tpill.setAttribute('y', ty - 13);
+  tpill.setAttribute('width', 38);
+  tpill.setAttribute('height', 12);
+  tpill.setAttribute('rx', 6);
+  tpill.style.fill = 'var(--mc-surface)';
+  tpill.style.opacity = '0.92';
+  gridGroup.appendChild(tpill);
   gridGroup.appendChild(tlabel);
 
-  // X labels
-  data.forEach((d, i) => {
-    const x = xScale(i, data.length);
+  // X labels (real time ticks)
+  X_TICKS.forEach(tk => {
     const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-    label.setAttribute('x', x);
+    label.setAttribute('x', xTime(tk.t));
     label.setAttribute('y', PLOT_BOTTOM + 14);
     label.setAttribute('class', 'x-label');
-    label.textContent = d.label;
+    label.textContent = tk.label;
     gridGroup.appendChild(label);
   });
+  }
 
   if (!data.length) {
     const msg = document.createElementNS('http://www.w3.org/2000/svg', 'text');
@@ -11899,18 +11925,46 @@ function renderChart() {
   });
 
   // Data points
+  DOT_MAX_REV = 0;
+  data.forEach(d => { if ((d.saleRev || 0) > DOT_MAX_REV) DOT_MAX_REV = d.saleRev; });
   data.forEach((d, i) => {
     const x = xScale(i, data.length);
     const y = yScale(d.margin);
     const zone = getZone(d.margin);
 
+    if (data.length > 80 && i !== data.length - 1) return;
     const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
     circle.setAttribute('cx', x);
     circle.setAttribute('cy', y);
-    circle.setAttribute('r', 4);
+    circle.setAttribute('r', dotR(d));
     circle.setAttribute('fill', ZONE_COLORS[zone]);
     circle.setAttribute('class', 'data-point');
+    if (i === data.length - 1) {
+      const halo = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+      halo.setAttribute('cx', x);
+      halo.setAttribute('cy', y);
+      halo.setAttribute('r', dotR(d) + 4);
+      halo.setAttribute('fill', ZONE_COLORS[zone]);
+      halo.setAttribute('opacity', '0.2');
+      const ar = document.createElementNS('http://www.w3.org/2000/svg', 'animate');
+      ar.setAttribute('attributeName', 'r');
+      ar.setAttribute('values', (dotR(d) + 3) + ';' + (dotR(d) + 7) + ';' + (dotR(d) + 3));
+      ar.setAttribute('dur', '2.2s');
+      ar.setAttribute('repeatCount', 'indefinite');
+      halo.appendChild(ar);
+      pointsGroup.appendChild(halo);
+    }
     pointsGroup.appendChild(circle);
+    if (data.length === 1) {
+      const vl = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+      vl.setAttribute('x', x);
+      vl.setAttribute('y', Math.max(PLOT_TOP + 8, y - 12));
+      vl.setAttribute('class', 'x-label');
+      vl.style.dominantBaseline = 'auto';
+      vl.style.fill = ZONE_COLORS[zone];
+      vl.textContent = d.margin.toFixed(1) + '%';
+      pointsGroup.appendChild(vl);
+    }
   });
 
   // Update header
@@ -11922,12 +11976,13 @@ function renderChart() {
     marginEl.textContent = last.margin.toFixed(1) + '%';
     marginEl.style.color = ZONE_COLORS[zone];
     pill.className = 'zone-pill ' + (zone === 'green' ? 'healthy' : zone === 'orange' ? 'watch' : 'danger');
+    pill.style.display = '';
     document.getElementById('zoneText').textContent = getZoneLabel(zone);
   } else {
     marginEl.textContent = '—';
     marginEl.style.color = '';
     pill.className = 'zone-pill';
-    document.getElementById('zoneText').textContent = 'No data';
+    pill.style.display = 'none';
   }
 
   resetScrubber();
@@ -12541,41 +12596,94 @@ function ovShortBDT(n) {
   return '৳' + Math.round(n);
 }
 
-function ovBuildSeries(tf, series) {
-  const nowD = new Date(Date.now() + 6 * 3600000);
-  const y0 = nowD.getUTCFullYear(), m0 = nowD.getUTCMonth();
-  const pts = [];
-  series.forEach(function(s) {
-    if (s.margin == null) return;
-    const y = +s.bucket.slice(0, 4), mo = +s.bucket.slice(5, 7) - 1, d = +s.bucket.slice(8, 10), h = +s.bucket.slice(11, 13);
-    let label, sublabel;
-    if (tf === 'today') {
-      label = (h % 12 || 12) + (h < 12 ? 'am' : 'pm');
-    } else if (tf === 'week') {
-      label = OV_DOW[new Date(Date.UTC(y, mo, d)).getUTCDay()];
-      sublabel = d + ' ' + OV_MON[mo];
-    } else if (tf === 'month') {
-      const dayNum = Math.round((Date.UTC(y, mo, d) - Date.UTC(y0, m0, 1)) / 86400000) + 1;
-      const firstMon = 1 - ((new Date(Date.UTC(y0, m0, 1)).getUTCDay() + 6) % 7);
-      const dim = new Date(Date.UTC(y0, m0 + 1, 0)).getUTCDate();
-      label = 'W' + (Math.floor((dayNum - firstMon) / 7) + 1);
-      sublabel = Math.max(dayNum, 1) + '–' + Math.min(dayNum + 6, dim) + ' ' + OV_MON[m0];
-    } else {
-      label = OV_MON[mo];
-      sublabel = tf === 'all' ? "'" + String(y).slice(2) : String(y);
+function ovTicks(tf, t0, t1) {
+  const H = 3600000, D = 86400000, span = t1 - t0, out = [];
+  const steps = [3 * H, 6 * H, 12 * H, D, 2 * D, 5 * D, 7 * D, 14 * D];
+  let step = 0;
+  for (let i = 0; i < steps.length; i++) { if (span / steps[i] <= 8) { step = steps[i]; break; } }
+  if (step) {
+    for (let t = t0; t <= t1; t += step) {
+      const dt = new Date(t);
+      let label;
+      if (step < D) { const h = dt.getUTCHours(); label = (h % 12 || 12) + (h < 12 ? 'am' : 'pm'); }
+      else if (step === D && tf === 'week') label = OV_DOW[dt.getUTCDay()];
+      else label = dt.getUTCDate() + ' ' + OV_MON[dt.getUTCMonth()];
+      out.push({ t: t, label: label });
     }
+    return out;
+  }
+  const sd = new Date(t0), spanMo = span / (30.4 * D);
+  const ms = [1, 2, 3, 6, 12].filter(function(m) { return spanMo / m <= 8; })[0] || 12;
+  for (let k = 0; ; k++) {
+    const t = Date.UTC(sd.getUTCFullYear(), sd.getUTCMonth() + k * ms, 1);
+    if (t > t1) break;
+    if (t < t0) continue;
+    const dt = new Date(t), mo = dt.getUTCMonth();
+    out.push({ t: t, label: OV_MON[mo] + ((mo === 0 || spanMo > 12) ? " '" + String(dt.getUTCFullYear()).slice(2) : '') });
+  }
+  return out;
+}
+
+function ovBuildSeries(tf, series) {
+  const H6 = 6 * 3600000, D1 = 86400000;
+  const nowD = Date.now() + H6;
+  const nd = new Date(nowD);
+  const y0 = nd.getUTCFullYear(), m0 = nd.getUTCMonth(), d0 = nd.getUTCDate();
+  const dayStart = Date.UTC(y0, m0, d0);
+  let pts = [];
+  let cumRev = 0, cumCost = 0;
+  series.forEach(function(s) {
+    const b = String(s.bucket || '');
+    const t = Date.UTC(+b.slice(0, 4), +b.slice(5, 7) - 1, +b.slice(8, 10), +b.slice(11, 13) || 0, +b.slice(14, 16) || 0, +b.slice(17, 19) || 0);
+    if (isNaN(t)) return;
+    let margin;
+    if (s.rev_c != null && s.cost != null) {
+      cumRev += +s.rev_c;
+      cumCost += +s.cost;
+      margin = cumRev > 0 ? (cumRev - cumCost) / cumRev * 100 : null;
+    } else {
+      margin = s.margin == null ? null : +s.margin;
+    }
+    if (margin == null) return;
+    const dt = new Date(t), hh = dt.getUTCHours(), mm = dt.getUTCMinutes();
     pts.push({
-      label: label, sublabel: sublabel, margin: +s.margin, revenue: +s.revenue, units: +s.units,
+      t: t,
+      label: dt.getUTCDate() + ' ' + OV_MON[dt.getUTCMonth()],
+      sublabel: (hh % 12 || 12) + ':' + (mm < 10 ? '0' : '') + mm + (hh < 12 ? 'am' : 'pm'),
+      margin: margin, saleMargin: s.margin == null ? null : +s.margin,
+      revenue: +s.revenue, saleRev: +s.revenue, units: +s.units,
       topSku: s.top_sku || '—', topCat: TOP5_CATEGORY_LABELS[s.top_cat] ? s.top_cat : 'general'
     });
   });
+  if (pts.length > 150) {
+    const k = Math.ceil(pts.length / 150);
+    pts = pts.filter(function(p, i) { return i % k === 0 || i === pts.length - 1; });
+  }
+  let t0;
+  if (tf === 'today') t0 = dayStart;
+  else if (tf === 'week') t0 = dayStart - ((nd.getUTCDay() + 6) % 7) * D1;
+  else if (tf === 'month') t0 = Date.UTC(y0, m0, 1);
+  else if (tf === 'quarter') t0 = Date.UTC(y0, m0 - 3, d0);
+  else if (pts.length) { const f = new Date(pts[0].t); t0 = Date.UTC(f.getUTCFullYear(), f.getUTCMonth(), f.getUTCDate()); }
+  else t0 = dayStart;
+  let t1 = nowD;
   if (pts.length) {
-    const lo = Math.min.apply(null, pts.map(function(p) { return p.margin; }));
-    const hi = Math.max.apply(null, pts.map(function(p) { return p.margin; }));
-    const floorV = Math.min(10, lo), ceilV = Math.max(60, hi);
-    Y_STEP = (ceilV - floorV) > 60 ? 20 : 10;
-    Y_MIN = Math.floor(floorV / Y_STEP) * Y_STEP;
-    Y_MAX = Math.ceil(ceilV / Y_STEP) * Y_STEP;
+    if (pts[0].t < t0) t0 = pts[0].t;
+    if (pts[pts.length - 1].t > t1) t1 = pts[pts.length - 1].t;
+  }
+  X_T0 = t0; X_T1 = t1; X_TICKS = ovTicks(tf, t0, t1);
+  if (pts.length) {
+    const ms = pts.map(function(p) { return p.margin; });
+    const lo = Math.min(30, Math.min.apply(null, ms)), hi = Math.max(30, Math.max.apply(null, ms));
+    Y_STEP = 10;
+    Y_MIN = Math.floor((lo - 10) / 10) * 10;
+    Y_MAX = Math.ceil((hi + 10) / 10) * 10;
+    if (Y_MAX - Y_MIN > 70) {
+      Y_STEP = 20;
+      Y_MIN = Math.floor(Y_MIN / 20) * 20;
+      Y_MAX = Math.ceil(Y_MAX / 20) * 20;
+    }
+    if (Y_MAX - Y_MIN < 30) Y_MAX = Y_MIN + 30;
   } else {
     Y_STEP = 10; Y_MIN = 10; Y_MAX = 60;
   }
@@ -12588,7 +12696,7 @@ function ovRefreshMargin() {
   const hit = OV_LIVE[k];
   DATA[currentTf] = hit ? ovBuildSeries(tf, hit.data.series || []) : [];
   currentData = DATA[currentTf];
-  ovMarginMsg = hit ? 'No sales in this period' : (OV_ERR[k] ? 'Could not load data' : 'Loading…');
+  ovMarginMsg = hit ? ({ today: 'No sales today', week: 'No sales this week', month: 'No sales this month', quarter: 'No sales in the last 3 months', all: 'No sales yet' }[tf] || 'No sales in this period') : (OV_ERR[k] ? 'Could not load data' : 'Loading…');
   renderChart();
 }
 
@@ -28876,7 +28984,7 @@ async function svOvFetch(mode, tf, which) {
     p_from: new Date(win[0]).toISOString(),
     p_to: new Date(win[1]).toISOString(),
     p_mode: mode === 'proxy' ? 'proxy' : 'store',
-    p_bucket: ({ today: 'hour', week: 'day', month: 'week', quarter: 'month', all: 'month' })[tf] || 'day'
+    p_bucket: 'sale'
   });
   if (error) throw error;
   return data;
