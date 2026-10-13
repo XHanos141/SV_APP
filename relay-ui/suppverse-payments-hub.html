@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>SuppVerse BD · Payments Hub</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Plus+Jakarta+Sans:wght@600;700;800&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --purple:#7c6ff7;--green:#2f9b68;--orange:#F4A922;--red:#d95353;
+  --bg:#0f1621;--s1:#162130;--s2:#1d2c3e;--line:#26384d;
+  --t1:#eef2f7;--t2:#a9b6c7;--t3:#6f8097;
+  --bkash:#E2136E;
+  --g-soft:rgba(47,155,104,.15);--o-soft:rgba(244,169,34,.15);--p-soft:rgba(124,111,247,.16);--r-soft:rgba(217,83,83,.15);--n-soft:rgba(111,128,151,.16);
+  --shadow:0 8px 24px rgba(0,0,0,.35);
+  --ease:cubic-bezier(.22,1,.36,1);
+}
+[data-theme=light]{
+  --bg:#f3f5f9;--s1:#ffffff;--s2:#eef1f6;--line:#dde3ec;
+  --t1:#141c28;--t2:#4b596b;--t3:#7d8a9b;
+  --shadow:0 8px 24px rgba(20,28,40,.12);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{background:var(--bg);color:var(--t1);font-family:'DM Sans',system-ui,sans-serif;font-size:14px;line-height:1.45}
+body{max-width:480px;margin:0 auto;min-height:100vh;padding:0 0 96px;transition:background .3s}
+h1,h2,h3,.jk{font-family:'Plus Jakarta Sans','DM Sans',sans-serif}
+.mono{font-family:'Roboto Mono',monospace}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+:focus-visible{outline:2px solid var(--purple);outline-offset:2px}
+
+/* header */
+.top{position:sticky;top:0;z-index:20;background:var(--bg);padding:14px 16px 10px;border-bottom:1px solid var(--line)}
+.row{display:flex;align-items:center;gap:10px}
+.sp{flex:1}
+.ico-btn{width:38px;height:38px;border-radius:12px;background:var(--s1);border:1px solid var(--line);display:grid;place-items:center}
+.ico-btn svg{width:18px;height:18px;stroke:var(--t2);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.top h1{font-size:19px;font-weight:800;letter-spacing:-.01em}
+.top .sub{font-size:12px;color:var(--t3)}
+.live{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:var(--green);background:var(--g-soft);padding:5px 10px;border-radius:99px}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--green);position:relative}
+.dot::after{content:"";position:absolute;inset:-4px;border-radius:50%;border:2px solid var(--green);opacity:0;animation:ping 2s infinite}
+@keyframes ping{0%{transform:scale(.5);opacity:.8}100%{transform:scale(1.3);opacity:0}}
+
+/* cards */
+.wrap{padding:14px 16px}
+.card{background:var(--s1);border:1px solid var(--line);border-radius:16px}
+.health{padding:14px}
+.health-top{display:flex;align-items:center;gap:12px}
+.phone{width:42px;height:42px;border-radius:12px;background:var(--p-soft);display:grid;place-items:center}
+.phone svg{width:22px;height:22px;stroke:var(--purple);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.health b{font-family:'Plus Jakarta Sans';font-size:15px}
+.health small{display:block;color:var(--t3);font-size:12px}
+.hgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:12px}
+.hcell{background:var(--s2);border-radius:12px;padding:9px 8px;text-align:center}
+.hcell .v{font-family:'Plus Jakarta Sans';font-weight:700;font-size:15px}
+.hcell .l{font-size:11px;color:var(--t3)}
+.hcell.ok .v{color:var(--green)}
+.hcell.warn .v{color:var(--orange)}
+
+/* stats */
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+.stat{padding:12px 14px}
+.stat .l{font-size:12px;color:var(--t3)}
+.stat .v{font-family:'Plus Jakarta Sans';font-weight:800;font-size:21px;margin-top:2px;letter-spacing:-.01em}
+.stat .v.g{color:var(--green)}
+.stat small{font-size:11.5px;color:var(--t3)}
+
+/* filters */
+.chips{display:flex;gap:8px;overflow-x:auto;padding:14px 16px 4px;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex:none;display:flex;align-items:center;gap:6px;padding:8px 13px;border-radius:99px;background:var(--s1);border:1px solid var(--line);font-size:13px;font-weight:500;color:var(--t2);transition:.2s var(--ease)}
+.chip .n{font-size:11.5px;background:var(--s2);padding:1px 7px;border-radius:99px;color:var(--t2)}
+.chip.on{background:var(--purple);border-color:var(--purple);color:#fff}
+.chip.on .n{background:rgba(255,255,255,.22);color:#fff}
+
+/* list */
+.sec-h{display:flex;align-items:center;padding:12px 16px 4px}
+.sec-h h2{font-size:15px;font-weight:700}
+.list{padding:6px 16px;display:flex;flex-direction:column;gap:10px}
+.tx{padding:13px 14px;text-align:left;width:100%;display:block;transition:transform .2s var(--ease),border-color .2s}
+.tx:active{transform:scale(.985)}
+.tx:hover{border-color:var(--purple)}
+.tx-top{display:flex;align-items:center;gap:11px}
+.badge{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;flex:none;color:#fff;font-family:'Plus Jakarta Sans';font-weight:800;font-size:13px}
+.badge.bkash{background:var(--bkash)}
+.badge.nagad{background:#F6921E}
+.badge.rocket{background:#8c3494}
+.tx-mid{flex:1;min-width:0}
+.tx-name{font-weight:600;font-size:14.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tx-meta{display:flex;gap:8px;font-size:12px;color:var(--t3);margin-top:1px;align-items:center}
+.oid{font-family:'Roboto Mono',monospace;font-size:11.5px;color:var(--t2);background:var(--s2);padding:1px 7px;border-radius:6px}
+.tx-amt{text-align:right}
+.tx-amt b{font-family:'Plus Jakarta Sans';font-size:16px;font-weight:800;letter-spacing:-.01em}
+.tx-bot{display:flex;align-items:center;margin-top:11px;padding-top:10px;border-top:1px dashed var(--line);gap:8px;font-size:12px;color:var(--t3)}
+.st{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:600;padding:3px 9px;border-radius:99px}
+.st svg{width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round}
+.st.verified{background:var(--g-soft);color:var(--green)}
+.st.pending{background:var(--o-soft);color:var(--orange)}
+.st.review{background:var(--p-soft);color:var(--purple)}
+.st.rejected{background:var(--r-soft);color:var(--red)}
+.st.expired{background:var(--n-soft);color:var(--t3)}
+.ptr{margin-left:auto;font-size:11.5px}
+
+/* the one memorable moment: incoming transaction */
+.tx.incoming{animation:arrive .9s var(--ease) both;position:relative;overflow:hidden}
+.tx.incoming::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--orange);animation:bar 2.4s .6s forwards}
+@keyframes arrive{0%{opacity:0;transform:translateY(-18px) scale(.96);max-height:0}40%{opacity:1}100%{opacity:1;transform:none;max-height:220px}}
+@keyframes bar{to{background:var(--green)}}
+.tx.flash{animation:flash 1.4s ease}
+@keyframes flash{0%,100%{box-shadow:none}30%{box-shadow:0 0 0 3px var(--g-soft),0 0 0 1px var(--green)}}
+.scan{height:3px;border-radius:3px;background:var(--s2);overflow:hidden;margin-top:10px}
+.scan i{display:block;height:100%;width:40%;background:var(--orange);border-radius:3px;animation:scan 1.1s infinite ease-in-out}
+@keyframes scan{0%{transform:translateX(-100%)}100%{transform:translateX(260%)}}
+
+/* toast */
+.toast{position:fixed;left:50%;top:14px;transform:translate(-50%,-90px);width:calc(100% - 28px);max-width:452px;z-index:60;background:var(--s2);border:1px solid var(--line);border-radius:14px;padding:11px 14px;display:flex;gap:10px;align-items:center;box-shadow:var(--shadow);transition:transform .5s var(--ease)}
+.toast.show{transform:translate(-50%,0)}
+.toast .badge{width:32px;height:32px;font-size:11px;border-radius:10px}
+.toast b{font-size:13.5px}.toast small{display:block;color:var(--t3);font-size:12px}
+
+/* FAB */
+.fab{position:fixed;right:max(16px,calc(50% - 224px));bottom:20px;background:var(--purple);color:#fff;border-radius:99px;padding:13px 18px;font-weight:600;display:flex;gap:8px;align-items:center;box-shadow:0 8px 20px rgba(124,111,247,.4);z-index:15}
+.fab svg{width:16px;height:16px;stroke:#fff;fill:none;stroke-width:2.4;stroke-linecap:round}
+
+/* sheet */
+.scrim{position:fixed;inset:0;background:rgba(5,9,15,.6);opacity:0;pointer-events:none;transition:opacity .3s;z-index:40}
+.scrim.on{opacity:1;pointer-events:auto}
+.sheet{position:fixed;left:50%;bottom:0;width:100%;max-width:480px;max-height:92vh;overflow-y:auto;background:var(--bg);border-radius:22px 22px 0 0;z-index:50;transform:translate(-50%,105%);transition:transform .45s var(--ease);padding:8px 16px calc(24px + env(safe-area-inset-bottom,0px))}
+.sheet.on{transform:translate(-50%,0)}
+.grab{width:40px;height:4px;border-radius:4px;background:var(--line);margin:4px auto 12px}
+.sh-h{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.sh-h h3{font-size:17px;font-weight:800}
+.blk{margin-bottom:12px}
+.blk-t{font-size:12.5px;font-weight:600;color:var(--t2);margin:0 2px 7px;display:flex;align-items:center;gap:7px}
+.blk-t i{width:18px;height:18px;border-radius:6px;background:var(--p-soft);color:var(--purple);font-style:normal;display:grid;place-items:center;font-size:11px;font-weight:700}
+
+/* SMS bubble */
+.sms{background:var(--s1);border:1px solid var(--line);border-radius:6px 16px 16px 16px;padding:13px 14px;position:relative}
+.sms-h{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.sms-h .badge{width:28px;height:28px;font-size:10px;border-radius:9px}
+.sms-h b{font-size:13px}.sms-h span{font-size:11.5px;color:var(--t3);margin-left:auto}
+.sms p{font-family:'Roboto Mono',monospace;font-size:12.5px;line-height:1.6;color:var(--t1);word-break:break-word}
+.sms mark{background:var(--g-soft);color:var(--green);padding:0 4px;border-radius:4px;font-weight:500}
+.sms mark.bad{background:var(--r-soft);color:var(--red)}
+
+/* order info */
+.info{padding:4px 14px}
+.kv{display:flex;padding:9px 0;border-bottom:1px solid var(--line);gap:12px;align-items:center}
+.kv:last-child{border:0}
+.kv .k{color:var(--t3);font-size:12.5px;width:96px;flex:none}
+.kv .v{font-weight:500;flex:1;text-align:right}
+.kv .v.mono{font-size:12.5px}
+
+/* compare */
+.cmp{overflow:hidden}
+.cmp-h,.cmp-r{display:grid;grid-template-columns:78px 1fr 1fr 26px;gap:8px;padding:10px 14px;align-items:center}
+.cmp-h{background:var(--s2);font-size:11.5px;color:var(--t3);font-weight:600}
+.cmp-r{border-top:1px solid var(--line);font-size:13px}
+.cmp-r .f{color:var(--t3);font-size:12px}
+.cmp-r .a,.cmp-r .b{font-weight:500;word-break:break-all}
+.cmp-r .a.m,.cmp-r .b.m{font-family:'Roboto Mono',monospace;font-size:12px}
+.cmp-r.bad .b{color:var(--red)}
+.tick{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;transform:scale(0);opacity:0}
+.tick svg{width:12px;height:12px;stroke:#fff;fill:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+.tick.ok{background:var(--green)}.tick.no{background:var(--red)}.tick.wait{background:var(--n-soft)}
+.sheet.on .tick{animation:pop .5s var(--ease) forwards;animation-delay:calc(var(--i) * 140ms + 450ms)}
+@keyframes pop{0%{transform:scale(0);opacity:0}70%{transform:scale(1.25);opacity:1}100%{transform:scale(1);opacity:1}}
+
+/* verdict */
+.verdict{display:flex;gap:12px;align-items:center;padding:14px;border-radius:16px;border:1px solid transparent}
+.verdict .vi{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;flex:none}
+.verdict .vi svg{width:22px;height:22px;stroke:#fff;fill:none;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round}
+.verdict b{font-family:'Plus Jakarta Sans';font-size:15.5px;display:block}
+.verdict small{color:var(--t2);font-size:12.5px}
+.verdict.verified{background:var(--g-soft);border-color:rgba(47,155,104,.35)}.verdict.verified .vi{background:var(--green)}
+.verdict.pending{background:var(--o-soft);border-color:rgba(244,169,34,.35)}.verdict.pending .vi{background:var(--orange)}
+.verdict.review{background:var(--p-soft);border-color:rgba(124,111,247,.35)}.verdict.review .vi{background:var(--purple)}
+.verdict.rejected{background:var(--r-soft);border-color:rgba(217,83,83,.35)}.verdict.rejected .vi{background:var(--red)}
+.verdict.expired{background:var(--n-soft)}.verdict.expired .vi{background:var(--t3)}
+.sheet.on .verdict{animation:rise .6s .9s var(--ease) both}
+@keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.actions{display:flex;gap:10px;margin-top:12px}
+.btn{flex:1;padding:12px;border-radius:12px;font-weight:600;background:var(--s1);border:1px solid var(--line)}
+.btn.pri{background:var(--purple);border-color:var(--purple);color:#fff}
+
+.empty{text-align:center;color:var(--t3);padding:36px 20px}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;animation-delay:0s!important;transition-duration:.01ms!important}.tick{transform:none;opacity:1}}
+</style>
+</head>
+<body>
+
+<div class="toast" id="toast" role="status" aria-live="polite">
+  <div class="badge bkash">bK</div>
+  <div><b id="toastT">bKash payment received</b><small id="toastS"></small></div>
+</div>
+
+<header class="top">
+  <div class="row">
+    <div>
+      <h1>Payments</h1>
+      <div class="sub">bKash relay · Order verification</div>
+    </div>
+    <div class="sp"></div>
+    <span class="live"><span class="dot"></span>Live</span>
+    <button class="ico-btn" id="themeBtn" aria-label="Toggle theme">
+      <svg viewBox="0 0 24 24"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+    </button>
+  </div>
+</header>
+
+<section class="wrap">
+  <div class="card health">
+    <div class="health-top">
+      <div class="phone"><svg viewBox="0 0 24 24"><rect x="7" y="2" width="10" height="20" rx="2.5"/><path d="M11 18h2"/></svg></div>
+      <div style="flex:1"><b>Relay phone is online</b><small>Last seen 42 seconds ago</small></div>
+      <span class="st verified"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Healthy</span>
+    </div>
+    <div class="hgrid">
+      <div class="hcell ok"><div class="v">0</div><div class="l">In queue</div></div>
+      <div class="hcell ok"><div class="v">86%</div><div class="l">Battery</div></div>
+      <div class="hcell ok"><div class="v">SMS</div><div class="l">Allowed</div></div>
+      <div class="hcell"><div class="v">v1.0</div><div class="l">App</div></div>
+    </div>
+  </div>
+
+  <div class="stats">
+    <div class="card stat"><div class="l">Verified today</div><div class="v g" id="sVer">৳0</div><small id="sVerN">0 payments</small></div>
+    <div class="card stat"><div class="l">Needs attention</div><div class="v" id="sAtt">0</div><small>Review or rejected</small></div>
+  </div>
+</section>
+
+<nav class="chips" id="chips" aria-label="Filter payments"></nav>
+
+<div class="sec-h"><h2 id="listTitle">All payments</h2></div>
+<div class="list" id="list"></div>
+
+<button class="fab" id="sim"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>Simulate payment</button>
+
+<div class="scrim" id="scrim"></div>
+<aside class="sheet" id="sheet" role="dialog" aria-modal="true" aria-label="Payment match"></aside>
+
+<script>
+const $=s=>document.querySelector(s);
+const ICON={
+  ok:'<svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>',
+  no:'<svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg>',
+  clock:'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>',
+  eye:'<svg viewBox="0 0 24 24"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>',
+  dash:'<svg viewBox="0 0 24 24"><path d="M6 12h12"/></svg>'
+};
+const STATUS={
+  verified:{label:'Verified',icon:ICON.ok,title:'Payment verified',sub:'All checks passed. Order marked as paid.'},
+  pending:{label:'Pending',icon:ICON.clock,title:'Waiting for SMS',sub:'Customer sent a TrxID. No matching SMS yet.'},
+  review:{label:'Manual review',icon:ICON.eye,title:'Needs your review',sub:'Amount differs from the order. Confirm or reject.'},
+  rejected:{label:'Rejected',icon:ICON.no,title:'Payment rejected',sub:'Sender does not match the order. Order stays unpaid.'},
+  expired:{label:'Expired',icon:ICON.dash,title:'Payment window closed',sub:'No payment arrived within 20 minutes.'}
+};
+const FILTERS=[['all','All'],['verified','Verified'],['pending','Pending'],['review','Manual review'],['rejected','Rejected'],['expired','Expired']];
+const bdt=n=>'৳'+n.toLocaleString('en-IN');
+
+let DATA=[
+ {id:1,order:'SV-1041',name:'Rahim Uddin',phone:'01711 ••• 482',recvd:'01822 ••• 190',amt:1850,expect:1850,trx:'DK53M2P8QX',time:'11:30',ago:'2 min ago',status:'verified',items:'Whey Protein 2 lb × 1, Shaker × 1',city:'Dhaka',sender:'01711 ••• 482',expSender:'01711 ••• 482',checks:[1,1,1,1,1,1]},
+ {id:2,order:'SV-1040',name:'Nusrat Jahan',phone:'01911 ••• 307',recvd:'01822 ••• 190',amt:2400,expect:2450,trx:'DK53L9T2AB',time:'10:52',ago:'40 min ago',status:'review',items:'Creatine 300 g × 2',city:'Chattogram',sender:'01911 ••• 307',expSender:'01911 ••• 307',checks:[1,1,1,0,1,1]},
+ {id:3,order:'SV-1039',name:'Tanvir Ahmed',phone:'01611 ••• 925',recvd:'01822 ••• 190',amt:1200,expect:1200,trx:'DK53K1H7ZZ',time:'10:14',ago:'1 hr ago',status:'rejected',items:'Multivitamin × 2, Fish Oil × 1',city:'Sylhet',sender:'01544 ••• 018',expSender:'01611 ••• 925',checks:[1,1,1,1,0,1]},
+ {id:4,order:'SV-1038',name:'Mitu Akter',phone:'01811 ••• 640',recvd:'01822 ••• 190',amt:null,expect:3150,trx:'—',time:'—',ago:'Awaiting SMS',status:'pending',items:'Mass Gainer 5 lb × 1',city:'Khulna',sender:'—',expSender:'01811 ••• 640',checks:[null,null,null,null,null,null]},
+ {id:5,order:'SV-1035',name:'Sabbir Hossain',phone:'01311 ••• 771',recvd:'01822 ••• 190',amt:null,expect:980,trx:'—',time:'—',ago:'Yesterday',status:'expired',items:'BCAA × 1',city:'Rajshahi',sender:'—',expSender:'01311 ••• 771',checks:[null,null,null,null,null,null]}
+];
+const CHECK_LABELS=['TrxID','Receiver','Method','Amount','Sender','Time window'];
+let filter='all', nextId=100;
+
+function counts(){const c={all:DATA.length};DATA.forEach(d=>c[d.status]=(c[d.status]||0)+1);return c}
+function renderChips(){
+  const c=counts();
+  $('#chips').innerHTML=FILTERS.map(([k,l])=>`<button class="chip ${filter===k?'on':''}" data-k="${k}">${l}<span class="n">${c[k]||0}</span></button>`).join('');
+  $('#chips').querySelectorAll('.chip').forEach(b=>b.onclick=()=>{filter=b.dataset.k;render()});
+}
+function renderStats(){
+  const v=DATA.filter(d=>d.status==='verified');
+  $('#sVer').textContent=bdt(v.reduce((s,d)=>s+d.amt,0));
+  $('#sVerN').textContent=v.length+(v.length===1?' payment':' payments');
+  $('#sAtt').textContent=DATA.filter(d=>d.status==='review'||d.status==='rejected').length;
+}
+function card(d,cls=''){
+  const s=STATUS[d.status];
+  return `<button class="card tx ${cls}" data-id="${d.id}">
+    <div class="tx-top">
+      <div class="badge bkash">bK</div>
+      <div class="tx-mid"><div class="tx-name">${d.name}</div>
+        <div class="tx-meta"><span class="oid">${d.order}</span><span>${d.phone}</span></div></div>
+      <div class="tx-amt"><b>${bdt(d.amt??d.expect)}</b></div>
+    </div>
+    ${d.status==='pending'&&cls?'<div class="scan"><i></i></div>':''}
+    <div class="tx-bot"><span class="st ${d.status}">${s.icon}${s.label}</span><span class="ptr">${d.trx!=='—'?'<span class="mono">'+d.trx+'</span> · ':''}${d.ago}</span></div>
+  </button>`;
+}
+function renderList(){
+  const rows=DATA.filter(d=>filter==='all'||d.status===filter);
+  $('#listTitle').textContent=(FILTERS.find(f=>f[0]===filter)[1])+(filter==='all'?' payments':'');
+  $('#list').innerHTML=rows.length?rows.map(d=>card(d)).join(''):'<div class="empty">No payments in this filter yet.</div>';
+  $('#list').querySelectorAll('.tx').forEach(b=>b.onclick=()=>openSheet(+b.dataset.id));
+}
+function render(){renderChips();renderStats();renderList()}
+
+/* match card sheet: SMS → order → side by side → verdict */
+function openSheet(id){
+  const d=DATA.find(x=>x.id===id), s=STATUS[d.status];
+  const hasSms=d.amt!==null;
+  const sms=hasSms?`You have received Tk <mark class="${d.amt!==d.expect?'bad':''}">${d.amt.toLocaleString('en-IN')}.00</mark> from <mark class="${d.sender!==d.expSender?'bad':''}">${d.sender.replace(/ /g,'')}</mark>. Fee Tk 0.00. Balance Tk 7,${(d.amt%900)+100}.40. TrxID <mark>${d.trx}</mark> at 13/10/2026 ${d.time}`:'';
+  const rows=[
+    ['TrxID',d.trx,d.trx,0,true],
+    ['Receiver',d.recvd,d.recvd,1,true],
+    ['Method','bKash','bKash',2,false],
+    ['Amount',bdt(d.expect),d.amt!==null?bdt(d.amt):'—',3,false],
+    ['Sender',d.expSender,d.sender,4,true],
+    ['Window','20 min',d.time!=='—'?'Paid '+d.time:'—',5,false]
+  ];
+  $('#sheet').innerHTML=`<div class="grab"></div>
+  <div class="sh-h"><div class="badge bkash">bK</div><div><h3>${d.order}</h3><div class="sub" style="color:var(--t3);font-size:12px">${d.name} · ${d.ago}</div></div><div class="sp"></div><span class="st ${d.status}">${s.icon}${s.label}</span></div>
+
+  <div class="blk"><div class="blk-t"><i>1</i>bKash SMS from relay phone</div>
+  ${hasSms?`<div class="sms"><div class="sms-h"><div class="badge bkash">bK</div><b>bKash</b><span>${d.time}</span></div><p>${sms}</p></div>`:`<div class="card" style="padding:16px;color:var(--t3);text-align:center">No SMS received for this order yet.</div>`}</div>
+
+  <div class="blk"><div class="blk-t"><i>2</i>Order info</div>
+  <div class="card info">
+    <div class="kv"><span class="k">Customer</span><span class="v">${d.name}</span></div>
+    <div class="kv"><span class="k">Phone</span><span class="v mono">${d.phone}</span></div>
+    <div class="kv"><span class="k">Items</span><span class="v">${d.items}</span></div>
+    <div class="kv"><span class="k">City</span><span class="v">${d.city}</span></div>
+    <div class="kv"><span class="k">Order total</span><span class="v jk" style="font-weight:800">${bdt(d.expect)}</span></div>
+  </div></div>
+
+  <div class="blk"><div class="blk-t"><i>3</i>Side by side</div>
+  <div class="card cmp"><div class="cmp-h"><span></span><span>Order expects</span><span>SMS shows</span><span></span></div>
+  ${rows.map(([f,a,b,i,m])=>{const c=d.checks[i];const bad=c===0;
+    return `<div class="cmp-r ${bad?'bad':''}"><span class="f">${f}</span><span class="a ${m?'m':''}">${a}</span><span class="b ${m?'m':''}">${b}</span>
+    <span class="tick ${c===1?'ok':c===0?'no':'wait'}" style="--i:${i}">${c===1?ICON.ok:c===0?ICON.no:ICON.dash}</span></div>`}).join('')}
+  </div></div>
+
+  <div class="blk"><div class="blk-t"><i>4</i>Verification status</div>
+  <div class="verdict ${d.status}"><div class="vi">${s.icon}</div><div><b>${s.title}</b><small>${s.sub}</small></div></div>
+  ${d.status==='review'?'<div class="actions"><button class="btn">Reject</button><button class="btn pri">Confirm payment</button></div>':''}
+  </div>`;
+  $('#scrim').classList.add('on');
+  requestAnimationFrame(()=>$('#sheet').classList.add('on'));
+}
+function closeSheet(){$('#sheet').classList.remove('on');$('#scrim').classList.remove('on')}
+$('#scrim').onclick=closeSheet;
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeSheet()});
+
+/* simulate: incoming payment → scanning → verified */
+const NAMES=[['Farhan Kabir','01711 ••• 218','Whey Protein 5 lb × 1','Dhaka',4200],['Ayesha Siddika','01955 ••• 603','Pre-workout × 1, Shaker × 1','Dhaka',2750],['Imran Hossain','01811 ••• 356','Ashwagandha × 3','Cumilla',1650]];
+let simN=0;
+$('#sim').onclick=()=>{
+  const n=NAMES[simN++%NAMES.length];
+  const d={id:++nextId,order:'SV-'+(1042+simN-1),name:n[0],phone:n[1],recvd:'01822 ••• 190',amt:n[4],expect:n[4],trx:'DK54'+Math.random().toString(36).slice(2,8).toUpperCase(),time:'11:'+String(40+simN).padStart(2,'0'),ago:'Matching…',status:'pending',items:n[2],city:n[3],sender:n[1],expSender:n[1],checks:[1,1,1,1,1,1]};
+  DATA.unshift(d); filter='all'; renderChips(); renderStats();
+  $('#list').insertAdjacentHTML('afterbegin',card(d,'incoming'));
+  $('#list').querySelector('.tx').onclick=()=>openSheet(d.id);
+  $('#list').querySelectorAll('.tx').forEach(b=>b.onclick=()=>openSheet(+b.dataset.id));
+  $('#toastT').textContent='bKash '+bdt(d.amt)+' received';
+  $('#toastS').textContent=d.name+' · '+d.order+' · matching…';
+  $('#toast').classList.add('show');
+  setTimeout(()=>{ // verified
+    d.status='verified';d.ago='Just now';
+    const old=$('#list').querySelector(`[data-id="${d.id}"]`);
+    if(old){const t=document.createElement('div');t.innerHTML=card(d,'flash');const el=t.firstElementChild;el.onclick=()=>openSheet(d.id);old.replaceWith(el)}
+    renderChips();renderStats();
+    $('#toastT').textContent='Order '+d.order+' verified';
+    $('#toastS').textContent=bdt(d.amt)+' matched · marked as paid';
+  },2600);
+  setTimeout(()=>$('#toast').classList.remove('show'),5200);
+};
+
+/* theme */
+$('#themeBtn').onclick=()=>{const r=document.documentElement;r.dataset.theme=r.dataset.theme==='dark'?'light':'dark'};
+render();
+</script>
+</body>
+</html>
