@@ -1745,6 +1745,13 @@ fieldset:disabled :is(.img-thumb-item,.img-thumb-add,.img-thumb-remove){touch-ac
                 <svg class="pv-spec-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
               </div>
             </div>
+            <div class="pv-spec" id="pvSpecShipRow">
+              <div class="pv-spec-icon" id="pvSpecShipIcon"></div>
+              <div class="pv-spec-body">
+                <div class="pv-spec-text" id="pvSpecShipText"></div>
+                <svg class="pv-spec-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -2345,16 +2352,16 @@ fill="#ed1d24"><rect width="512" height="512" rx="15%" fill="#ed1d24"/><path d="
     <div class="field-row">
       <div class="field">
         <label>Flat Shipping Fee (৳)</label>
-        <input type="number" id="inpShipFlat" value="20" min="0" step="10" oninput="updateShipping()">
+        <input type="number" id="inpShipFlat" value="120" min="0" step="10" oninput="updateShipping()">
       </div>
       <div class="field">
         <label>Free Shipping Over (৳)</label>
-        <input type="number" id="inpShipFree" value="10000" min="0" step="50" oninput="updateShipping()">
+        <input type="number" id="inpShipFree" value="6800" min="0" step="50" oninput="updateShipping()">
       </div>
     </div>
     <div class="hint-row" style="margin-top:2px">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
-      Applies to Cart, Payment, and the Free Shipping badge on product pages
+      Live for customers on Save: Cart, Payment, checkout fee and the Free Shipping badge on product pages
     </div>
     </fieldset>
     <div class="save-bar" style="margin:14px 0 0;border-radius:14px">
@@ -3951,7 +3958,7 @@ initEditLock('faqFieldset','faqEditBtn','faqSaveBtn','faqCancelBtn');
 initEditLock('footerpayFieldset','footerpayEditBtn','footerpaySaveBtn','footerpayCancelBtn',{onSave:savePaymentBadges});
 initEditLock('paypageFieldset','paypageEditBtn','paypageSaveBtn','paypageCancelBtn',{onSave:function(){savePaymentPageBadges();savePaymentPageQr();}});
 initEditLock('productFieldset','productEditBtn','productSaveBtn','productCancelBtn',{silentSave:true,onCancel:function(){loadProductToEditor(currentEditId||'new');}});
-initEditLock('shipFieldset','shipEditBtn','shipSaveBtn','shipCancelBtn');
+initEditLock('shipFieldset','shipEditBtn','shipSaveBtn','shipCancelBtn',{onSave:saveShipping,silentSave:true,onCancel:function(){updateShipping();}});
 initEditLock(['bfmHeroFieldset','bfmBadgesFieldset'],'bfmHeroEditBtn','bfmHeroSaveBtn','bfmHeroCancelBtn',{onSave:saveBfmHero,onCancel:function(){updateBfmHero();}});
 initEditLock('bfmStoresFieldset','bfmStoresEditBtn','bfmStoresSaveBtn','bfmStoresCancelBtn',{onSave:saveBfmStoresDb,onCancel:cancelBfmStores,silentSave:true});
 initEditLock('bfmFeesFieldset','bfmFeesEditBtn','bfmFeesSaveBtn','bfmFeesCancelBtn',{onSave:saveBfmFeesDb,onCancel:cancelBfmFees,silentSave:true});
@@ -4072,6 +4079,15 @@ function renderPvSpecPreview(){
   document.getElementById('pvSpecPreviewIcon').style.background = soft;
   document.getElementById('pvSpecPreviewIcon').style.color = color;
   document.getElementById('pvSpecPreviewText').innerHTML = _pvSpecText(item);
+  /* live Free-shipping row, same as the product page; hidden when that spec is the one being previewed */
+  const ship = PV_SPEC_DATA.find(x => x.label === 'Free shipping'), row = document.getElementById('pvSpecShipRow');
+  if(ship && row){
+    row.style.display = (item === ship) ? 'none' : '';
+    document.getElementById('pvSpecShipIcon').innerHTML = ship.icon;
+    document.getElementById('pvSpecShipIcon').style.background = soft;
+    document.getElementById('pvSpecShipIcon').style.color = color;
+    document.getElementById('pvSpecShipText').innerHTML = _pvSpecText(ship).replace(' id="pvcardThreshold"', '');
+  }
 }
 function selectPvSpec(i){
   pvSpecIdx = i;
@@ -5950,24 +5966,40 @@ const BANNER_DECO = {
   heart: '<svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>'
 };
 
-function updateShipping(){
-  const flat = parseInt(document.getElementById('inpShipFlat').value, 10) || 0;
-  const free = parseInt(document.getElementById('inpShipFree').value, 10) || 0;
-  localStorage.setItem('sv-shipping', JSON.stringify({ flat: flat, freeThreshold: free }));
-  const badge = document.getElementById('pvcardThreshold');
-  if(badge) badge.textContent = '৳' + free.toLocaleString();
+function _shipVals(){
+  return {
+    flat: Math.max(0, parseInt(document.getElementById('inpShipFlat').value, 10) || 0),
+    free: Math.max(0, parseInt(document.getElementById('inpShipFree').value, 10) || 0)
+  };
 }
-function loadShipping(){
+/* typing only refreshes the live preview; nothing goes live until Save */
+function updateShipping(){
+  const badge = document.getElementById('pvcardThreshold');
+  if(badge) badge.textContent = '৳' + _shipVals().free.toLocaleString();
+  renderPvSpecPicker(); renderPvSpecPreview();
+}
+/* Save = publish: site_content store/shipping is read by the web product pages, cart, payment and the server's checkout fee */
+async function saveShipping(){
+  if(!window.sb){ T('Not connected to database','⚠️'); loadShipping(); return; }
+  const v = _shipVals();
+  const { error } = await sb.from('site_content').upsert({
+    page: 'store',
+    section: 'shipping',
+    content: { flat: v.flat, free_threshold: v.free },
+    updated_at: new Date().toISOString()
+  }, { onConflict: 'page,section' });
+  if(error){ console.error('saveShipping error:', error.message); T('Save failed — check connection','❌'); loadShipping(); return; }
+  T('Shipping rules are live','🚀');
+}
+async function loadShipping(){
   try {
-    const saved = JSON.parse(localStorage.getItem('sv-shipping') || 'null');
-    if(saved){
-      // one-time migration: previous defaults (120 / 6800) -> new defaults (20 / 10000)
-      if(saved.flat === 120 && saved.freeThreshold === 6800){
-        saved.flat = 20; saved.freeThreshold = 10000;
-        localStorage.setItem('sv-shipping', JSON.stringify(saved));
+    if(window.sb){
+      const { data, error } = await sb.from('site_content').select('content').eq('page','store').eq('section','shipping').maybeSingle();
+      if(!error && data && data.content){
+        const f = Number(data.content.flat), t = Number(data.content.free_threshold);
+        if(isFinite(f)) document.getElementById('inpShipFlat').value = f;
+        if(isFinite(t)) document.getElementById('inpShipFree').value = t;
       }
-      document.getElementById('inpShipFlat').value = saved.flat;
-      document.getElementById('inpShipFree').value = saved.freeThreshold;
     }
   } catch(e){}
   updateShipping();
