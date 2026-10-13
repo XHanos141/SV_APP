@@ -11748,18 +11748,18 @@ function marginFromY(y) {
 const DATA = { today: [], week: [], month: [], '3months': [], all: [] };
 const MT_DEMO_DATA = {
   today: [
-    { label: '9am', margin: 22.5, revenue: 18500, units: 5, topSku: 'NW-OMG3-UTA-180', topCat: 'supplement' },
-    { label: '10am', margin: 24.1, revenue: 22100, units: 7, topSku: 'DB-MAG-GLY-120', topCat: 'supplement' },
-    { label: '11am', margin: 27.8, revenue: 28400, units: 9, topSku: 'DB-MAG-GLY-120', topCat: 'supplement' },
-    { label: '12pm', margin: 31.2, revenue: 35200, units: 11, topSku: 'DB-MAG-GLY-120', topCat: 'supplement' },
-    { label: '1pm', margin: 33.5, revenue: 38900, units: 12, topSku: 'DB-HCI-PEP-120', topCat: 'supplement' },
-    { label: '2pm', margin: 29.4, revenue: 31000, units: 10, topSku: 'NW-OMG3-UTA-180', topCat: 'supplement' },
-    { label: '3pm', margin: 26.1, revenue: 26800, units: 8, topSku: 'NW-OMG3-UTA-180', topCat: 'supplement' },
-    { label: '4pm', margin: 28.7, revenue: 29500, units: 9, topSku: 'DB-MAG-GLY-120', topCat: 'supplement' },
-    { label: '5pm', margin: 35.2, revenue: 42100, units: 13, topSku: 'DB-MAG-GLY-120', topCat: 'supplement' },
-    { label: '6pm', margin: 38.9, revenue: 46800, units: 15, topSku: 'DB-HCI-PEP-120', topCat: 'supplement' },
-    { label: '7pm', margin: 36.4, revenue: 44500, units: 14, topSku: 'DB-MAG-GLY-120', topCat: 'supplement' },
-    { label: '8pm', margin: 32.1, revenue: 37800, units: 12, topSku: 'NW-OMG3-UTA-180', topCat: 'supplement' },
+    { label: '9am', margin: 21.4, revenue: 18500, units: 5, topSku: 'NW-OMG3-UTA-180', topCat: 'supplement' },
+    { label: '10am', margin: 17.2, revenue: 22100, units: 7, topSku: 'DB-MAG-GLY-120', topCat: 'supplement' },
+    { label: '11am', margin: 26.8, revenue: 28400, units: 9, topSku: 'DB-MAG-GLY-120', topCat: 'supplement' },
+    { label: '12pm', margin: 15.6, revenue: 35200, units: 11, topSku: 'DB-MAG-GLY-120', topCat: 'supplement' },
+    { label: '1pm', margin: 31.9, revenue: 38900, units: 12, topSku: 'DB-HCI-PEP-120', topCat: 'supplement' },
+    { label: '2pm', margin: 38.4, revenue: 31000, units: 10, topSku: 'NW-OMG3-UTA-180', topCat: 'supplement' },
+    { label: '3pm', margin: 23.1, revenue: 26800, units: 8, topSku: 'NW-OMG3-UTA-180', topCat: 'supplement' },
+    { label: '4pm', margin: 13.9, revenue: 29500, units: 9, topSku: 'DB-MAG-GLY-120', topCat: 'supplement' },
+    { label: '5pm', margin: 29.7, revenue: 42100, units: 13, topSku: 'DB-MAG-GLY-120', topCat: 'supplement' },
+    { label: '6pm', margin: 40.2, revenue: 46800, units: 15, topSku: 'DB-HCI-PEP-120', topCat: 'supplement' },
+    { label: '7pm', margin: 27.5, revenue: 44500, units: 14, topSku: 'DB-MAG-GLY-120', topCat: 'supplement' },
+    { label: '8pm', margin: 18.4, revenue: 37800, units: 12, topSku: 'NW-OMG3-UTA-180', topCat: 'supplement' },
     { label: '9pm', margin: 30.5, revenue: 34100, units: 11, topSku: 'DB-HCI-PEP-120', topCat: 'supplement' }
   ],
   week: [
@@ -11800,7 +11800,7 @@ const MT_DEMO_DATA = {
 let MT_DEMO = true; // true = demo margin chart (mock data); false = live Supabase data
 function mtDemoPrep() {
   const d = currentData, n = d.length;
-  d.forEach(function(x, i) { x.t = i; x.saleRev = x.revenue; });
+  d.forEach(function(x, i) { x.t = i; x.saleRev = 0; });
   X_T0 = 0; X_T1 = Math.max(1, n - 1);
   X_TICKS = d.map(function(x, i) { return { t: i, label: x.label }; });
   Y_STEP = 10; Y_MIN = 10; Y_MAX = 60;
