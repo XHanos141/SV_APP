@@ -2172,6 +2172,23 @@ html:not([data-theme="light"]) .odm-card { background: rgba(124,111,247,0.08); b
   .pp-pin{ flex:0 0 auto; padding:7px 14px; border-radius:999px; font-size:12px; font-weight:800; color:#fff; background:var(--cyan); transition:transform .18s var(--ease-out), opacity .2s ease; }
   .pp-pin:active{ transform:scale(.93); }
   .pp-pin[disabled]{ background:var(--surface-2); color:var(--text-3); }
+
+  /* ---------- Order card dropdown (same card everywhere) ---------- */
+  .oc-wrap{ margin-bottom:8px; }
+  .oc-wrap .oc-card{ margin-bottom:0; transition:border-color .15s, background .15s, border-radius .25s var(--ease-out); }
+  .oc-card__chev{ transform:rotate(90deg); transition:transform .3s var(--ease-out); }
+  .oc-wrap.is-open .oc-card__chev{ transform:rotate(-90deg); }
+  .oc-wrap.is-open .oc-card{ border-bottom-left-radius:0; border-bottom-right-radius:0; border-bottom-color:transparent; }
+  .oc-detail{ display:grid; grid-template-rows:0fr; opacity:0; transition:grid-template-rows .34s var(--ease-out), opacity .24s ease; }
+  .oc-wrap.is-open .oc-detail{ grid-template-rows:1fr; opacity:1; }
+  .oc-detail__inner{ min-height:0; overflow:hidden; display:flex; flex-direction:column; gap:14px; padding:0 12px;
+    background:var(--surface); border:1px solid rgba(10,155,220,0.30); border-top:0; border-radius:0 0 12px 12px;
+    visibility:hidden; transition:padding .34s var(--ease-out), visibility 0s linear .34s; }
+  html:not([data-theme="light"]) .oc-detail__inner{ background:#1A2235; border-color:rgba(45,190,245,0.32); }
+  .oc-wrap.is-open .oc-detail__inner{ padding:12px; visibility:visible; transition-delay:0s; }
+  .order-strip .oc-detail__inner{ max-height:44vh; overflow-y:auto; }
+  .oc-detail__inner .odm-card, .oc-detail__inner .oc-items{ background:#fff; border:1px solid rgba(10,155,220,0.38); }
+  html:not([data-theme="light"]) .oc-detail__inner .odm-card, html:not([data-theme="light"]) .oc-detail__inner .oc-items{ background:#141B2A; border-color:rgba(45,190,245,0.42); }
   @media (prefers-reduced-motion:reduce){ *,*::before,*::after{ transition:none !important; animation:none !important; scroll-behavior:auto !important; } }
 </style>
 <script>
@@ -3443,8 +3460,9 @@ function closeOrderDetailsModal() {
     orderStripEl.hidden = false;
     orderStripEl.innerHTML = `<span class="order-strip__label">${pick.mentioned ? "Order mentioned in this chat" : "Current order"}</span>${orderCardHtml(o)}`;
     orderStripEl.onclick = (e) => {
-      if(!e.target.closest(".oc-card")) return;
-      sheet.conv = conv; openOrderModal(o.id);
+      const card = e.target.closest(".oc-card");
+      if(!card) return;
+      sheet.conv = conv; toggleOrderDropdown(card);
     };
   }
 
@@ -3658,6 +3676,35 @@ function closeOrderDetailsModal() {
       phone:cust.phone, email:cust.email || "", address:cust.address || ""
     };
   }
+  /* The order card is one component everywhere: tapping it drops down everything about the order
+     (products, summary, payment) using the same renderers as the Order Details page. */
+  function orderDetailsInner(oid){
+    const cust = getSheetCustomer();
+    const o = cust && allOrdersOf(cust).find(x => x.id === oid);
+    if(!o) return "";
+    const od = Object.assign(buildOdmOrder(cust, o), { hideCustomer:true });
+    renderOrderDetailsCustomer(od); renderOrderDetailsHead(od);
+    renderOrderDetailsItems(od.items); renderOrderDetailsSummary(od); renderOrderDetailsPayment(od.payment);
+    const clone = document.querySelector("#orderDetailsModal .odm-body").cloneNode(true);
+    ["odmCustomerSection", "odmOrderHead"].forEach(id => { const n = clone.querySelector("#" + id); if(n) n.remove(); });
+    const items = clone.querySelector("#odmItems"); if(items) items.classList.add("oc-items");
+    clone.querySelectorAll("[id]").forEach(n => n.removeAttribute("id"));
+    return clone.innerHTML;
+  }
+  function toggleOrderDropdown(card){
+    const wrap = card.closest(".oc-wrap"); if(!wrap) return;
+    const open = !wrap.classList.contains("is-open");
+    if(open){
+      wrap.parentElement.querySelectorAll(".oc-wrap.is-open").forEach(w => {
+        w.classList.remove("is-open"); w.querySelector(".oc-card").setAttribute("aria-expanded", "false");
+      });
+      wrap.querySelector(".oc-detail__inner").innerHTML = orderDetailsInner(card.dataset.oid)
+        || `<div class="cust-inline-empty">No details recorded for this order.</div>`;
+    }
+    wrap.classList.toggle("is-open", open);
+    card.setAttribute("aria-expanded", open ? "true" : "false");
+    if(open) setTimeout(() => wrap.scrollIntoView({ block:"nearest", behavior:"smooth" }), 340);
+  }
   function openOrderModal(oid){
     const cust = getSheetCustomer();
     const o = allOrdersOf(cust).find(x => x.id === oid);
@@ -3852,7 +3899,7 @@ function closeOrderDetailsModal() {
   function orderCardHtml(o){
     const px = /^PX-/.test(o.id);
     const created = odmDateTime(o.placed_at), statusAt = odmDateTime(o.status_at || o.placed_at);
-    return `<button type="button" class="oc-card" data-act="open-order" data-oid="${escAttr(o.id)}" aria-label="${orderKind(o.id)} ${escAttr(o.id)}, ${escAttr(o.status)}. Open details">
+    return `<div class="oc-wrap"><button type="button" class="oc-card" data-act="open-order" data-oid="${escAttr(o.id)}" aria-expanded="false" aria-label="${orderKind(o.id)} ${escAttr(o.id)}, ${escAttr(o.status)}. Show order details">
       <span class="oc-card__head">
         <span class="oc-card__left">
           <span class="oc-card__idrow"><span class="oc-card__label">Order ID</span><span class="oc-card__id${px ? " proxy" : ""}">${escapeHtml(o.id)}</span></span>
@@ -3863,7 +3910,7 @@ function closeOrderDetailsModal() {
           ${ICONS.chevron.replace('<svg ', '<svg class="oc-card__chev" ')}
         </span>
       </span>
-    </button>`;
+    </button><div class="oc-detail"><div class="oc-detail__inner"></div></div></div>`;
   }
   function orderRowHtml(o){ return orderCardHtml(o); }
 
@@ -4083,7 +4130,7 @@ function closeOrderDetailsModal() {
     switch(act){
       case "close": closeCustomerPanel(); break;
       case "back": goView("profile"); break;
-      case "open-order": openOrderModal(el.dataset.oid); break;
+      case "open-order": toggleOrderDropdown(el); break;
       case "all-orders": goView("orders"); break;
       case "no-phone": showToast("No phone number on file"); break;
       case "toggle-val": {
