@@ -371,6 +371,10 @@ $('#sim').onclick=()=>{
   setTimeout(()=>$('#toast').classList.remove('show'),5200);
 };
 
+/* embedded in the main app: leave room for the app's back button, follow app theme */
+(function(){const q=new URLSearchParams(location.search);
+  if(q.get('embed')){document.querySelector('.top').style.paddingLeft='60px';document.querySelector('.top').style.paddingTop='calc(14px + env(safe-area-inset-top,0px))'}
+  if(q.get('theme')==='light'||q.get('theme')==='dark')document.documentElement.dataset.theme=q.get('theme')})();
 /* theme */
 $('#themeBtn').onclick=()=>{const r=document.documentElement;r.dataset.theme=r.dataset.theme==='dark'?'light':'dark'};
 render();
