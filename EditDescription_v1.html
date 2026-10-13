@@ -57,8 +57,8 @@ svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2;stroke-l
 .menu button.on{background:var(--accent-soft);color:var(--accent)}
 .menu .h2{font:800 20px var(--display)}.menu .h3{font:700 16px var(--display)}
 .cp{width:176px;padding:12px}
-.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px}
-.sw{height:38px;border-radius:10px;border:1.5px solid var(--border);cursor:pointer;padding:0}
+.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-bottom:10px}
+.sw{width:100%;aspect-ratio:1/1;height:auto;border-radius:10px;border:1.5px solid var(--border);cursor:pointer;padding:0}
 .sw:active{transform:scale(.92)}
 .custom{display:flex;align-items:center;gap:10px;border-top:1px solid var(--border);padding-top:10px;cursor:pointer;font:600 13px var(--font);color:var(--text)}
 .custom input{width:30px;height:30px;border:1.5px solid var(--border);border-radius:8px;padding:0;background:none;cursor:pointer}
@@ -229,7 +229,7 @@ menu.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)retur
 const grid=$('#grid');
 COLORS.forEach(([c,n])=>{const b=document.createElement('button');b.className='sw';b.style.background=c;b.title=n;b.setAttribute('aria-label',n);b.onclick=()=>color(c);grid.appendChild(b);});
 const cu=document.createElement('label');cu.className='custom';cu.innerHTML='<input type="color" value="#009ddc" aria-label="Custom colour"><span>Custom</span>';
-cu.querySelector('input').addEventListener('input',e=>color(e.target.value));grid.appendChild(cu);
+cu.querySelector('input').addEventListener('input',e=>color(e.target.value));cp.appendChild(cu);
 /* colour pen (same model as the admin panel): pick a colour, then every text selection gets it until Done */
 let pen=null, penKey='';
 function color(v){
