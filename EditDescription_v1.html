@@ -35,13 +35,15 @@ svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2;stroke-l
 .edge.r{right:0;background:linear-gradient(270deg,var(--surface2) 55%,transparent)}
 /* editor: fills the remaining height, scrolls inside itself, never overflows the card */
 .paper{flex:1;min-height:0;display:flex}
-#ed{flex:1;min-width:0;overflow-y:auto;-webkit-overflow-scrolling:touch;border:1px solid var(--border);border-radius:16px;background:var(--paper);color:var(--ink);padding:16px 18px 28px;font:400 17px/1.6 var(--font);outline:none;overflow-wrap:anywhere}
+#ed{-webkit-user-select:text;user-select:text;flex:1;min-width:0;overflow-y:auto;-webkit-overflow-scrolling:touch;border:1px solid var(--border);border-radius:16px;background:var(--paper);color:var(--ink);padding:16px 18px 28px;font:400 17px/1.6 var(--font);outline:none;overflow-wrap:anywhere}
 #ed:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
 #ed:empty:before{content:attr(data-ph);color:var(--ink-muted)}
 #ed p{margin:0 0 8px}
 #ed h2{font:800 25px/1.25 var(--display);margin:14px 0 6px}
 #ed h3{font:700 19px/1.3 var(--display);margin:12px 0 4px}
-#ed ul,#ed ol{padding-left:26px;margin:4px 0 10px}
+#ed ul,#ed ol{padding-left:30px;margin:4px 0 10px}
+#ed li::marker{font-variant-numeric:tabular-nums}
+#ed li[style*="text-align: center"],#ed li[style*="text-align:center"],#ed li[style*="text-align: right"],#ed li[style*="text-align:right"]{list-style-position:inside;padding-left:0}
 #ed li{margin:3px 0;padding-left:2px}
 #ed blockquote{border-left:4px solid #e1e4ea;padding:2px 0 2px 16px;margin:8px 0;color:var(--ink-muted)}
 #ed a{color:#0b7bc4;text-decoration:underline}
@@ -64,6 +66,7 @@ svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2;stroke-l
 .custom input{width:30px;height:30px;border:1.5px solid var(--border);border-radius:8px;padding:0;background:none;cursor:pointer}
 .hint{display:none;align-items:center;justify-content:space-between;gap:8px;flex-shrink:0;background:var(--accent-soft);color:var(--accent);font:600 13px var(--font);padding:9px 12px;border-radius:12px}
 .hint.show{display:flex}
+.hint .acts{display:flex;gap:8px;flex-shrink:0}
 .hint button{background:var(--btn);color:#fff;border:0;border-radius:8px;padding:7px 14px;font:700 12.5px var(--font);cursor:pointer;flex-shrink:0}
 .toast{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 90px);transform:translate(-50%,12px);background:#101828;color:#fff;padding:11px 18px;border-radius:999px;font:600 14px var(--font);opacity:0;pointer-events:none;transition:.2s;z-index:60}
 .toast.show{opacity:1;transform:translate(-50%,0)}
@@ -129,7 +132,7 @@ svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2;stroke-l
       <button class="edge r" id="eR" aria-label="Scroll tools right" hidden><svg><use href="#i-r"/></svg></button>
     </div>
 
-    <div class="hint" id="hint"><span>Colour pen active — select text to apply</span><button type="button" id="penOff">Done</button></div>
+    <div class="hint" id="hint"><span>Colour pen on — select text, then tap Apply</span><span class="acts"><button type="button" id="penApply">Apply</button><button type="button" id="penOff">Done</button></span></div>
 
     <div class="paper">
 <div id="ed" contenteditable="true" spellcheck="false" role="textbox" aria-multiline="true" aria-label="Product description" data-ph="Write a detailed product description…"><h2>Product Overview</h2><p>Doctor’s Best Magnesium Glycinate features TRAACS® chelated magnesium, a highly absorbable form bound with glycine for superior absorption and excellent stomach tolerance.</p><p>It supports muscle relaxation, nervous system function, heart health, stress reduction, and quality sleep without the laxative effect common in other magnesium forms.</p><h2>Key Features</h2><ul><li>Highly Absorbable Chelated Magnesium (Glycinate)</li><li>Gentle on the Stomach – No Laxative Effect</li><li>Supports Muscle Relaxation &amp; Cramp Relief</li><li>Helps Improve Sleep Quality</li></ul><h2>Suggested Use</h2><ul><li>Take <b>2 capsules</b> daily, preferably with food, or as directed by a healthcare professional.</li></ul><h2>Important Notes ⚠️</h2><blockquote><p>Suitable for long-term daily use</p><p>Not intended to diagnose, treat, cure, or prevent any disease</p></blockquote></div>
@@ -153,7 +156,7 @@ svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2;stroke-l
 (function(){
 const $=s=>document.querySelector(s), hint=$('#hint'), ed=$('#ed'), tb=$('#tb'), menu=$('#menu'), cp=$('#cp'), L=$('#eL'), R=$('#eR');
 const COLORS=[['#1a2e4d','Navy'],['#009ddc','Cyan'],['#f26430','Orange'],['#6761a8','Purple'],['#009b72','Green'],['#d92d2d','Red'],['#e0a800','Gold'],['#6b7280','Grey'],['#000000','Black']];
-let saved=null, dirty=false, tt=0, pt=0;
+let saved=null, dirty=false, tt=0, pt=0, sq=0;
 
 /* theme: follows the device, or the host app via postMessage({type:'theme',theme:'dark'|'light'}) */
 const mq=matchMedia('(prefers-color-scheme: dark)');
@@ -175,7 +178,11 @@ addEventListener('message',e=>{
 /* selection is remembered so toolbar taps never lose the caret */
 document.addEventListener('selectionchange',()=>{
   const s=getSelection();
-  if(s.rangeCount&&ed.contains(s.anchorNode)){saved=s.getRangeAt(0).cloneRange();sync();clearTimeout(pt);pt=setTimeout(penCheck,350);}
+  if(s.rangeCount&&ed.contains(s.anchorNode)){
+    saved=s.getRangeAt(0).cloneRange();
+    if(!sq)sq=requestAnimationFrame(()=>{sq=0;sync();});
+    if(pen){clearTimeout(pt);pt=setTimeout(penCheck,1400);}
+  }
 });
 function restore(){ed.focus();if(saved){const s=getSelection();s.removeAllRanges();s.addRange(saved);}}
 function run(c,v){restore();document.execCommand(c,false,v==null?null:v);ed.focus();changed();sync();}
@@ -247,6 +254,7 @@ function penCheck(){
 }
 function penOff(){pen=null;penKey='';$('#bColor').classList.remove('on');hint.classList.remove('show');}
 $('#penOff').onclick=penOff;
+$('#penApply').onclick=()=>{restore();penKey='';penCheck();};
 ['mouseup','touchend'].forEach(ev=>ed.addEventListener(ev,()=>setTimeout(penCheck,0)));
 function openPop(el,btn){
   const was=el.classList.contains('open');closePops();if(was)return;
