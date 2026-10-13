@@ -12958,7 +12958,7 @@ function ovAdaptProfit(d, tf, prevSide) {
                profit: Math.round(Number(it.profit) || 0), margin: it.margin == null ? null : Math.round(Number(it.margin)), category: ovKnownCat(it.category) };
     }),
     summary: {
-      units: Number(p.units) || 0, profitTotal: Math.round(Number(p.gross) || 0), discount: Math.round(Number(p.discount) || 0),
+      units: Number(p.units) || 0, profitTotal: Math.round(Number(p.gross) || 0), discount: Math.round(Number(p.discount) || 0), shipDiscount: Math.round(Number(d.ship_discount) || 0),
       returnsNet: Math.round(Number(p.returns_net) || 0), grandTotal: Math.round(Number(p.net) || 0),
       blendedMargin: d.margin == null ? null : Number(d.margin)
     }
@@ -13759,6 +13759,11 @@ function renderProfitBody(data) {
         <span class="p-summary-label">Discount</span>
         <span class="p-summary-label"></span>
         <span class="p-summary-value negative">-৳${data.summary.discount.toLocaleString('en-IN')}</span>
+      </div>
+      <div class="p-summary-row">
+        <span class="p-summary-label">Shipping discount</span>
+        <span class="p-summary-label" style="font-size:10px;opacity:.75">fee waived · not in profit</span>
+        <span class="p-summary-value" style="color:var(--ludba-orange)">৳${(data.summary.shipDiscount || 0).toLocaleString('en-IN')}</span>
       </div>
       <div class="p-summary-row">
         <span class="p-summary-label">Returns (net of restock)</span>
