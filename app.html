@@ -4303,6 +4303,41 @@ html[data-theme="dark"] .action-sheet-chevron {
   color: rgba(255,255,255,0.25);
 }
 
+/* ====== ACTION SHEET: Payments + Inbox quick cards ====== */
+.as-duo{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:2px 0 12px;padding-top:4px}
+.as-k{--c:#7C6FF7;position:relative;display:flex;align-items:center;gap:9px;min-height:54px;padding:9px 10px;text-align:left;cursor:pointer;
+  background:#ffffff;border:1px solid #e4e9f1;border-top:2px solid var(--c);border-radius:14px;
+  box-shadow:0 1px 0 rgba(255,255,255,.9) inset,0 10px 20px -8px rgba(20,28,40,.28),0 3px 6px rgba(20,28,40,.10);
+  transform:translateY(-2px);transition:transform .25s cubic-bezier(.22,1,.36,1),box-shadow .25s;
+  -webkit-user-select:none;user-select:none;touch-action:manipulation;font-family:inherit}
+html[data-theme="dark"] .as-k{background:#23364d;border-color:#26384d;border-top-color:var(--c);
+  box-shadow:0 1px 0 rgba(255,255,255,.07) inset,0 10px 20px -6px rgba(0,0,0,.55),0 3px 6px rgba(0,0,0,.3)}
+.as-k:active{transform:translateY(1px) scale(.965);box-shadow:0 3px 8px -3px rgba(20,28,40,.3)}
+.as-k.pay{--c:#F4A922}
+.as-k.inbox{--c:#3E8BF7}
+.as-k-ic{width:32px;height:32px;border-radius:10px;flex:none;display:grid;place-items:center;background:color-mix(in srgb,var(--c) 15%,transparent)}
+.as-k-ic svg{width:17px;height:17px;stroke:var(--c);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.as-k-tx{flex:1;min-width:0}
+.as-k-tx b{display:block;font-family:"Plus Jakarta Sans",sans-serif;font-size:13.5px;font-weight:800;color:#001f3c;letter-spacing:-.01em}
+.as-k-tx small{display:block;font-size:11px;line-height:1.2;color:#8c92a1;font-weight:500;white-space:nowrap}
+html[data-theme="dark"] .as-k-tx b{color:#fff}
+html[data-theme="dark"] .as-k-tx small{color:rgba(255,255,255,.55)}
+.as-k-n{position:absolute;top:-6px;right:-4px;min-width:20px;height:20px;padding:0 6px;border-radius:99px;background:var(--c);color:#fff;
+  border:2px solid #ffffff;font-family:"Plus Jakarta Sans",sans-serif;font-weight:800;font-size:11px;display:grid;place-items:center}
+html[data-theme="dark"] .as-k-n{border-color:#162130}
+.as-k-n.zero{display:none}
+.action-sheet-overlay.active .as-k{animation:asLift .55s cubic-bezier(.22,1,.36,1) backwards}
+.action-sheet-overlay.active .as-k.inbox{animation-delay:.08s}
+@keyframes asLift{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(-2px)}}
+.as-rw{position:absolute;inset:0;border-radius:inherit;overflow:hidden;pointer-events:none}
+.as-rp{position:absolute;border-radius:50%;background:var(--c);opacity:.28;transform:scale(0);animation:asRp .6s ease-out forwards}
+@keyframes asRp{to{transform:scale(1);opacity:0}}
+@media (prefers-reduced-motion:reduce){.as-k,.as-rp{animation:none!important;transition:none!important}}
+#paymentsOverlay{position:fixed;inset:0;z-index:9000;background:#0f1621;display:none}
+#paymentsFrame{position:absolute;inset:0;width:100%;height:100%;border:none;display:block;background:#0f1621}
+#paymentsBack{position:absolute;top:calc(10px + env(safe-area-inset-top,0px));left:10px;z-index:2;width:38px;height:38px;border-radius:12px;border:1px solid rgba(255,255,255,.18);
+  background:rgba(22,33,48,.92);color:#fff;font-size:22px;line-height:1;display:grid;place-items:center;cursor:pointer}
+
 /* ============================================================
    ====== FULL-SCREEN MODALS ======
    ============================================================ */
@@ -14635,6 +14670,18 @@ function showToast(message, type = 'success') {
 <div class="action-sheet-overlay" id="actionSheetOverlay" onclick="closeActionSheet(event)">
   <div class="action-sheet-panel" onclick="event.stopPropagation()">
     <div class="action-sheet-handle"></div>
+    <div class="as-duo">
+      <button class="as-k pay" id="asPayCard" type="button" onclick="openPaymentsHub()">
+        <span class="as-k-n" id="asPayN">2</span>
+        <span class="as-k-ic"><svg viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="13" rx="3"/><path d="M3 10h18"/><circle cx="16.5" cy="14.5" r="1.2"/></svg></span>
+        <span class="as-k-tx"><b>Payments</b><small id="asPaySub">2 need review</small></span>
+      </button>
+      <button class="as-k inbox" id="asInboxCard" type="button" onclick="openInboxFromSheet()">
+        <span class="as-k-n" id="asInN">5</span>
+        <span class="as-k-ic"><svg viewBox="0 0 24 24"><path d="M4 6.5A2.5 2.5 0 0 1 6.5 4h11A2.5 2.5 0 0 1 20 6.5v8a2.5 2.5 0 0 1-2.5 2.5H11l-4.5 3.5V17A2.5 2.5 0 0 1 4 14.5z"/></svg></span>
+        <span class="as-k-tx"><b>Inbox</b><small id="asInSub">5 unread</small></span>
+      </button>
+    </div>
     <div class="action-sheet-card" onclick="openNewOrderModal()">
       <div class="action-sheet-icon" style="background:rgba(76,175,125,0.12)">
         <svg viewBox="0 0 24 24" fill="none" stroke="#4CAF7D" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6"/></svg>
@@ -14686,6 +14733,12 @@ function showToast(message, type = 'success') {
 <!-- ====== CUSTOMER INBOX OVERLAY ====== -->
 <div id="inboxOverlay">
   <iframe id="inboxFrame" title="Customer Inbox"></iframe>
+</div>
+
+<!-- ====== PAYMENTS HUB OVERLAY ====== -->
+<div id="paymentsOverlay">
+  <button id="paymentsBack" type="button" aria-label="Back" onclick="closePaymentsHub()">&#8249;</button>
+  <iframe id="paymentsFrame" title="Payments Hub"></iframe>
 </div>
 
 <!-- ====== ADMIN PANEL MODAL ====== -->
@@ -20429,9 +20482,55 @@ if (!isNaN(savedLowStockThreshold) && savedLowStockThreshold >= 1) {
    ====== ACTION SHEET ======
    ============================================================ */
 function openActionSheet() {
+  asRefreshCards();
   document.getElementById('actionSheetOverlay').classList.add('active');
   document.getElementById('fabBtn').classList.add('active');
 }
+/* Payments + Inbox quick cards. Counts are placeholders until wired to Supabase:
+   set window.SV_PAYMENTS_REVIEW_COUNT = n when payment data is connected. */
+function asSetCard(numId, subId, n, one, none) {
+  const el = document.getElementById(numId), sub = document.getElementById(subId);
+  if (!el || !sub) return;
+  el.textContent = n; el.classList.toggle('zero', !n);
+  sub.textContent = n ? (n + ' ' + one) : none;
+}
+function asRefreshCards() {
+  let inboxN = 5;
+  try { if (typeof AL_INBOX_COUNTS !== 'undefined') inboxN = Object.values(AL_INBOX_COUNTS).reduce((a, b) => a + b, 0); } catch (e) {}
+  const payN = (typeof window.SV_PAYMENTS_REVIEW_COUNT === 'number') ? window.SV_PAYMENTS_REVIEW_COUNT : 2;
+  asSetCard('asPayN', 'asPaySub', payN, 'need review', 'All clear');
+  asSetCard('asInN', 'asInSub', inboxN, 'unread', 'All clear');
+}
+function openInboxFromSheet() {
+  closeActionSheet();
+  if (typeof openCustomerInbox === 'function') openCustomerInbox();
+}
+function openPaymentsHub() {
+  closeActionSheet();
+  const overlay = document.getElementById('paymentsOverlay');
+  const frame = document.getElementById('paymentsFrame');
+  if (!overlay || !frame) return;
+  const dark = document.documentElement.getAttribute('data-theme') === 'dark';
+  frame.src = 'relay-ui/suppverse-payments-hub.html?embed=1&theme=' + (dark ? 'dark' : 'light') + '&t=' + Date.now();
+  overlay.style.display = 'block';
+}
+function closePaymentsHub() {
+  const overlay = document.getElementById('paymentsOverlay');
+  if (overlay) overlay.style.display = 'none';
+  const frame = document.getElementById('paymentsFrame');
+  if (frame) frame.src = 'about:blank';
+}
+/* tap ripple on the two cards */
+document.addEventListener('pointerdown', function(e) {
+  const k = e.target.closest && e.target.closest('.as-k');
+  if (!k) return;
+  let w = k.querySelector('.as-rw');
+  if (!w) { w = document.createElement('span'); w.className = 'as-rw'; k.appendChild(w); }
+  const r = k.getBoundingClientRect(), d = Math.max(r.width, r.height) * 2;
+  const el = document.createElement('span'); el.className = 'as-rp';
+  el.style.cssText = 'width:' + d + 'px;height:' + d + 'px;left:' + (e.clientX - r.left - d / 2) + 'px;top:' + (e.clientY - r.top - d / 2) + 'px';
+  w.appendChild(el); el.addEventListener('animationend', () => el.remove());
+});
 function closeActionSheet(e) {
   if (e && e.target !== e.currentTarget) return;
   document.getElementById('actionSheetOverlay').classList.remove('active');
