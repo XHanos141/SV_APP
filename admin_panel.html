@@ -1197,6 +1197,50 @@ fieldset:disabled :is(.img-thumb-item,.img-thumb-add,.img-thumb-remove){touch-ac
   html{scroll-behavior:auto}
   *,*::before,*::after{transition-duration:.01ms!important;transition-delay:0s!important;animation-duration:.01ms!important;animation-iteration-count:1!important}
 }
+
+/* ── Delivery Charges (district zones × weight) ── */
+.sz-note{font-size:11px;line-height:1.5;color:var(--text2);margin:0 0 12px;font-weight:500}
+.sz-note b{color:var(--text);font-weight:700}
+.sz-global{display:grid;grid-template-columns:1fr;gap:10px;margin-bottom:12px}
+.sz-list{display:flex;flex-direction:column;gap:10px}
+.sz-zone{border:1.5px solid var(--border-strong);border-radius:14px;background:var(--surface2);overflow:hidden;transition:border-color .2s,box-shadow .2s}
+.sz-zone.open{border-color:var(--accent);box-shadow:0 4px 14px var(--accent-glow)}
+.sz-head{display:flex;align-items:center;gap:10px;padding:12px 12px;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.sz-dot{width:34px;height:34px;border-radius:10px;background:var(--accent-soft);color:var(--accent);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.sz-dot svg{width:18px;height:18px}
+.sz-meta{flex:1;min-width:0}
+.sz-name{font-family:var(--font-display);font-size:13.5px;font-weight:800;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sz-sub{font-size:11px;color:var(--text2);font-weight:500;margin-top:2px}
+.sz-price{font-family:var(--font-display);font-size:14px;font-weight:800;color:var(--text);text-align:right;flex-shrink:0}
+.sz-price small{display:block;font-size:10px;font-weight:600;color:var(--text2)}
+.sz-chev{width:16px;height:16px;color:var(--text3);transition:transform .25s;flex-shrink:0}
+.sz-zone.open .sz-chev{transform:rotate(180deg)}
+.sz-body{display:none;padding:2px 12px 14px;border-top:1px solid var(--border)}
+.sz-zone.open .sz-body{display:block;animation:szIn .22s ease}
+@keyframes szIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
+.sz-body .field{margin-top:10px;margin-bottom:0}
+.sz-grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.sz-chips-bar{display:flex;align-items:center;justify-content:space-between;margin:14px 0 8px}
+.sz-chips-bar span{font-family:var(--font-display);font-size:11px;font-weight:700;color:var(--text2)}
+.sz-link{border:none;background:none;color:var(--accent);font-family:var(--font-display);font-size:11px;font-weight:700;padding:4px 0;cursor:pointer}
+.sz-link.danger{color:var(--red)}
+.sz-search{width:100%;margin-bottom:8px}
+.sz-chips{display:flex;flex-wrap:wrap;gap:6px;max-height:180px;overflow-y:auto;scrollbar-width:thin}
+.sz-chip{border:1.5px solid var(--border-strong);background:var(--surface);color:var(--text2);border-radius:999px;padding:6px 11px;font-family:var(--font-body);font-size:12px;font-weight:600;cursor:pointer;transition:all .15s}
+.sz-chip.on{background:var(--accent);border-color:var(--accent);color:#fff;box-shadow:0 2px 8px var(--accent-glow)}
+.sz-chip.other{opacity:.45}
+.sz-add{width:100%;margin-top:10px;padding:12px;border:1.5px dashed var(--border-strong);border-radius:12px;background:transparent;color:var(--accent);font-family:var(--font-display);font-size:13px;font-weight:700;cursor:pointer}
+.sz-add:active{background:var(--accent-soft)}
+.sz-foot{display:flex;justify-content:flex-end;margin-top:12px}
+.sz-test{margin-top:14px;padding:14px;border-radius:14px;background:var(--surface2);border:1px solid var(--border)}
+.sz-test h4{margin:0 0 10px;font-family:var(--font-display);font-size:12px;font-weight:800;color:var(--text)}
+.sz-test .sz-grid3{display:grid;grid-template-columns:1.3fr 1fr 1fr;gap:8px}
+.sz-test .field{margin:0}
+.sz-test .field label{font-size:10px}
+.sz-result{margin-top:10px;display:flex;align-items:center;justify-content:space-between;padding:10px 12px;border-radius:10px;background:var(--surface);border:1px solid var(--border);font-size:12px;color:var(--text2);font-weight:600}
+.sz-result strong{font-family:var(--font-display);font-size:16px;font-weight:800;color:var(--text)}
+.sz-result strong.free{color:var(--green)}
+fieldset:disabled .sz-chip,fieldset:disabled .sz-add,fieldset:disabled .sz-link{pointer-events:none;opacity:.55}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script src="assets/js/supabase-config.js"></script>
@@ -2386,6 +2430,37 @@ fill="#ed1d24"><rect width="512" height="512" rx="15%" fill="#ed1d24"/><path d="
     <div class="save-bar" style="margin:14px 0 0;border-radius:14px">
       <button class="btn-draft" id="shipCancelBtn" style="display:none">Cancel</button>
       <button class="btn-save" id="shipSaveBtn" disabled>Save Changes</button>
+    </div>
+  </div>
+
+  <div class="form-card" id="shipZonesCard" style="min-height:0;max-height:none">
+    <h3>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 17h4V5H2v12h3"/><path d="M14 8h4l4 4v5h-3"/><circle cx="7.5" cy="17.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/></svg>Delivery Charges
+      <button type="button" class="edit-lock-btn" id="szEditBtn" style="margin-left:auto"></button>
+    </h3>
+    <p class="sz-note">Fee by <b>district zone</b> and <b>parcel weight</b>. Orders over the free-shipping amount (or Full discount) above still ship free. Districts not in any zone use the <b>Flat Shipping Fee</b>.</p>
+    <fieldset id="szFieldset" style="border:none;margin:0;padding:0">
+      <div class="sz-global">
+        <div class="field" style="margin:0">
+          <label>Base weight included (kg)</label>
+          <input type="number" id="inpSzBaseKg" value="1" min="0.5" step="0.5" oninput="szGlobalInput()">
+        </div>
+      </div>
+      <div class="sz-list" id="szList"></div>
+      <button type="button" class="sz-add" onclick="szAddZone()">+ Add Zone</button>
+    </fieldset>
+    <div class="save-bar" style="margin:14px 0 0;border-radius:14px">
+      <button class="btn-draft" id="szCancelBtn" style="display:none">Cancel</button>
+      <button class="btn-save" id="szSaveBtn" disabled>Save Changes</button>
+    </div>
+    <div class="sz-test">
+      <h4>Fee calculator</h4>
+      <div class="sz-grid3">
+        <div class="field"><label>District</label><select id="szTestDist" onchange="szTest()"></select></div>
+        <div class="field"><label>Weight (kg)</label><input type="number" id="szTestKg" value="1" min="0" step="0.1" oninput="szTest()"></div>
+        <div class="field"><label>Order (৳)</label><input type="number" id="szTestSub" value="0" min="0" step="100" oninput="szTest()"></div>
+      </div>
+      <div class="sz-result"><span id="szTestWhy">—</span><strong id="szTestFee">৳0</strong></div>
     </div>
   </div>
   </div>
@@ -3978,6 +4053,7 @@ initEditLock('footerpayFieldset','footerpayEditBtn','footerpaySaveBtn','footerpa
 initEditLock('paypageFieldset','paypageEditBtn','paypageSaveBtn','paypageCancelBtn',{onSave:function(){savePaymentPageBadges();savePaymentPageQr();}});
 initEditLock('productFieldset','productEditBtn','productSaveBtn','productCancelBtn',{silentSave:true,onCancel:function(){loadProductToEditor(currentEditId||'new');}});
 initEditLock('shipFieldset','shipEditBtn','shipSaveBtn','shipCancelBtn',{onSave:saveShipping,silentSave:true,onCancel:function(){updateShipping();}});
+initEditLock('szFieldset','szEditBtn','szSaveBtn','szCancelBtn',{onSave:saveShipZones,silentSave:true,onCancel:szCancel});
 initEditLock(['bfmHeroFieldset','bfmBadgesFieldset'],'bfmHeroEditBtn','bfmHeroSaveBtn','bfmHeroCancelBtn',{onSave:saveBfmHero,onCancel:function(){updateBfmHero();}});
 initEditLock('bfmStoresFieldset','bfmStoresEditBtn','bfmStoresSaveBtn','bfmStoresCancelBtn',{onSave:saveBfmStoresDb,onCancel:cancelBfmStores,silentSave:true});
 initEditLock('bfmFeesFieldset','bfmFeesEditBtn','bfmFeesSaveBtn','bfmFeesCancelBtn',{onSave:saveBfmFeesDb,onCancel:cancelBfmFees,silentSave:true});
@@ -6050,6 +6126,171 @@ async function loadShipping(){
   updateShipping();
 }
 
+
+/* ═══════════════════════════════════════════════════════════════
+   DELIVERY CHARGES — zones (district → base + per extra kg)
+   site_content page=store section=shipping_zones
+   content: { base_kg, zones:[{id,name,base,per_kg,districts[]}] }
+   fee = zone.base + ceil(max(0, kg - base_kg)) * zone.per_kg
+   ═══════════════════════════════════════════════════════════════ */
+var BD_DISTRICTS = ['Bagerhat','Bandarban','Barguna','Barishal','Bhola','Bogura','Brahmanbaria','Chandpur','Chapai Nawabganj','Chattogram','Chuadanga','Cox\'s Bazar','Cumilla','Dhaka','Dinajpur','Faridpur','Feni','Gaibandha','Gazipur','Gopalganj','Habiganj','Jamalpur','Jashore','Jhalokathi','Jhenaidah','Joypurhat','Khagrachhari','Khulna','Kishoreganj','Kurigram','Kushtia','Lakshmipur','Lalmonirhat','Madaripur','Magura','Manikganj','Meherpur','Moulvibazar','Munshiganj','Mymensingh','Naogaon','Narail','Narayanganj','Narsingdi','Natore','Netrokona','Nilphamari','Noakhali','Pabna','Panchagarh','Patuakhali','Pirojpur','Rajbari','Rajshahi','Rangamati','Rangpur','Satkhira','Shariatpur','Sherpur','Sirajganj','Sunamganj','Sylhet','Tangail','Thakurgaon'];
+var szState = { base_kg:1, zones:[] }, szSaved = null, szOpen = null, szFilter = '';
+var SZ_CHEV = '<svg class="sz-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>';
+var SZ_PIN = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>';
+function szClone(o){ return JSON.parse(JSON.stringify(o)); }
+function szEsc(t){ return String(t).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+function szNum(v, d){ var n = parseFloat(v); return isFinite(n) && n >= 0 ? n : (d || 0); }
+function szDefaults(){
+  var flat = _shipVals().flat || 120;
+  return { base_kg:1, zones:[
+    { id:'z_dhaka', name:'Inside Dhaka', base:Math.min(70, flat), per_kg:15, districts:['Dhaka'] },
+    { id:'z_out', name:'Outside Dhaka', base:flat, per_kg:25, districts:BD_DISTRICTS.filter(function(d){ return d !== 'Dhaka'; }) }
+  ]};
+}
+function szFee(district, kg){
+  var z = szState.zones.find(function(x){ return x.districts.indexOf(district) > -1; });
+  var w = Math.max(0, szNum(kg, 0)), bk = Math.max(0.5, szNum(szState.base_kg, 1));
+  if(!z){ var f = _shipVals().flat; return { fee:f + 0, zone:null }; }
+  return { fee: z.base + Math.ceil(Math.max(0, w - bk)) * z.per_kg, zone:z };
+}
+/* Public helper: same math the website/checkout should use. */
+window.calcDeliveryFee = function(district, kg, subtotal){
+  var v = _shipVals();
+  if(v.disc === 'full' || (v.free > 0 && subtotal >= v.free)) return 0;
+  var r = szFee(district, kg).fee;
+  return v.disc === 'flat' ? Math.max(0, r - Math.min(v.flatDisc, r)) : r;
+};
+function szRender(){
+  var list = document.getElementById('szList');
+  if(!list) return;
+  list.innerHTML = szState.zones.map(function(z){
+    var open = szOpen === z.id;
+    var chips = '';
+    if(open){
+      var q = szFilter.toLowerCase();
+      chips = BD_DISTRICTS.filter(function(d){ return !q || d.toLowerCase().indexOf(q) > -1; }).map(function(d){
+        var mine = z.districts.indexOf(d) > -1;
+        var owner = !mine && szState.zones.find(function(o){ return o.districts.indexOf(d) > -1; });
+        return '<button type="button" class="sz-chip'+(mine?' on':'')+(owner?' other':'')+'" data-d="'+szEsc(d)+'"'+(owner?' title="In '+szEsc(owner.name)+' — tap to move here"':'')+'>'+szEsc(d)+'</button>';
+      }).join('');
+    }
+    return '<div class="sz-zone'+(open?' open':'')+'" data-id="'+z.id+'">'
+      + '<div class="sz-head" data-act="toggle"><div class="sz-dot">'+SZ_PIN+'</div>'
+      + '<div class="sz-meta"><div class="sz-name">'+szEsc(z.name || 'Untitled zone')+'</div><div class="sz-sub">'+z.districts.length+' district'+(z.districts.length===1?'':'s')+' · +৳'+z.per_kg+'/extra kg</div></div>'
+      + '<div class="sz-price">৳'+z.base+'<small>first '+szState.base_kg+' kg</small></div>'+SZ_CHEV+'</div>'
+      + '<div class="sz-body">'
+      +   '<div class="field"><label>Zone name</label><input type="text" data-f="name" value="'+szEsc(z.name)+'" maxlength="32"></div>'
+      +   '<div class="sz-grid2"><div class="field"><label>Base fee (৳)</label><input type="number" data-f="base" value="'+z.base+'" min="0" step="5" inputmode="numeric"></div>'
+      +   '<div class="field"><label>Per extra kg (৳)</label><input type="number" data-f="per_kg" value="'+z.per_kg+'" min="0" step="5" inputmode="numeric"></div></div>'
+      +   '<div class="sz-chips-bar"><span>Districts ('+z.districts.length+')</span><button type="button" class="sz-link" data-act="clear">Clear</button></div>'
+      +   '<input type="text" class="sz-search" data-f="search" placeholder="Search district…" value="'+szEsc(szFilter)+'">'
+      +   '<div class="sz-chips">'+chips+'</div>'
+      +   '<div class="sz-foot"><button type="button" class="sz-link danger" data-act="del">Delete zone</button></div>'
+      + '</div></div>';
+  }).join('');
+  szFillTest();
+  szTest();
+}
+function szZoneOf(el){ var n = el.closest('.sz-zone'); return n ? szState.zones.find(function(z){ return z.id === n.dataset.id; }) : null; }
+function szBind(){
+  var list = document.getElementById('szList');
+  list.addEventListener('click', function(e){
+    var z = szZoneOf(e.target); if(!z) return;
+    var chip = e.target.closest('.sz-chip');
+    if(chip){
+      var d = chip.dataset.d;
+      szState.zones.forEach(function(o){ o.districts = o.districts.filter(function(x){ return x !== d; }); });
+      if(!chip.classList.contains('on')) z.districts.push(d);
+      var sc = list.querySelector('.sz-chips'), top = sc ? sc.scrollTop : 0;
+      szRender(); sc = list.querySelector('.sz-chips'); if(sc) sc.scrollTop = top;
+      return;
+    }
+    var act = e.target.closest('[data-act]'); if(!act) return;
+    if(act.dataset.act === 'toggle'){ szOpen = szOpen === z.id ? null : z.id; szFilter = ''; szRender(); }
+    else if(act.dataset.act === 'clear'){ z.districts = []; szRender(); }
+    else if(act.dataset.act === 'del'){
+      if(!confirm('Delete "'+(z.name||'this zone')+'"? Its districts will use the Flat Shipping Fee.')) return;
+      szState.zones = szState.zones.filter(function(x){ return x !== z; }); szOpen = null; szRender();
+    }
+  });
+  list.addEventListener('input', function(e){
+    var f = e.target.dataset.f; if(!f) return;
+    if(f === 'search'){
+      szFilter = e.target.value;
+      var z0 = szZoneOf(e.target), pos = e.target.selectionStart; szRender();
+      var inp = list.querySelector('.sz-zone.open [data-f="search"]'); if(inp){ inp.focus(); inp.setSelectionRange(pos,pos); }
+      return;
+    }
+    var z = szZoneOf(e.target); if(!z) return;
+    z[f] = f === 'name' ? e.target.value : Math.round(szNum(e.target.value, 0));
+    var head = e.target.closest('.sz-zone');
+    head.querySelector('.sz-name').textContent = z.name || 'Untitled zone';
+    head.querySelector('.sz-price').firstChild.textContent = '৳'+z.base;
+    head.querySelector('.sz-sub').textContent = z.districts.length+' district'+(z.districts.length===1?'':'s')+' · +৳'+z.per_kg+'/extra kg';
+    szTest();
+  });
+}
+function szGlobalInput(){
+  szState.base_kg = Math.max(0.5, szNum(document.getElementById('inpSzBaseKg').value, 1));
+  szRender();
+}
+function szAddZone(){
+  var id = 'z_' + Date.now().toString(36);
+  szState.zones.push({ id:id, name:'New zone', base:_shipVals().flat || 120, per_kg:20, districts:[] });
+  szOpen = id; szFilter = ''; szRender();
+  var n = document.querySelector('.sz-zone[data-id="'+id+'"]'); if(n) n.scrollIntoView({behavior:'smooth',block:'center'});
+}
+function szFillTest(){
+  var sel = document.getElementById('szTestDist'); if(!sel) return;
+  var cur = sel.value || 'Dhaka';
+  sel.innerHTML = BD_DISTRICTS.map(function(d){ return '<option'+(d===cur?' selected':'')+'>'+szEsc(d)+'</option>'; }).join('');
+}
+function szTest(){
+  var d = document.getElementById('szTestDist').value, kg = document.getElementById('szTestKg').value, sub = szNum(document.getElementById('szTestSub').value, 0);
+  var v = _shipVals(), r = szFee(d, kg), out = document.getElementById('szTestFee'), why = document.getElementById('szTestWhy');
+  var fee = window.calcDeliveryFee(d, kg, sub);
+  out.textContent = fee === 0 ? 'FREE' : '৳' + fee.toLocaleString('en-IN');
+  out.classList.toggle('free', fee === 0);
+  why.textContent = (v.disc === 'full' || (v.free > 0 && sub >= v.free)) ? 'Free shipping rule applies'
+    : (r.zone ? r.zone.name + ' · ' + szNum(kg,0) + ' kg' : 'No zone · flat fee');
+}
+function szValidate(){
+  var names = {};
+  for(var i=0;i<szState.zones.length;i++){
+    var z = szState.zones[i]; z.name = (z.name||'').trim();
+    if(!z.name) return 'Every zone needs a name';
+    if(names[z.name.toLowerCase()]) return 'Duplicate zone name: ' + z.name;
+    names[z.name.toLowerCase()] = 1;
+  }
+  return null;
+}
+async function saveShipZones(){
+  var err = szValidate();
+  if(err){ T(err,'⚠️'); szEditAgain(); return; }
+  if(!window.sb){ T('Not connected to database','⚠️'); szCancel(); return; }
+  var content = { base_kg: szState.base_kg, zones: szState.zones.map(function(z){ return { id:z.id, name:z.name, base:z.base, per_kg:z.per_kg, districts:z.districts.slice() }; }) };
+  var res = await sb.from('site_content').upsert({ page:'store', section:'shipping_zones', content:content, updated_at:new Date().toISOString() }, { onConflict:'page,section' });
+  if(res.error){ console.error('saveShipZones error:', res.error.message); T('Save failed — check connection','❌'); szCancel(); return; }
+  szSaved = szClone(szState);
+  T('Delivery charges are live','🚀');
+}
+function szEditAgain(){ var b = document.getElementById('szEditBtn'); if(b) b.click(); }
+function szCancel(){ if(szSaved) szState = szClone(szSaved); document.getElementById('inpSzBaseKg').value = szState.base_kg; szOpen = null; szRender(); }
+async function loadShipZones(){
+  var loaded = null;
+  try {
+    if(window.sb){
+      var r = await sb.from('site_content').select('content').eq('page','store').eq('section','shipping_zones').maybeSingle();
+      if(!r.error && r.data && r.data.content && Array.isArray(r.data.content.zones)) loaded = r.data.content;
+    }
+  } catch(e){}
+  szState = loaded ? { base_kg: Math.max(0.5, szNum(loaded.base_kg,1)), zones: loaded.zones.map(function(z){ return { id:z.id || ('z_'+Math.random().toString(36).slice(2,8)), name:String(z.name||''), base:Math.round(szNum(z.base,0)), per_kg:Math.round(szNum(z.per_kg,0)), districts:(z.districts||[]).filter(function(d){ return BD_DISTRICTS.indexOf(d) > -1; }) }; }) } : szDefaults();
+  szSaved = szClone(szState);
+  document.getElementById('inpSzBaseKg').value = szState.base_kg;
+  szRender();
+}
+(function(){ var l = document.getElementById('szList'); if(l) szBind(); })();
+
 /* ═══════════════════════════════════════════════════════════════
    BANNERS — repeatable list, backed by site_content + storage bucket
    ═══════════════════════════════════════════════════════════════ */
@@ -7311,6 +7552,7 @@ updateWbBadge();
 refreshFaq();
 loadFaqsFromDb();
 loadShipping();
+loadShipZones();
 </script>
 <!-- ====== STOCK PRODUCT PICKER SHEET ====== -->
 <div class="prod-picker-overlay" id="stockPickerOverlay" onclick="closeStockPicker()">
