@@ -4157,6 +4157,7 @@ html[data-theme="dark"] .draft-shipping-input::placeholder { color: rgba(255,255
   z-index: 10;
 }
 .nav-fab-btn {
+  position: relative;
   width: 52px;
   height: 52px;
   border-radius: 50%;
@@ -4188,6 +4189,33 @@ html[data-theme="dark"] .nav-fab-btn {
   height: 24px;
   color: #ffffff;
   transition: transform 0.4s cubic-bezier(0.4,0,0.2,1);
+}
+
+/* "+" button ring indicator: the white ring turns green (payments), blue (inbox) or a green-blue gradient (both) and breathes smoothly */
+.nav-fab-btn::before, .nav-fab-btn::after {
+  content: ""; position: absolute; inset: -3px; border-radius: 50%; pointer-events: none; opacity: 0;
+}
+.nav-fab-btn::before {
+  padding: 3px; background: var(--fab-ring, transparent);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor; mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+}
+.nav-fab-btn[data-ind="pay"]   { --fab-ring: linear-gradient(135deg,#4CC38A,#2f9b68); --fab-glow: rgba(47,155,104,.45); }
+.nav-fab-btn[data-ind="inbox"] { --fab-ring: linear-gradient(135deg,#5B9BFF,#2476f0); --fab-glow: rgba(36,118,240,.45); }
+.nav-fab-btn[data-ind="both"]  { --fab-ring: conic-gradient(#2f9b68, #2476f0, #2f9b68); --fab-glow: rgba(36,118,240,.4); }
+.nav-fab-btn[data-ind]::before { animation: fabRingBreathe 2.4s ease-in-out infinite; }
+.nav-fab-btn[data-ind]::after  { animation: fabHalo 2.4s ease-out infinite; }
+.nav-fab-btn[data-ind="both"]::before { animation: fabRingBreathe 2.4s ease-in-out infinite, fabRingSpin 6s linear infinite; }
+@keyframes fabRingBreathe { 0%,100% { opacity: .35; } 50% { opacity: 1; } }
+@keyframes fabRingSpin { to { transform: rotate(360deg); } }
+@keyframes fabHalo {
+  0%   { opacity: .9; box-shadow: 0 0 0 0 var(--fab-glow); }
+  70%  { opacity: 0;  box-shadow: 0 0 0 11px rgba(0,0,0,0); }
+  100% { opacity: 0;  box-shadow: 0 0 0 11px rgba(0,0,0,0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .nav-fab-btn[data-ind]::before { animation: none !important; opacity: 1; }
+  .nav-fab-btn[data-ind]::after { animation: none !important; }
 }
 
 /* Action Sheet */
@@ -20476,13 +20504,29 @@ function asSetCard(numId, subId, n, one, none) {
   el.textContent = n; el.classList.toggle('zero', !n);
   sub.textContent = n ? (n + ' ' + one) : none;
 }
-function asRefreshCards() {
+function asCounts() {
   let inboxN = 5;
-  try { if (typeof AL_INBOX_COUNTS !== 'undefined') inboxN = Object.values(AL_INBOX_COUNTS).reduce((a, b) => a + b, 0); } catch (e) {}
+  try { if (typeof AL_INBOX_COUNTS !== 'undefined') inboxN = Object.values(AL_INBOX_COUNTS).reduce((x, y) => x + y, 0); } catch (e) {}
   const payN = (typeof window.SV_PAYMENTS_REVIEW_COUNT === 'number') ? window.SV_PAYMENTS_REVIEW_COUNT : 2;
-  asSetCard('asPayN', 'asPaySub', payN, 'need review', 'All clear');
-  asSetCard('asInN', 'asInSub', inboxN, 'unread', 'All clear');
+  return { payN, inboxN };
 }
+/* "+" ring: green = payments waiting, blue = inbox unread, gradient = both. Call window.svUpdateFabIndicator() whenever either count changes. */
+function svUpdateFabIndicator() {
+  const fab = document.getElementById('fabBtn');
+  if (!fab) return;
+  const c = asCounts();
+  const st = (c.payN > 0 && c.inboxN > 0) ? 'both' : c.payN > 0 ? 'pay' : c.inboxN > 0 ? 'inbox' : '';
+  if (st) fab.setAttribute('data-ind', st); else fab.removeAttribute('data-ind');
+  fab.setAttribute('aria-label', 'Add new' + (c.payN > 0 ? ', ' + c.payN + ' payments need review' : '') + (c.inboxN > 0 ? ', ' + c.inboxN + ' unread messages' : ''));
+}
+window.svUpdateFabIndicator = svUpdateFabIndicator;
+function asRefreshCards() {
+  const c = asCounts();
+  asSetCard('asPayN', 'asPaySub', c.payN, 'need review', 'All clear');
+  asSetCard('asInN', 'asInSub', c.inboxN, 'unread', 'All clear');
+  svUpdateFabIndicator();
+}
+if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', svUpdateFabIndicator); else svUpdateFabIndicator();
 function openInboxFromSheet() {
   closeActionSheet();
   if (typeof openCustomerInbox === 'function') openCustomerInbox();
