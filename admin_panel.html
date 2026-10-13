@@ -2362,7 +2362,8 @@ fill="#ed1d24"><rect width="512" height="512" rx="15%" fill="#ed1d24"/><path d="
         <input type="number" id="inpShipFlat" value="120" min="0" step="10" oninput="updateShipping()">
       </div>
     </div>
-    <div class="field" style="margin-top:2px">
+    <div class="field-row" id="shipDiscRow">
+    <div class="field">
       <label>Shipping Discount</label>
       <div class="section-dd field-dd" id="shipDd">
         <button type="button" class="section-dd-trigger" id="shipDdTrigger" onclick="toggleShipDd(event)" aria-haspopup="listbox" aria-expanded="false">
@@ -2377,8 +2378,9 @@ fill="#ed1d24"><rect width="512" height="512" rx="15%" fill="#ed1d24"/><path d="
       <input type="hidden" id="inpShipDisc" value="flat">
     </div>
     <div class="field" id="shipFlatDiscRow">
-      <label>Flat Discount (৳)</label>
+      <label>Discount Amount (৳)</label>
       <input type="number" id="inpShipFlatDisc" value="0" min="0" step="10" oninput="updateShipping()">
+    </div>
     </div>
     </fieldset>
     <div class="save-bar" style="margin:14px 0 0;border-radius:14px">
@@ -5999,6 +6001,7 @@ function updateShipping(){
   /* Full overrides both amounts: dim them. Flat reveals the discount row. */
   document.getElementById('shipAmountRow').style.opacity = full ? '.45' : '';
   document.getElementById('shipFlatDiscRow').style.display = full ? 'none' : '';
+  document.getElementById('shipDiscRow').style.gridTemplateColumns = full ? '1fr' : '';   /* Full: dropdown takes the whole row */
   document.getElementById('shipDdLabel').textContent = full ? 'Full' : 'Flat';
   document.querySelectorAll('#shipDdMenu .section-dd-option').forEach(o => o.classList.toggle('selected', o.dataset.value === v.disc));
   renderPvSpecPicker(); renderPvSpecPreview();
