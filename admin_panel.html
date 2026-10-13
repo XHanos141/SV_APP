@@ -112,6 +112,9 @@ body::-webkit-scrollbar{display:none;width:0;height:0}
 .section-dd.open .section-dd-menu{opacity:1;pointer-events:auto;transform:translateY(0)}
 .section-dd-option{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 12px;border-radius:8px;font-family:var(--font-display);font-size:13.5px;font-weight:600;color:var(--text);cursor:pointer;transition:background .15s}
 .section-dd-option:active{background:var(--accent-soft)}
+.field-dd .section-dd-trigger{background:var(--bg);color:var(--text);border:1.5px solid var(--border);box-shadow:none;border-radius:10px;padding:10px 12px;font-family:var(--font-body);font-size:13px}
+.field-dd .section-dd-trigger:disabled{cursor:not-allowed;opacity:1;background:var(--surface2);color:var(--text2)}
+.field-dd.open .section-dd-trigger{border-color:var(--accent)}
 .section-dd-dot{width:16px;height:16px;border-radius:50%;border:2px solid var(--border-strong);flex-shrink:0;position:relative}
 .section-dd-option.selected{color:var(--accent);font-weight:700}
 .section-dd-option.selected .section-dd-dot{border-color:var(--accent)}
@@ -2361,14 +2364,21 @@ fill="#ed1d24"><rect width="512" height="512" rx="15%" fill="#ed1d24"/><path d="
     </div>
     <div class="field" style="margin-top:2px">
       <label>Shipping Discount</label>
-      <select id="inpShipDisc" onchange="updateShipping()">
-        <option value="none">None (customer pays the fee)</option>
-        <option value="full">Full (we cover the whole shipping fee)</option>
-      </select>
+      <div class="section-dd field-dd" id="shipDd">
+        <button type="button" class="section-dd-trigger" id="shipDdTrigger" onclick="toggleShipDd(event)" aria-haspopup="listbox" aria-expanded="false">
+          <span id="shipDdLabel">Flat</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="section-dd-menu" id="shipDdMenu" role="listbox">
+          <div class="section-dd-option selected" data-value="flat" onclick="selectShipDd('flat')" role="option"><span>Flat</span><span class="section-dd-dot"></span></div>
+          <div class="section-dd-option" data-value="full" onclick="selectShipDd('full')" role="option"><span>Full</span><span class="section-dd-dot"></span></div>
+        </div>
+      </div>
+      <input type="hidden" id="inpShipDisc" value="flat">
     </div>
-    <div class="hint-row" style="margin-top:2px">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
-      Live for customers on Save: Cart, Payment, checkout fee and the Free Shipping badge. “Full” makes shipping free on every order
+    <div class="field" id="shipFlatDiscRow">
+      <label>Flat Discount (৳)</label>
+      <input type="number" id="inpShipFlatDisc" value="0" min="0" step="10" oninput="updateShipping()">
     </div>
     </fieldset>
     <div class="save-bar" style="margin:14px 0 0;border-radius:14px">
@@ -5979,23 +5989,43 @@ function _shipVals(){
   return {
     flat: Math.max(0, parseInt(document.getElementById('inpShipFlat').value, 10) || 0),
     free: Math.max(0, parseInt(document.getElementById('inpShipFree').value, 10) || 0),
-    disc: document.getElementById('inpShipDisc').value === 'full' ? 'full' : 'none'
+    disc: document.getElementById('inpShipDisc').value === 'full' ? 'full' : 'flat',
+    flatDisc: Math.max(0, parseInt(document.getElementById('inpShipFlatDisc').value, 10) || 0)
   };
 }
 /* typing only refreshes the live preview; nothing goes live until Save */
 function updateShipping(){
-  /* Full overrides both amounts: dim them so it is clear they are not used */
-  document.getElementById('shipAmountRow').style.opacity = _shipVals().disc === 'full' ? '.45' : '';
+  const v = _shipVals(), full = v.disc === 'full';
+  /* Full overrides both amounts: dim them. Flat reveals the discount row. */
+  document.getElementById('shipAmountRow').style.opacity = full ? '.45' : '';
+  document.getElementById('shipFlatDiscRow').style.display = full ? 'none' : '';
+  document.getElementById('shipDdLabel').textContent = full ? 'Full' : 'Flat';
+  document.querySelectorAll('#shipDdMenu .section-dd-option').forEach(o => o.classList.toggle('selected', o.dataset.value === v.disc));
   renderPvSpecPicker(); renderPvSpecPreview();
 }
 /* Save = publish: site_content store/shipping is read by the web product pages, cart, payment and the server's checkout fee */
+function toggleShipDd(e){
+  e.stopPropagation();
+  const dd = document.getElementById('shipDd'), open = !dd.classList.contains('open');
+  dd.classList.toggle('open', open);
+  document.getElementById('shipDdTrigger').setAttribute('aria-expanded', open ? 'true' : 'false');
+}
+function selectShipDd(value){
+  document.getElementById('inpShipDisc').value = value;
+  document.getElementById('shipDd').classList.remove('open');
+  updateShipping();
+}
+document.addEventListener('click', function(e){
+  const dd = document.getElementById('shipDd');
+  if(dd && dd.classList.contains('open') && !dd.contains(e.target)) dd.classList.remove('open');
+});
 async function saveShipping(){
   if(!window.sb){ T('Not connected to database','⚠️'); loadShipping(); return; }
   const v = _shipVals();
   const { error } = await sb.from('site_content').upsert({
     page: 'store',
     section: 'shipping',
-    content: { flat: v.flat, free_threshold: v.free, shipping_discount: v.disc },
+    content: { flat: v.flat, free_threshold: v.free, shipping_discount: v.disc, flat_discount: v.disc === 'flat' ? Math.min(v.flatDisc, v.flat) : 0 },
     updated_at: new Date().toISOString()
   }, { onConflict: 'page,section' });
   if(error){ console.error('saveShipping error:', error.message); T('Save failed — check connection','❌'); loadShipping(); return; }
@@ -6009,7 +6039,8 @@ async function loadShipping(){
         const f = Number(data.content.flat), t = Number(data.content.free_threshold);
         if(isFinite(f)) document.getElementById('inpShipFlat').value = f;
         if(isFinite(t)) document.getElementById('inpShipFree').value = t;
-        document.getElementById('inpShipDisc').value = data.content.shipping_discount === 'full' ? 'full' : 'none';
+        document.getElementById('inpShipDisc').value = data.content.shipping_discount === 'full' ? 'full' : 'flat';
+        document.getElementById('inpShipFlatDisc').value = Number(data.content.flat_discount) || 0;
       }
     }
   } catch(e){}
