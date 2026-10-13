@@ -1738,7 +1738,7 @@ fieldset:disabled :is(.img-thumb-item,.img-thumb-add,.img-thumb-remove){touch-ac
       <div class="carousel-slide">
         <div class="card-wrap" style="width:100%">
           <div class="pv-specs" id="pvSpecsBox" style="width:100%">
-            <div class="pv-spec" id="pvSpecPreview">
+            <div class="pv-spec" id="pvSpecPreview" style="display:none">
               <div class="pv-spec-icon" id="pvSpecPreviewIcon"></div>
               <div class="pv-spec-body">
                 <div class="pv-spec-text" id="pvSpecPreviewText">Expiry date: <b>09/2028</b></div>
@@ -2349,19 +2349,26 @@ fill="#ed1d24"><rect width="512" height="512" rx="15%" fill="#ed1d24"/><path d="
       <button type="button" class="edit-lock-btn" id="shipEditBtn" style="margin-left:auto"></button>
     </h3>
     <fieldset id="shipFieldset" style="border:none;margin:0;padding:0">
-    <div class="field-row">
-      <div class="field">
-        <label>Flat Shipping Fee (৳)</label>
-        <input type="number" id="inpShipFlat" value="120" min="0" step="10" oninput="updateShipping()">
-      </div>
+    <div class="field-row" id="shipAmountRow">
       <div class="field">
         <label>Free Shipping Over (৳)</label>
         <input type="number" id="inpShipFree" value="6800" min="0" step="50" oninput="updateShipping()">
       </div>
+      <div class="field">
+        <label>Flat Shipping Fee (৳)</label>
+        <input type="number" id="inpShipFlat" value="120" min="0" step="10" oninput="updateShipping()">
+      </div>
+    </div>
+    <div class="field" style="margin-top:2px">
+      <label>Shipping Discount</label>
+      <select id="inpShipDisc" onchange="updateShipping()">
+        <option value="none">None (customer pays the fee)</option>
+        <option value="full">Full (we cover the whole shipping fee)</option>
+      </select>
     </div>
     <div class="hint-row" style="margin-top:2px">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
-      Live for customers on Save: Cart, Payment, checkout fee and the Free Shipping badge on product pages
+      Live for customers on Save: Cart, Payment, checkout fee and the Free Shipping badge. “Full” makes shipping free on every order
     </div>
     </fieldset>
     <div class="save-bar" style="margin:14px 0 0;border-radius:14px">
@@ -4057,6 +4064,8 @@ function _pvCatColor(){
 function _pvSpecText(item){
   if(item.getText) return item.getText();
   if(item.text !== null) return item.text;
+  const dsel = document.getElementById('inpShipDisc');
+  if(dsel && dsel.value === 'full') return 'Free shipping on <b id="pvcardThreshold">all orders</b>';
   const threshold = document.getElementById('inpShipFree') ? document.getElementById('inpShipFree').value : '6800';
   return 'Free shipping over <b id="pvcardThreshold">৳' + parseInt(threshold, 10).toLocaleString() + '</b>';
 }
@@ -4082,7 +4091,7 @@ function renderPvSpecPreview(){
   /* live Free-shipping row, same as the product page; hidden when that spec is the one being previewed */
   const ship = PV_SPEC_DATA.find(x => x.label === 'Free shipping'), row = document.getElementById('pvSpecShipRow');
   if(ship && row){
-    row.style.display = (item === ship) ? 'none' : '';
+    row.style.display = '';
     document.getElementById('pvSpecShipIcon').innerHTML = ship.icon;
     document.getElementById('pvSpecShipIcon').style.background = soft;
     document.getElementById('pvSpecShipIcon').style.color = color;
@@ -5969,13 +5978,14 @@ const BANNER_DECO = {
 function _shipVals(){
   return {
     flat: Math.max(0, parseInt(document.getElementById('inpShipFlat').value, 10) || 0),
-    free: Math.max(0, parseInt(document.getElementById('inpShipFree').value, 10) || 0)
+    free: Math.max(0, parseInt(document.getElementById('inpShipFree').value, 10) || 0),
+    disc: document.getElementById('inpShipDisc').value === 'full' ? 'full' : 'none'
   };
 }
 /* typing only refreshes the live preview; nothing goes live until Save */
 function updateShipping(){
-  const badge = document.getElementById('pvcardThreshold');
-  if(badge) badge.textContent = '৳' + _shipVals().free.toLocaleString();
+  /* Full overrides both amounts: dim them so it is clear they are not used */
+  document.getElementById('shipAmountRow').style.opacity = _shipVals().disc === 'full' ? '.45' : '';
   renderPvSpecPicker(); renderPvSpecPreview();
 }
 /* Save = publish: site_content store/shipping is read by the web product pages, cart, payment and the server's checkout fee */
@@ -5985,7 +5995,7 @@ async function saveShipping(){
   const { error } = await sb.from('site_content').upsert({
     page: 'store',
     section: 'shipping',
-    content: { flat: v.flat, free_threshold: v.free },
+    content: { flat: v.flat, free_threshold: v.free, shipping_discount: v.disc },
     updated_at: new Date().toISOString()
   }, { onConflict: 'page,section' });
   if(error){ console.error('saveShipping error:', error.message); T('Save failed — check connection','❌'); loadShipping(); return; }
@@ -5999,6 +6009,7 @@ async function loadShipping(){
         const f = Number(data.content.flat), t = Number(data.content.free_threshold);
         if(isFinite(f)) document.getElementById('inpShipFlat').value = f;
         if(isFinite(t)) document.getElementById('inpShipFree').value = t;
+        document.getElementById('inpShipDisc').value = data.content.shipping_discount === 'full' ? 'full' : 'none';
       }
     }
   } catch(e){}
