@@ -11979,13 +11979,7 @@ function renderChart() {
   const marginEl = document.getElementById('currentMargin');
   const pill = document.getElementById('zonePill');
   if (data.length) {
-    const last = data[data.length - 1];
-    const zone = getZone(last.margin);
-    marginEl.textContent = last.margin.toFixed(1) + '%';
-    marginEl.style.color = ZONE_COLORS[zone];
-    pill.className = 'zone-pill ' + (zone === 'green' ? 'healthy' : zone === 'orange' ? 'watch' : 'danger');
-    pill.style.display = '';
-    document.getElementById('zoneText').textContent = getZoneLabel(zone);
+    mtSetHeader(data.periodMargin != null ? data.periodMargin : data[data.length - 1].margin);
   } else {
     marginEl.textContent = '—';
     marginEl.style.color = '';
@@ -12067,6 +12061,7 @@ function resetScrubber() {
     stopReturnAnimation();
     return;
   }
+  mtSetHeader(data.periodMargin != null ? data.periodMargin : data[data.length - 1].margin);
   const lastIdx = data.length - 1;
   const x = xScale(lastIdx, data.length);
   const y = yScale(data[lastIdx].margin);
@@ -12090,12 +12085,24 @@ function resetScrubber() {
   }
 }
 
+function mtSetHeader(m) {
+  const marginEl = document.getElementById('currentMargin');
+  const pill = document.getElementById('zonePill');
+  const zone = getZone(m);
+  marginEl.textContent = m.toFixed(1) + '%';
+  marginEl.style.color = ZONE_COLORS[zone];
+  pill.className = 'zone-pill ' + (zone === 'green' ? 'healthy' : zone === 'orange' ? 'watch' : 'danger');
+  pill.style.display = '';
+  document.getElementById('zoneText').textContent = getZoneLabel(zone);
+}
+
 function showPopup(index) {
   const data = currentData;
   const d = data[index];
   const zone = getZone(d.margin);
   const x = xScale(index, data.length);
   const y = yScale(d.margin);
+  mtSetHeader(d.margin);
 
   const popup = document.getElementById('popup');
   const wrapper = document.getElementById('chartWrapper');
@@ -12633,68 +12640,79 @@ function ovTicks(tf, t0, t1) {
 }
 
 function ovBuildSeries(tf, series) {
-  const H6 = 6 * 3600000, D1 = 86400000;
-  const nowD = Date.now() + H6;
+  const H = 3600000, D = 86400000;
+  const nowD = Date.now() + 6 * H;
   const nd = new Date(nowD);
   const y0 = nd.getUTCFullYear(), m0 = nd.getUTCMonth(), d0 = nd.getUTCDate();
   const dayStart = Date.UTC(y0, m0, d0);
-  let pts = [];
-  let cumRev = 0, cumCost = 0;
+  const sales = [];
   series.forEach(function(s) {
     const b = String(s.bucket || '');
     const t = Date.UTC(+b.slice(0, 4), +b.slice(5, 7) - 1, +b.slice(8, 10), +b.slice(11, 13) || 0, +b.slice(14, 16) || 0, +b.slice(17, 19) || 0);
-    if (isNaN(t)) return;
-    let margin;
-    if (s.rev_c != null && s.cost != null) {
-      cumRev += +s.rev_c;
-      cumCost += +s.cost;
-      margin = cumRev > 0 ? (cumRev - cumCost) / cumRev * 100 : null;
-    } else {
-      margin = s.margin == null ? null : +s.margin;
+    if (isNaN(t) || s.rev_c == null || s.cost == null) return;
+    sales.push({ t: t, rc: +s.rev_c, cost: +s.cost, rev: +s.revenue || 0, units: +s.units || 0, sku: s.top_sku || '', cat: s.top_cat });
+  });
+  const slots = [];
+  const md = function(t) { const x = new Date(t); return x.getUTCDate() + ' ' + OV_MON[x.getUTCMonth()]; };
+  if (tf === 'today') {
+    for (let h = 0; h < 24; h++) {
+      slots.push({ s: dayStart + h * H, e: dayStart + (h + 1) * H, label: (h % 12 || 12) + (h < 12 ? 'am' : 'pm'), sub: md(dayStart), tick: h % 3 === 0 });
     }
-    if (margin == null) return;
-    const dt = new Date(t), hh = dt.getUTCHours(), mm = dt.getUTCMinutes();
+  } else if (tf === 'week') {
+    const w0 = dayStart - ((nd.getUTCDay() + 6) % 7) * D;
+    for (let i = 0; i < 7; i++) {
+      const s0 = w0 + i * D;
+      slots.push({ s: s0, e: s0 + D, label: OV_DOW[new Date(s0).getUTCDay()], sub: md(s0), tick: true });
+    }
+  } else if (tf === 'month') {
+    const mS = Date.UTC(y0, m0, 1), mE = Date.UTC(y0, m0 + 1, 1);
+    for (let i = 0; mS + i * 7 * D < mE; i++) {
+      const s0 = mS + i * 7 * D, e0 = Math.min(s0 + 7 * D, mE);
+      const a1 = new Date(s0).getUTCDate(), a2 = new Date(e0 - D).getUTCDate();
+      slots.push({ s: s0, e: s0 + 7 * D, label: 'W' + (i + 1), sub: a1 + '-' + a2 + ' ' + OV_MON[m0], tick: true, cap: e0 });
+    }
+  } else {
+    let first = Date.UTC(y0, m0 - 3, 1);
+    if (tf === 'all') {
+      const mn = sales.length ? Math.min.apply(null, sales.map(function(x) { return x.t; })) : dayStart;
+      const f = new Date(mn);
+      first = Date.UTC(f.getUTCFullYear(), f.getUTCMonth(), 1);
+    }
+    const f0 = new Date(first);
+    const total = (y0 - f0.getUTCFullYear()) * 12 + (m0 - f0.getUTCMonth()) + 1;
+    const stepK = Math.ceil(total / 8);
+    for (let k = 0; k < total; k++) {
+      const s0 = Date.UTC(f0.getUTCFullYear(), f0.getUTCMonth() + k, 1), e0 = Date.UTC(f0.getUTCFullYear(), f0.getUTCMonth() + k + 1, 1);
+      const x = new Date(s0);
+      slots.push({ s: s0, e: e0, label: OV_MON[x.getUTCMonth()], sub: total > 12 ? "'" + String(x.getUTCFullYear()).slice(2) : String(x.getUTCFullYear()), tick: k % stepK === 0 });
+    }
+  }
+  const pts = [];
+  let allRc = 0, allCost = 0;
+  slots.forEach(function(sl) {
+    let rc = 0, cost = 0, rev = 0, units = 0, n = 0;
+    const skus = {};
+    sales.forEach(function(x) {
+      if (x.t < sl.s || x.t >= (sl.cap || sl.e)) return;
+      rc += x.rc; cost += x.cost; rev += x.rev; units += x.units; n++;
+      const k = x.sku || '—';
+      if (!skus[k]) skus[k] = { rev: 0, cat: x.cat };
+      skus[k].rev += x.rev;
+    });
+    if (!n || rc <= 0) return;
+    allRc += rc; allCost += cost;
+    let top = '—', topRev = -1, topCat = 'general';
+    Object.keys(skus).forEach(function(k) { if (skus[k].rev > topRev) { topRev = skus[k].rev; top = k; topCat = skus[k].cat; } });
     pts.push({
-      t: t,
-      label: dt.getUTCDate() + ' ' + OV_MON[dt.getUTCMonth()],
-      sublabel: (hh % 12 || 12) + ':' + (mm < 10 ? '0' : '') + mm + (hh < 12 ? 'am' : 'pm'),
-      margin: margin, saleMargin: s.margin == null ? null : +s.margin,
-      revenue: +s.revenue, saleRev: +s.revenue, units: +s.units,
-      topSku: s.top_sku || '—', topCat: TOP5_CATEGORY_LABELS[s.top_cat] ? s.top_cat : 'general'
+      t: (sl.s + (sl.cap || sl.e)) / 2, label: sl.label, sublabel: sl.sub,
+      margin: (rc - cost) / rc * 100, revenue: rev, saleRev: rev, units: units,
+      topSku: top, topCat: TOP5_CATEGORY_LABELS[topCat] ? topCat : 'general'
     });
   });
-  if (pts.length > 150) {
-    const k = Math.ceil(pts.length / 150);
-    pts = pts.filter(function(p, i) { return i % k === 0 || i === pts.length - 1; });
-  }
-  let t0;
-  if (tf === 'today') t0 = dayStart;
-  else if (tf === 'week') t0 = dayStart - ((nd.getUTCDay() + 6) % 7) * D1;
-  else if (tf === 'month') t0 = Date.UTC(y0, m0, 1);
-  else if (tf === 'quarter') t0 = Date.UTC(y0, m0 - 3, d0);
-  else if (pts.length) { const f = new Date(pts[0].t); t0 = Date.UTC(f.getUTCFullYear(), f.getUTCMonth(), f.getUTCDate()); }
-  else t0 = dayStart;
-  let t1 = nowD;
-  if (pts.length) {
-    if (pts[0].t < t0) t0 = pts[0].t;
-    if (pts[pts.length - 1].t > t1) t1 = pts[pts.length - 1].t;
-  }
-  X_T0 = t0; X_T1 = t1; X_TICKS = ovTicks(tf, t0, t1);
-  if (pts.length) {
-    const ms = pts.map(function(p) { return p.margin; });
-    const lo = Math.min(30, Math.min.apply(null, ms)), hi = Math.max(30, Math.max.apply(null, ms));
-    Y_STEP = 10;
-    Y_MIN = Math.floor((lo - 10) / 10) * 10;
-    Y_MAX = Math.ceil((hi + 10) / 10) * 10;
-    if (Y_MAX - Y_MIN > 70) {
-      Y_STEP = 20;
-      Y_MIN = Math.floor(Y_MIN / 20) * 20;
-      Y_MAX = Math.ceil(Y_MAX / 20) * 20;
-    }
-    if (Y_MAX - Y_MIN < 30) Y_MAX = Y_MIN + 30;
-  } else {
-    Y_STEP = 10; Y_MIN = 10; Y_MAX = 60;
-  }
+  pts.periodMargin = allRc > 0 ? (allRc - allCost) / allRc * 100 : null;
+  X_T0 = slots[0].s; X_T1 = slots[slots.length - 1].e;
+  X_TICKS = slots.filter(function(sl) { return sl.tick; }).map(function(sl) { return { t: (sl.s + sl.e) / 2, label: sl.label }; });
+  Y_STEP = 10; Y_MIN = 10; Y_MAX = 60;
   return pts;
 }
 
