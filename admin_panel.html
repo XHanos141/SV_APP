@@ -8,6 +8,10 @@
 <title>SuppVerse BD — Product Editor</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@600;700;800&family=Outfit:wght@400;500;600;700;800&family=Noto+Sans+Bengali:wght@400;500;600;700;800&family=Courier+Prime:wght@400;700&display=swap" rel="stylesheet">
 <style>
+/* no long-press text selection; inputs and .allow-select stay selectable */
+html,body{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+input,textarea,select,[contenteditable="true"],.allow-select,.allow-select *{-webkit-user-select:text;user-select:text}
+
 :root{
   --p2p-border:rgba(10,22,40,0.14);
   --bg:#F4F7FB; --surface:#ffffff; --surface2:#F8FAFD;

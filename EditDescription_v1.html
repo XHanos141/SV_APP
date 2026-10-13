@@ -7,6 +7,10 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&family=Noto+Sans+Bengali:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
+/* no long-press text selection; inputs and .allow-select stay selectable */
+html,body{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+input,textarea,select,[contenteditable="true"],.allow-select,.allow-select *{-webkit-user-select:text;user-select:text}
+
 :root{--bg:#f6f8fb;--hdr:#eaf3ff;--surface:#fff;--surface2:#f4f6f9;--border:#d9dfe8;--text:#101828;--muted:#667085;--accent:#5b21ff;--accent-soft:rgba(91,33,255,.12);--btn:#5b21ff;--paper:#fff;--ink:#14181f;--ink-muted:#6b7280;--shadow:0 12px 32px rgba(16,24,40,.18);--font:'DM Sans','Noto Sans Bengali',system-ui,sans-serif;--display:'Plus Jakarta Sans','Noto Sans Bengali',system-ui,sans-serif}
 :root[data-theme=dark]{--bg:#0f1621;--hdr:#162130;--surface:#162130;--surface2:#1d2c3e;--border:#2a3b52;--text:#e8eef7;--muted:#8fa0b6;--accent:#a99fff;--accent-soft:rgba(139,124,255,.2);--btn:#6d5ef0;--shadow:0 12px 32px rgba(0,0,0,.5)}
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
