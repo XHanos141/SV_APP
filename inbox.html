@@ -2199,19 +2199,14 @@ html:not([data-theme="light"]) .odm-card { background: rgba(124,111,247,0.08); b
   .pk-cat svg{ width:22px; height:22px; fill:#fff; stroke:#fff; }
   .pk-cat--all{ background:linear-gradient(135deg,#8a93a6,#667085); }
   .pk-cat--all svg{ fill:none; stroke:#fff; stroke-width:2.6; }
-  .pk-row{ display:flex; align-items:center; gap:12px; padding:10px 16px; border-bottom:1px solid var(--hairline); cursor:pointer; animation:svRise .3s var(--ease-out) both; transition:background .2s ease; }
+  .pk-row{ display:flex; align-items:stretch; gap:10px; padding:12px 16px; border-bottom:1px solid var(--hairline); cursor:pointer; animation:svRise .3s var(--ease-out) both; transition:background .2s ease; }
   .pk-row:active{ background:var(--surface); }
-  .pk-badge{ width:40px; height:40px; border-radius:12px; display:flex; align-items:center; justify-content:center; flex:0 0 auto; color:#fff; }
-  .pk-badge svg{ width:21px; height:21px; fill:#fff; stroke:#fff; }
-  .pk-main{ flex:1; min-width:0; }
-  .pk-name{ font-size:14.5px; font-weight:800; line-height:1.25; color:var(--text-1); overflow-wrap:anywhere; }
-  .pk-spec{ font-size:12px; line-height:1.3; color:var(--text-2); overflow-wrap:anywhere; }
-  .pk-skurow{ display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:4px 8px; margin-top:3px; }
-  .pk-sku{ font-family:"Roboto Mono","SFMono-Regular",monospace; font-size:11.5px; font-weight:800; letter-spacing:.04em; color:#0a9bc7; white-space:nowrap; }
   .pk-stock{ flex:0 0 auto; font-size:11.5px; font-weight:800; padding:3px 10px; border-radius:999px; border:1px solid transparent; white-space:nowrap; }
   .pk-stock.in{ color:#1f9d6b; background:rgba(47,216,138,.14); border-color:rgba(47,216,138,.3); }
   .pk-stock.low{ color:#d38a0c; background:rgba(244,169,34,.14); border-color:rgba(244,169,34,.34); }
   .pk-stock.out{ color:#d95353; background:rgba(217,83,83,.12); border-color:rgba(217,83,83,.3); }
+  .pk-row .odm-pi{ flex:1; min-width:0; padding:0 !important; border-bottom:0 !important; }
+  .pk-side{ flex:0 0 auto; display:flex; flex-direction:column; align-items:flex-end; justify-content:space-between; gap:8px; }
   .pk-i{ flex:0 0 auto; width:30px; height:30px; border-radius:50%; background:#7C6FF7; color:#fff; display:flex; align-items:center; justify-content:center; transition:transform .18s var(--ease-out); }
   .pk-i:active{ transform:scale(.88); }
   .pk-i svg{ width:17px; height:17px; }
@@ -4866,7 +4861,7 @@ function closeOrderDetailsModal() {
     const imgs = Array.isArray(pw.web_images) ? pw.web_images : [];
     return {
       id:pr.id, sku:pr.sku, brand:pr.brand || "", name:pr.name || "Unnamed product", title:[pr.brand, pr.name].filter(Boolean).join(" "),
-      spec:[pa, cc].filter(Boolean).join(" • "), category:pr.category, price:pr.price, old:pr.old_price, qty, stock,
+      spec:[pa, cc].filter(Boolean).join(" • "), category:pr.category, subcategory:pr.subcategory || "", price:pr.price, old:pr.old_price, qty, stock,
       form:sd.form_type || "", count:cc, potency:pa, flavor:sd.flavor || "", origin:sd.country_of_origin || "",
       desc:htmlToText(pw.web_description), usage:htmlToText(pw.usage), caution:htmlToText(pw.caution),
       benefits:Array.isArray(pw.benefits) ? pw.benefits.map(b => typeof b === "string" ? b : (b && (b.text || b.title)) || "").filter(Boolean) : [],
@@ -4920,7 +4915,7 @@ function closeOrderDetailsModal() {
     ppList.innerHTML = `<div class="hub-skel"></div><div class="hub-skel"></div><div class="hub-skel"></div>`;
     try{
       let qb = c.from("products")
-        .select("id,sku,name,brand,category,price,old_price,stock_qty,is_active,archived,product_web(slug,web_description,benefits,usage,caution,web_images,settings),supplement_details(form_type,capsule_count,potency_unit,potency_amount,flavor,country_of_origin)")
+        .select("id,sku,name,brand,category,subcategory,price,old_price,stock_qty,is_active,archived,product_web(slug,web_description,benefits,usage,caution,web_images,settings),supplement_details(form_type,capsule_count,potency_unit,potency_amount,flavor,country_of_origin)")
         .eq("archived", false).order("name").limit(40);
       if(pk.cat !== "all") qb = qb.eq("category", pk.cat);
       const term = pk.q.trim().replace(/[,()%*\\]/g, " ").trim();
@@ -4930,15 +4925,19 @@ function closeOrderDetailsModal() {
       if(error) throw error;
       pk.list = (data || []).map(pkInfo);
       ppList.innerHTML = pk.list.length ? pk.list.map(i => {
-        const m = pkMeta(i.category);
+        const key = PK_CATS[i.category] ? i.category : "general", m = pkMeta(i.category);
+        const cube = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8l-9-5-9 5v8l9 5 9-5V8z"/><path d="M3.3 7L12 12l8.7-5M12 22V12"/></svg>';
         return `<div class="pk-row" data-pk="${escapeHtml(i.id)}" role="button" tabindex="0">
-          <div class="pk-badge" style="background:linear-gradient(135deg,${m.c1},${m.c2})"><svg><use href="#cat-icon-${PK_CATS[i.category] ? i.category : "general"}"/></svg></div>
-          <div class="pk-main">
-            <div class="pk-name">${escapeHtml(i.title)}</div>
-            ${i.spec ? `<div class="pk-spec">${escapeHtml(i.spec)}</div>` : ""}
-            <div class="pk-skurow"><span class="pk-sku">${escapeHtml(i.sku || "")}</span><span class="pk-stock ${i.stock}">${STOCK_LABEL(i)}</span></div>
+          <div class="odm-pi">
+            <div class="odm-pi-img">${cube}${i.image ? `<img${svImgAttrs(i.image, 300, 'svImgGone')} alt="" loading="lazy">` : ""}</div>
+            <div class="odm-pi-body">
+              <div class="odm-pc-cat"><span class="odm-item-cat-badge" style="background:linear-gradient(135deg,${m.c1},${m.c2})" title="${escapeHtml(m.label)}"><svg viewBox="0 0 24 24"><use href="#cat-icon-${key}"/></svg></span>${i.subcategory ? `<span>${escapeHtml(i.subcategory)}</span>` : ""}</div>
+              <div class="odm-pi-head"><div class="odm-pc-name">${escapeHtml(i.name)}</div></div>
+              ${i.spec ? `<div class="odm-pc-spec">${escapeHtml(i.spec)}</div>` : ""}
+              <div class="odm-pi-sku">${escapeHtml(i.sku || "")}</div>
+            </div>
           </div>
-          <button type="button" class="pk-i" data-pk-info="${escapeHtml(i.id)}" aria-label="Product info">${INFO_SVG}</button>
+          <div class="pk-side"><button type="button" class="pk-i" data-pk-info="${escapeHtml(i.id)}" aria-label="Product info">${INFO_SVG}</button><span class="pk-stock ${i.stock}">${STOCK_LABEL(i)}</span></div>
         </div>`;
       }).join("") : `<div class="cust-list-empty"><b>${term ? "No matches" : "No products here"}</b>${term ? "No product matches that search." : "Nothing in this category yet."}</div>`;
     }catch(err){
