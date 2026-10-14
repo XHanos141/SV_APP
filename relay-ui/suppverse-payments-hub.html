@@ -73,6 +73,69 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 .chip.on{background:var(--purple);border-color:var(--purple);color:#fff}
 .chip.on .n{background:rgba(255,255,255,.22);color:#fff}
 
+
+/* shared header (same as voucher-hub / admin_profile) */
+.sv-header{
+  position:relative;z-index:10;flex-shrink:0;container-type:inline-size;--sv-side:44px;
+  height:var(--sv-header-h,56px);padding:0 16px;
+  display:grid;grid-template-columns:minmax(36px,1fr) auto minmax(36px,1fr);align-items:center;column-gap:8px;
+  background:radial-gradient(ellipse 80% 60% at 50% -10%,rgba(255,255,255,.03) 0%,transparent 65%),radial-gradient(ellipse 60% 80% at -10% 0%,rgba(124,111,247,.18) 0%,transparent 55%),linear-gradient(180deg,#0f3258 0%,#002248 22%,#001f3c 55%,#001532 82%,#000d20 100%);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.06),inset 0 -1px 0 rgba(0,0,0,.65),0 6px 28px rgba(0,0,0,.55),0 1px 2px rgba(0,0,0,.7);
+  border-bottom:1px solid rgba(0,0,0,.5);
+}
+.sv-header:has(.sv-header__end){--sv-side:96px}
+.sv-header--sticky{position:sticky;top:0;z-index:50}
+.sv-header__back{
+  justify-self:start;
+  width:36px;height:36px;padding:0;border-radius:10px;cursor:pointer;color:#fff;
+  background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);
+  display:flex;align-items:center;justify-content:center;transition:background .2s,transform .15s;
+}
+.sv-header__back:hover{background:rgba(255,255,255,.18)}
+.sv-header__back:active{transform:scale(.92);background:rgba(255,255,255,.18)}
+.sv-header__back svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.sv-header__title{min-width:0;max-width:calc(100cqw - 2 * var(--sv-side));text-align:center}
+.sv-header__end{justify-self:end;display:flex;align-items:center;gap:8px;min-width:0}
+.sv-header__t{font-family:"Plus Jakarta Sans",system-ui,sans-serif;font-size:16px;font-weight:800;letter-spacing:-.3px;line-height:1.2;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sv-header__sub{font-size:10px;font-weight:600;line-height:1.3;color:rgba(255,255,255,.5);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sv-header__spacer{width:36px;height:36px}
+
+200
+
+.header-badge{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:99px;font-size:10px;font-weight:800;background:rgba(47,155,104,.18);color:#4cc790;border:1px solid rgba(47,155,104,.3)}
+.pdot{width:6px;height:6px;border-radius:50%;background:#4cc790;animation:pp 2s infinite}
+@keyframes pp{50%{opacity:.35}}
+/* ===== tabs v2: 4 primary tabs + animated sub-filter ===== */
+.tabs-wrap{position:sticky;top:var(--topH,56px);z-index:19;background:var(--bg);border-bottom:1px solid var(--line);margin-top:14px}
+.tabs{position:relative;display:grid;grid-template-columns:repeat(4,1fr);padding:0 8px;--acc:var(--purple)}
+.tab{display:flex;align-items:center;justify-content:center;gap:6px;min-height:46px;padding:0 2px;font-size:13.5px;font-weight:500;color:var(--t3);transition:color .2s}
+.tab.on{color:var(--t1);font-weight:600}
+.tab .n{min-width:20px;height:19px;padding:0 6px;border-radius:99px;display:grid;place-items:center;font-size:11px;font-weight:600;background:var(--s2);color:var(--t3);transition:.25s var(--ease)}
+.tab.on .n{background:color-mix(in srgb,var(--acc) 18%,transparent);color:var(--acc)}
+.tab.hot .n{background:var(--o-soft);color:var(--orange)}
+.tab.hot:not(.on)::after{content:"";width:6px;height:6px;border-radius:50%;background:var(--orange);margin-left:-2px;margin-top:-10px}
+.ind{position:absolute;left:0;bottom:-1px;height:3px;border-radius:3px 3px 0 0;background:var(--acc);transition:transform .35s var(--ease),width .35s var(--ease),background .25s}
+.subrow{display:grid;grid-template-rows:0fr;transition:grid-template-rows .35s var(--ease)}
+.subrow.open{grid-template-rows:1fr}
+.subrow>div{overflow:hidden}
+.seg{display:flex;gap:4px;margin:10px 16px 12px;padding:3px;background:var(--s1);border:1px solid var(--line);border-radius:12px}
+.seg button{flex:1;min-height:34px;border-radius:9px;font-size:12.5px;font-weight:500;color:var(--t3);display:flex;align-items:center;justify-content:center;gap:5px;transition:.2s var(--ease)}
+.seg button i{font-style:normal;font-size:11px;opacity:.8}
+.seg button.on{background:var(--s2);color:var(--t1);font-weight:600;box-shadow:0 1px 3px rgba(0,0,0,.18)}
+.seg button[data-s=review].on{color:var(--orange)}
+.seg button[data-s=rejected].on{color:var(--red)}
+.stat.tap{cursor:pointer;text-align:left;transition:border-color .2s,transform .2s var(--ease)}
+.stat.tap:active{transform:scale(.98)}
+.stat.tap .go{float:right;font-size:11.5px;color:var(--purple);font-weight:600}
+@media(prefers-reduced-motion:reduce){.ind,.subrow,.tab,.tab .n{transition:none}}
+
+/* minimal overrides */
+.tabs{--acc:var(--purple)!important}
+.tab .n,.tab.on .n,.tab.hot .n{background:none;min-width:0;height:auto;padding:0;font-size:12.5px;font-weight:500;color:var(--t3)}
+.tab.on .n{color:var(--t2)}
+.tab.hot:not(.on)::after{display:none}
+.subrow{display:none}
+.stat.tap .go{display:none}
 /* list */
 .sec-h{display:flex;align-items:center;padding:12px 16px 4px}
 .sec-h h2{font-size:15px;font-weight:700}
@@ -194,19 +257,14 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
   <div><b id="toastT">bKash payment received</b><small id="toastS"></small></div>
 </div>
 
-<header class="top">
-  <div class="row">
-    <div>
-      <h1>Payments</h1>
-      <div class="sub">bKash relay · Order verification</div>
-    </div>
-    <div class="sp"></div>
-    <span class="live"><span class="dot"></span>Live</span>
-    <button class="ico-btn" id="themeBtn" aria-label="Toggle theme">
-      <svg viewBox="0 0 24 24"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
-    </button>
+<div class="sv-header sv-header--sticky" id="svHeader">
+  <button class="sv-header__back" id="backBtn" aria-label="Back"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg></button>
+  <div class="sv-header__title">
+    <div class="sv-header__t">Payments</div>
+    <div class="sv-header__sub">bKash relay · Order verification</div>
   </div>
-</header>
+  <div class="sv-header__end"><div class="header-badge"><span class="pdot"></span>Live</div></div>
+</div>
 
 <section class="wrap">
   <div class="card health">
@@ -225,14 +283,17 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 
   <div class="stats">
     <div class="card stat"><div class="l">Verified today</div><div class="v g" id="sVer">৳0</div><small id="sVerN">0 payments</small></div>
-    <div class="card stat"><div class="l">Needs attention</div><div class="v" id="sAtt">0</div><small>Review or rejected</small></div>
+    <button class="card stat tap" id="attCard"><div class="l">Needs attention<span class="go">View ›</span></div><div class="v" id="sAtt">0</div><small>Review or rejected</small></button>
   </div>
 </section>
 
-<nav class="chips" id="chips" aria-label="Filter payments"></nav>
+<div class="tabs-wrap" id="tabsWrap">
+  <div class="tabs" id="tabs" role="tablist" aria-label="Payment status"><span class="ind" id="ind"></span></div>
+  <div class="subrow" id="subrow"><div><div class="seg" id="seg" role="group" aria-label="Issue type"></div></div></div>
+</div>
 
 <div class="sec-h"><h2 id="listTitle">All payments</h2></div>
-<div class="list" id="list"></div>
+<div class="list" id="list" role="tabpanel"></div>
 
 <button class="fab" id="sim"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>Simulate payment</button>
 
@@ -255,7 +316,10 @@ const STATUS={
   rejected:{label:'Rejected',icon:ICON.no,title:'Payment rejected',sub:'Sender does not match the order. Order stays unpaid.'},
   expired:{label:'Expired',icon:ICON.dash,title:'Payment window closed',sub:'No payment arrived within 20 minutes.'}
 };
-const FILTERS=[['all','All'],['verified','Verified'],['pending','Pending'],['review','Manual review'],['rejected','Rejected'],['expired','Expired']];
+const TABS=[['all','All','--purple'],['verified','Verified','--purple'],['pending','Pending','--purple'],['issues','Problems','--purple']];
+const SUBS=[['all','All'],['review','Review'],['rejected','Rejected'],['expired','Expired']];
+const TITLES={all:'All payments',verified:'Verified payments',pending:'Waiting for payment',issues:'Problems'};
+const EMPTY={all:'No payments yet.',verified:'No verified payments yet.',pending:'Nothing pending. All caught up.',issues:'No problems. All good.'};
 const bdt=n=>'৳'+n.toLocaleString('en-IN');
 
 let DATA=[
@@ -266,13 +330,40 @@ let DATA=[
  {id:5,order:'SV-1035',name:'Sabbir Hossain',phone:'01311 ••• 771',recvd:'01822 ••• 190',amt:null,expect:980,trx:'—',time:'—',ago:'Yesterday',status:'expired',items:'BCAA × 1',city:'Rajshahi',sender:'—',expSender:'01311 ••• 771',checks:[null,null,null,null,null,null]}
 ];
 const CHECK_LABELS=['TrxID','Receiver','Method','Amount','Sender','Time window'];
-let filter='all', nextId=100;
+let filter='all', sub='all', nextId=100;
 
-function counts(){const c={all:DATA.length};DATA.forEach(d=>c[d.status]=(c[d.status]||0)+1);return c}
+function counts(){const c={all:DATA.length,verified:0,pending:0,review:0,rejected:0,expired:0};DATA.forEach(d=>c[d.status]++);c.issues=c.review+c.rejected+c.expired;c.hot=c.review+c.rejected;return c}
+let tabsBuilt=false;
+function buildTabs(){
+  $('#tabs').insertAdjacentHTML('afterbegin',TABS.map(([k,l])=>`<button class="tab" role="tab" data-k="${k}"><span>${l}</span><span class="n"></span></button>`).join(''));
+  $('#tabs').querySelectorAll('.tab').forEach(b=>b.onclick=()=>{if(filter!==b.dataset.k){filter=b.dataset.k;sub='all'}render()});
+  $('#seg').innerHTML=SUBS.map(([k,l])=>`<button data-s="${k}">${l}<i></i></button>`).join('');
+  $('#seg').querySelectorAll('button').forEach(b=>b.onclick=()=>{sub=b.dataset.s;render()});
+  tabsBuilt=true;
+}
+function placeInd(){
+  const on=$('#tabs .tab.on');if(!on)return;
+  const w=Math.max(on.offsetWidth-28,24);
+  $('#ind').style.width=w+'px';
+  $('#ind').style.transform=`translateX(${on.offsetLeft+(on.offsetWidth-w)/2}px)`;
+}
 function renderChips(){
+  if(!tabsBuilt)buildTabs();
   const c=counts();
-  $('#chips').innerHTML=FILTERS.map(([k,l])=>`<button class="chip ${filter===k?'on':''}" data-k="${k}">${l}<span class="n">${c[k]||0}</span></button>`).join('');
-  $('#chips').querySelectorAll('.chip').forEach(b=>b.onclick=()=>{filter=b.dataset.k;render()});
+  const accent=TABS.find(t=>t[0]===filter)[2];
+  $('#tabs').style.setProperty('--acc',`var(${accent})`);
+  $('#tabs').querySelectorAll('.tab').forEach(b=>{
+    const k=b.dataset.k,on=k===filter;
+    b.classList.toggle('on',on);b.setAttribute('aria-selected',on);
+    b.classList.toggle('hot',k==='issues'&&c.hot>0);
+    b.querySelector('.n').textContent=c[k];
+  });
+  $('#subrow').classList.toggle('open',filter==='issues');
+  $('#seg').querySelectorAll('button').forEach(b=>{
+    const k=b.dataset.s;b.classList.toggle('on',k===sub);
+    b.querySelector('i').textContent=k==='all'?c.issues:c[k];
+  });
+  placeInd();
 }
 function renderStats(){
   const v=DATA.filter(d=>d.status==='verified');
@@ -293,13 +384,31 @@ function card(d,cls=''){
     <div class="tx-bot"><span class="st ${d.status}">${s.icon}${s.label}</span><span class="ptr">${d.trx!=='—'?'<span class="mono">'+d.trx+'</span> · ':''}${d.ago}</span></div>
   </button>`;
 }
+function inView(d){
+  if(filter==='all')return true;
+  if(filter==='issues')return ['review','rejected','expired'].includes(d.status)&&(sub==='all'||d.status===sub);
+  return d.status===filter;
+}
 function renderList(){
-  const rows=DATA.filter(d=>filter==='all'||d.status===filter);
-  $('#listTitle').textContent=(FILTERS.find(f=>f[0]===filter)[1])+(filter==='all'?' payments':'');
-  $('#list').innerHTML=rows.length?rows.map(d=>card(d)).join(''):'<div class="empty">No payments in this filter yet.</div>';
+  const rows=DATA.filter(inView);
+  $('#listTitle').textContent=TITLES[filter];
+  $('#list').innerHTML=rows.length?rows.map(d=>card(d)).join(''):'<div class="empty">'+EMPTY[filter]+'</div>';
   $('#list').querySelectorAll('.tx').forEach(b=>b.onclick=()=>openSheet(+b.dataset.id));
 }
 function render(){renderChips();renderStats();renderList()}
+
+/* tab extras */
+$('#attCard').onclick=()=>{filter='issues';sub='all';render();window.scrollTo({top:$('#tabsWrap').offsetTop-$('.sv-header').offsetHeight,behavior:'smooth'})};
+(function(){const top=document.querySelector('.sv-header');const set=()=>{document.documentElement.style.setProperty('--topH',top.offsetHeight+'px');placeInd()};
+  set();addEventListener('resize',set);if(window.ResizeObserver)new ResizeObserver(set).observe(top);
+  if(document.fonts&&document.fonts.ready)document.fonts.ready.then(set);
+  let x0,y0;const L=$('#list');
+  L.addEventListener('touchstart',e=>{x0=e.touches[0].clientX;y0=e.touches[0].clientY},{passive:true});
+  L.addEventListener('touchend',e=>{const dx=e.changedTouches[0].clientX-x0,dy=e.changedTouches[0].clientY-y0;
+    if(Math.abs(dx)<70||Math.abs(dx)<Math.abs(dy)*2)return;
+    const i=TABS.findIndex(t=>t[0]===filter),n=i+(dx<0?1:-1);
+    if(n>=0&&n<TABS.length){filter=TABS[n][0];sub='all';render()}},{passive:true});
+})();
 
 /* match card sheet: SMS → order → side by side → verdict */
 function openSheet(id){
@@ -373,10 +482,10 @@ $('#sim').onclick=()=>{
 
 /* embedded in the main app: leave room for the app's back button, follow app theme */
 (function(){const q=new URLSearchParams(location.search);
-  if(q.get('embed')){document.querySelector('.top').style.paddingLeft='60px';document.querySelector('.top').style.paddingTop='calc(14px + env(safe-area-inset-top,0px))'}
+  if(q.get('embed')){$('#backBtn').style.visibility='hidden'}
   if(q.get('theme')==='light'||q.get('theme')==='dark')document.documentElement.dataset.theme=q.get('theme')})();
 /* theme */
-$('#themeBtn').onclick=()=>{const r=document.documentElement;r.dataset.theme=r.dataset.theme==='dark'?'light':'dark'};
+$('#backBtn').onclick=()=>{if(window.parent!==window)parent.postMessage({type:'sv-back'},'*');else history.back()};
 render();
 </script>
 </body>
