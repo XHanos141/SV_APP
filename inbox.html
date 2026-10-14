@@ -2190,31 +2190,32 @@ html:not([data-theme="light"]) .odm-card { background: rgba(124,111,247,0.08); b
   #ppBack svg{ width:18px; height:18px; }
   .pp-view{ flex:1; min-height:0; display:flex; flex-direction:column; }
   .pp-view[hidden]{ display:none; }
-  .pk-cats{ display:flex; gap:12px; padding:6px 16px 12px; overflow-x:auto; scrollbar-width:none; border-bottom:1px solid var(--hairline); margin-bottom:10px; }
+  .pk-cats{ display:flex; gap:12px; padding:4px 16px 10px; overflow-x:auto; scrollbar-width:none; border-bottom:1px solid var(--hairline); margin-bottom:8px; }
   .pk-cats::-webkit-scrollbar{ display:none; }
-  .pk-cat{ flex:0 0 auto; width:48px; height:48px; border-radius:14px; display:flex; align-items:center; justify-content:center; color:#fff;
+  .pk-cat{ flex:0 0 auto; width:34px; height:34px; border-radius:10px; display:flex; align-items:center; justify-content:center; color:#fff;
     box-shadow:0 0 0 0 rgba(124,111,247,0); transition:box-shadow .22s var(--ease-out), transform .18s var(--ease-out), opacity .2s ease; opacity:.92; }
   .pk-cat:active{ transform:scale(.92); }
-  .pk-cat[aria-pressed="true"]{ box-shadow:0 0 0 3px rgba(124,111,247,.45); opacity:1; }
-  .pk-cat svg{ width:24px; height:24px; fill:#fff; stroke:#fff; }
+  .pk-cat[aria-pressed="true"]{ box-shadow:0 0 0 2.5px rgba(124,111,247,.5); opacity:1; }
+  .pk-cat svg{ width:18px; height:18px; fill:#fff; stroke:#fff; }
   .pk-cat--all{ background:linear-gradient(135deg,#8a93a6,#667085); }
   .pk-cat--all svg{ fill:none; stroke:#fff; stroke-width:2.6; }
-  .pk-row{ display:flex; align-items:center; gap:12px; padding:11px 16px; border-bottom:1px solid var(--hairline); cursor:pointer; animation:svRise .3s var(--ease-out) both; transition:background .2s ease; }
+  .pk-row{ display:flex; align-items:center; gap:10px; padding:8px 16px; border-bottom:1px solid var(--hairline); cursor:pointer; animation:svRise .3s var(--ease-out) both; transition:background .2s ease; }
   .pk-row:active{ background:var(--surface); }
-  .pk-badge{ width:44px; height:44px; border-radius:12px; display:flex; align-items:center; justify-content:center; flex:0 0 auto; color:#fff; }
-  .pk-badge svg{ width:22px; height:22px; fill:#fff; stroke:#fff; }
+  .pk-badge{ width:34px; height:34px; border-radius:10px; display:flex; align-items:center; justify-content:center; flex:0 0 auto; color:#fff; }
+  .pk-badge svg{ width:18px; height:18px; fill:#fff; stroke:#fff; }
   .pk-main{ flex:1; min-width:0; }
-  .pk-name{ font-size:14px; font-weight:800; color:var(--text-1); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-  .pk-spec{ font-size:12px; color:var(--text-2); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-  .pk-skurow{ display:flex; align-items:center; justify-content:space-between; gap:8px; margin-top:3px; }
-  .pk-sku{ font-family:"Roboto Mono","SFMono-Regular",monospace; font-size:11px; font-weight:800; letter-spacing:.04em; color:#0a9bc7; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-  .pk-stock{ flex:0 0 auto; font-size:11px; font-weight:800; padding:3px 10px; border-radius:999px; border:1px solid transparent; white-space:nowrap; }
+  .pk-name{ display:flex; align-items:baseline; gap:6px; min-width:0; line-height:1.3; }
+  .pk-name__t{ flex:0 1 auto; min-width:0; font-size:13px; font-weight:800; color:var(--text-1); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .pk-spec{ flex:1 1 0; min-width:0; font-size:10.5px; font-weight:600; color:var(--text-3); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .pk-skurow{ display:flex; align-items:center; justify-content:space-between; gap:8px; margin-top:2px; }
+  .pk-sku{ font-family:"Roboto Mono","SFMono-Regular",monospace; font-size:10.5px; font-weight:800; letter-spacing:.04em; color:#0a9bc7; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .pk-stock{ flex:0 0 auto; font-size:10.5px; font-weight:800; padding:2px 9px; border-radius:999px; border:1px solid transparent; white-space:nowrap; }
   .pk-stock.in{ color:#1f9d6b; background:rgba(47,216,138,.14); border-color:rgba(47,216,138,.3); }
   .pk-stock.low{ color:#d38a0c; background:rgba(244,169,34,.14); border-color:rgba(244,169,34,.34); }
   .pk-stock.out{ color:#d95353; background:rgba(217,83,83,.12); border-color:rgba(217,83,83,.3); }
-  .pk-i{ flex:0 0 auto; width:30px; height:30px; border-radius:50%; background:#7C6FF7; color:#fff; display:flex; align-items:center; justify-content:center; transition:transform .18s var(--ease-out); }
+  .pk-i{ flex:0 0 auto; width:26px; height:26px; border-radius:50%; background:#7C6FF7; color:#fff; display:flex; align-items:center; justify-content:center; transition:transform .18s var(--ease-out); }
   .pk-i:active{ transform:scale(.88); }
-  .pk-i svg{ width:17px; height:17px; }
+  .pk-i svg{ width:15px; height:15px; }
   /* detail view */
   .pk-detail{ overflow-y:auto; padding:4px 16px 0; }
   .pk-hero{ width:100%; max-height:210px; border-radius:16px; object-fit:cover; background:var(--surface); display:block; margin-bottom:12px; animation:svFade .3s ease both; }
@@ -4934,8 +4935,7 @@ function closeOrderDetailsModal() {
         return `<div class="pk-row" data-pk="${escapeHtml(i.id)}" role="button" tabindex="0">
           <div class="pk-badge" style="background:linear-gradient(135deg,${m.c1},${m.c2})"><svg><use href="#cat-icon-${PK_CATS[i.category] ? i.category : "general"}"/></svg></div>
           <div class="pk-main">
-            <div class="pk-name">${escapeHtml(i.title)}</div>
-            ${i.spec ? `<div class="pk-spec">${escapeHtml(i.spec)}</div>` : ""}
+            <div class="pk-name"><span class="pk-name__t">${escapeHtml(i.title)}</span>${i.spec ? `<span class="pk-spec">${escapeHtml(i.spec)}</span>` : ""}</div>
             <div class="pk-skurow"><span class="pk-sku">${escapeHtml(i.sku || "")}</span><span class="pk-stock ${i.stock}">${STOCK_LABEL(i)}</span></div>
           </div>
           <button type="button" class="pk-i" data-pk-info="${escapeHtml(i.id)}" aria-label="Product info">${INFO_SVG}</button>
