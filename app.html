@@ -6017,6 +6017,15 @@ html[data-theme="dark"] .web-sw-knob {
 }
 @media (prefers-reduced-motion: reduce) { .web-sw-live .web-sw-ico { animation: none; } .web-sw, .web-sw-knob { transition: none; } }
 
+
+.web-sw-chip { display: inline-block; vertical-align: middle; width: 36px; height: 20px; margin-right: 7px; pointer-events: none; cursor: inherit; }
+.web-sw-chip::after { display: none; }
+.web-sw-chip::before { right: 6px; }
+.web-sw-chip.web-sw-draft::before, .web-sw-chip.web-sw-live::before { left: 6px; right: auto; }
+.web-sw-chip .web-sw-knob { width: 16px; height: 16px; top: 2px; left: 2px; }
+.web-sw-chip.web-sw-draft .web-sw-knob, .web-sw-chip.web-sw-live .web-sw-knob { transform: translateX(16px); }
+.web-sw-chip .web-sw-ico { width: 9px; height: 9px; }
+
 /* Glass Stock Badge */
 .stock-badge {
   padding: 8px 16px; border-radius: 10px;
@@ -26582,9 +26591,9 @@ function renderProductsTab(searchDisplayVal) {
         <div class="filter-chip ${productFilter==='ok'?'active':''}" onclick="setProductFilter('ok')"><span class="filter-chip-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="#2F9B68"/><path d="M16.2,10.3l-4.8,4.8c-0.4,0.4-1,0.4-1.4,0l0,0l-2.2-2.2c-0.4-0.4-0.4-1,0-1.4c0.4-0.4,1-0.4,1.4,0c0,0,0,0,0,0l1.5,1.5l4.1-4.1c0.4-0.4,1-0.4,1.4,0C16.6,9.3,16.6,9.9,16.2,10.3z" fill="#ffffff"/></svg></span> In Stock</div>
         <div class="filter-chip ${productFilter==='low'?'active':''}" onclick="setProductFilter('low')"><span class="filter-chip-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="#F4A922"/><path d="M12,6.5 a1.3,1.3 0 0 1 1.3,1.42 l-0.52,5.72 a0.78,0.78 0 0 1 -1.56,0 l-0.52,-5.72 A1.3,1.3 0 0 1 12,6.5 Z" fill="#000000"/><circle cx="12" cy="17" r="1.15" fill="#000000"/></svg></span> Low (${lowCount})</div>
         <div class="filter-chip ${productFilter==='out'?'active':''}" onclick="setProductFilter('out')"><span class="filter-chip-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="#d95353"/></svg></span> Out (${outCount})</div>
-        <div class="filter-chip ${productFilter==='web-off'?'active':''}" onclick="setProductFilter('web-off')"><span class="filter-chip-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 010 20M12 2a15.3 15.3 0 000 20"/></svg></span> Web Off (${webOffCount})</div>
-        <div class="filter-chip ${productFilter==='web-draft'?'active':''}" onclick="setProductFilter('web-draft')"><span class="filter-chip-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#0ea5e9" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 010 20M12 2a15.3 15.3 0 000 20"/></svg></span> Web On (${webDraftCount})</div>
-        <div class="filter-chip ${productFilter==='web-live'?'active':''}" onclick="setProductFilter('web-live')"><span class="filter-chip-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 010 20M12 2a15.3 15.3 0 000 20"/></svg></span> Live (${webLiveCount})</div>
+        <div class="filter-chip ${productFilter==='web-off'?'active':''}" onclick="setProductFilter('web-off')"><span class="web-sw web-sw-chip web-sw-off" aria-hidden="true"><span class="web-sw-knob"><svg class="web-sw-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 010 20M12 2a15.3 15.3 0 000 20"/></svg></span></span>Off (${webOffCount})</div>
+        <div class="filter-chip ${productFilter==='web-draft'?'active':''}" onclick="setProductFilter('web-draft')"><span class="web-sw web-sw-chip web-sw-draft" aria-hidden="true"><span class="web-sw-knob"><svg class="web-sw-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 010 20M12 2a15.3 15.3 0 000 20"/></svg></span></span>On (${webDraftCount})</div>
+        <div class="filter-chip ${productFilter==='web-live'?'active':''}" onclick="setProductFilter('web-live')"><span class="web-sw web-sw-chip web-sw-live" aria-hidden="true"><span class="web-sw-knob"><svg class="web-sw-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 010 20M12 2a15.3 15.3 0 000 20"/></svg></span></span>Live (${webLiveCount})</div>
       </div>
     </div>
     ${cards}${empty}${svVmBarHTML()}
