@@ -4190,6 +4190,15 @@ html[data-theme="dark"] .nav-fab-btn {
   transition: transform 0.4s cubic-bezier(0.4,0,0.2,1);
 }
 
+/* "+" soft outer ring: pulses green when there is something to view (payments or inbox). Badge and white ring are untouched. */
+.nav-fab-btn.has-new { animation: fabSoftGreen 2.4s ease-in-out infinite; }
+.nav-fab-btn.has-new.active { animation: none; }
+@keyframes fabSoftGreen {
+  0%, 100% { box-shadow: 0 4px 20px rgba(124,111,247,0.45); }
+  50%      { box-shadow: 0 4px 26px 3px rgba(47,155,104,0.7); }
+}
+@media (prefers-reduced-motion: reduce) { .nav-fab-btn.has-new { animation: none; box-shadow: 0 4px 22px rgba(47,155,104,0.55); } }
+
 /* Action Sheet */
 .action-sheet-overlay {
   position: fixed;
@@ -20482,11 +20491,21 @@ function asCounts() {
   const payN = (typeof window.SV_PAYMENTS_REVIEW_COUNT === 'number') ? window.SV_PAYMENTS_REVIEW_COUNT : 2;
   return { payN, inboxN };
 }
+/* Green pulse on the "+" soft outer ring when payments or inbox have something to view. Call window.svUpdateFabIndicator() when counts change. */
+function svUpdateFabIndicator() {
+  const fab = document.getElementById('fabBtn');
+  if (!fab) return;
+  const c = asCounts();
+  fab.classList.toggle('has-new', c.payN > 0 || c.inboxN > 0);
+}
+window.svUpdateFabIndicator = svUpdateFabIndicator;
 function asRefreshCards() {
   const c = asCounts();
   asSetCard('asPayN', 'asPaySub', c.payN, 'need review', 'All clear');
   asSetCard('asInN', 'asInSub', c.inboxN, 'unread', 'All clear');
+  svUpdateFabIndicator();
 }
+if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', svUpdateFabIndicator); else svUpdateFabIndicator();
 function openInboxFromSheet() {
   closeActionSheet();
   if (typeof openCustomerInbox === 'function') openCustomerInbox();
