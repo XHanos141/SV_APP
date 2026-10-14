@@ -4157,7 +4157,6 @@ html[data-theme="dark"] .draft-shipping-input::placeholder { color: rgba(255,255
   z-index: 10;
 }
 .nav-fab-btn {
-  position: relative;
   width: 52px;
   height: 52px;
   border-radius: 50%;
@@ -4189,24 +4188,6 @@ html[data-theme="dark"] .nav-fab-btn {
   height: 24px;
   color: #ffffff;
   transition: transform 0.4s cubic-bezier(0.4,0,0.2,1);
-}
-
-/* "+" button ring indicator: the white ring turns green (payments), blue (inbox) or a green-blue gradient (both) and breathes smoothly */
-.nav-fab-btn::before, .nav-fab-btn::after {
-  content: ""; position: absolute; inset: -3px; border-radius: 50%; pointer-events: none; opacity: 0;
-}
-.nav-fab-btn::before {
-  padding: 3px; background: var(--fab-ring, transparent);
-  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-  -webkit-mask-composite: xor; mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
-}
-.nav-fab-btn[data-ind="pay"]   { --fab-ring: linear-gradient(135deg,#4CC38A,#2f9b68); --fab-glow: rgba(47,155,104,.45); }
-.nav-fab-btn[data-ind="inbox"] { --fab-ring: linear-gradient(135deg,#5B9BFF,#2476f0); --fab-glow: rgba(36,118,240,.45); }
-.nav-fab-btn[data-ind="both"]  { --fab-ring: linear-gradient(135deg,#2f9b68 0%,#2476f0 100%); --fab-glow: rgba(36,118,240,.4); }
-.nav-fab-btn[data-ind]::before { animation: fabRingBreathe 2.6s ease-in-out infinite; }
-@keyframes fabRingBreathe { 0%,100% { opacity: .4; } 50% { opacity: 1; } }
-@media (prefers-reduced-motion: reduce) {
-  .nav-fab-btn[data-ind]::before { animation: none !important; opacity: 1; }
 }
 
 /* Action Sheet */
@@ -20501,23 +20482,11 @@ function asCounts() {
   const payN = (typeof window.SV_PAYMENTS_REVIEW_COUNT === 'number') ? window.SV_PAYMENTS_REVIEW_COUNT : 2;
   return { payN, inboxN };
 }
-/* "+" ring: green = payments waiting, blue = inbox unread, gradient = both. Call window.svUpdateFabIndicator() whenever either count changes. */
-function svUpdateFabIndicator() {
-  const fab = document.getElementById('fabBtn');
-  if (!fab) return;
-  const c = asCounts();
-  const st = (c.payN > 0 && c.inboxN > 0) ? 'both' : c.payN > 0 ? 'pay' : c.inboxN > 0 ? 'inbox' : '';
-  if (st) fab.setAttribute('data-ind', st); else fab.removeAttribute('data-ind');
-  fab.setAttribute('aria-label', 'Add new' + (c.payN > 0 ? ', ' + c.payN + ' payments need review' : '') + (c.inboxN > 0 ? ', ' + c.inboxN + ' unread messages' : ''));
-}
-window.svUpdateFabIndicator = svUpdateFabIndicator;
 function asRefreshCards() {
   const c = asCounts();
   asSetCard('asPayN', 'asPaySub', c.payN, 'need review', 'All clear');
   asSetCard('asInN', 'asInSub', c.inboxN, 'unread', 'All clear');
-  svUpdateFabIndicator();
 }
-if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', svUpdateFabIndicator); else svUpdateFabIndicator();
 function openInboxFromSheet() {
   closeActionSheet();
   if (typeof openCustomerInbox === 'function') openCustomerInbox();
