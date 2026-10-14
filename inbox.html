@@ -2207,11 +2207,23 @@ html:not([data-theme="light"]) .odm-card { background: rgba(124,111,247,0.08); b
   .pk-stock.in{ color:#1f9d6b; background:rgba(47,216,138,.14); border-color:rgba(47,216,138,.3); }
   .pk-stock.low{ color:#d38a0c; background:rgba(244,169,34,.14); border-color:rgba(244,169,34,.34); }
   .pk-stock.out{ color:#d95353; background:rgba(217,83,83,.12); border-color:rgba(217,83,83,.3); }
+  /* mini stock-qty badge — same look as the Products tab .stock-badge */
+  .pk-qty{ flex:0 0 auto; position:relative; overflow:hidden; min-width:28px; padding:4px 10px; border-radius:8px; text-align:center; font-family:"Plus Jakarta Sans",sans-serif; font-size:12.5px; font-weight:800; line-height:1.2;
+    border-top:1px solid rgba(255,255,255,.65); border-left:1px solid rgba(255,255,255,.45); border-right:1px solid rgba(0,0,0,.06); border-bottom:1px solid rgba(0,0,0,.1);
+    box-shadow:inset 0 1px 1px rgba(255,255,255,.45), 0 2px 6px rgba(0,0,0,.1); }
+  .pk-qty::after{ content:""; position:absolute; top:0; left:0; right:0; height:45%; background:linear-gradient(180deg,rgba(255,255,255,.32),transparent); border-radius:7px 7px 0 0; pointer-events:none; }
+  html:not([data-theme="light"]) .pk-qty{ border-top-color:rgba(255,255,255,.1); border-left-color:rgba(255,255,255,.06); }
+  html:not([data-theme="light"]) .pk-qty::after{ background:linear-gradient(180deg,rgba(255,255,255,.07),transparent); }
+  .pk-qty.ok{ background:linear-gradient(135deg,rgba(47,155,104,.35),rgba(47,155,104,.15)); color:#2f9b68; }
+  .pk-qty.low{ background:linear-gradient(135deg,rgba(244,169,34,.38),rgba(244,169,34,.16)); color:#c27a08; }
+  html:not([data-theme="light"]) .pk-qty.low{ color:#F4A922; }
+  .pk-qty.out{ background:linear-gradient(135deg,rgba(217,83,83,.35),rgba(217,83,83,.15)); color:#d95353; }
   .pk-row .odm-pi{ flex:1; min-width:0; padding:0 !important; border-bottom:0 !important; }
   .pk-side{ flex:0 0 auto; display:flex; flex-direction:column; align-items:flex-end; justify-content:space-between; gap:8px; }
-  .pk-i{ flex:0 0 auto; width:30px; height:30px; border-radius:50%; background:#7C6FF7; color:#fff; display:flex; align-items:center; justify-content:center; transition:transform .18s var(--ease-out); }
+  .pk-i{ flex:0 0 auto; width:28px; height:28px; border-radius:50%; background:#fff; color:#7C6FF7; padding:0; border:0; display:flex; align-items:center; justify-content:center; transition:transform .18s var(--ease-out); }
   .pk-i:active{ transform:scale(.88); }
-  .pk-i svg{ width:17px; height:17px; }
+  .pk-i svg{ width:100%; height:100%; display:block; }
+  .pk-i:active{ color:#5f52d6; }
   /* detail view */
   .pk-detail{ overflow-y:auto; padding:4px 16px 0; }
   .pk-hero{ width:100%; max-height:210px; border-radius:16px; object-fit:cover; background:var(--surface); display:block; margin-bottom:12px; animation:svFade .3s ease both; }
@@ -4878,7 +4890,7 @@ function closeOrderDetailsModal() {
   }
   const STOCK_LABEL = (i) => i.stock === "out" ? "Out of Stock" : i.stock === "low" ? `Low · ${i.qty}` : `In Stock · ${i.qty}`;
   const CUSTOMER_STOCK = { in:"In stock", low:"Low stock – only a few left", out:"Out of stock" };
-  const INFO_SVG = `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 22C6.477 22 2 17.523 2 12S6.477 2 12 2s10 4.477 10 10-4.477 10-10 10Zm-.7-3.5c.63 0 1.33-.29 2.2-1.46l.91-1.22a.33.33 0 0 0-.07-.46.33.33 0 0 0-.45.08c-.6.8-1.03 1.1-1.3 1.1-.17 0-.2-.1-.2-.27 0-.15.04-.4.1-.65l1.1-4.2c.2-.7.03-1.15-.55-1.15-.6 0-1.4.45-2 1.07l-.35.37a.3.3 0 0 0 .4.44c.4-.4.62-.57.84-.57.2 0 .22.17.12.57l-1 3.9c-.2.77-.1 1.05.55 1.05h-.15Zm1.2-10.8a1.4 1.4 0 1 0 0-2.8 1.4 1.4 0 0 0 0 2.8Z"/></svg>`;
+  const INFO_SVG = `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 22C6.477 22 2 17.523 2 12S6.477 2 12 2s10 4.477 10 10-4.477 10-10 10zm-.696-3.534c.63 0 1.332-.288 2.196-1.458l.911-1.22a.334.334 0 0 0-.074-.472.38.38 0 0 0-.505.06l-1.475 1.679a.241.241 0 0 1-.279.061.211.211 0 0 1-.12-.244l1.858-7.446a.499.499 0 0 0-.575-.613l-3.35.613a.35.35 0 0 0-.276.258l-.086.334a.25.25 0 0 0 .243.312h1.73l-1.476 5.922c-.054.234-.144.63-.144.918 0 .666.396 1.296 1.422 1.296zm1.83-10.536c.702 0 1.242-.414 1.386-1.044.036-.144.054-.306.054-.414 0-.504-.396-.972-1.134-.972-.702 0-1.242.414-1.386 1.044a1.868 1.868 0 0 0-.054.414c0 .504.396.972 1.134.972z"/></svg>`;
 
   function pkRenderCats(){
     document.getElementById("pkCats").innerHTML =
@@ -4939,7 +4951,7 @@ function closeOrderDetailsModal() {
               <div class="odm-pi-sku">${escapeHtml(i.sku || "")}</div>
             </div>
           </div>
-          <div class="pk-side"><button type="button" class="pk-i" data-pk-info="${escapeHtml(i.id)}" aria-label="Product info">${INFO_SVG}</button><span class="pk-stock ${i.stock}">${STOCK_LABEL(i)}</span></div>
+          <div class="pk-side"><button type="button" class="pk-i" data-pk-info="${escapeHtml(i.id)}" aria-label="Product info">${INFO_SVG}</button><span class="pk-qty ${i.stock === 'in' ? 'ok' : i.stock}">${Number(i.qty) || 0}</span></div>
         </div>`;
       }).join("") : `<div class="cust-list-empty"><b>${term ? "No matches" : "No products here"}</b>${term ? "No product matches that search." : "Nothing in this category yet."}</div>`;
     }catch(err){
