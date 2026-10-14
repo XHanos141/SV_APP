@@ -25899,7 +25899,15 @@ window.__toggleWebFlagImpl = async function(sku, ev) {
   const btn = ev && ev.currentTarget && ev.currentTarget.classList && ev.currentTarget.classList.contains('web-sw') ? ev.currentTarget : null;
   if (btn && btn.dataset.busy === '1') return;
   const st = svWebState(p);
-  if (st === 'live' && !confirm('Turn WEB off? This removes the product from the website.')) return;
+  const turningOn = st === 'off';
+  const okGo = await svConfirmSheet(turningOn
+    ? { tone: 'ok', title: 'Turn WEB on?', text: 'This sends the product to the website admin panel.', confirmLabel: 'Turn on' }
+    : st === 'live'
+      ? { tone: 'danger', title: 'Turn WEB off?', text: 'This removes the product from the website.', confirmLabel: 'Turn off' }
+      : { tone: 'info', title: 'Turn WEB off?', text: 'This stops sending the product to the website.', confirmLabel: 'Turn off' });
+  if (!okGo) return;
+  try { await requireFingerprint(); }
+  catch (fpErr) { showToast('\u26a0 WEB not changed \u2014 ' + _dbErrMsg(fpErr), 'error'); return; }
   // Optimistic flip: animate the existing element immediately instead of waiting on the network + full re-render
   if (btn) { btn.dataset.busy = '1'; svSetWebSwitchState(btn, st === 'off' ? 'draft' : 'off'); }
   try {
@@ -25907,13 +25915,14 @@ window.__toggleWebFlagImpl = async function(sku, ev) {
     if (!id) {
       const f = await sbFetch(`products?sku=eq.${encodeURIComponent(sku)}&select=id`);
       id = f && f[0] && f[0].id;
-      if (!id) { if (btn) { svSetWebSwitchState(btn, st); btn.dataset.busy = ''; } alert('Product not synced to Supabase yet.'); return; }
+      if (!id) { if (btn) { svSetWebSwitchState(btn, st); btn.dataset.busy = ''; } showToast('\u26a0 Product not synced to Supabase yet', 'error'); return; }
       p.id = id;
     }
     const r = await sbFetch(`products?id=eq.${id}`, 'PATCH', { web_enabled: st === 'off', updated_at: new Date().toISOString() });
     const row = r && r[0];
     p.webEnabled = row ? row.web_enabled === true : st === 'off';
     p.isWebPublished = row ? row.is_web_published === true : false;
+    showToast('WEB ' + (turningOn ? 'on' : 'off') + ' \u00b7 ' + (p.name || sku));
     if (btn && btn.isConnected) {
       svSetWebSwitchState(btn, svWebState(p));
       // re-render only after the slide finishes so the transition is never cut off
@@ -25923,7 +25932,7 @@ window.__toggleWebFlagImpl = async function(sku, ev) {
     }
   } catch (err) {
     if (btn && btn.isConnected) { svSetWebSwitchState(btn, st); btn.dataset.busy = ''; }
-    alert('WEB toggle failed: ' + err.message);
+    showToast('\u26a0 WEB toggle failed \u2014 ' + _dbErrMsg(err), 'error');
   }
 };
 
