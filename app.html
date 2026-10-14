@@ -12692,6 +12692,12 @@ let ovReqSeq = 0;
 const OV_MON = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 const OV_DOW = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
+function ovFmtBDT(n) {
+  n = Math.round(n || 0);
+  if (n >= 10000) return '৳' + (n / 1000).toFixed(1).replace(/\.0$/, '') + 'K';
+  return '৳' + n.toLocaleString('en-IN');
+}
+
 function ovShortBDT(n) {
   if (n >= 1000000) return '৳' + (n / 1000000).toFixed(1).replace(/\.0$/, '') + 'M';
   if (n >= 1000) return '৳' + (n / 1000).toFixed(1).replace(/\.0$/, '') + 'K';
@@ -13148,7 +13154,7 @@ function renderCardDetailBody(data) {
         <span class="cat-breakdown-label">${TOP5_CATEGORY_LABELS[c.key]}</span>
         <div class="cat-breakdown-bar"><div class="cat-breakdown-fill" style="width:${pct}%;background:${TOP5_CATEGORY_COLORS[c.key]}"></div></div>
         <span class="cat-breakdown-pct">${pct}%</span>
-        <span class="cat-breakdown-rev">৳${(c.revenue/1000).toFixed(1)}K</span>
+        <span class="cat-breakdown-rev">${ovFmtBDT(c.revenue)}</span>
       </div>`;
     }).join('');
 
@@ -13185,7 +13191,7 @@ function renderCardDetailBody(data) {
             <div class="sku-code">${sku.code}</div>
           </div>
           <div class="sku-metrics">
-            <span class="sku-revenue">৳${(sku.revenue / 1000).toFixed(1)}K</span>
+            <span class="sku-revenue">${ovFmtBDT(sku.revenue)}</span>
             <span class="sku-margin-pill ${getMarginClass(sku.margin)}">${sku.margin == null ? '—' : sku.margin + '%'}</span>
           </div>
         </div>
