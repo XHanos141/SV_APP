@@ -4907,7 +4907,15 @@ function closeOrderDetailsModal() {
     document.getElementById("ppBack").hidden = view !== "detail";
     document.getElementById("ppTitle").textContent = view === "detail" ? "Product details" : "Choose Product";
   }
+  /* sheet rises all the way up to the bottom edge of the chat header */
+  function fitPickerSheet(){
+    const h = document.querySelector(".thread-header");
+    const top = (h && h.offsetParent !== null) ? Math.max(0, Math.round(h.getBoundingClientRect().bottom)) : 0;
+    ppSheet.style.height = Math.max(260, window.innerHeight - top) + "px";
+  }
+  window.addEventListener("resize", () => { if(ppSheet.classList.contains("open")) fitPickerSheet(); });
   function openProductPicker(){
+    fitPickerSheet();
     ppSheet.classList.add("open"); ppBackdrop.classList.add("open"); ppSheet.setAttribute("aria-hidden", "false");
     pk.cat = "all"; pk.q = ""; ppSearch.value = "";
     pkRenderCats(); setPkView("list"); loadProducts();
