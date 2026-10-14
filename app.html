@@ -4191,13 +4191,13 @@ html[data-theme="dark"] .nav-fab-btn {
 }
 
 /* "+" soft outer ring: pulses green when there is something to view (payments or inbox). Badge and white ring are untouched. */
-.nav-fab-btn.has-new { animation: fabSoftGreen 2.4s ease-in-out infinite; }
+.nav-fab-btn.has-new { animation: fabSoftGreen 3.2s ease-in-out infinite; }
 .nav-fab-btn.has-new.active { animation: none; }
 @keyframes fabSoftGreen {
   0%, 100% { box-shadow: 0 4px 20px rgba(124,111,247,0.45); }
-  50%      { box-shadow: 0 3px 20px 3px rgba(47,155,104,0.8); }
+  50%      { box-shadow: 0 3px 20px 0 rgba(47,155,104,0.92); }
 }
-@media (prefers-reduced-motion: reduce) { .nav-fab-btn.has-new { animation: none; box-shadow: 0 3px 20px 3px rgba(47,155,104,0.7); } }
+@media (prefers-reduced-motion: reduce) { .nav-fab-btn.has-new { animation: none; box-shadow: 0 3px 20px 0 rgba(47,155,104,0.8); } }
 
 /* Action Sheet */
 .action-sheet-overlay {
