@@ -5624,14 +5624,6 @@ html[data-theme="dark"] .brand-filter-btn:hover { background: rgba(255,255,255,0
 }
 html[data-theme="dark"] .brand-filter-btn-count { box-shadow: 0 0 0 2px #0f1621; }
 .brand-filter-btn-count.show { display: flex; }
-.web-filter-chip.wf-off { background: #e4e7ee; border-color: #c5cad5; color: #8a93a3; }
-.web-filter-chip.wf-draft { background: rgba(14,165,233,0.12); border-color: rgba(14,165,233,0.55); color: #0284c7; }
-.web-filter-chip.wf-live { background: rgba(34,197,94,0.12); border-color: rgba(34,197,94,0.6); color: #16a34a; box-shadow: 0 0 10px rgba(34,197,94,0.3); }
-.web-filter-chip.wf-live .filter-chip-icon svg { filter: drop-shadow(0 0 3px rgba(34,197,94,0.9)); }
-html[data-theme="dark"] .web-filter-chip.wf-off { background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.1); color: rgba(255,255,255,0.4); }
-html[data-theme="dark"] .web-filter-chip.wf-draft { background: rgba(56,189,248,0.16); border-color: rgba(56,189,248,0.55); color: #38bdf8; }
-html[data-theme="dark"] .web-filter-chip.wf-live { background: rgba(34,197,94,0.16); border-color: rgba(34,197,94,0.6); color: #4ade80; }
-
 
 .brand-sheet-backdrop {
   position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 10000;
@@ -26036,7 +26028,6 @@ async function loadProductsFromSupabase() {
 document.addEventListener('DOMContentLoaded', loadProductsFromSupabase);
 
 let productFilter = 'all';
-let productWebFilter = 'all';
 let productSearch = '';
 let productCategory = 'all';
 let productSort = 'name-asc';
@@ -26382,11 +26373,13 @@ function renderProductsTab(searchDisplayVal) {
     productBrandFilter = productBrandFilter.filter(b => allUsedBrands.includes(b));
   }
   let filtered = ACTIVE_PRODUCTS.filter(p => {
-    const matchWeb = productWebFilter === 'all' || svWebState(p) === productWebFilter;
-    const matchFilter = matchWeb && (productFilter === 'all' ||
+    const matchFilter = productFilter === 'all' ||
       (productFilter === 'low' && p.stock > 0 && p.stock <= LOW_STOCK_THRESHOLD) ||
       (productFilter === 'out' && p.stock === 0) ||
-      (productFilter === 'ok' && p.stock > 10));
+      (productFilter === 'ok' && p.stock > 10) ||
+      (productFilter === 'web-off' && svWebState(p) === 'off') ||
+      (productFilter === 'web-draft' && svWebState(p) === 'draft') ||
+      (productFilter === 'web-live' && svWebState(p) === 'live');
     const matchSearch = !productSearch ||
       p.name.toLowerCase().includes(productSearch) ||
       p.sku.toLowerCase().includes(productSearch);
@@ -26408,6 +26401,9 @@ function renderProductsTab(searchDisplayVal) {
 
   const totalSKUs  = ACTIVE_PRODUCTS.length;
   const outCount   = ACTIVE_PRODUCTS.filter(p => p.stock === 0).length;
+  const webOffCount   = ACTIVE_PRODUCTS.filter(p => svWebState(p) === 'off').length;
+  const webDraftCount  = ACTIVE_PRODUCTS.filter(p => svWebState(p) === 'draft').length;
+  const webLiveCount   = ACTIVE_PRODUCTS.filter(p => svWebState(p) === 'live').length;
   const lowCount   = ACTIVE_PRODUCTS.filter(p => p.stock > 0 && p.stock <= LOW_STOCK_THRESHOLD).length;
   const totalUnits = ACTIVE_PRODUCTS.reduce((s, p) => s + p.stock, 0);
 
@@ -26580,13 +26576,15 @@ function renderProductsTab(searchDisplayVal) {
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.8258 5H6.17422C5.31987 5 4.85896 6.00212 5.41496 6.65079L9.75926 11.7191C9.91461 11.9004 10 12.1312 10 12.3699V17.382C10 17.7607 10.214 18.107 10.5528 18.2764L12.5528 19.2764C13.2177 19.6088 14 19.1253 14 18.382V12.3699C14 12.1312 14.0854 11.9004 14.2407 11.7191L18.585 6.65079C19.141 6.00212 18.6801 5 17.8258 5Z"/></svg>
         <span class="brand-filter-btn-count ${productBrandFilter.length ? 'show' : ''}" id="productBrandFilterCount">${productBrandFilter.length}</span>
       </button>
-      <div class="filter-chip web-filter-chip wf-${productWebFilter}" role="button" tabindex="0" onclick="cycleWebFilter()" id="productWebFilterBtn" aria-label="Filter by web status: ${productWebFilter}"><span class="filter-chip-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 010 20M12 2a15.3 15.3 0 000 20"/></svg></span>${{ all: 'Web', off: 'Off', draft: 'On', live: 'Live' }[productWebFilter]}</div>
       <div class="products-filter-row" id="productsFilterRow">
         <div class="filter-slide-indicator" id="productsFilterSlide"></div>
         <div class="filter-chip ${productFilter==='all'?'active':''}" onclick="setProductFilter('all')">All (${totalSKUs})</div>
         <div class="filter-chip ${productFilter==='ok'?'active':''}" onclick="setProductFilter('ok')"><span class="filter-chip-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="#2F9B68"/><path d="M16.2,10.3l-4.8,4.8c-0.4,0.4-1,0.4-1.4,0l0,0l-2.2-2.2c-0.4-0.4-0.4-1,0-1.4c0.4-0.4,1-0.4,1.4,0c0,0,0,0,0,0l1.5,1.5l4.1-4.1c0.4-0.4,1-0.4,1.4,0C16.6,9.3,16.6,9.9,16.2,10.3z" fill="#ffffff"/></svg></span> In Stock</div>
         <div class="filter-chip ${productFilter==='low'?'active':''}" onclick="setProductFilter('low')"><span class="filter-chip-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="#F4A922"/><path d="M12,6.5 a1.3,1.3 0 0 1 1.3,1.42 l-0.52,5.72 a0.78,0.78 0 0 1 -1.56,0 l-0.52,-5.72 A1.3,1.3 0 0 1 12,6.5 Z" fill="#000000"/><circle cx="12" cy="17" r="1.15" fill="#000000"/></svg></span> Low (${lowCount})</div>
         <div class="filter-chip ${productFilter==='out'?'active':''}" onclick="setProductFilter('out')"><span class="filter-chip-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="#d95353"/></svg></span> Out (${outCount})</div>
+        <div class="filter-chip ${productFilter==='web-off'?'active':''}" onclick="setProductFilter('web-off')"><span class="filter-chip-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 010 20M12 2a15.3 15.3 0 000 20"/></svg></span> Web Off (${webOffCount})</div>
+        <div class="filter-chip ${productFilter==='web-draft'?'active':''}" onclick="setProductFilter('web-draft')"><span class="filter-chip-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#0ea5e9" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 010 20M12 2a15.3 15.3 0 000 20"/></svg></span> Web On (${webDraftCount})</div>
+        <div class="filter-chip ${productFilter==='web-live'?'active':''}" onclick="setProductFilter('web-live')"><span class="filter-chip-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 010 20M12 2a15.3 15.3 0 000 20"/></svg></span> Live (${webLiveCount})</div>
       </div>
     </div>
     ${cards}${empty}${svVmBarHTML()}
@@ -27251,14 +27249,6 @@ document.addEventListener('click', function(e) {
     hideProductSuggest();
   }
 });
-
-function cycleWebFilter() {
-  const order = ['all', 'off', 'draft', 'live'];
-  productWebFilter = order[(order.indexOf(productWebFilter) + 1) % order.length];
-  const names = { all: 'All products', off: 'Web off', draft: 'Web on (draft)', live: 'Web live' };
-  showToast(names[productWebFilter]);
-  setProductFilter(productFilter);
-}
 
 function setProductFilter(f) {
   productFilter = f;
