@@ -13505,7 +13505,7 @@ function renderReturnBody(data) {
           </div>
           <div class="return-qty-block"><span class="return-qty">${item.qty}</span></div>
           <div class="return-unit-block"><span class="return-unit">৳${item.unitLoss.toLocaleString('en-IN')}</span></div>
-          <div class="return-loss-block"><span class="return-loss">৳${(item.loss/1000).toFixed(1)}K</span></div>
+          <div class="return-loss-block"><span class="return-loss">${ovFmtBDT(item.loss)}</span></div>
           <div class="return-metrics"><span class="return-rate-pill ${getReturnRateClass(item.rate == null ? 0 : item.rate)}">${item.rate == null ? '—' : item.rate + '%'}</span></div>
         </div>`).join('') : `<div class="cd-empty-cat">No items returned in this category for this period</div>`}
     </div>
@@ -13669,7 +13669,7 @@ function renderOrderBody(data) {
           </div>
           <div class="order-qty-block"><span class="order-qty">${item.qty}</span></div>
           <div class="order-unit-profit-block"><span class="order-unit-profit">৳${item.unitProfit.toLocaleString('en-IN')}</span></div>
-          <div class="order-profit-block"><span class="order-profit">৳${(item.profit/1000).toFixed(1)}K</span></div>
+          <div class="order-profit-block"><span class="order-profit">${ovFmtBDT(item.profit)}</span></div>
           <div class="order-metrics"><span class="order-margin-pill ${orderMarginClass(item.margin)}">${item.margin == null ? '—' : item.margin + '%'}</span></div>
         </div>`).join('') : `<div class="cd-empty-cat">No items sold in this category for this period</div>`}
     </div>
