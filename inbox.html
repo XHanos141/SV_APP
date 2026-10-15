@@ -1525,10 +1525,13 @@ input,textarea,select,[contenteditable="true"],.allow-select,.allow-select *{-we
     color:var(--orange);
   }
   .thread-composer.note-mode #composerInput{
-    border-color:var(--orange);
+    border-color:#f6bd16;
+    background:rgba(246,189,22,.09);
+    box-shadow:0 0 0 3px rgba(246,189,22,.16);
   }
   .thread-composer.note-mode .composer-send{
-    background:var(--orange);
+    background:#f6bd16;
+    color:#4a3500;
   }
 
   .thread-composer{
@@ -1569,8 +1572,8 @@ input,textarea,select,[contenteditable="true"],.allow-select,.allow-select *{-we
 
   .composer-send{
     flex:0 0 auto;
-    width:38px;
-    height:38px;
+    width:40px;
+    height:40px;
     border-radius:50%;
     background:var(--inbox-blue);
     color:#fff;
@@ -1581,7 +1584,7 @@ input,textarea,select,[contenteditable="true"],.allow-select,.allow-select *{-we
   }
   .composer-send:disabled{ opacity:0.4; }
   .composer-send:not(:disabled):active{ transform:scale(0.92); }
-  .composer-send svg{ width:16px; height:16px; margin-left:-1px; }
+  .composer-send svg{ width:18px; height:18px; margin:0 0 0 2px; display:block; }
 
 
   /* ---------- Chat: status + channel switch toolbar ---------- */
@@ -1622,7 +1625,7 @@ input,textarea,select,[contenteditable="true"],.allow-select,.allow-select *{-we
   .composer-mode{ display:inline-flex; align-items:center; gap:5px; height:26px; padding:0 12px; border-radius:100px; font-size:12px; font-weight:700; color:var(--text-2); }
   .composer-mode svg{ width:12px; height:12px; }
   .composer-mode.is-active{ background:var(--inbox-blue); color:#fff; }
-  .thread-composer.note-mode .composer-mode.is-active{ background:var(--orange); }
+  .thread-composer.note-mode .composer-mode.is-active{ background:#f6bd16; color:#4a3500; }
   .msg-bubble__text{ box-shadow:0 1px 1px rgba(15,22,33,.05); }
 
   /* ===== Order Details modal — copied from SV_APP app.html (#orderDetailsModal) ===== */
@@ -2035,15 +2038,15 @@ html:not([data-theme="light"]) .odm-card { background: rgba(124,111,247,0.08); b
   .status-tab:hover{ border-color:var(--text-3); }
   .status-tab[aria-selected="true"]{ background:transparent; border-color:transparent; color:#fff; text-shadow:0 1px 2px rgba(0,0,0,.3); }
 
-  /* inbox list pills: same smooth-surface look as the main app filter chips, in inbox blue */
-  #listView .status-tab{ background:#edf0f5; border-color:#d2d6df; color:#556070; }
-  #listView .status-tab .count{ color:inherit; opacity:.75; }
-  #listView .status-tab:hover{ background:#e2e6ed; border-color:#b8bdc9; color:#2f3a4a; }
-  html:not([data-theme="light"]) #listView .status-tab{ background:rgba(255,255,255,.07); border-color:rgba(255,255,255,.12); color:rgba(255,255,255,.55); }
-  html:not([data-theme="light"]) #listView .status-tab:hover{ background:rgba(255,255,255,.13); border-color:rgba(255,255,255,.22); color:rgba(255,255,255,.88); }
-  #listView .status-tab[aria-selected="true"]{ background:transparent; border-color:transparent; color:#fff; }
-  #listView .status-tab[aria-selected="true"] .count{ color:#fff; opacity:.85; }
-  #listView .status-slide{
+  /* inbox + customers hub pills: same smooth-surface look as the main app filter chips, in inbox blue */
+  #listView .status-tab, #customersView .status-tab { background:#edf0f5; border-color:#d2d6df; color:#556070; }
+  #listView .status-tab .count, #customersView .status-tab .count { color:inherit; opacity:.75; }
+  #listView .status-tab:hover, #customersView .status-tab:hover { background:#e2e6ed; border-color:#b8bdc9; color:#2f3a4a; }
+  html:not([data-theme="light"]) #listView .status-tab, html:not([data-theme="light"]) #customersView .status-tab { background:rgba(255,255,255,.07); border-color:rgba(255,255,255,.12); color:rgba(255,255,255,.55); }
+  html:not([data-theme="light"]) #listView .status-tab:hover, html:not([data-theme="light"]) #customersView .status-tab:hover { background:rgba(255,255,255,.13); border-color:rgba(255,255,255,.22); color:rgba(255,255,255,.88); }
+  #listView .status-tab[aria-selected="true"], #customersView .status-tab[aria-selected="true"] { background:transparent; border-color:transparent; color:#fff; }
+  #listView .status-tab[aria-selected="true"] .count, #customersView .status-tab[aria-selected="true"] .count { color:#fff; opacity:.85; }
+  #listView .status-slide, #customersView .status-slide {
     background:linear-gradient(180deg, #3b86f2 0%, #2266d4 100%);
     border:1px solid rgba(255,255,255,.1);
     box-shadow:0 2px 8px rgba(43,116,227,.4), 0 1px 0 rgba(255,255,255,.14) inset, 0 -1px 0 rgba(0,0,0,.15) inset;
@@ -2139,6 +2142,32 @@ html:not([data-theme="light"]) .odm-card { background: rgba(124,111,247,0.08); b
   .attach-menu svg{ width:19px; height:19px; color:var(--inbox-blue-t); flex:0 0 auto; }
   .composer-attach{ transition:background .2s ease, color .2s ease, transform .18s var(--ease-out); }
   .composer-attach[aria-expanded="true"]{ background:var(--surface); color:var(--inbox-blue-t); transform:rotate(-20deg); }
+
+  /* master toolbox: one icon opens a mini tray that slides up with every tool */
+  .composer-legacy{ display:none !important; }
+  .composer-tools{ position:relative; }
+  .composer-tools[aria-expanded="true"]{ transform:none; background:rgba(43,116,227,.14); color:var(--inbox-blue-t); }
+  .composer-tools.has-pin::after{ content:""; position:absolute; top:6px; right:6px; width:8px; height:8px; border-radius:50%; background:var(--inbox-blue); border:2px solid var(--body-bg); box-sizing:content-box; }
+  .tool-tray{
+    position:absolute; left:12px; bottom:calc(100% + 8px); z-index:26; padding:8px; display:flex; gap:4px;
+    background:var(--surface); border:1px solid var(--hairline); border-radius:18px; box-shadow:0 10px 30px rgba(0,0,0,.2);
+    visibility:hidden; opacity:0; pointer-events:none; transform:translate3d(0,16px,0) scale(.96); transform-origin:bottom left;
+    transition:opacity .2s var(--ease-out), transform .28s var(--ease-spring), visibility 0s linear .28s;
+  }
+  .tool-tray.open{ visibility:visible; opacity:1; pointer-events:auto; transform:none; transition:opacity .2s var(--ease-out), transform .28s var(--ease-spring), visibility 0s; }
+    .tool-tray{ flex-direction:column; gap:6px; }
+  .tool-tray .tt-row{ display:flex; gap:2px; }
+  .tool-tray button[data-tool="note"].is-active .tt-ico{ background:#f6bd16; color:#4a3500; }
+  .composer-tools{ width:40px; height:40px; }
+  .thread-composer.note-mode .composer-tools{ color:#c99700; background:rgba(246,189,22,.18); }
+  html[data-theme="dark"] .thread-composer.note-mode .composer-tools, html:not([data-theme="light"]) .thread-composer.note-mode .composer-tools{ color:#f6bd16; }
+.tool-tray button{ display:flex; flex-direction:column; align-items:center; gap:5px; width:52px; padding:4px 0 2px; border-radius:12px; -webkit-tap-highlight-color:transparent; }
+  .tool-tray button[hidden]{ display:none; }
+  .tool-tray .tt-ico{ width:42px; height:42px; border-radius:13px; display:flex; align-items:center; justify-content:center; background:rgba(43,116,227,.12); color:var(--inbox-blue-t); transition:transform .15s ease, background .15s ease; }
+  .tool-tray .tt-ico svg{ width:20px; height:20px; }
+  .tool-tray button:active .tt-ico{ transform:scale(.9); background:rgba(43,116,227,.24); }
+  .tool-tray button.is-active .tt-ico{ background:var(--inbox-blue); color:#fff; }
+  .tool-tray .tt-lbl{ font-size:10.5px; font-weight:700; color:var(--text-2); }
   .composer-attachments{ flex:1 0 100%; display:flex; gap:8px; overflow-x:auto; scrollbar-width:none; padding:2px 0 4px; }
   .composer-attachments::-webkit-scrollbar{ display:none; }
   .composer-attachments[hidden]{ display:none; }
@@ -2485,12 +2514,6 @@ html:not([data-theme="light"]) .odm-card { background: rgba(124,111,247,0.08); b
   <main class="thread-messages" id="threadMessages" aria-live="polite"></main>
 
   <form class="thread-composer" id="composerForm">
-    <div class="composer-top">
-      <div class="composer-modes" role="tablist" aria-label="Message type">
-        <button type="button" role="tab" class="composer-mode is-active" data-mode="reply" aria-selected="true">Reply</button>
-        <button type="button" role="tab" class="composer-mode" data-mode="note" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>Private note</button>
-      </div>
-    </div>
     <div class="composer-attachments" id="attachStrip" hidden></div>
     <div class="attach-menu" id="attachMenu" role="menu" aria-label="Attach">
       <button type="button" role="menuitem" data-pick="photo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="1.8"/><path d="m21 16-5-5-9 9"/></svg>Photo</button>
@@ -2498,16 +2521,33 @@ html:not([data-theme="light"]) .odm-card { background: rgba(124,111,247,0.08); b
       <button type="button" role="menuitem" data-pick="product"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 17v5"/><path d="M9 3h6l-1 6 3 3v2H7v-2l3-3-1-6Z"/></svg>Pin product</button>
       <button type="button" role="menuitem" data-pick="file"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8Z"/><path d="M14 3v5h5M9 13h6M9 17h6"/></svg>Document</button>
     </div>
+    <button type="button" class="composer-attach composer-tools" id="toolBtn" aria-label="Tools" aria-haspopup="menu" aria-expanded="false">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="8" width="18" height="12" rx="2"/><path d="M9 8V6a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"/><path d="M3 13h18"/><path d="M10 13v2h4v-2"/></svg>
+    </button>
+    <div class="tool-tray" id="toolTray" role="menu" aria-label="Tools">
+      <div class="composer-modes composer-legacy" role="tablist" aria-label="Message type">
+        <button type="button" role="tab" class="composer-mode is-active" data-mode="reply" aria-selected="true">Reply</button>
+        <button type="button" role="tab" class="composer-mode" data-mode="note" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>Private note</button>
+      </div>
+      <div class="tt-row">
+        <button type="button" role="menuitem" data-tool="photo"><span class="tt-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="1.6"/><path d="m21 16-5-5-8 8"/></svg></span><span class="tt-lbl">Photo</span></button>
+        <button type="button" role="menuitem" data-tool="camera"><span class="tt-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h3l2-3h6l2 3h3a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1Z"/><circle cx="12" cy="13.5" r="3.5"/></svg></span><span class="tt-lbl">Camera</span></button>
+        <button type="button" role="menuitem" data-tool="file"><span class="tt-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8Z"/><path d="M14 3v5h5"/></svg></span><span class="tt-lbl">File</span></button>
+        <button type="button" role="menuitem" data-tool="product"><span class="tt-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 17v5"/><path d="M9 3h6l-1 6 3 3v2H7v-2l3-3-1-6Z"/></svg></span><span class="tt-lbl">Product</span></button>
+        <button type="button" role="menuitem" data-tool="quick"><span class="tt-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 4 14h7l-1 8 9-12h-7l1-8Z"/></svg></span><span class="tt-lbl">Quick</span></button>
+        <button type="button" role="menuitemcheckbox" aria-checked="false" data-tool="note"><span class="tt-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></span><span class="tt-lbl">Note</span></button>
+      </div>
+    </div>
     <input type="file" id="fileInPhoto" accept="image/jpeg,image/png,image/webp,image/gif" multiple hidden>
     <input type="file" id="fileInCamera" accept="image/*" capture="environment" hidden>
     <input type="file" id="fileInDoc" accept=".pdf,.doc,.docx,.xls,.xlsx,.txt,.csv,application/pdf,text/plain,text/csv" multiple hidden>
-    <button type="button" class="composer-attach" id="attachBtn" aria-label="Attach file" aria-haspopup="menu" aria-expanded="false">
+    <button type="button" class="composer-attach composer-legacy" id="attachBtn" aria-label="Attach file" aria-haspopup="menu" aria-expanded="false">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.5 12.5 21a5 5 0 0 1-7-7L14 5.5a3.5 3.5 0 0 1 5 5L10.5 19a2 2 0 0 1-3-3L15 8.5"/></svg>
     </button>
-    <button type="button" class="composer-attach composer-quick" id="quickBtn" aria-label="Quick replies" aria-haspopup="menu" aria-expanded="false">
+    <button type="button" class="composer-attach composer-quick composer-legacy" id="quickBtn" aria-label="Quick replies" aria-haspopup="menu" aria-expanded="false">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 4 14h7l-1 8 9-12h-7l1-8Z"/></svg>
     </button>
-    <button type="button" class="composer-attach composer-quick composer-pin" id="pinBtn" aria-label="Pin a product" title="Pin a product">
+    <button type="button" class="composer-attach composer-quick composer-pin composer-legacy" id="pinBtn" aria-label="Pin a product" title="Pin a product">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 17v5"/><path d="M9 3h6l-1 6 3 3v2H7v-2l3-3-1-6Z"/></svg>
     </button>
     <div class="attach-menu quick-menu" id="quickMenu" role="menu" aria-label="Quick replies"></div>
@@ -4924,6 +4964,39 @@ function closeOrderDetailsModal() {
   document.getElementById("pinBtn").addEventListener("click", e => {
     e.stopPropagation(); setAttachMenu(false); setQuickMenu(false); openProductPicker();
   });
+
+  /* ---------- Master toolbox: one button, mini tray slides up with all tools ---------- */
+  (function(){
+    const toolBtn = document.getElementById("toolBtn"), tray = document.getElementById("toolTray");
+    const pinBtn = document.getElementById("pinBtn"), qBtn = document.getElementById("quickBtn");
+    if(!toolBtn || !tray) return;
+    const setTray = open => {
+      if(open){
+        setAttachMenu(false); setQuickMenu(false);
+        tray.querySelector('[data-tool="quick"]').hidden = qBtn.hidden;            // quick replies are hidden in private-note mode
+        tray.querySelector('[data-tool="product"]').classList.toggle("is-active", pinBtn.classList.contains("is-active"));
+        const nt = tray.querySelector('[data-tool="note"]');
+        nt.classList.toggle("is-active", !!state.noteMode); nt.setAttribute("aria-checked", String(!!state.noteMode));
+      }
+      tray.classList.toggle("open", open);
+      toolBtn.setAttribute("aria-expanded", open ? "true" : "false");
+    };
+    toolBtn.addEventListener("click", e => { e.stopPropagation(); setTray(!tray.classList.contains("open")); });
+    document.addEventListener("click", e => { if(!tray.contains(e.target) && !toolBtn.contains(e.target)) setTray(false); });
+    document.addEventListener("keydown", e => { if(e.key === "Escape") setTray(false); });
+    tray.addEventListener("click", e => {
+      const b = e.target.closest("[data-tool]"); if(!b) return;
+      e.stopPropagation(); setTray(false);
+      const k = b.dataset.tool;
+      if(k === "note") applyComposerMode(!state.noteMode, true);
+      else if(k === "product") pinBtn.click();
+      else if(k === "quick") qBtn.click();
+      else document.getElementById({ photo:"fileInPhoto", camera:"fileInCamera", file:"fileInDoc" }[k]).click();
+    });
+    new MutationObserver(() => toolBtn.classList.toggle("has-pin", pinBtn.classList.contains("is-active")))
+      .observe(pinBtn, { attributes:true, attributeFilter:["class"] });
+    toolBtn.classList.toggle("has-pin", pinBtn.classList.contains("is-active"));
+  })();
 
   /* ---------- Choose Product: live catalog (products + supplement_details + product_web) ---------- */
   const PK_CATS = {
