@@ -6155,10 +6155,6 @@ html[data-theme="dark"] .psb-val { color: #ffffff; }
 html[data-theme="dark"] .psb-val.amber { color: #F4A922; }
 .psb-val.teal { color: #0891b2; }
 html[data-theme="dark"] .psb-val.teal { color: #22d3ee; }
-.psb-val.purple { color: #7c6ff7; }
-html[data-theme="dark"] .psb-val.purple { color: #a095f5; }
-.psb-card:has(.psb-val.purple) { border-width: 1.5px; border-color: rgba(124,111,247,0.35); background: rgba(124,111,247,0.06); }
-html[data-theme="dark"] .psb-card:has(.psb-val.purple) { border-color: rgba(160,149,245,0.4); background: rgba(124,111,247,0.12); }
 .psb-val.blue { color: #0A9BDC; }
 html[data-theme="dark"] .psb-val.blue { color: #2DBEF5; }
 .psb-lbl {
@@ -26785,7 +26781,7 @@ function renderProductsTab(searchDisplayVal) {
 
   document.getElementById('productsTabContent').innerHTML = `
     <div class="products-summary-bar">
-      <div class="psb-card"><div class="psb-val purple">${_svFmt(_svCost)}</div><div class="psb-lbl">Stock Value</div></div>
+      <div class="psb-card"><div class="psb-val teal">${_svFmt(_svCost)}</div><div class="psb-lbl">Stock Value</div></div>
       <div class="psb-card"><div class="psb-val teal">${totalSKUs}</div><div class="psb-lbl">Total SKUs</div></div>
       <div class="psb-card"><div class="psb-val blue">${totalUnits}</div><div class="psb-lbl">Units in Stock</div></div>
     </div>
