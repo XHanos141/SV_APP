@@ -2229,6 +2229,24 @@ html:not([data-theme="light"]) .odm-card { background: rgba(124,111,247,0.08); b
   .pk-i:active{ color:#5f52d6; }
   /* detail view */
   .pk-detail{ overflow-y:auto; padding:4px 16px 0; }
+  /* ---- zoom viewer (ported from the product page lightbox) ---- */
+  .pk-zoom{ position:fixed; inset:0; z-index:999; background:rgba(8,12,20,.64); -webkit-backdrop-filter:blur(30px) saturate(1.15); backdrop-filter:blur(30px) saturate(1.15); display:flex; flex-direction:column; visibility:hidden; pointer-events:none; opacity:0; transition:opacity .3s ease, visibility 0s linear .3s; }
+  .pk-zoom.open{ visibility:visible; pointer-events:auto; opacity:1; transition:opacity .3s ease, visibility 0s; }
+  .pk-zoom__top,.pk-zoom__hint{ opacity:0; transition:opacity .25s ease, transform .35s cubic-bezier(.22,1,.36,1); }
+  .pk-zoom__top{ transform:translateY(-10px); display:flex; align-items:center; justify-content:space-between; padding:calc(12px + env(safe-area-inset-top)) 14px 12px; position:relative; z-index:2; }
+  .pk-zoom__hint{ transform:translateY(10px); text-align:center; color:rgba(255,255,255,.55); font-size:12px; font-weight:600; padding:0 0 calc(16px + env(safe-area-inset-bottom)); }
+  .pk-zoom.open .pk-zoom__top,.pk-zoom.open .pk-zoom__hint{ opacity:1; transform:none; transition-delay:.12s; }
+  .pk-zoom__back{ display:flex; align-items:center; gap:6px; background:rgba(255,255,255,.12); border:none; border-radius:999px; padding:8px 14px 8px 10px; color:#fff; font-family:"Plus Jakarta Sans",sans-serif; font-size:13px; font-weight:700; cursor:pointer; -webkit-tap-highlight-color:transparent; }
+  .pk-zoom__back svg{ width:18px; height:18px; }
+  .pk-zoom__back:active{ transform:scale(.94); }
+  .pk-zoom__dots{ display:flex; gap:6px; }
+  .pk-zoom__dot{ width:6px; height:6px; border-radius:50%; background:rgba(255,255,255,.35); transition:all .2s; }
+  .pk-zoom__dot.on{ width:18px; border-radius:4px; background:#fff; }
+  .pk-zoom__stage{ flex:1; position:relative; overflow:hidden; touch-action:none; }
+  .pk-zoom__track{ display:flex; width:100%; height:100%; transition:transform .3s cubic-bezier(.22,1,.36,1); }
+  .pk-zoom__slide{ flex:0 0 100%; width:100%; height:100%; display:flex; align-items:center; justify-content:center; overflow:hidden; }
+  .pk-zoom__slide img{ max-width:96%; max-height:96%; width:auto; height:auto; object-fit:contain; transform-origin:center center; transition:transform .25s cubic-bezier(.22,1,.36,1); will-change:transform; -webkit-user-select:none; user-select:none; pointer-events:none; }
+  .pk-gal__track{ cursor:zoom-in; }
   .pk-gal{ position:relative; width:100%; aspect-ratio:1/1; border-radius:16px; overflow:hidden; background:var(--surface); margin-bottom:12px; animation:svFade .3s ease both; }
   .pk-gal__track{ display:flex; width:100%; height:100%; overflow-x:auto; scroll-snap-type:x mandatory; scrollbar-width:none; -webkit-overflow-scrolling:touch; overscroll-behavior-x:contain; }
   .pk-gal__track::-webkit-scrollbar{ display:none; }
@@ -4982,6 +5000,132 @@ function closeOrderDetailsModal() {
     }
   }
 
+  /* ---- Product-page style zoom viewer: pinch, double-tap, drag, swipe ---- */
+  const pkZ = { el:null, stage:null, track:null, dots:null, slides:[], count:0, cur:0, scale:1, tx:0, ty:0, sw:0, sh:0, src:null, fly:null, clean:null };
+  const PK_EASE = "cubic-bezier(.22,1,.36,1)";
+  const pkReduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const pkMedia = () => pkZ.slides[pkZ.cur] && pkZ.slides[pkZ.cur].querySelector("img");
+  function pkApply(){ const m = pkMedia(); if(m) m.style.transform = "translate(" + pkZ.tx + "px," + pkZ.ty + "px) scale(" + pkZ.scale + ")"; }
+  function pkReset(){ pkZ.scale = 1; pkZ.tx = 0; pkZ.ty = 0; const m = pkMedia(); if(m){ m.style.transition = "none"; pkApply(); void m.offsetWidth; m.style.transition = ""; } }
+  function pkGo(i, animate){
+    const z = pkZ; z.cur = Math.max(0, Math.min(z.count - 1, i));
+    z.track.style.transition = animate === false ? "none" : "";
+    z.track.style.transform = "translateX(" + (-z.cur * z.sw) + "px)";
+    z.dots.querySelectorAll(".pk-zoom__dot").forEach((d, k) => d.classList.toggle("on", k === z.cur));
+    pkReset();
+  }
+  function pkFlyT(from, to){
+    const sc = Math.min(from.width / to.width, from.height / to.height);
+    const dx = (from.left + from.width / 2) - (to.left + to.width / 2), dy = (from.top + from.height / 2) - (to.top + to.height / 2);
+    return "translate(" + dx + "px," + dy + "px) scale(" + sc + ")";
+  }
+  function pkSrcRect(idx){
+    const im = pkZ.src && pkZ.src(idx); if(!im) return null;
+    const r = im.getBoundingClientRect();
+    return (r.width > 20 && r.height > 20 && r.bottom > 0 && r.top < window.innerHeight) ? r : null;
+  }
+  function pkFlyIn(idx){
+    const z = pkZ, dst = z.slides[idx] && z.slides[idx].querySelector("img"), from = pkSrcRect(idx);
+    if(pkReduce || !dst || !from) return;
+    const to = dst.getBoundingClientRect(); if(!to.width || !to.height) return;
+    const rest = dst.style.transform; clearTimeout(z.fly);
+    dst.style.transition = "none"; dst.style.transform = pkFlyT(from, to); void dst.offsetWidth;
+    dst.style.transition = "transform .46s " + PK_EASE; dst.style.transform = rest;
+    z.fly = setTimeout(() => { dst.style.transition = ""; }, 520);
+  }
+  function pkZoomClose(){
+    const z = pkZ; if(!z.el || !z.el.classList.contains("open")) return;
+    const dst = pkMedia(), from = pkReduce ? null : pkSrcRect(z.cur);
+    clearTimeout(z.fly);
+    if(dst && from){
+      const rest = dst.style.transform; dst.style.transition = "none"; dst.style.transform = "none";
+      const to = dst.getBoundingClientRect(); dst.style.transform = rest; void dst.offsetWidth;
+      if(to.width && to.height){ dst.style.transition = "transform .34s cubic-bezier(.4,0,.2,1)"; dst.style.transform = pkFlyT(from, to); z.fly = setTimeout(() => { dst.style.transition = ""; }, 420); }
+    } else if(dst && !pkReduce){
+      dst.style.transition = "transform .3s ease"; dst.style.transform = "scale(0.92)";
+      z.fly = setTimeout(() => { dst.style.transition = ""; }, 380);
+    }
+    z.el.classList.remove("open"); z.el.setAttribute("aria-hidden", "true"); document.body.style.overflow = "";
+    clearTimeout(z.clean);
+    z.clean = setTimeout(() => {
+      if(z.el.classList.contains("open")) return;
+      z.slides.forEach(sl => { const im = sl.querySelector("img"); if(im){ im.style.transition = "none"; im.style.transform = ""; } });
+      z.scale = 1; z.tx = 0; z.ty = 0;
+    }, 460);
+  }
+  function pkZoomBuild(){
+    if(pkZ.el) return;
+    const z = pkZ, el = document.createElement("div");
+    el.className = "pk-zoom"; el.setAttribute("aria-hidden", "true");
+    el.innerHTML = '<div class="pk-zoom__top"><button type="button" class="pk-zoom__back" aria-label="Close zoom"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg><span>Back</span></button><div class="pk-zoom__dots"></div></div><div class="pk-zoom__stage"><div class="pk-zoom__track"></div></div><div class="pk-zoom__hint">Pinch or double-tap to zoom</div>';
+    document.body.appendChild(el);
+    z.el = el; z.stage = el.querySelector(".pk-zoom__stage"); z.track = el.querySelector(".pk-zoom__track"); z.dots = el.querySelector(".pk-zoom__dots");
+    el.querySelector(".pk-zoom__back").addEventListener("click", pkZoomClose);
+    el.addEventListener("click", e => { if(e.target === el) pkZoomClose(); });
+    document.addEventListener("keydown", e => { if(e.key === "Escape" && el.classList.contains("open")){ e.stopPropagation(); pkZoomClose(); } }, true);
+
+    const MIN = 1, MAX = 4;
+    let startDist = 0, startScale = 1, panStart = null, dragStartX = 0, dragStartY = 0, dragDX = 0, panning = false, swiping = false, lastTap = 0;
+    const dist = (a, b) => Math.hypot(a.x - b.x, a.y - b.y);
+    const pt = t => ({ x:t.clientX, y:t.clientY });
+    z.stage.addEventListener("touchstart", e => {
+      z.sw = z.stage.offsetWidth; z.sh = z.stage.offsetHeight;
+      if(e.touches.length === 2){
+        swiping = false; panning = false; startDist = dist(pt(e.touches[0]), pt(e.touches[1])); startScale = z.scale;
+      } else if(e.touches.length === 1){
+        const now = Date.now(), t = pt(e.touches[0]);
+        if(now - lastTap < 300){
+          if(z.scale > 1){ z.scale = 1; z.tx = 0; z.ty = 0; } else { z.scale = 2.5; z.tx = 0; z.ty = 0; }
+          const m = pkMedia(); if(m) m.style.transition = "transform .25s ease";
+          pkApply(); lastTap = 0; panning = false; swiping = false; return;
+        }
+        lastTap = now;
+        if(z.scale > 1){ panning = true; panStart = t; dragStartX = z.tx; dragStartY = z.ty; }
+        else { swiping = true; dragStartX = t.x; dragDX = 0; z.track.style.transition = "none"; }
+      }
+    }, { passive:true });
+    z.stage.addEventListener("touchmove", e => {
+      if(e.touches.length === 2){
+        e.preventDefault();
+        const d = dist(pt(e.touches[0]), pt(e.touches[1]));
+        if(startDist > 0){ z.scale = Math.max(MIN, Math.min(MAX, startScale * (d / startDist))); const m = pkMedia(); if(m) m.style.transition = "none"; pkApply(); }
+      } else if(e.touches.length === 1){
+        const t = pt(e.touches[0]);
+        if(panning && panStart){
+          const mx = (z.sw * (z.scale - 1)) / 2 + 40, my = (z.sh * (z.scale - 1)) / 2 + 40;
+          z.tx = Math.max(-mx, Math.min(mx, dragStartX + (t.x - panStart.x)));
+          z.ty = Math.max(-my, Math.min(my, dragStartY + (t.y - panStart.y)));
+          const m = pkMedia(); if(m) m.style.transition = "none"; pkApply();
+        } else if(swiping){
+          dragDX = t.x - dragStartX;
+          z.track.style.transform = "translateX(" + (-z.cur * z.sw + dragDX) + "px)";
+        }
+      }
+    }, { passive:false });
+    z.stage.addEventListener("touchend", e => {
+      if(e.touches.length === 0){
+        if(panning){ panning = false; panStart = null; const m = pkMedia(); if(m) m.style.transition = ""; }
+        else if(swiping){
+          swiping = false; z.track.style.transition = "";
+          const th = z.sw * 0.18;
+          if(dragDX > th && z.cur > 0) pkGo(z.cur - 1); else if(dragDX < -th && z.cur < z.count - 1) pkGo(z.cur + 1); else pkGo(z.cur);
+        }
+        startDist = 0;
+        if(z.scale <= 1.02){ z.scale = 1; z.tx = 0; z.ty = 0; pkApply(); }
+      }
+    });
+  }
+  function pkZoomOpen(images, idx, srcGetter){
+    pkZoomBuild();
+    const z = pkZ;
+    z.track.innerHTML = images.map(u => '<div class="pk-zoom__slide"><img' + svImgAttrs(u, 1600) + ' alt="" draggable="false"></div>').join("");
+    z.slides = Array.from(z.track.children); z.count = images.length; z.src = srcGetter;
+    z.dots.innerHTML = z.count > 1 ? images.map(() => '<div class="pk-zoom__dot"></div>').join("") : "";
+    z.el.classList.add("open"); z.el.setAttribute("aria-hidden", "false"); document.body.style.overflow = "hidden";
+    z.sw = z.stage.offsetWidth; z.sh = z.stage.offsetHeight;
+    pkGo(idx, false); pkFlyIn(idx);
+  }
+
   function showProductDetail(id){
     const i = pk.list.find(x => x.id === id); if(!i) return;
     pk.cur = i;
@@ -5002,6 +5146,10 @@ function closeOrderDetailsModal() {
         <button type="button" class="pk-btn pk-btn--ghost" data-pk-pin="${escapeHtml(i.id)}">${PIN_SVG}${isPinned ? "Unpin" : "Pin"}</button>
       </div>`;
     const gTrack = document.querySelector("#ppDetailView .pk-gal__track");
+    if(gTrack) gTrack.addEventListener("click", () => {          // a real tap only: the browser drops the click after a swipe
+      const n = Math.round(gTrack.scrollLeft / (gTrack.clientWidth || 1));
+      pkZoomOpen(i.images, n, k => gTrack.children[k] && gTrack.children[k].querySelector("img"));
+    });
     if(gTrack) gTrack.addEventListener("scroll", () => {
       const n = Math.round(gTrack.scrollLeft / (gTrack.clientWidth || 1));
       gTrack.parentNode.querySelectorAll(".pk-gal__dot").forEach((d, k) => d.classList.toggle("on", k === n));
