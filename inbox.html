@@ -1935,6 +1935,18 @@ html:not([data-theme="light"]) .odm-card { background: rgba(124,111,247,0.08); b
   .thread-messages.msgs-in{ animation:svRise .32s var(--ease-out) both; }
   .msg-new{ animation:svMsgIn .28s var(--ease-out) both; }
 
+  /* chat bubbles: static premium look (always on) — strong depth, glow, gloss and inner highlight */
+  .from-admin .msg-bubble__text{
+    background:linear-gradient(160deg, #3d84ee 0%, #2b74e3 100%);
+    box-shadow:0 2px 3px rgba(26,85,194,.2), 0 8px 20px -6px rgba(43,116,227,.6);
+  }
+  .from-customer .msg-bubble__text{
+    background:linear-gradient(160deg, #ffffff 0%, #eef4ff 100%);
+    border-color:rgba(43,116,227,.5);
+    box-shadow:0 2px 4px rgba(15,22,33,.08), 0 12px 26px -6px rgba(43,116,227,.5), inset 0 1.5px 0 rgba(255,255,255,.95), inset 0 -2px 4px rgba(43,116,227,.08);
+  }
+
+
   /* popovers & menus: scale/fade from their anchor instead of popping */
   .chan-pop, .thread-menu{
     display:flex !important; visibility:hidden; opacity:0; pointer-events:none;
