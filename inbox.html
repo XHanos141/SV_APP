@@ -227,14 +227,14 @@ input,textarea,select,[contenteditable="true"],.allow-select,.allow-select *{-we
     display:inline-flex;
     align-items:center;
     gap:6px;
-    font-size:13px;
+    font-size:11px;
     font-weight:700;
     font-family:var(--font-head);
     color:var(--text-2);
     background:var(--surface-2);
-    border:1px solid var(--hairline);
-    padding:7px 13px;
-    border-radius:20px;
+    border:1.5px solid var(--hairline);
+    padding:6px 16px;
+    border-radius:999px;
     white-space:nowrap;
   }
   .status-tab .count{
@@ -2035,7 +2035,27 @@ html:not([data-theme="light"]) .odm-card { background: rgba(124,111,247,0.08); b
   .status-tab:hover{ border-color:var(--text-3); }
   .status-tab[aria-selected="true"]{ background:transparent; border-color:transparent; color:#fff; text-shadow:0 1px 2px rgba(0,0,0,.3); }
 
+  /* inbox list pills: same smooth-surface look as the main app filter chips, in inbox blue */
+  #listView .status-tab{ background:#edf0f5; border-color:#d2d6df; color:#556070; }
+  #listView .status-tab .count{ color:inherit; opacity:.75; }
+  #listView .status-tab:hover{ background:#e2e6ed; border-color:#b8bdc9; color:#2f3a4a; }
+  html:not([data-theme="light"]) #listView .status-tab{ background:rgba(255,255,255,.07); border-color:rgba(255,255,255,.12); color:rgba(255,255,255,.55); }
+  html:not([data-theme="light"]) #listView .status-tab:hover{ background:rgba(255,255,255,.13); border-color:rgba(255,255,255,.22); color:rgba(255,255,255,.88); }
+  #listView .status-tab[aria-selected="true"]{ background:transparent; border-color:transparent; color:#fff; }
+  #listView .status-tab[aria-selected="true"] .count{ color:#fff; opacity:.85; }
+  #listView .status-slide{
+    background:linear-gradient(180deg, #3b86f2 0%, #2266d4 100%);
+    border:1px solid rgba(255,255,255,.1);
+    box-shadow:0 2px 8px rgba(43,116,227,.4), 0 1px 0 rgba(255,255,255,.14) inset, 0 -1px 0 rgba(0,0,0,.15) inset;
+  }
+
   /* ---------- Customers hub (Customers / Wishlist / Subscribers) ---------- */
+  /* inbox list: tighter search + pills block so conversations start higher */
+  #listView .inbox-header__top{ margin-bottom:8px; }
+  #listView .search-row{ margin-bottom:6px; }
+  #listView #searchInput{ padding-top:9px; padding-bottom:9px; }
+  #listView .chan-filter-btn{ height:36px; }
+  #listView .status-tabs{ margin-bottom:-4px; }
   #customersView .inbox-header{ flex:0 0 auto; }
   #customersView .inbox-header__body{ padding-bottom:0; }
   #customersView .search-row{ margin-bottom:12px; }
