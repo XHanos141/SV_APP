@@ -26622,6 +26622,10 @@ function psbAnimateCounts() {
 }
 
 function renderProductsTab(searchDisplayVal) {
+  const _brandSheetEl = document.getElementById('brandFilterSheet');
+  const _brandSheetOpen = !!(_brandSheetEl && _brandSheetEl.classList.contains('show'));
+  const _brandChipsEl = document.getElementById('brandSheetChips');
+  const _brandChipsScroll = _brandChipsEl ? _brandChipsEl.scrollTop : 0;
   const _prevFilterInd = _captureIndicatorRect('productsFilterSlide');
   const _prevProductsFilterScroll = document.getElementById('productsFilterRow') ? document.getElementById('productsFilterRow').scrollLeft : 0;
   const inputVal = searchDisplayVal !== undefined ? searchDisplayVal : productSearch;
@@ -26868,12 +26872,18 @@ function renderProductsTab(searchDisplayVal) {
         ${allUsedBrands.length ? allUsedBrands.map(b => `
         <div class="brand-sheet-chip ${_pendingBrandFilter.includes(b)?'active':''}" data-brand="${escapeHtml(b)}" onclick="toggleBrandChip('${b.replace(/'/g,"\\'")}', this)">${escapeHtml(b)}</div>`).join('') : `<div style="padding:20px 8px;text-align:center;font-family:'Plus Jakarta Sans',sans-serif;font-size:12.5px;font-weight:600;color:#8c92a1">No brands yet — add one from the product form</div>`}
       </div>
-      <div class="brand-sheet-actions">
-        <button type="button" class="brand-sheet-clear" onclick="clearBrandFilterSheet()">Clear</button>
-        <button type="button" class="brand-sheet-apply" onclick="applyBrandFilter()">Apply</button>
-      </div>
     </div>
   `;
+  if (_brandSheetOpen) {
+    const _bs = document.getElementById('brandFilterSheet'), _bb = document.getElementById('brandFilterBackdrop');
+    if (_bs && _bb) {
+      _bs.style.transition = 'none'; _bb.style.transition = 'none';
+      _bs.classList.add('show'); _bb.classList.add('show');
+      const _bc = document.getElementById('brandSheetChips'); if (_bc) _bc.scrollTop = _brandChipsScroll;
+      void _bs.offsetWidth;
+      _bs.style.transition = ''; _bb.style.transition = '';
+    }
+  }
   psbAnimateCounts();
   requestAnimationFrame(() => {
     const activeBtn = document.querySelector('#productsFilterRow .filter-chip.active');
@@ -26956,17 +26966,14 @@ function closeBrandFilterSheet() {
   if (sheet) sheet.classList.remove('show');
 }
 function toggleBrandChip(brand, el) {
-  const i = _pendingBrandFilter.indexOf(brand);
-  if (i === -1) _pendingBrandFilter.push(brand); else _pendingBrandFilter.splice(i, 1);
-  el.classList.toggle('active');
-}
-function clearBrandFilterSheet() {
-  _pendingBrandFilter = [];
-  document.querySelectorAll('#brandSheetChips .brand-sheet-chip.active').forEach(el => el.classList.remove('active'));
-}
-function applyBrandFilter() {
-  productBrandFilter = _pendingBrandFilter.slice();
-  closeBrandFilterSheet();
+  const i = productBrandFilter.indexOf(brand);
+  if (i === -1) productBrandFilter.push(brand); else productBrandFilter.splice(i, 1);
+  _pendingBrandFilter = productBrandFilter.slice();
+  el.classList.toggle('active', i === -1);
+  const cnt = document.getElementById('productBrandFilterCount');
+  const btn = document.getElementById('productBrandFilterBtn');
+  if (cnt) { cnt.textContent = productBrandFilter.length; cnt.classList.toggle('show', productBrandFilter.length > 0); }
+  if (btn) btn.classList.toggle('has-active', productBrandFilter.length > 0);
   animateProductsRepaint();
 }
 function _pinfoRow(label, value, cls) {
