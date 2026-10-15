@@ -19693,10 +19693,11 @@ const _CI_MI = {
 };
 
 /* Brand lockup — geometry copied from the website .header-logo (icon 44.8px tall), scaled by k */
-function _ciLockup(h, tc, bdc) {
+function _ciLockup(h, tc, bdc, b) {
+  b = b || 0;
   const k = h / 44.8, w = Math.round(h * 748 / 1043), r = n => (n * k).toFixed(2);
   const F = "font-family:'BARABARA-FINAL','DM Sans',sans-serif";
-  return `<div style="display:flex;align-items:center;gap:${r(9.1)}px"><span style="display:block;flex-shrink:0;width:${w}px;height:${h}px;line-height:0">${_CI_LOGO_SVG.replace('<svg ', '<svg width="' + w + '" height="' + h + '" style="display:block" ')}</span><div style="transform:translateY(${r(5.3)}px);line-height:1"><div style="${F};font-size:${r(16.6)}px;font-weight:800;color:${tc};letter-spacing:${r(1)}px;line-height:1;white-space:nowrap">SUPPVERSE</div><div style="${F};font-size:${r(10.6)}px;font-weight:700;color:${bdc};letter-spacing:.22em;line-height:1;margin-left:${r(1)}px">BD</div></div></div>`;
+  return `<div style="display:flex;align-items:center;gap:${r(9.1)}px"><span style="display:block;flex-shrink:0;width:${w}px;height:${h}px;line-height:0">${_CI_LOGO_SVG.replace('<svg ', '<svg width="' + w + '" height="' + h + '" style="display:block" ')}</span><div style="transform:translateY(${r(5.3)}px);line-height:1"><div style="${F};font-size:${(16.6*k+b).toFixed(2)}px;font-weight:800;color:${tc};letter-spacing:${r(1)}px;line-height:1;white-space:nowrap">SUPPVERSE</div><div style="${F};font-size:${(10.6*k+b*0.6).toFixed(2)}px;font-weight:700;color:${bdc};letter-spacing:.22em;line-height:1;margin-left:${r(1)}px">BD</div></div></div>`;
 }
 const _ciPill = s => { const x = _CI_TXB[s] || _CI_TXB.paid; return `<span style="display:inline-block;${_CI_PJ};font-size:12px;font-weight:700;padding:4px 14px;border-radius:999px;border:1px solid ${x.b};background:${x.bg};color:${x.c};line-height:1.2">${x.t}</span>`; };
 const _ciChip = (d, solid) => `<span style="flex:none;width:26px;height:26px;border-radius:8px;background:#eef2f8;display:inline-flex;align-items:center;justify-content:center"><svg width="16" height="16" viewBox="0 0 24 24" style="${solid ? 'fill:#001f3c;stroke:none' : 'fill:none;stroke:#001f3c;stroke-width:2.3;stroke-linecap:butt;stroke-linejoin:round'}">${d}</svg></span>`;
@@ -19762,7 +19763,7 @@ function _ciHeaderF(total) {
   <div style="position:absolute;inset:0;background:radial-gradient(ellipse 50% 90% at 50% -10%,rgba(124,111,247,.35),transparent 60%)"></div>
   <svg viewBox="0 0 794 116" preserveAspectRatio="none" style="position:absolute;inset:0;width:100%;height:100%"><path d="M0 80 C160 60 300 104 470 80 C610 62 710 76 794 62 L794 116 L0 116Z" fill="#38bdf8" opacity=".08"/></svg>
   <div style="position:relative;z-index:1;height:100%;display:flex;align-items:center;justify-content:space-between;padding:0 56px 0 30px">
-    ${_ciLockup(70, '#fff', '#fff')}
+    ${_ciLockup(70, '#fff', '#fff', 4)}
     ${total > 1 ? `<span style="${_CI_PJ};font-size:11px;font-weight:700;letter-spacing:.08em;color:rgba(255,255,255,.6)">PAGE 1 OF ${total}</span>` : ''}
   </div>
 </div>`;
