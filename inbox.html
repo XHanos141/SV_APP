@@ -2266,6 +2266,7 @@ html:not([data-theme="light"]) .odm-card { background: rgba(124,111,247,0.08); b
   .pk-avail{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-bottom:12px; }
   .pk-staff{ font-size:11px; color:var(--text-3); }
   .pk-facts{ display:grid; grid-template-columns:auto 1fr; gap:7px 16px; padding:12px; margin-bottom:12px; background:var(--surface); border:1px solid var(--hairline); border-radius:12px; font-size:12.5px; }
+  .pk-facts dd b{ font-size:15px; font-weight:800; } .pk-facts dd s{ color:var(--text-3); font-weight:500; margin-left:4px; }
   .pk-facts dt{ color:var(--text-3); } .pk-facts dd{ margin:0; color:var(--text-1); font-weight:600; }
   .pk-sec{ margin-bottom:12px; }
   .pk-sec h3{ margin:0 0 4px; font-size:11px; font-weight:800; letter-spacing:.05em; text-transform:uppercase; color:var(--cyan); }
@@ -4910,6 +4911,7 @@ function closeOrderDetailsModal() {
       desc:htmlToText(pw.web_description), usage:htmlToText(pw.usage), caution:htmlToText(pw.caution),
       benefits:Array.isArray(pw.benefits) ? pw.benefits.map(b => typeof b === "string" ? b : (b && (b.text || b.title)) || "").filter(Boolean) : [],
       image:safeUrl(imgs[0] && (typeof imgs[0] === "string" ? imgs[0] : imgs[0].url)) || "", slug:pw.slug || "",
+      extra:(Array.isArray(sd.custom_fields) ? sd.custom_fields : []).filter(x => x && String(x.value == null ? "" : x.value).trim() !== "").map(x => ({ label:String(x.label || "Info").trim(), value:String(x.value).trim() })),
       images:imgs.map(x => safeUrl(x && (typeof x === "string" ? x : x.url)) || "").filter(Boolean),
       archived:pr.archived, is_active:pr.is_active
     };
@@ -4968,7 +4970,7 @@ function closeOrderDetailsModal() {
     ppList.innerHTML = `<div class="hub-skel"></div><div class="hub-skel"></div><div class="hub-skel"></div>`;
     try{
       let qb = c.from("products")
-        .select("id,sku,name,brand,category,subcategory,price,old_price,stock_qty,is_active,archived,product_web(slug,web_description,benefits,usage,caution,web_images,settings),supplement_details(form_type,capsule_count,potency_unit,potency_amount,flavor,country_of_origin)")
+        .select("id,sku,name,brand,category,subcategory,price,old_price,stock_qty,is_active,archived,product_web(slug,web_description,benefits,usage,caution,web_images,settings),supplement_details(form_type,capsule_count,potency_unit,potency_amount,flavor,country_of_origin,custom_fields)")
         .eq("archived", false).order("name").limit(40);
       if(pk.cat !== "all") qb = qb.eq("category", pk.cat);
       const term = pk.q.trim().replace(/[,()%*\\]/g, " ").trim();
@@ -5131,15 +5133,14 @@ function closeOrderDetailsModal() {
     pk.cur = i;
     const pinned = pinOf(activeConv()), isPinned = pinned && pinned.id === i.id;
     const pct = i.old && i.price && Number(i.old) > Number(i.price) ? Math.round((1 - Number(i.price) / Number(i.old)) * 100) : 0;
-    const facts = [["Brand", i.brand], ["Form", i.form], ["Count", i.count], ["Potency", i.potency], ["Flavor", i.flavor], ["Origin", i.origin]].filter(f => f[1]);
+    const priceHtml = i.price != null && i.price !== "" ? `<b>${escapeHtml(money(i.price))}</b>${pct ? ` <s>${escapeHtml(money(i.old))}</s> <span class="pk-off">${pct}% off</span>` : ""}` : "";
+    const facts = [["Product", escapeHtml(i.name)], ["Price", priceHtml], ["Brand", escapeHtml(i.brand)], ["Potency", escapeHtml(i.potency)], ["Capsule Count", escapeHtml(i.count)]]
+      .concat((i.extra || []).map(x => [escapeHtml(x.label), escapeHtml(x.value)]))
+      .concat([["Country of Origin", escapeHtml(i.origin)]]).filter(f => f[1]);
     const sec = (t, txt) => txt ? `<div class="pk-sec"><h3>${t}</h3><p>${escapeHtml(txt)}</p></div>` : "";
     document.getElementById("ppDetailView").innerHTML = `
       ${(i.images && i.images.length) ? `<div class="pk-gal"><div class="pk-gal__track">${i.images.map(u => `<div class="pk-gal__slide"><img${svImgAttrs(u, 1200)} alt="" draggable="false"></div>`).join("")}</div>${i.images.length > 1 ? `<div class="pk-gal__dots">${i.images.map((_, k) => `<div class="pk-gal__dot${k === 0 ? " on" : ""}"></div>`).join("")}</div>` : ""}</div>` : (i.image ? `<img class="pk-hero" src="${escapeHtml(i.image)}" alt="" onerror="this.remove()">` : "")}
-      <div class="pk-title">${escapeHtml(i.title)}</div>
-      ${i.spec ? `<div class="pk-subtitle">${escapeHtml(i.spec)}</div>` : ""}
-      <div class="pk-price"><b>${money(i.price)}</b>${pct ? `<s>${money(i.old)}</s><span class="pk-off">${pct}% off</span>` : ""}</div>
-      <div class="pk-avail"><span class="pk-stock ${i.stock}">${CUSTOMER_STOCK[i.stock]}</span><span class="pk-staff">Staff only: ${i.qty} in stock · ${escapeHtml(i.sku || "")}</span></div>
-      ${facts.length ? `<dl class="pk-facts">${facts.map(f => `<dt>${f[0]}</dt><dd>${escapeHtml(String(f[1]))}</dd>`).join("")}</dl>` : ""}
+      ${facts.length ? `<dl class="pk-facts">${facts.map(f => `<dt>${f[0]}</dt><dd>${f[1]}</dd>`).join("")}</dl>` : ""}
       ${sec("About", i.desc)}${i.benefits.length ? sec("Benefits", i.benefits.map(b => "• " + b).join("\n")) : ""}${sec("How to use", i.usage)}${sec("Caution", i.caution)}
       <div class="pk-actions">
         <button type="button" class="pk-btn pk-btn--primary" data-pk-send="${escapeHtml(i.id)}">Send details</button>
@@ -5157,12 +5158,14 @@ function closeOrderDetailsModal() {
     document.getElementById("ppDetailView").scrollTop = 0;
     setPkView("detail");
   }
-  function productMessage(i){                                   // customer-safe only: no cost, supplier, margin or exact stock
-    const lines = [i.title];
-    if(i.spec) lines.push(i.spec);
+  function productMessage(i){                                   // customer-safe only: no cost, supplier, margin or stock count
     const pct = i.old && i.price && Number(i.old) > Number(i.price) ? Math.round((1 - Number(i.price) / Number(i.old)) * 100) : 0;
-    lines.push(`Price: ${money(i.price)}${pct ? ` (was ${money(i.old)}, ${pct}% off)` : ""}`);
-    lines.push(`Availability: ${CUSTOMER_STOCK[i.stock]}`);
+    const lines = [`Product: ${i.name}`, `Price: ${money(i.price)}${pct ? ` (was ${money(i.old)}, ${pct}% off)` : ""}`];
+    if(i.brand) lines.push(`Brand: ${i.brand}`);
+    if(i.potency) lines.push(`Potency: ${i.potency}`);
+    if(i.count) lines.push(`Capsule Count: ${i.count}`);
+    (i.extra || []).forEach(x => lines.push(`${x.label}: ${x.value}`));
+    if(i.origin) lines.push(`Country of Origin: ${i.origin}`);
     if(i.desc){ const d = i.desc.replace(/\s+/g, " "); lines.push("", d.length > 200 ? d.slice(0, 197).trimEnd() + "..." : d); }
     if(i.benefits.length) lines.push("", ...i.benefits.slice(0, 3).map(b => "• " + b));
     return lines.join("\n");
