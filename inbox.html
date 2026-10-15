@@ -2229,6 +2229,15 @@ html:not([data-theme="light"]) .odm-card { background: rgba(124,111,247,0.08); b
   .pk-i:active{ color:#5f52d6; }
   /* detail view */
   .pk-detail{ overflow-y:auto; padding:4px 16px 0; }
+  .pk-gal{ position:relative; width:100%; aspect-ratio:1/1; border-radius:16px; overflow:hidden; background:var(--surface); margin-bottom:12px; animation:svFade .3s ease both; }
+  .pk-gal__track{ display:flex; width:100%; height:100%; overflow-x:auto; scroll-snap-type:x mandatory; scrollbar-width:none; -webkit-overflow-scrolling:touch; overscroll-behavior-x:contain; }
+  .pk-gal__track::-webkit-scrollbar{ display:none; }
+  .pk-gal__slide{ flex:0 0 100%; width:100%; height:100%; scroll-snap-align:center; display:flex; align-items:center; justify-content:center; }
+  .pk-gal__slide img{ width:100%; height:100%; object-fit:contain; display:block; -webkit-user-drag:none; user-select:none; }
+  .pk-gal__dots{ position:absolute; bottom:12px; left:0; right:0; display:flex; justify-content:center; gap:6px; pointer-events:none; }
+  .pk-gal__dot{ width:6px; height:6px; border-radius:50%; background:rgba(11,18,32,.28); box-shadow:0 0 0 1px rgba(255,255,255,.5); transition:all .2s; }
+  .pk-gal__dot.on{ width:18px; border-radius:4px; background:#0B1220; }
+  html:not([data-theme="light"]) .pk-gal__dot.on{ background:#fff; }
   .pk-hero{ width:100%; max-height:210px; border-radius:16px; object-fit:cover; background:var(--surface); display:block; margin-bottom:12px; animation:svFade .3s ease both; }
   .pk-title{ font-size:17px; font-weight:800; color:var(--text-1); line-height:1.25; }
   .pk-subtitle{ font-size:13px; color:var(--text-2); margin-top:2px; }
@@ -4883,6 +4892,7 @@ function closeOrderDetailsModal() {
       desc:htmlToText(pw.web_description), usage:htmlToText(pw.usage), caution:htmlToText(pw.caution),
       benefits:Array.isArray(pw.benefits) ? pw.benefits.map(b => typeof b === "string" ? b : (b && (b.text || b.title)) || "").filter(Boolean) : [],
       image:safeUrl(imgs[0] && (typeof imgs[0] === "string" ? imgs[0] : imgs[0].url)) || "", slug:pw.slug || "",
+      images:imgs.map(x => safeUrl(x && (typeof x === "string" ? x : x.url)) || "").filter(Boolean),
       archived:pr.archived, is_active:pr.is_active
     };
   }
@@ -4980,7 +4990,7 @@ function closeOrderDetailsModal() {
     const facts = [["Brand", i.brand], ["Form", i.form], ["Count", i.count], ["Potency", i.potency], ["Flavor", i.flavor], ["Origin", i.origin]].filter(f => f[1]);
     const sec = (t, txt) => txt ? `<div class="pk-sec"><h3>${t}</h3><p>${escapeHtml(txt)}</p></div>` : "";
     document.getElementById("ppDetailView").innerHTML = `
-      ${i.image ? `<img class="pk-hero" src="${escapeHtml(i.image)}" alt="" onerror="this.remove()">` : ""}
+      ${(i.images && i.images.length) ? `<div class="pk-gal"><div class="pk-gal__track">${i.images.map(u => `<div class="pk-gal__slide"><img${svImgAttrs(u, 1200)} alt="" draggable="false"></div>`).join("")}</div>${i.images.length > 1 ? `<div class="pk-gal__dots">${i.images.map((_, k) => `<div class="pk-gal__dot${k === 0 ? " on" : ""}"></div>`).join("")}</div>` : ""}</div>` : (i.image ? `<img class="pk-hero" src="${escapeHtml(i.image)}" alt="" onerror="this.remove()">` : "")}
       <div class="pk-title">${escapeHtml(i.title)}</div>
       ${i.spec ? `<div class="pk-subtitle">${escapeHtml(i.spec)}</div>` : ""}
       <div class="pk-price"><b>${money(i.price)}</b>${pct ? `<s>${money(i.old)}</s><span class="pk-off">${pct}% off</span>` : ""}</div>
@@ -4991,6 +5001,11 @@ function closeOrderDetailsModal() {
         <button type="button" class="pk-btn pk-btn--primary" data-pk-send="${escapeHtml(i.id)}">Send details</button>
         <button type="button" class="pk-btn pk-btn--ghost" data-pk-pin="${escapeHtml(i.id)}">${PIN_SVG}${isPinned ? "Unpin" : "Pin"}</button>
       </div>`;
+    const gTrack = document.querySelector("#ppDetailView .pk-gal__track");
+    if(gTrack) gTrack.addEventListener("scroll", () => {
+      const n = Math.round(gTrack.scrollLeft / (gTrack.clientWidth || 1));
+      gTrack.parentNode.querySelectorAll(".pk-gal__dot").forEach((d, k) => d.classList.toggle("on", k === n));
+    }, { passive:true });
     document.getElementById("ppDetailView").scrollTop = 0;
     setPkView("detail");
   }
