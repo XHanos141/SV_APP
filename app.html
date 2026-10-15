@@ -4190,14 +4190,25 @@ html[data-theme="dark"] .nav-fab-btn {
   transition: transform 0.4s cubic-bezier(0.4,0,0.2,1);
 }
 
-/* "+" soft outer ring: pulses green when there is something to view (payments or inbox). Badge and white ring are untouched. */
-.nav-fab-btn.has-new { animation: fabSoftGreen 1.6s ease-in-out infinite; }
-.nav-fab-btn.has-new.active { animation: none; }
-@keyframes fabSoftGreen {
-  0%, 100% { box-shadow: 0 4px 20px rgba(124,111,247,0.45); }
-  50%      { box-shadow: 0 3px 20px 0 rgba(47,155,104,1); }
+/* "+" soft outer glow (behind the white ring, which stays untouched):
+   payments only -> green pulse | inbox only -> blue pulse | both -> half green / half blue pulse. */
+.nav-fab { position: relative; }
+.nav-fab-btn { position: relative; --fab-glow: #2f9b68; }
+.nav-fab-btn::before {
+  content: ''; position: absolute; inset: -4px; border-radius: 50%;
+  background: var(--fab-glow); filter: blur(9px);
+  opacity: 0; z-index: -1; pointer-events: none;
 }
-@media (prefers-reduced-motion: reduce) { .nav-fab-btn.has-new { animation: none; box-shadow: 0 3px 20px 0 rgba(47,155,104,0.9); } }
+.nav-fab-btn.has-pay { --fab-glow: #2f9b68; }
+.nav-fab-btn.has-inbox { --fab-glow: #2b74e3; }
+.nav-fab-btn.has-pay.has-inbox { --fab-glow: linear-gradient(90deg, #2f9b68 50%, #2b74e3 50%); }
+.nav-fab-btn.has-pay::before, .nav-fab-btn.has-inbox::before { animation: fabGlowPulse 1.6s ease-in-out infinite; }
+.nav-fab-btn.has-pay.active::before, .nav-fab-btn.has-inbox.active::before { animation: none; opacity: 0; }
+@keyframes fabGlowPulse {
+  0%, 100% { opacity: 0.15; transform: scale(0.95); }
+  50%      { opacity: 1;    transform: scale(1.12); }
+}
+@media (prefers-reduced-motion: reduce) { .nav-fab-btn.has-pay::before, .nav-fab-btn.has-inbox::before { animation: none; opacity: 0.85; } }
 
 /* Action Sheet */
 .action-sheet-overlay {
@@ -20689,12 +20700,13 @@ function asCounts() {
   const payN = (typeof window.SV_PAYMENTS_REVIEW_COUNT === 'number') ? window.SV_PAYMENTS_REVIEW_COUNT : 2;
   return { payN, inboxN };
 }
-/* Green pulse on the "+" soft outer ring when payments or inbox have something to view. Call window.svUpdateFabIndicator() when counts change. */
+/* "+" glow: green = payments, blue = inbox, half/half = both. Call window.svUpdateFabIndicator() when counts change. */
 function svUpdateFabIndicator() {
   const fab = document.getElementById('fabBtn');
   if (!fab) return;
   const c = asCounts();
-  fab.classList.toggle('has-new', c.payN > 0 || c.inboxN > 0);
+  fab.classList.toggle('has-pay', c.payN > 0);
+  fab.classList.toggle('has-inbox', c.inboxN > 0);
 }
 window.svUpdateFabIndicator = svUpdateFabIndicator;
 function asRefreshCards() {
