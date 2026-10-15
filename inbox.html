@@ -4979,6 +4979,16 @@ function closeOrderDetailsModal() {
       if(my !== pk.token) return;
       if(error) throw error;
       pk.list = (data || []).map(pkInfo);
+      try{
+        const ids = pk.list.map(x => x.id);
+        if(ids.length){
+          const { data:bd } = await c.from("product_batches").select("product_id,expiry_date").in("product_id", ids);
+          if(my !== pk.token) return;
+          const lo = {};
+          (bd || []).forEach(b => { if(b.expiry_date && (!lo[b.product_id] || b.expiry_date < lo[b.product_id])) lo[b.product_id] = b.expiry_date; });
+          pk.list.forEach(x => { x.expiry = lo[x.id] || ""; });
+        }
+      }catch(_){}
       ppList.innerHTML = pk.list.length ? pk.list.map(i => {
         const key = PK_CATS[i.category] ? i.category : "general", m = pkMeta(i.category);
         const cube = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8l-9-5-9 5v8l9 5 9-5V8z"/><path d="M3.3 7L12 12l8.7-5M12 22V12"/></svg>';
@@ -5132,15 +5142,11 @@ function closeOrderDetailsModal() {
     const i = pk.list.find(x => x.id === id); if(!i) return;
     pk.cur = i;
     const pinned = pinOf(activeConv()), isPinned = pinned && pinned.id === i.id;
-    const pct = i.old && i.price && Number(i.old) > Number(i.price) ? Math.round((1 - Number(i.price) / Number(i.old)) * 100) : 0;
-    const priceHtml = i.price != null && i.price !== "" ? `<b>${escapeHtml(money(i.price))}</b>${pct ? ` <s>${escapeHtml(money(i.old))}</s> <span class="pk-off">${pct}% off</span>` : ""}` : "";
-    const facts = [["Product", escapeHtml(i.name)], ["Price", priceHtml], ["Brand", escapeHtml(i.brand)], ["Potency", escapeHtml(i.potency)], ["Capsule Count", escapeHtml(i.count)]]
-      .concat((i.extra || []).map(x => [escapeHtml(x.label), escapeHtml(x.value)]))
-      .concat([["Country of Origin", escapeHtml(i.origin)]]).filter(f => f[1]);
+    const facts = pkFacts(i);
     const sec = (t, txt) => txt ? `<div class="pk-sec"><h3>${t}</h3><p>${escapeHtml(txt)}</p></div>` : "";
     document.getElementById("ppDetailView").innerHTML = `
       ${(i.images && i.images.length) ? `<div class="pk-gal"><div class="pk-gal__track">${i.images.map(u => `<div class="pk-gal__slide"><img${svImgAttrs(u, 1200)} alt="" draggable="false"></div>`).join("")}</div>${i.images.length > 1 ? `<div class="pk-gal__dots">${i.images.map((_, k) => `<div class="pk-gal__dot${k === 0 ? " on" : ""}"></div>`).join("")}</div>` : ""}</div>` : (i.image ? `<img class="pk-hero" src="${escapeHtml(i.image)}" alt="" onerror="this.remove()">` : "")}
-      ${facts.length ? `<dl class="pk-facts">${facts.map(f => `<dt>${f[0]}</dt><dd>${f[1]}</dd>`).join("")}</dl>` : ""}
+      ${facts.length ? `<dl class="pk-facts">${facts.map(f => `<dt>${escapeHtml(f.k)}</dt><dd>${f.h || escapeHtml(f.t)}</dd>`).join("")}</dl>` : ""}
       ${sec("About", i.desc)}${i.benefits.length ? sec("Benefits", i.benefits.map(b => "• " + b).join("\n")) : ""}${sec("How to use", i.usage)}${sec("Caution", i.caution)}
       <div class="pk-actions">
         <button type="button" class="pk-btn pk-btn--primary" data-pk-send="${escapeHtml(i.id)}">Send details</button>
@@ -5158,14 +5164,21 @@ function closeOrderDetailsModal() {
     document.getElementById("ppDetailView").scrollTop = 0;
     setPkView("detail");
   }
-  function productMessage(i){                                   // customer-safe only: no cost, supplier, margin or stock count
+  /* one ordered list of customer-facing facts: used by the details box AND the message sent to the customer */
+  function pkFacts(i){
     const pct = i.old && i.price && Number(i.old) > Number(i.price) ? Math.round((1 - Number(i.price) / Number(i.old)) * 100) : 0;
-    const lines = [`Product: ${i.name}`, `Price: ${money(i.price)}${pct ? ` (was ${money(i.old)}, ${pct}% off)` : ""}`];
-    if(i.brand) lines.push(`Brand: ${i.brand}`);
-    if(i.potency) lines.push(`Potency: ${i.potency}`);
-    if(i.count) lines.push(`Capsule Count: ${i.count}`);
-    (i.extra || []).forEach(x => lines.push(`${x.label}: ${x.value}`));
-    if(i.origin) lines.push(`Country of Origin: ${i.origin}`);
+    const spec = [i.potency, i.count].filter(Boolean).join(" \u2022 ");                 // same title format as the web product page
+    const name = [[i.brand, i.name].filter(Boolean).join(" "), spec].filter(Boolean).join(" ");
+    const rows = [{ k:"Product", t:name }];
+    (i.extra || []).forEach(x => rows.push({ k:x.label, t:x.value }));
+    if(i.origin) rows.push({ k:"Country of Origin", t:i.origin });
+    if(i.expiry){ const d = new Date(i.expiry + "T00:00:00"); if(!isNaN(d)) rows.push({ k:"Expiry Date", t:d.toLocaleDateString("en-GB", { day:"2-digit", month:"short", year:"numeric" }) }); }
+    if(pct) rows.push({ k:"Old Price", t:`${money(i.old)} (${pct}% off)`, h:`<s>${escapeHtml(money(i.old))}</s> <span class="pk-off">${pct}% off</span>` });
+    if(i.price != null && i.price !== "") rows.push({ k:"Price", t:money(i.price), h:`<b>${escapeHtml(money(i.price))}</b>` });
+    return rows.filter(r => r.t);
+  }
+  function productMessage(i){                                   // customer-safe only: no cost, supplier, margin or stock count
+    const lines = pkFacts(i).map(r => `${r.k}: ${r.t}`);
     if(i.desc){ const d = i.desc.replace(/\s+/g, " "); lines.push("", d.length > 200 ? d.slice(0, 197).trimEnd() + "..." : d); }
     if(i.benefits.length) lines.push("", ...i.benefits.slice(0, 3).map(b => "• " + b));
     return lines.join("\n");
