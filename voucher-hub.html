@@ -3564,7 +3564,7 @@ function renderData(d) {
   bar.style.transition = 'width .8s cubic-bezier(.4,0,.2,1)';
 
   $('kpiRevenue').textContent = fmtBDT(d.discount_total);
-  $('kpiRevenueSub').textContent = red ? 'avg ' + fmtBDT(d.discount_total / red) + ' per use · net ' + fmtBDT(d.net_revenue || 0) + ' after discount' : 'no redemptions in this period';
+  $('kpiRevenueSub').textContent = red ? 'avg ' + fmtBDT(d.discount_total / red) + ' per use · net ' + fmtBDT(d.net_revenue || 0) + (d.voucher && d.voucher.discount_type === 'shipping' ? ' · shipping is our cost' : ' after discount') : 'no redemptions in this period';
 
   const uniq = d.unique_customers || 0;
   const repeat = Math.max(red - uniq, 0);
