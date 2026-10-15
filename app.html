@@ -28787,6 +28787,15 @@ const TRANSACTIONS_DATA = [];
 
 let salesSearch = '';
 let salesFilter = 'all';
+let _sfTimer = null;
+function svChipRowSettle(row, activeBtn) {
+  if (!row) return;
+  svChipFade(row);
+  row.addEventListener('scroll', () => svChipFade(row), { passive: true });
+  if (!activeBtn) return;
+  const cl = activeBtn.offsetLeft, cr = cl + activeBtn.offsetWidth, vl = row.scrollLeft, vr = vl + row.clientWidth;
+  if (cl < vl + 8 || cr > vr - 8) row.scrollTo({ left: Math.max(0, cl - (row.clientWidth - activeBtn.offsetWidth) / 2), behavior: 'smooth' });
+}
 let salesSort = 'all';
 let salesFulfillFilter = 'all';
 let expandedTx = {};
@@ -29121,6 +29130,7 @@ function renderSalesTab() {
     const row = document.getElementById('salesFilterRow');
     if (row) row.scrollLeft = _prevSalesFilterScroll;
     _positionFilterIndicator('salesFilterSlide', _prevSalesFilterInd, activeBtn);
+    svChipRowSettle(row, activeBtn);
   });
 }
 
@@ -29337,11 +29347,13 @@ document.addEventListener('click', function(e) {
 });
 
 function setSalesFilter(f) {
+  if (f === salesFilter) return;
   salesFilter = f;
+  clearTimeout(_sfTimer);
   const existingCards = document.querySelectorAll('#salesTabContent .tx-card-expand');
   if (existingCards.length) {
     existingCards.forEach(c => c.classList.add('sv-sort-out'));
-    setTimeout(() => {
+    _sfTimer = setTimeout(() => {
       renderSalesTab();
       requestAnimationFrame(() => {
         document.querySelectorAll('#salesTabContent .tx-card-expand').forEach((c, i) => {
