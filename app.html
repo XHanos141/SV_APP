@@ -6164,6 +6164,7 @@ html[data-theme="dark"] .psb-val.blue { color: #2DBEF5; }
 html[data-theme="dark"] .psb-lbl { color: rgba(255,255,255,0.4); }
 .products-summary-bar .psb-lbl { white-space: nowrap; }
 .products-summary-bar .psb-card { padding-left: 4px; padding-right: 4px; }
+.chip-n { display: inline-block; text-align: left; font-variant-numeric: tabular-nums; }
 
 /* ============================================================
    ====== TRANSACTION CARDS (SALES TAB) ======
@@ -26603,7 +26604,7 @@ function _psbMoney(n) {
 }
 function psbAnimateCounts() {
   const reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  document.querySelectorAll('.products-summary-bar .psb-val[data-cnt]').forEach(el => {
+  document.querySelectorAll('.products-summary-bar .psb-val[data-cnt], #productsFilterRow .chip-n[data-cnt]').forEach(el => {
     const key = el.dataset.cnt, to = Number(el.dataset.to) || 0;
     const from = key in _psbPrev ? _psbPrev[key] : 0;
     _psbPrev[key] = to;
@@ -26845,10 +26846,10 @@ function renderProductsTab(searchDisplayVal) {
       </button>
       <div class="products-filter-row" id="productsFilterRow">
         <div class="filter-slide-indicator" id="productsFilterSlide"></div>
-        <div class="filter-chip ${productFilter==='all'?'active':''}" onclick="setProductFilter('all')">All (${totalSKUs})</div>
-        <div class="filter-chip ${productFilter==='ok'?'active':''}" onclick="setProductFilter('ok')"><span class="filter-chip-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="#2F9B68"/><path d="M16.2,10.3l-4.8,4.8c-0.4,0.4-1,0.4-1.4,0l0,0l-2.2-2.2c-0.4-0.4-0.4-1,0-1.4c0.4-0.4,1-0.4,1.4,0c0,0,0,0,0,0l1.5,1.5l4.1-4.1c0.4-0.4,1-0.4,1.4,0C16.6,9.3,16.6,9.9,16.2,10.3z" fill="#ffffff"/></svg></span> In Stock (${okCount})</div>
-        <div class="filter-chip ${productFilter==='low'?'active':''}" onclick="setProductFilter('low')"><span class="filter-chip-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="#F4A922"/><path d="M12,6.5 a1.3,1.3 0 0 1 1.3,1.42 l-0.52,5.72 a0.78,0.78 0 0 1 -1.56,0 l-0.52,-5.72 A1.3,1.3 0 0 1 12,6.5 Z" fill="#000000"/><circle cx="12" cy="17" r="1.15" fill="#000000"/></svg></span> Low (${lowCount})</div>
-        <div class="filter-chip ${productFilter==='out'?'active':''}" onclick="setProductFilter('out')"><span class="filter-chip-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="#d95353"/></svg></span> Out (${outCount})</div>
+        <div class="filter-chip ${productFilter==='all'?'active':''}" onclick="setProductFilter('all')">All (<span class="chip-n" data-cnt="c-all" data-to="${totalSKUs}" style="min-width:${String(totalSKUs).length}ch">${totalSKUs}</span>)</div>
+        <div class="filter-chip ${productFilter==='ok'?'active':''}" onclick="setProductFilter('ok')"><span class="filter-chip-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="#2F9B68"/><path d="M16.2,10.3l-4.8,4.8c-0.4,0.4-1,0.4-1.4,0l0,0l-2.2-2.2c-0.4-0.4-0.4-1,0-1.4c0.4-0.4,1-0.4,1.4,0c0,0,0,0,0,0l1.5,1.5l4.1-4.1c0.4-0.4,1-0.4,1.4,0C16.6,9.3,16.6,9.9,16.2,10.3z" fill="#ffffff"/></svg></span> In Stock (<span class="chip-n" data-cnt="c-ok" data-to="${okCount}" style="min-width:${String(okCount).length}ch">${okCount}</span>)</div>
+        <div class="filter-chip ${productFilter==='low'?'active':''}" onclick="setProductFilter('low')"><span class="filter-chip-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="#F4A922"/><path d="M12,6.5 a1.3,1.3 0 0 1 1.3,1.42 l-0.52,5.72 a0.78,0.78 0 0 1 -1.56,0 l-0.52,-5.72 A1.3,1.3 0 0 1 12,6.5 Z" fill="#000000"/><circle cx="12" cy="17" r="1.15" fill="#000000"/></svg></span> Low (<span class="chip-n" data-cnt="c-low" data-to="${lowCount}" style="min-width:${String(lowCount).length}ch">${lowCount}</span>)</div>
+        <div class="filter-chip ${productFilter==='out'?'active':''}" onclick="setProductFilter('out')"><span class="filter-chip-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="#d95353"/></svg></span> Out (<span class="chip-n" data-cnt="c-out" data-to="${outCount}" style="min-width:${String(outCount).length}ch">${outCount}</span>)</div>
         <div class="filter-chip ${productFilter==='web-live'?'active':''}" onclick="setProductFilter('web-live')"><span class="wsk wsk-live" aria-hidden="true"><span class="web-sw-knob"><svg class="web-sw-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 010 20M12 2a15.3 15.3 0 000 20"/></svg></span></span>Live (${webLiveCount})</div>
         <div class="filter-chip ${productFilter==='web-draft'?'active':''}" onclick="setProductFilter('web-draft')"><span class="wsk wsk-draft" aria-hidden="true"><span class="web-sw-knob"><svg class="web-sw-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 010 20M12 2a15.3 15.3 0 000 20"/></svg></span></span>On (${webDraftCount})</div>
         <div class="filter-chip ${productFilter==='web-off'?'active':''}" onclick="setProductFilter('web-off')"><span class="wsk wsk-off" aria-hidden="true"><span class="web-sw-knob"><svg class="web-sw-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 010 20M12 2a15.3 15.3 0 000 20"/></svg></span></span>Off (${webOffCount})</div>
