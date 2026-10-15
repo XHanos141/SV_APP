@@ -6155,6 +6155,10 @@ html[data-theme="dark"] .psb-val { color: #ffffff; }
 html[data-theme="dark"] .psb-val.amber { color: #F4A922; }
 .psb-val.teal { color: #0891b2; }
 html[data-theme="dark"] .psb-val.teal { color: #22d3ee; }
+.psb-val.purple { color: #7c6ff7; }
+html[data-theme="dark"] .psb-val.purple { color: #a095f5; }
+.psb-card:has(.psb-val.purple) { border-width: 1.5px; border-color: rgba(124,111,247,0.35); background: rgba(124,111,247,0.06); }
+html[data-theme="dark"] .psb-card:has(.psb-val.purple) { border-color: rgba(160,149,245,0.4); background: rgba(124,111,247,0.12); }
 .psb-val.blue { color: #0A9BDC; }
 html[data-theme="dark"] .psb-val.blue { color: #2DBEF5; }
 .psb-lbl {
@@ -6162,20 +6166,6 @@ html[data-theme="dark"] .psb-val.blue { color: #2DBEF5; }
   text-transform: uppercase; letter-spacing: 0.06em; transition: color 0.35s ease;
 }
 html[data-theme="dark"] .psb-lbl { color: rgba(255,255,255,0.4); }
-
-.products-summary-bar.psb-stock { grid-template-columns: 1fr 1fr; }
-.psb-hero {
-  grid-column: 1 / -1; text-align: center; color: #fff; border-radius: 16px; padding: 12px 14px;
-  background: linear-gradient(135deg, #7c6ff7, #5b4fd6); box-shadow: 0 8px 24px rgba(124,111,247,0.35);
-}
-.psb-hero-lbl { font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; opacity: 0.85; }
-.psb-hero-val { font-family: "Plus Jakarta Sans", sans-serif; font-size: 28px; font-weight: 800; letter-spacing: -0.5px; line-height: 1.15; margin-top: 2px; }
-.psb-hero-sub { font-size: 12px; font-weight: 500; opacity: 0.9; margin-top: 2px; }
-.psb-pill {
-  display: inline-block; margin-top: 5px; border: 0; border-radius: 99px; padding: 3px 10px; cursor: pointer;
-  font: 700 10px "DM Sans", sans-serif; background: rgba(244,169,34,0.18); color: #d48c0a;
-}
-html[data-theme="dark"] .psb-pill { color: #F4A922; }
 
 /* ============================================================
    ====== TRANSACTION CARDS (SALES TAB) ======
@@ -26674,9 +26664,7 @@ function renderProductsTab(searchDisplayVal) {
   const lowCount   = ACTIVE_PRODUCTS.filter(p => p.stock > 0 && p.stock <= LOW_STOCK_THRESHOLD).length;
   const totalUnits = ACTIVE_PRODUCTS.reduce((s, p) => s + p.stock, 0);
   const _svCost   = ACTIVE_PRODUCTS.reduce((s, p) => s + (Number(p.cost)  || 0) * (p.stock || 0), 0);
-  const _svRetail = ACTIVE_PRODUCTS.reduce((s, p) => s + (Number(p.price) || 0) * (p.stock || 0), 0);
-  const _svFmt    = n => '৳' + Math.round(n).toLocaleString('en-IN');
-  const _restockN = lowCount + outCount;
+  const _svFmt    = n => n >= 10000000 ? '৳' + (n/10000000).toFixed(2).replace(/\.?0+$/,'') + 'Cr' : n >= 100000 ? '৳' + (n/100000).toFixed(2).replace(/\.?0+$/,'') + 'L' : '৳' + Math.round(n).toLocaleString('en-IN');
 
   const cards = filtered.map((p, idx) => {
     const sc   = stockClass(p.stock);
@@ -26796,13 +26784,9 @@ function renderProductsTab(searchDisplayVal) {
   }).join('');
 
   document.getElementById('productsTabContent').innerHTML = `
-    <div class="products-summary-bar psb-stock">
-      <div class="psb-hero">
-        <div class="psb-hero-lbl">Stock Value</div>
-        <div class="psb-hero-val">${_svFmt(_svCost)}</div>
-        <div class="psb-hero-sub">Retail ${_svFmt(_svRetail)} · Profit ${_svFmt(_svRetail - _svCost)}</div>
-      </div>
-      <div class="psb-card"><div class="psb-val teal">${totalSKUs}</div><div class="psb-lbl">Total SKUs</div>${_restockN > 0 ? `<button type="button" class="psb-pill" onclick="setProductFilter('${lowCount > 0 ? 'low' : 'out'}')">${_restockN} need restock</button>` : ''}</div>
+    <div class="products-summary-bar">
+      <div class="psb-card"><div class="psb-val purple">${_svFmt(_svCost)}</div><div class="psb-lbl">Stock Value</div></div>
+      <div class="psb-card"><div class="psb-val teal">${totalSKUs}</div><div class="psb-lbl">Total SKUs</div></div>
       <div class="psb-card"><div class="psb-val blue">${totalUnits}</div><div class="psb-lbl">Units in Stock</div></div>
     </div>
     <div class="products-search">
