@@ -19748,13 +19748,13 @@ function _ciIntro(inv) {
     <span style="flex:1;height:1px;background:linear-gradient(270deg,transparent,#001f3c)"></span>
   </div>
   <div style="display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:24px;row-gap:8px;align-items:center;padding-bottom:14px;border-bottom:1.5px solid #cdd5e3">
-    <div style="${_CI_PJ};font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#8c92a1">Bill To</div><div></div>
+    <div style="${_CI_PJ};font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#8c92a1">Bill To</div><div style="${_CI_PJ};font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#8c92a1;text-align:right">Order Details</div>
     <div style="display:flex;align-items:center;gap:10px;min-height:26px">${_ciChip(_CI_IC.user, true)}<span style="${_CI_PJ};font-size:17px;font-weight:700">${escapeHtml(inv.customerName || '')}</span></div>
     <div style="display:flex;justify-content:flex-end;align-items:center">${_ciOrderBadge(inv.linkedDraftId)}</div>
     <div style="display:flex;align-items:center;gap:10px;min-height:26px">${_ciChip(_CI_IC.phone)}<span style="font-size:14px;font-weight:600">${escapeHtml(inv.customerPhone || '')}</span></div>
     <div style="display:flex;justify-content:flex-end;align-items:center">${_ciPill(inv.status || 'paid')}</div>
     <div style="display:flex;align-items:center;gap:10px;min-height:26px">${_ciChip(_CI_IC.pin)}<span style="font-size:14px;font-weight:600;line-height:1.4">${escapeHtml(inv.customerLocation || '')}</span></div>
-    <div style="display:flex;justify-content:flex-end;align-items:center;font-size:14px;font-weight:500;color:#8c92a1">${escapeHtml(inv.date || '')}</div>
+    <div style="display:flex;justify-content:flex-end;align-items:center;font-size:14px;font-weight:700;color:#001f3c">${escapeHtml(inv.date || '')}</div>
   </div></div>`;
 }
 /* Header F — navy band, left-aligned white lockup */
