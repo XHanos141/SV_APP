@@ -5413,7 +5413,7 @@ html[data-theme="dark"] .summary-bar-value.discount-red { color: #ff6b6b !import
 html[data-theme="dark"] .products-title { color: #ffffff; }
 
 .products-search {
-  display: flex; align-items: center; gap: 8px; margin-bottom: 6px;
+  display: flex; align-items: center; gap: 8px; margin-bottom: 3px;
 }
 .products-search-input-wrap { position: relative; flex: 1; min-width: 0; }
 .products-search-input {
@@ -26781,9 +26781,9 @@ function renderProductsTab(searchDisplayVal) {
 
   document.getElementById('productsTabContent').innerHTML = `
     <div class="products-summary-bar">
-      <div class="psb-card"><div class="psb-val teal">${_svFmt(_svCost)}</div><div class="psb-lbl">Stock Value</div></div>
-      <div class="psb-card"><div class="psb-val teal">${totalSKUs}</div><div class="psb-lbl">Total SKUs</div></div>
-      <div class="psb-card"><div class="psb-val teal">${totalUnits}</div><div class="psb-lbl">Units in Stock</div></div>
+      <div class="psb-card"><div class="psb-val blue">${_svFmt(_svCost)}</div><div class="psb-lbl">Stock Value</div></div>
+      <div class="psb-card"><div class="psb-val blue">${totalSKUs}</div><div class="psb-lbl">Total SKUs</div></div>
+      <div class="psb-card"><div class="psb-val blue">${totalUnits}</div><div class="psb-lbl">Units in Stock</div></div>
     </div>
     <div class="products-search">
       <div class="products-search-input-wrap">
