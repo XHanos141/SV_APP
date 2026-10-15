@@ -29083,11 +29083,11 @@ function toggleTxCard(txId) {
 function renderSalesTab() {
   const _prevSalesFilterInd = _captureIndicatorRect('salesFilterSlide');
   const _prevSalesFilterScroll = document.getElementById('salesFilterRow') ? document.getElementById('salesFilterRow').scrollLeft : 0;
-  const totalRevenue = TRANSACTIONS_DATA.filter(t=>t.status==='paid').reduce((s,t)=>s+t.items.reduce((a,i)=>a+i.total,0)-t.discount+t.shipping,0);
+  const totalRevenue = TRANSACTIONS_DATA.filter(t=>t.status==='paid').reduce((s,t)=>s+t.items.reduce((a,i)=>a+i.total,0)-(t.shipVoucher?0:t.discount),0);
   const totalOrders  = TRANSACTIONS_DATA.length;
   const returnCount  = RETURNS_DATA.length;
   const _rdy = !!window.__salesReady;
-  const _fmtRev = n => n >= 100000 ? '৳' + (n/100000).toFixed(2).replace(/\.?0+$/, '') + 'L' : n >= 1000 ? '৳' + (n/1000).toFixed(1).replace(/\.0$/, '') + 'K' : '৳' + Math.round(n);
+  const _fmtRev = n => n >= 100000 ? '৳' + (n/100000).toFixed(2).replace(/\.?0+$/, '') + 'L' : n >= 10000 ? '৳' + (n/1000).toFixed(1).replace(/\.0$/, '') + 'K' : '৳' + Math.round(n).toLocaleString('en-IN');
 
   document.getElementById('salesTabContent').innerHTML = `
     <div class="sales-summary-bar">
