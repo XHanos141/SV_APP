@@ -5179,8 +5179,6 @@ function closeOrderDetailsModal() {
   }
   function productMessage(i){                                   // customer-safe only: no cost, supplier, margin or stock count
     const lines = pkFacts(i).map(r => `${r.k}: ${r.t}`);
-    if(i.desc){ const d = i.desc.replace(/\s+/g, " "); lines.push("", d.length > 200 ? d.slice(0, 197).trimEnd() + "..." : d); }
-    if(i.benefits.length) lines.push("", ...i.benefits.slice(0, 3).map(b => "• " + b));
     return lines.join("\n");
   }
   ppList.addEventListener("click", e => {
