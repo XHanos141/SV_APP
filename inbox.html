@@ -2276,6 +2276,7 @@ html:not([data-theme="light"]) .odm-card { background: rgba(124,111,247,0.08); b
   .pk-btn:active{ transform:scale(.97); }
   .pk-btn svg{ width:18px; height:18px; }
   .pk-btn--primary{ background:var(--cyan); color:#fff; flex:1.6; }
+  .pk-btn--icon{ flex:0 0 46px; width:46px; padding:0; }
   .pk-btn--ghost{ background:var(--surface); color:var(--text-1); border:1px solid var(--hairline); }
   @media (prefers-reduced-motion:reduce){ *,*::before,*::after{ transition:none !important; animation:none !important; scroll-behavior:auto !important; } }
 </style>
@@ -4823,6 +4824,8 @@ function closeOrderDetailsModal() {
   const ppSheet = document.getElementById("ppSheet"), ppBackdrop = document.getElementById("ppBackdrop");
   const ppList = document.getElementById("ppList"), ppSearch = document.getElementById("ppSearch");
   const PIN_KEY = id => "sv-pin-" + id;
+  const SV_SITE_URL = "https://sv-web-sigma.vercel.app";          // same storefront as app.html's SV_WEBSITE_URL
+  const LINK_SVG = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>`;
   const PIN_SVG = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 17v5"/><path d="M9 3h6l-1 6 3 3v2H7v-2l3-3-1-6Z"/></svg>`;
   const UNPIN_SVG = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 3 18 18"/><path d="M12 17v5"/><path d="M15 9.3V3H9v3.4M7 14v-2l2.2-2.2M17 12v2H9"/></svg>`;
   function stockTag(p){
@@ -5151,6 +5154,7 @@ function closeOrderDetailsModal() {
       <div class="pk-actions">
         <button type="button" class="pk-btn pk-btn--primary" data-pk-send="${escapeHtml(i.id)}">Send details</button>
         <button type="button" class="pk-btn pk-btn--ghost" data-pk-pin="${escapeHtml(i.id)}">${PIN_SVG}${isPinned ? "Unpin" : "Pin"}</button>
+        <button type="button" class="pk-btn pk-btn--ghost pk-btn--icon" data-pk-link="${escapeHtml(i.id)}" aria-label="Add product link to message">${LINK_SVG}</button>
       </div>`;
     const gTrack = document.querySelector("#ppDetailView .pk-gal__track");
     if(gTrack) gTrack.addEventListener("click", () => {          // a real tap only: the browser drops the click after a swipe
@@ -5194,6 +5198,12 @@ function closeOrderDetailsModal() {
       els.composerInput.value = cur ? cur + "\n\n" + text : text;
       closeProductPicker(); updateSendState(); autoResizeComposer(); els.composerInput.focus();
       showToast("Product details added — review and send");
+    }else if(e.target.closest("[data-pk-link]")){
+      if(!i.slug){ showToast("This product has no web page yet"); return; }
+      const link = SV_SITE_URL + "/p/" + encodeURIComponent(i.slug), cur = els.composerInput.value.trim();
+      els.composerInput.value = cur ? cur + "\n\n" + link : link;
+      closeProductPicker(); updateSendState(); autoResizeComposer(); els.composerInput.focus();
+      showToast("Product link added — review and send");
     }else if(e.target.closest("[data-pk-pin]")){
       const pinned = pinOf(conv);
       if(pinned && pinned.id === i.id){ closeProductPicker(); unpinActive(); return; }
