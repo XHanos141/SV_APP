@@ -26635,17 +26635,17 @@ function renderProductsTab(searchDisplayVal) {
     }
   });
 
-  const totalSKUs  = ACTIVE_PRODUCTS.length;
-  const outCount   = ACTIVE_PRODUCTS.filter(p => p.stock === 0).length;
+  const totalSKUs  = subcatSourceProducts.length;
+  const outCount   = subcatSourceProducts.filter(p => p.stock === 0).length;
   const webOffCount   = ACTIVE_PRODUCTS.filter(p => svWebState(p) === 'off').length;
   const webDraftCount  = ACTIVE_PRODUCTS.filter(p => svWebState(p) === 'draft').length;
   const webLiveCount   = ACTIVE_PRODUCTS.filter(p => svWebState(p) === 'live').length;
-  const lowCount   = ACTIVE_PRODUCTS.filter(p => p.stock > 0 && p.stock <= LOW_STOCK_THRESHOLD).length;
+  const lowCount   = subcatSourceProducts.filter(p => p.stock > 0 && p.stock <= LOW_STOCK_THRESHOLD).length;
   const totalUnits = ACTIVE_PRODUCTS.reduce((s, p) => s + p.stock, 0);
-  const _svCost   = ACTIVE_PRODUCTS.reduce((s, p) => s + ((Number(p.cost) || 0) + (Number(p.weightCost) || 0)) * (p.stock || 0), 0);
-  const _svRetail = ACTIVE_PRODUCTS.reduce((s, p) => s + (Number(p.price) || 0) * (p.stock || 0), 0);
+  const _svCost   = subcatSourceProducts.reduce((s, p) => s + ((Number(p.cost) || 0) + (Number(p.weightCost) || 0)) * (p.stock || 0), 0);
+  const _svRetail = subcatSourceProducts.reduce((s, p) => s + (Number(p.price) || 0) * (p.stock || 0), 0);
   const _svProfit = _svRetail - _svCost;
-  const okCount   = ACTIVE_PRODUCTS.filter(p => p.stock > 0).length;
+  const okCount   = subcatSourceProducts.filter(p => p.stock > 0).length;
   const _svFmt    = n => n >= 10000000 ? '৳' + (n/10000000).toFixed(2).replace(/\.?0+$/,'') + 'Cr' : n >= 100000 ? '৳' + (n/100000).toFixed(2).replace(/\.?0+$/,'') + 'L' : '৳' + Math.round(n).toLocaleString('en-IN');
 
   const cards = filtered.map((p, idx) => {
