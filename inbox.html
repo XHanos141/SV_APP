@@ -1471,27 +1471,30 @@ input,textarea,select,[contenteditable="true"],.allow-select,.allow-select *{-we
     margin-top:10px;
   }
   .note-card{
+    --ny:#a87a00;
+    position:relative;
     display:flex;
     gap:10px;
-    background:rgba(244,169,34,0.08);
-    border:1.5px dashed rgba(244,169,34,0.45);
+    background:rgba(246,189,22,0.11);
+    border:1.5px dashed rgba(246,189,22,0.65);
     border-radius:14px;
     padding:12px 14px;
   }
+  html:not([data-theme="light"]) .note-card{ --ny:#f6bd16; }
   .note-card__icon{
     flex:0 0 auto;
     width:18px;
     height:18px;
-    color:var(--orange);
+    color:var(--ny);
     margin-top:1px;
   }
   .note-card__icon svg{ width:100%; height:100%; }
-  .note-card__body{ flex:1; min-width:0; }
+  .note-card__body{ flex:1; min-width:0; padding-right:26px; }
   .note-card__label{
     font-size:11px;
     font-weight:700;
     letter-spacing:0.04em;
-    color:var(--orange);
+    color:var(--ny);
     text-transform:uppercase;
     margin-bottom:4px;
   }
@@ -1507,6 +1510,18 @@ input,textarea,select,[contenteditable="true"],.allow-select,.allow-select *{-we
     color:var(--text-3);
     margin-top:6px;
   }
+  .note-row{ transition:opacity .2s ease, transform .2s ease; }
+  .note-row--out{ opacity:0; transform:scale(.97); }
+  .note-card__del{ position:absolute; top:8px; right:8px; width:30px; height:30px; display:flex; align-items:center; justify-content:center; border-radius:9px; color:var(--text-3); -webkit-tap-highlight-color:transparent; }
+  .note-card__del svg{ width:16px; height:16px; }
+  .note-card__del:active{ background:rgba(217,83,83,.14); color:#d95353; }
+  .note-card__confirm{ display:none; align-items:center; gap:8px; margin-top:8px; font-size:12px; font-weight:700; color:var(--text-2); }
+  .note-card__confirm span{ flex:1; }
+  .note-card__confirm button{ padding:6px 12px; border-radius:999px; font-size:12px; font-weight:700; background:var(--surface-2); color:var(--text-2); border:1px solid var(--hairline); }
+  .note-card__confirm button[data-nact="del"]{ background:#d95353; border-color:#d95353; color:#fff; }
+  .note-card__confirm button:disabled{ opacity:.6; }
+  .note-card.confirming .note-card__confirm{ display:flex; }
+  .note-card.confirming .note-card__meta, .note-card.confirming .note-card__del{ display:none; }
 
   .composer-lock{
     flex:0 0 auto;
@@ -1521,8 +1536,8 @@ input,textarea,select,[contenteditable="true"],.allow-select,.allow-select *{-we
   .composer-lock svg{ width:18px; height:18px; }
   .composer-lock:hover{ background:var(--surface-2); color:var(--text-1); }
   .composer-lock.active{
-    background:rgba(244,169,34,0.16);
-    color:var(--orange);
+    background:rgba(246,189,22,0.18);
+    color:#c99700;
   }
   .thread-composer.note-mode #composerInput{
     border-color:#f6bd16;
@@ -1569,6 +1584,8 @@ input,textarea,select,[contenteditable="true"],.allow-select,.allow-select *{-we
     line-height:1.4;
   }
   #composerInput::placeholder{ color:var(--text-3); }
+  #composerInput{ scrollbar-width:none; -ms-overflow-style:none; }
+  #composerInput::-webkit-scrollbar{ display:none; width:0; height:0; }
 
   .composer-send{
     flex:0 0 auto;
@@ -4592,7 +4609,30 @@ function closeOrderDetailsModal() {
         <div class="note-card__label">Internal Note</div>
         <div class="note-card__text"></div>
         <div class="note-card__meta">${author} · ${time}</div>
-      </div>`;
+        <div class="note-card__confirm"><span>Delete this note?</span><button type="button" data-nact="cancel">Cancel</button><button type="button" data-nact="del">Delete</button></div>
+      </div>
+      <button type="button" class="note-card__del" data-nact="ask" aria-label="Delete note"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M6 6l1 14h10l1-14"/><path d="M10 11v6M14 11v6"/></svg></button>`;
+    if(m.id != null) row.dataset.msgId = m.id;
+    card.addEventListener("click", async e => {
+      const b = e.target.closest("[data-nact]"); if(!b) return;
+      const act = b.dataset.nact;
+      if(act === "ask"){ card.classList.add("confirming"); return; }
+      if(act === "cancel"){ card.classList.remove("confirming"); return; }
+      const id = row.dataset.msgId;
+      if(supabase){
+        if(!id){ card.classList.remove("confirming"); showToast("Still saving — try again in a moment"); return; }
+        b.disabled = true;
+        const { data, error } = await supabase.from("messages").delete().eq("id", id).select("id");
+        if(error || !data || !data.length){
+          console.error("deleteNote error:", error || "no row deleted (check delete policy)");
+          b.disabled = false; card.classList.remove("confirming"); showToast("Couldn't delete note"); return;
+        }
+      }else{
+        const arr = MOCK_MESSAGES[state.activeConversationId];
+        if(arr){ const i = arr.indexOf(m); if(i > -1) arr.splice(i, 1); }
+      }
+      row.classList.add("note-row--out"); setTimeout(() => row.remove(), 220); showToast("Note deleted");
+    });
     const noteText = card.querySelector(".note-card__text");
     noteText.textContent = m.content;
     if(m.attachments && m.attachments.length){
@@ -4748,8 +4788,13 @@ function closeOrderDetailsModal() {
       updateSendState();
       syncQuickReplies();
       if(supabase){
-        const { error } = await supabase.from("messages").insert(dbRow(note));
+        const { data: ins, error } = await supabase.from("messages").insert(dbRow(note)).select("id").single();
         if(error) console.error("sendNote error:", error);
+        else if(ins && ins.id != null){
+          note.id = ins.id;
+          const open = els.threadMessages.querySelectorAll(".note-row:not([data-msg-id])");
+          if(open.length) open[open.length - 1].dataset.msgId = ins.id;
+        }
       }else if(conv){
         MOCK_MESSAGES[conv.id] = MOCK_MESSAGES[conv.id] || [];
         MOCK_MESSAGES[conv.id].push(note);
