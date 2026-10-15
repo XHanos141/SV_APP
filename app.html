@@ -29148,7 +29148,13 @@ function salesStatsCompute() {
   let pend = 0, ship = 0;
   cards.forEach(c => {
     if (c.classList.contains('rw-card')) {
-      if ((c.getAttribute('data-stage') || 'ready') === 'ready') ship++;
+      const stg = c.getAttribute('data-stage') || 'ready';
+      if (stg === 'ready') ship++;
+      const d = c._rw;
+      if (d && d.cod && (stg === 'ready' || stg === 'shipped')) {
+        const sub = Number(d.subtotal) || (d.items || []).reduce((x, i) => x + i.qty * i.price, 0);
+        pend += d.total != null ? Number(d.total) : Math.max(0, sub - (Number(d.discount) || 0) + (Number(d.shipping) || 0));
+      }
       return;
     }
     if (c.classList.contains('return-card')) return;
