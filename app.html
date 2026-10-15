@@ -6162,8 +6162,8 @@ html[data-theme="dark"] .psb-val.blue { color: #2DBEF5; }
   text-transform: uppercase; letter-spacing: 0.06em; transition: color 0.35s ease;
 }
 html[data-theme="dark"] .psb-lbl { color: rgba(255,255,255,0.4); }
-.products-summary-bar .psb-lbl { white-space: nowrap; }
-.products-summary-bar .psb-card { padding-left: 4px; padding-right: 4px; }
+.products-summary-bar .psb-lbl, .sales-summary-bar .psb-lbl { white-space: nowrap; }
+.products-summary-bar .psb-card, .sales-summary-bar .psb-card { padding-left: 4px; padding-right: 4px; }
 .chip-n { display: inline-block; text-align: left; font-variant-numeric: tabular-nums; }
 
 /* ============================================================
@@ -26604,7 +26604,7 @@ function _psbMoney(n) {
 }
 function psbAnimateCounts() {
   const reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  document.querySelectorAll('.products-summary-bar .psb-val[data-cnt], #productsFilterRow .chip-n[data-cnt]').forEach(el => {
+  document.querySelectorAll('.products-summary-bar .psb-val[data-cnt], #productsFilterRow .chip-n[data-cnt], .sales-summary-bar .psb-val[data-cnt]').forEach(el => {
     const key = el.dataset.cnt, to = Number(el.dataset.to) || 0;
     const from = key in _psbPrev ? _psbPrev[key] : 0;
     _psbPrev[key] = to;
@@ -29143,6 +29143,49 @@ function toggleTxCard(txId) {
   if (el) el.classList.toggle('expanded', !!expandedTx[txId]);
 }
 
+function salesStatsCompute() {
+  const cards = document.querySelectorAll('#draftCardsContainer .draft-card');
+  let pend = 0, ship = 0;
+  cards.forEach(c => {
+    if (c.classList.contains('rw-card')) {
+      if ((c.getAttribute('data-stage') || 'ready') === 'ready') ship++;
+      return;
+    }
+    if (c.classList.contains('return-card')) return;
+    const st = c.getAttribute('data-status') || 'pending';
+    if (st !== 'pending' && st !== 'ordered' && st !== 'shipped') return;
+    const sub = parseFloat(c.getAttribute('data-subtotal')) || 0;
+    const dis = parseFloat(c.getAttribute('data-discount')) || 0;
+    const shp = parseFloat(c.getAttribute('data-shipping')) || 0;
+    pend += sub - dis + shp;
+  });
+  const ret = RETURNS_DATA.reduce((s, r) => s + (Number(r.finalRefund) || 0), 0);
+  return { pend, ship, ret };
+}
+function salesStatsRefresh() {
+  if (!window.__salesReady) return;
+  const v = salesStatsCompute();
+  [['sstat-pend', 'pend', 'money'], ['sstat-ship', 'ship', ''], ['sstat-ret', 'ret', 'money']].forEach(([id, key, fmt]) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.dataset.cnt = 's-' + key; el.dataset.to = v[key];
+    if (fmt) el.dataset.fmt = fmt;
+  });
+  psbAnimateCounts();
+}
+let _salesStatsObs = null, _salesStatsObsEl = null, _salesStatsT = null;
+function salesStatsWatch() {
+  const box = document.getElementById('draftCardsContainer');
+  if (!box || box === _salesStatsObsEl) return;
+  if (_salesStatsObs) _salesStatsObs.disconnect();
+  _salesStatsObsEl = box;
+  _salesStatsObs = new MutationObserver(() => {
+    clearTimeout(_salesStatsT);
+    _salesStatsT = setTimeout(salesStatsRefresh, 150);
+  });
+  _salesStatsObs.observe(box, { childList: true, subtree: true, attributes: true, attributeFilter: ['data-stage', 'data-status', 'data-subtotal', 'data-discount', 'data-shipping'] });
+}
+
 function renderSalesTab() {
   const _prevSalesFilterInd = _captureIndicatorRect('salesFilterSlide');
   const _prevSalesFilterScroll = document.getElementById('salesFilterRow') ? document.getElementById('salesFilterRow').scrollLeft : 0;
@@ -29150,13 +29193,14 @@ function renderSalesTab() {
   const totalOrders  = TRANSACTIONS_DATA.length;
   const returnCount  = RETURNS_DATA.length;
   const _rdy = !!window.__salesReady;
+  const _ss = salesStatsCompute();
   const _fmtRev = n => n >= 100000 ? '৳' + (n/100000).toFixed(2).replace(/\.?0+$/, '') + 'L' : n >= 10000 ? '৳' + (n/1000).toFixed(1).replace(/\.0$/, '') + 'K' : '৳' + Math.round(n).toLocaleString('en-IN');
 
   document.getElementById('salesTabContent').innerHTML = `
     <div class="sales-summary-bar">
-      <div class="psb-card"><div class="psb-val green">${_rdy ? _fmtRev(totalRevenue) : '—'}</div><div class="psb-lbl">Revenue</div></div>
-      <div class="psb-card"><div class="psb-val green">${_rdy ? totalOrders : '—'}</div><div class="psb-lbl">Orders</div></div>
-      <div class="psb-card"><div class="psb-val red">${_rdy ? returnCount : '—'}</div><div class="psb-lbl">Returns</div></div>
+      <div class="psb-card"><div class="psb-val amber" id="sstat-pend">${_rdy ? _psbMoney(_ss.pend) : '—'}</div><div class="psb-lbl">To Collect</div></div>
+      <div class="psb-card"><div class="psb-val blue" id="sstat-ship">${_rdy ? _ss.ship : '—'}</div><div class="psb-lbl">To Ship</div></div>
+      <div class="psb-card"><div class="psb-val red" id="sstat-ret">${_rdy ? _psbMoney(_ss.ret) : '—'}</div><div class="psb-lbl">Returns (৳)</div></div>
     </div>
     <div class="sales-search">
       <div class="sales-search-input-wrap">
@@ -29188,6 +29232,8 @@ function renderSalesTab() {
     <div id="salesCardsContainer"></div>
   `;
   renderSalesCards();
+  salesStatsRefresh();
+  salesStatsWatch();
   requestAnimationFrame(() => {
     const activeBtn = document.querySelector('#salesFilterRow .filter-chip.active');
     const row = document.getElementById('salesFilterRow');
