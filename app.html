@@ -26594,6 +26594,32 @@ window.svVmSplit = async function (sku, ev) {
   document.addEventListener('contextmenu', e => { if (e.target.closest && e.target.closest('#productsTabContent .prod-card')) e.preventDefault(); }, true);
 })();
 
+const _psbPrev = {};
+function _psbMoney(n) {
+  const a = Math.abs(n), sg = n < 0 ? '-' : '';
+  if (a >= 10000000) return sg + '৳' + (a / 10000000).toFixed(2).replace(/\.?0+$/, '') + 'Cr';
+  if (a >= 100000) return sg + '৳' + (a / 100000).toFixed(2).replace(/\.?0+$/, '') + 'L';
+  return sg + '৳' + Math.round(a).toLocaleString('en-IN');
+}
+function psbAnimateCounts() {
+  const reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  document.querySelectorAll('.products-summary-bar .psb-val[data-cnt]').forEach(el => {
+    const key = el.dataset.cnt, to = Number(el.dataset.to) || 0;
+    const from = key in _psbPrev ? _psbPrev[key] : 0;
+    _psbPrev[key] = to;
+    if (reduce || from === to) return;
+    const fmt = el.dataset.fmt === 'money' ? _psbMoney : (n => String(Math.round(n)));
+    const dur = 600, t0 = performance.now();
+    el.textContent = fmt(from);
+    (function step(now) {
+      const t = Math.min(1, (now - t0) / dur), e = 1 - Math.pow(1 - t, 3);
+      el.textContent = fmt(from + (to - from) * e);
+      if (t < 1 && el.isConnected) requestAnimationFrame(step);
+      else el.textContent = fmt(to);
+    })(t0);
+  });
+}
+
 function renderProductsTab(searchDisplayVal) {
   const _prevFilterInd = _captureIndicatorRect('productsFilterSlide');
   const _prevProductsFilterScroll = document.getElementById('productsFilterRow') ? document.getElementById('productsFilterRow').scrollLeft : 0;
@@ -26767,9 +26793,9 @@ function renderProductsTab(searchDisplayVal) {
 
   document.getElementById('productsTabContent').innerHTML = `
     <div class="products-summary-bar">
-      <div class="psb-card"><div class="psb-val blue">${_svFmt(_svCost)}</div><div class="psb-lbl">Stock Value</div></div>
-      <div class="psb-card"><div class="psb-val ${_svProfit < 0 ? 'red' : 'green'}">${_svProfit < 0 ? '-' : ''}${_svFmt(Math.abs(_svProfit))}</div><div class="psb-lbl">Potential Profit</div></div>
-      <div class="psb-card"><div class="psb-val blue">${totalSKUs}</div><div class="psb-lbl">Total SKUs</div></div>
+      <div class="psb-card"><div class="psb-val blue" data-cnt="cost" data-fmt="money" data-to="${_svCost}">${_svFmt(_svCost)}</div><div class="psb-lbl">Stock Value</div></div>
+      <div class="psb-card"><div class="psb-val ${_svProfit < 0 ? 'red' : 'green'}" data-cnt="profit" data-fmt="money" data-to="${_svProfit}">${_svProfit < 0 ? '-' : ''}${_svFmt(Math.abs(_svProfit))}</div><div class="psb-lbl">Potential Profit</div></div>
+      <div class="psb-card"><div class="psb-val blue" data-cnt="skus" data-to="${totalSKUs}">${totalSKUs}</div><div class="psb-lbl">Total SKUs</div></div>
     </div>
     <div class="products-search">
       <div class="products-search-input-wrap">
@@ -26847,6 +26873,7 @@ function renderProductsTab(searchDisplayVal) {
       </div>
     </div>
   `;
+  psbAnimateCounts();
   requestAnimationFrame(() => {
     const activeBtn = document.querySelector('#productsFilterRow .filter-chip.active');
     const row = document.getElementById('productsFilterRow');
