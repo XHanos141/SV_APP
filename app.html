@@ -6162,6 +6162,8 @@ html[data-theme="dark"] .psb-val.blue { color: #2DBEF5; }
   text-transform: uppercase; letter-spacing: 0.06em; transition: color 0.35s ease;
 }
 html[data-theme="dark"] .psb-lbl { color: rgba(255,255,255,0.4); }
+.products-summary-bar .psb-lbl { white-space: nowrap; }
+.products-summary-bar .psb-lbl-fit { font-size: 8px; letter-spacing: 0.02em; }
 
 /* ============================================================
    ====== TRANSACTION CARDS (SALES TAB) ======
@@ -26785,7 +26787,7 @@ function renderProductsTab(searchDisplayVal) {
   document.getElementById('productsTabContent').innerHTML = `
     <div class="products-summary-bar">
       <div class="psb-card"><div class="psb-val blue">${_svFmt(_svCost)}</div><div class="psb-lbl">Stock Value</div></div>
-      <div class="psb-card"><div class="psb-val ${_svProfit < 0 ? 'red' : 'green'}">${_svProfit < 0 ? '-' : ''}${_svFmt(Math.abs(_svProfit))}</div><div class="psb-lbl">Potential Profit</div></div>
+      <div class="psb-card"><div class="psb-val ${_svProfit < 0 ? 'red' : 'green'}">${_svProfit < 0 ? '-' : ''}${_svFmt(Math.abs(_svProfit))}</div><div class="psb-lbl psb-lbl-fit">Potential Profit</div></div>
       <div class="psb-card"><div class="psb-val blue">${totalSKUs}</div><div class="psb-lbl">Total SKUs</div></div>
     </div>
     <div class="products-search">
