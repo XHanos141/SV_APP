@@ -12648,7 +12648,7 @@ function top5Render() {
   }
   const products = (top5Category === 'all' ? allProducts : allProducts.filter(p => p.category === top5Category))
     .filter(p => p[top5CurrentMode].units > 0)
-    .sort((a, b) => b[top5CurrentMode].units - a[top5CurrentMode].units)
+    .sort((a, b) => (b[top5CurrentMode].units - a[top5CurrentMode].units) || (b[top5CurrentMode].amount - a[top5CurrentMode].amount) || String(a.sku).localeCompare(String(b.sku)))
     .slice(0, 5);
   const avg = products.length ? Math.round(products.reduce((sum, p) => sum + p[top5CurrentMode].units, 0) / products.length) : 0;
   document.getElementById('top5AvgLabel').textContent = 'Avg: ' + avg + ' units';
@@ -12665,7 +12665,7 @@ function top5Render() {
     document.getElementById('top5AvgLabel').textContent = 'Avg: — units';
     return;
   }
-  const sorted = [...products].sort((a, b) => b[top5CurrentMode].units - a[top5CurrentMode].units);
+  const sorted = [...products].sort((a, b) => (b[top5CurrentMode].units - a[top5CurrentMode].units) || (b[top5CurrentMode].amount - a[top5CurrentMode].amount) || String(a.sku).localeCompare(String(b.sku)));
   const maxUnits = Math.max(...sorted.map(p => p[top5CurrentMode].units), 1);
   const scaleMax = Math.max(maxUnits * 1.12, 5);
 
