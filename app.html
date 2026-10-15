@@ -26631,7 +26631,7 @@ function renderProductsTab(searchDisplayVal) {
     const matchFilter = productFilter === 'all' ||
       (productFilter === 'low' && p.stock > 0 && p.stock <= LOW_STOCK_THRESHOLD) ||
       (productFilter === 'out' && p.stock === 0) ||
-      (productFilter === 'ok' && p.stock > LOW_STOCK_THRESHOLD) ||
+      (productFilter === 'ok' && p.stock > 0) ||
       (productFilter === 'web-off' && svWebState(p) === 'off') ||
       (productFilter === 'web-draft' && svWebState(p) === 'draft') ||
       (productFilter === 'web-live' && svWebState(p) === 'live');
@@ -26664,7 +26664,7 @@ function renderProductsTab(searchDisplayVal) {
   const _svCost   = ACTIVE_PRODUCTS.reduce((s, p) => s + ((Number(p.cost) || 0) + (Number(p.weightCost) || 0)) * (p.stock || 0), 0);
   const _svRetail = ACTIVE_PRODUCTS.reduce((s, p) => s + (Number(p.price) || 0) * (p.stock || 0), 0);
   const _svProfit = _svRetail - _svCost;
-  const okCount   = ACTIVE_PRODUCTS.filter(p => p.stock > LOW_STOCK_THRESHOLD).length;
+  const okCount   = ACTIVE_PRODUCTS.filter(p => p.stock > 0).length;
   const _svFmt    = n => n >= 10000000 ? '৳' + (n/10000000).toFixed(2).replace(/\.?0+$/,'') + 'Cr' : n >= 100000 ? '৳' + (n/100000).toFixed(2).replace(/\.?0+$/,'') + 'L' : '৳' + Math.round(n).toLocaleString('en-IN');
 
   const cards = filtered.map((p, idx) => {
