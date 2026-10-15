@@ -13887,8 +13887,8 @@ function renderProfitBody(data) {
       </div>
       <div class="p-summary-row">
         <span class="p-summary-label">Shipping discount</span>
-        <span class="p-summary-label" style="font-size:10px;opacity:.75">fee waived · not in profit</span>
-        <span class="p-summary-value" style="color:var(--ludba-orange)">৳${(data.summary.shipDiscount || 0).toLocaleString('en-IN')}</span>
+        <span class="p-summary-label" style="font-size:10px;opacity:.75">fee waived · our cost</span>
+        <span class="p-summary-value negative">-৳${(data.summary.shipDiscount || 0).toLocaleString('en-IN')}</span>
       </div>
       <div class="p-summary-row">
         <span class="p-summary-label">Returns (net of restock)</span>
