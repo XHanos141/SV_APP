@@ -1593,6 +1593,9 @@ input,textarea,select,[contenteditable="true"],.allow-select,.allow-select *{-we
     line-height:1.4;
   }
   #composerInput::placeholder{ color:var(--text-3); }
+  /* chat mode: blue border (note mode keeps yellow); no browser black focus ring */
+  #composerInput{ border:1.5px solid rgba(43,116,227,.55); outline:none; transition:border-color .2s ease, box-shadow .2s ease; }
+  #composerInput:focus, #composerInput:focus-visible{ border-color:var(--inbox-blue); box-shadow:0 0 0 3px rgba(43,116,227,.18); outline:none; }
   #composerInput{ scrollbar-width:none; -ms-overflow-style:none; }
   #composerInput::-webkit-scrollbar{ display:none; width:0; height:0; }
 
