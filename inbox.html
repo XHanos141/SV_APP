@@ -1647,8 +1647,10 @@ input,textarea,select,[contenteditable="true"],.allow-select,.allow-select *{-we
   .order-strip .oc-card{ margin-bottom:8px; }
   .oc-card{ -webkit-touch-callout:none; -webkit-user-select:none; user-select:none; -webkit-tap-highlight-color:transparent; }
   .oc-wrap{ position:relative; }
-  .oc-pinbadge{ position:absolute; top:-6px; left:12px; z-index:2; width:20px; height:20px; border-radius:50%; background:var(--cyan,#009ddc); color:#fff; display:flex; align-items:center; justify-content:center; box-shadow:0 2px 6px rgba(0,0,0,.25); pointer-events:none; }
-  .oc-pinbadge svg{ width:11px; height:11px; }
+  .oc-pinbadge{ position:absolute; top:-8px; right:-4px; z-index:2; width:22px; height:22px; color:var(--cyan,#009ddc); display:flex; align-items:center; justify-content:center; transform:rotate(45deg); filter:drop-shadow(0 2px 3px rgba(0,0,0,.3)); pointer-events:none; }
+  .oc-pinbadge svg{ width:20px; height:20px; }
+  .order-strip{ padding-top:12px; }
+  .order-strip.is-in{ animation:svRise .3s var(--ease-out) both; }
   .oc-pop-backdrop{ position:fixed; inset:0; z-index:99998; background:transparent; }
   .oc-pop{ position:fixed; z-index:99999; min-width:178px; padding:6px; background:var(--surface); border:1px solid var(--hairline); border-radius:14px; box-shadow:0 16px 38px rgba(0,0,0,.32); animation:svRise .16s var(--ease-out) both; }
   .oc-pop button{ display:flex; align-items:center; gap:10px; width:100%; padding:11px 12px; border-radius:9px; font-size:13.5px; font-weight:600; color:var(--text-1); text-align:left; background:none; border:0; }
@@ -3771,32 +3773,34 @@ function closeOrderDetailsModal() {
     openConversation(b.dataset.id);
   });
 
-  function pickStripOrder(conv, messages){
-    const cust = getCustomerRecord(conv);
-    if(!cust) return null;
-    const orders = allOrdersOf(cust);
-    if(!orders.length) return null;
+  function pickStripOrder(conv){
     const pid = pinnedOrderId(conv);
-    if(pid){ const po = orders.find(x => x.id === pid); if(po) return { o:po, mentioned:false, pinned:true }; }
-    const ids = [];
-    (messages || []).forEach(m => {
-      if(isNoteMsg(m)) return;
-      (String(m.content || "").match(/\b(?:SV|PX)-\d{3,}\b/gi) || []).forEach(x => ids.push(x.toUpperCase()));
-    });
-    for(let i = ids.length - 1; i >= 0; i--){
-      const o = orders.find(x => x.id === ids[i]);
-      if(o) return { o, mentioned:true };
-    }
-    const cur = currentOrdersOf(cust)[0];
-    return cur ? { o:cur, mentioned:false } : null;
+    if(!pid) return null;
+    const cust = getCustomerRecord(conv);
+    const o = cust && allOrdersOf(cust).find(x => x.id === pid);
+    return o ? { o, pinned:true } : null;
   }
-  function renderOrderStrip(conv, messages){
-    const pick = pickStripOrder(conv, messages);
-    if(!pick){ orderStripEl.hidden = true; orderStripEl.onclick = null; return; }
-    const o = pick.o;
-    orderStripEl.hidden = false;
-    orderStripEl.innerHTML = orderCardHtml(o);
-    orderStripEl.onclick = (e) => {
+  function renderOrderStrip(conv, messages, animate){
+    const pick = pickStripOrder(conv);
+    const el = orderStripEl;
+    clearTimeout(el._t);
+    if(!pick){
+      el.onclick = null;
+      if(el.hidden) return;
+      if(animate){                                    // smooth collapse
+        el.style.overflow = "hidden";
+        el.style.maxHeight = el.offsetHeight + "px"; void el.offsetWidth;
+        el.style.transition = "max-height .28s ease, opacity .22s ease, padding .28s ease";
+        el.style.maxHeight = "0px"; el.style.opacity = "0"; el.style.paddingTop = "0px"; el.style.paddingBottom = "0px";
+        el._t = setTimeout(() => { el.hidden = true; el.innerHTML = ""; el.removeAttribute("style"); }, 290);
+      } else { el.hidden = true; el.innerHTML = ""; el.removeAttribute("style"); }
+      return;
+    }
+    el.removeAttribute("style");
+    el.hidden = false;
+    el.innerHTML = orderCardHtml(pick.o);
+    if(animate){ el.classList.remove("is-in"); void el.offsetWidth; el.classList.add("is-in"); }
+    el.onclick = (e) => {
       const card = e.target.closest(".oc-card");
       if(!card) return;
       sheet.conv = conv; toggleOrderDropdown(card);
@@ -5106,7 +5110,7 @@ function closeOrderDetailsModal() {
     }
   }
   function refreshAfterOrderPin(conv){
-    if(state.activeConversationId === conv.id) renderOrderStrip(conv, state.activeMessages);
+    if(state.activeConversationId === conv.id) renderOrderStrip(conv, state.activeMessages, true);
     if(document.getElementById("custSheet").classList.contains("open") || document.getElementById("custSheet").getAttribute("aria-hidden") === "false") renderSheet();
   }
   function closeOrderPop(){
