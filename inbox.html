@@ -4772,8 +4772,12 @@ function closeOrderDetailsModal() {
     }
   });
 
+  // keep the keyboard open: tapping Send must not pull focus off the text box
+  document.getElementById("sendBtn").addEventListener("mousedown", (e) => e.preventDefault());
+
   els.composerForm.addEventListener("submit", async (e) => {
     e.preventDefault();
+    if(document.activeElement !== els.composerInput) els.composerInput.focus({ preventScroll:true });
     const content = els.composerInput.value.trim();
     if((!content && !pendingAtts.length) || !state.activeConversationId) return;
 
