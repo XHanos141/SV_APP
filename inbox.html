@@ -1354,20 +1354,24 @@ input,textarea,select,[contenteditable="true"],.allow-select,.allow-select *{-we
     background:rgba(10,155,220,.12); border:1px solid rgba(10,155,220,.28); padding:3px 9px; border-radius:100px;
   }
   .cs-private svg{ width:11px; height:11px; }
-  .cs-note{ background:rgba(10,155,220,.06); border:1px solid rgba(10,155,220,.25); border-left:3px solid var(--cyan); border-radius:12px; padding:10px 12px; margin-bottom:8px; }
-  .cs-note--editing{ border-left-width:1px; padding:8px; }
-  .cs-note__text{ font-size:13px; color:var(--text-1); white-space:pre-wrap; overflow-wrap:anywhere; line-height:1.45; }
-  .cs-note__time{ font-size:11px; color:var(--text-3); }
-  .cs-note__foot{ display:flex; align-items:center; justify-content:space-between; gap:8px; margin-top:6px; }
-  .cs-note__actions{ display:flex; gap:2px; margin-right:-6px; }
-  .cs-note__act{ width:32px; height:32px; border-radius:9px; display:flex; align-items:center; justify-content:center; color:var(--text-3); }
+  /* note card: [lock  NOTE  date, time ........ edit  delete] then the note text below */
+  .cs-note{ background:rgba(10,155,220,.07); border:1.5px dashed rgba(10,155,220,.5); border-radius:14px; padding:8px 12px 12px; margin-bottom:8px; }
+  .cs-note--editing{ border-style:solid; padding:8px; }
+  .cs-note__head{ display:flex; align-items:center; gap:8px; min-height:30px; }
+  .cs-note__icon{ width:16px; height:16px; flex:0 0 auto; color:var(--cyan); }
+  .cs-note__icon svg{ width:100%; height:100%; }
+  .cs-note__label{ font-size:11px; font-weight:700; letter-spacing:.04em; text-transform:uppercase; color:var(--cyan); white-space:nowrap; }
+  .cs-note__when{ flex:1; min-width:0; font-size:11.5px; font-weight:600; color:var(--text-3); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .cs-note__text{ margin-top:2px; font-size:13.5px; color:var(--text-1); white-space:pre-wrap; overflow-wrap:anywhere; line-height:1.45; }
+  .cs-note__actions{ display:flex; gap:2px; margin-right:-6px; flex:0 0 auto; }
+  .cs-note__act{ width:30px; height:30px; border-radius:9px; display:flex; align-items:center; justify-content:center; color:var(--text-3); }
   .cs-note__act svg{ width:16px; height:16px; }
-  .cs-note__act:hover{ background:rgba(10,155,220,.12); color:var(--cyan); }
-  .cs-note__act--del:hover{ background:rgba(217,83,83,.12); color:var(--red); }
+  .cs-note__act:hover, .cs-note__act:active{ background:rgba(10,155,220,.12); color:var(--cyan); }
+  .cs-note__act--del:hover, .cs-note__act--del:active{ background:rgba(217,83,83,.12); color:var(--red); }
   .cs-note__confirm{ display:flex; align-items:center; justify-content:flex-end; gap:8px; margin-top:8px; font-size:12px; font-weight:700; color:var(--text-1); }
   .cs-note__confirm span{ margin-right:auto; }
   .cs-note-form textarea{
-    width:100%; min-height:88px; resize:vertical; border-radius:12px; padding:10px 12px;
+    display:block; width:100%; min-height:46px; resize:none; overflow-y:hidden; border-radius:12px; padding:10px 12px;
     background:var(--surface-2); border:1px solid var(--hairline); color:var(--text-1); font:inherit; font-size:16px; line-height:1.4;
   }
   .cs-note-form textarea:focus-visible{ outline:none; border-color:var(--cyan); }
@@ -4275,16 +4279,25 @@ function closeOrderDetailsModal() {
                 <button type="button" class="cs-btn cs-btn--primary" data-act="note-edit-save" data-i="${i}" id="csNoteEditSave">Save</button></div>
             </div></div>`;
           }
-          const foot = sheet.noteDel === i
+          const when = (typeof odmDateTime === "function" ? odmDateTime(n.at) : noteTime(n.at)) + (n.edited ? " · Edited" : "");
+          const confirming = sheet.noteDel === i;
+          const confirmRow = confirming
             ? `<div class="cs-note__confirm"><span>Delete this note?</span>
                  <button type="button" class="cs-btn" data-act="note-del-cancel">Cancel</button>
                  <button type="button" class="cs-btn cs-btn--danger" data-act="note-del-confirm" data-i="${i}">Delete</button></div>`
-            : `<div class="cs-note__foot"><span class="cs-note__time">${escapeHtml(noteTime(n.at))}${n.edited ? " · Edited" : ""}</span>
-                 <span class="cs-note__actions">
-                   <button type="button" class="cs-note__act" data-act="note-edit" data-i="${i}" aria-label="Edit note">${ICONS.edit}</button>
-                   <button type="button" class="cs-note__act cs-note__act--del" data-act="note-del" data-i="${i}" aria-label="Delete note">${ICONS.trash}</button>
-                 </span></div>`;
-          return `<div class="cs-note"><div class="cs-note__text">${escapeHtml(n.text)}</div>${foot}</div>`;
+            : "";
+          return `<div class="cs-note">
+            <div class="cs-note__head">
+              <span class="cs-note__icon">${ICONS.lock}</span>
+              <span class="cs-note__label">Note</span>
+              <span class="cs-note__when">${escapeHtml(when)}</span>
+              <span class="cs-note__actions"${confirming ? ' style="visibility:hidden"' : ""}>
+                <button type="button" class="cs-note__act" data-act="note-edit" data-i="${i}" aria-label="Edit note">${ICONS.edit}</button>
+                <button type="button" class="cs-note__act cs-note__act--del" data-act="note-del" data-i="${i}" aria-label="Delete note">${ICONS.trash}</button>
+              </span>
+            </div>
+            <div class="cs-note__text">${escapeHtml(n.text)}</div>${confirmRow}
+          </div>`;
         }).join("")
       : `<div class="empty-note" style="margin-bottom:8px">No private notes yet.</div>`;
     const form = sheet.noteForm
@@ -4308,12 +4321,19 @@ function closeOrderDetailsModal() {
     const inp = document.getElementById("csTagInput");
     if(inp && focusInput){ inp.focus(); inp.scrollIntoView({ block:"nearest" }); }
   }
+  function csGrow(ta){
+    ta.style.height = "auto";
+    const max = Math.round(window.innerHeight * 0.45);
+    ta.style.height = Math.min(ta.scrollHeight + 2, max) + "px";
+    ta.style.overflowY = ta.scrollHeight + 2 > max ? "auto" : "hidden";
+  }
   function refreshNotes(focusForm){
     const box = document.getElementById("csNotes"); if(!box) return;
     const before = box.querySelectorAll(".cs-note").length;
     box.innerHTML = notesSectionHtml();
     const notesNow = box.querySelectorAll(".cs-note");
     if(notesNow.length > before) notesNow[0].classList.add("sv-rise");
+    box.querySelectorAll("textarea").forEach(csGrow);
     const ta = document.getElementById("csNoteInput");
     if(ta && focusForm){ ta.focus(); ta.scrollIntoView({ block:"nearest" }); }
   }
@@ -4440,7 +4460,6 @@ function closeOrderDetailsModal() {
 
       <div class="cs-notes__head">
         <div class="cust-sheet__section-label">${ICONS.note}Customer notes</div>
-        <span class="cs-private">${ICONS.lock}Private · staff only</span>
       </div>
       <div id="csNotes">${notesSectionHtml()}</div>`;
   }
@@ -4542,6 +4561,7 @@ function closeOrderDetailsModal() {
   });
 
   els.custSheet.addEventListener("input", (e) => {
+    if(e.target.id === "csNoteEditInput" || e.target.id === "csNoteInput") csGrow(e.target);
     if(e.target.id === "csNoteEditInput"){
       document.getElementById("csNoteEditCount").textContent = e.target.value.length + "/" + NOTE_LEN;
       document.getElementById("csNoteEditSave").disabled = !e.target.value.trim();
