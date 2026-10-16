@@ -1997,6 +1997,8 @@ html:not([data-theme="light"]) .odm-card { background: rgba(124,111,247,0.08); b
   .thread-messages.msgs-in{ animation:svFade .18s ease both; }
   @keyframes svThreadIn{ from{ opacity:.6; transform:translate3d(26px,0,0); } to{ opacity:1; transform:translate3d(0,0,0); } }
   #threadView.v-in-fwd{ animation:svThreadIn .3s var(--ease-out) both; background:var(--body-bg); }
+  /* the fixed bottom nav lives inside #listView: a transform on it would re-anchor the nav to the list (nav jumps up for a sec) -> fade only */
+  #listView.v-in-back, #listView.v-in-fwd, #listView.v-in-fade{ animation:svFade .22s ease both; transform:none; }
   .msg-new{ animation:svMsgIn .28s var(--ease-out) both; }
 
   /* chat bubbles: static premium look (always on) — strong depth, glow, gloss and inner highlight */
