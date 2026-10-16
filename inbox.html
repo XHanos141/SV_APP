@@ -1298,7 +1298,8 @@ input,textarea,select,[contenteditable="true"],.allow-select,.allow-select *{-we
   /* platform cards: same thin blue border as the order card */
   .platform-row{ border-color:rgba(10,155,220,0.30); }
   html:not([data-theme="light"]) .platform-row{ border-color:rgba(45,190,245,0.32); }
-  .platform-row.active, html:not([data-theme="light"]) .platform-row.active{ border-color:rgba(10,155,220,0.5); }
+  html[data-theme="light"] .platform-row{ border-color:rgba(10,155,220,0.30); }
+  .platform-row.active, html:not([data-theme="light"]) .platform-row.active, html[data-theme="light"] .platform-row.active{ border-color:rgba(10,155,220,0.5); }
   .oc-card__head{ display:flex; align-items:center; justify-content:space-between; gap:10px; padding:12px 14px; min-height:63px; }
   .oc-card__left{ display:flex; flex-direction:column; min-width:0; overflow:hidden; }
   .oc-card__idrow{ display:flex; align-items:center; gap:6px; }
@@ -1995,8 +1996,11 @@ html:not([data-theme="light"]) .odm-card { background: rgba(124,111,247,0.08); b
 
   /* chat: thread fades up when opened, new bubbles glide in */
   .thread-messages.msgs-in{ animation:svFade .18s ease both; }
-  @keyframes svThreadIn{ from{ opacity:.6; transform:translate3d(26px,0,0); } to{ opacity:1; transform:translate3d(0,0,0); } }
-  #threadView.v-in-fwd{ animation:svThreadIn .3s var(--ease-out) both; background:var(--body-bg); }
+  @keyframes svThreadIn{ from{ transform:translate3d(100%,0,0); } to{ transform:translate3d(0,0,0); } }
+  @keyframes svThreadOut{ from{ transform:translate3d(0,0,0); } to{ transform:translate3d(100%,0,0); } }
+  #threadView.is-overlay{ position:fixed; top:0; left:0; right:0; max-width:480px; margin:0 auto; z-index:30; background:var(--body-bg); overflow:hidden; box-shadow:-14px 0 30px rgba(0,0,0,.18); }
+  #threadView.is-overlay.v-in-fwd{ animation:svThreadIn .3s var(--ease-out) both; }
+  #threadView.is-overlay.is-out{ animation:svThreadOut .26s var(--ease-io) both; pointer-events:none; }
   /* the fixed bottom nav lives inside #listView: a transform on it would re-anchor the nav to the list (nav jumps up for a sec) -> fade only */
   #listView.v-in-back, #listView.v-in-fwd, #listView.v-in-fade{ animation:svFade .22s ease both; transform:none; }
   .msg-new{ animation:svMsgIn .28s var(--ease-out) both; }
@@ -3703,8 +3707,15 @@ function closeOrderDetailsModal() {
 
     if(!threadPushed){ try{ history.pushState({ svThread:id }, ""); threadPushed = true; }catch(_){} }
     listScrollY = window.scrollY || 0;
-    els.listView.hidden = true;
+    clearTimeout(els.threadView._ovT);
+    els.threadView.classList.remove("is-out");
+    els.threadView.classList.add("is-overlay");          // chat slides in over the list; list is hidden only after it lands
     svShow(els.threadView, "fwd");
+    els.threadView._ovT = setTimeout(() => {
+      if(state.activeConversationId !== id) return;
+      els.listView.hidden = true;
+      els.threadView.classList.remove("is-overlay");
+    }, 320);
     state.activeConversationId = id;
 
     renderThreadHeader(conv);
@@ -3720,9 +3731,13 @@ function closeOrderDetailsModal() {
   });
   function backToList(){
     clearPending(true);
-    els.threadView.hidden = true;
-    els.threadView.classList.remove("v-in-fwd", "v-in-back", "v-out");
-    svShow(els.listView, "back");
+    const tv = els.threadView;
+    clearTimeout(tv._ovT); clearTimeout(tv._svT);
+    els.listView.hidden = false;                         // list is already in place underneath
+    els.listView.classList.remove("v-in-fwd", "v-in-back", "v-in-fade", "v-out", "v-out-fade");
+    tv.classList.remove("v-in-fwd", "v-in-back", "v-out");
+    tv.classList.add("is-overlay", "is-out");            // chat slides away to the right
+    tv._ovT = setTimeout(() => { tv.hidden = true; tv.classList.remove("is-overlay", "is-out"); }, 270);
     state.activeConversationId = null;
     if(messagesRealtimeChannel && supabase){
       supabase.removeChannel(messagesRealtimeChannel);
