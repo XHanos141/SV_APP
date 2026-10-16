@@ -1989,7 +1989,9 @@ html:not([data-theme="light"]) .odm-card { background: rgba(124,111,247,0.08); b
   .cust-list-scroll .cust-list-row:nth-child(n+5), .order-list-scroll .order-card:nth-child(n+5){ animation-delay:.16s; }
 
   /* chat: thread fades up when opened, new bubbles glide in */
-  .thread-messages.msgs-in{ animation:svRise .32s var(--ease-out) both; }
+  .thread-messages.msgs-in{ animation:svFade .18s ease both; }
+  @keyframes svThreadIn{ from{ opacity:.6; transform:translate3d(26px,0,0); } to{ opacity:1; transform:translate3d(0,0,0); } }
+  #threadView.v-in-fwd{ animation:svThreadIn .3s var(--ease-out) both; background:var(--body-bg); }
   .msg-new{ animation:svMsgIn .28s var(--ease-out) both; }
 
   /* chat bubbles: static premium look (always on) — strong depth, glow, gloss and inner highlight */
@@ -3692,6 +3694,7 @@ function closeOrderDetailsModal() {
       }
     }
 
+    if(!threadPushed){ try{ history.pushState({ svThread:id }, ""); threadPushed = true; }catch(_){} }
     listScrollY = window.scrollY || 0;
     els.listView.hidden = true;
     svShow(els.threadView, "fwd");
@@ -3701,6 +3704,13 @@ function closeOrderDetailsModal() {
     loadMessages(conv);
   }
 
+  let threadPushed = false;
+  function goBackFromThread(){                     // in-app back arrow: pop the history entry so system back stays in sync
+    if(threadPushed) history.back(); else backToList();
+  }
+  window.addEventListener("popstate", () => {      // phone back button: close the chat, stay in the inbox
+    if(threadPushed && !(history.state && history.state.svThread)){ threadPushed = false; if(!els.threadView.hidden) backToList(); }
+  });
   function backToList(){
     clearPending(true);
     els.threadView.hidden = true;
@@ -3861,7 +3871,7 @@ function closeOrderDetailsModal() {
         renderThreadToolbar(conv); break;
       case "unread":
         updateConv(conv, { unread_count: Math.max(1, conv.unread_count || 0) });
-        backToList(); showToast("Marked as unread"); break;
+        goBackFromThread(); showToast("Marked as unread"); break;
       case "pin":
         openProductPicker(); break;
       case "unpin":
@@ -4629,6 +4639,7 @@ function closeOrderDetailsModal() {
 
   async function loadMessages(conv){
     els.threadMessages.innerHTML = "";
+    els.threadMessages.style.visibility = "hidden";      // no empty-chat flash while messages load
     let messages = [];
 
     if(supabase){
@@ -4648,6 +4659,7 @@ function closeOrderDetailsModal() {
     }
 
     renderMessages(messages);
+    els.threadMessages.style.visibility = "";
   }
 
   function subscribeMessagesRealtime(conversationId){
@@ -4922,7 +4934,7 @@ function closeOrderDetailsModal() {
     }
   });
 
-  document.getElementById("threadBackBtn").addEventListener("click", backToList);
+  document.getElementById("threadBackBtn").addEventListener("click", goBackFromThread);
 
   /* ---------- Attachments: photo / camera / document ---------- */
   const ATT_MAX_FILES = 5, ATT_MAX_BYTES = 10 * 1024 * 1024;
