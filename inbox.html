@@ -2361,7 +2361,11 @@ html:not([data-theme="light"]) .odm-card { background: rgba(124,111,247,0.08); b
   .pk-price{ display:flex; align-items:baseline; gap:8px; margin:10px 0 6px; flex-wrap:wrap; }
   .pk-price b{ font-size:20px; font-weight:800; color:var(--text-1); }
   .pk-price s{ font-size:13px; color:var(--text-3); }
-  .pk-off{ font-size:11px; font-weight:800; padding:2px 8px; border-radius:999px; background:rgba(217,83,83,.14); color:#e46a6a; }
+  /* old price + off badge: same format as the web store product card (red old price with slanted strike, green OFF badge) */
+  .pk-old-price{ position:relative; display:inline-block; font-weight:600; color:var(--red,#d95353); }
+  .pk-old-price::after{ content:''; position:absolute; left:0; right:-2px; top:0; bottom:0; height:1.5px; margin:auto; background:var(--text-3); border-radius:1px; transform:rotate(-8deg); transform-origin:center; }
+  .pk-off{ display:inline-flex; align-items:center; margin-left:4px; vertical-align:middle; font-size:10.5px; font-weight:800; line-height:1.2; padding:1px 6px; border-radius:4px; background:#D1FAE5; color:#059669; border:1px solid #10B981; text-transform:uppercase; letter-spacing:.2px; }
+  html:not([data-theme="light"]) .pk-off{ background:rgba(5,150,105,.20); color:#34D399; border-color:#059669; }
   .pk-avail{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-bottom:12px; }
   .pk-staff{ font-size:11px; color:var(--text-3); }
   .pk-facts{ display:grid; grid-template-columns:auto 1fr; gap:7px 16px; padding:12px; margin-bottom:12px; background:var(--surface); border:1px solid var(--hairline); border-radius:12px; font-size:12.5px; }
@@ -5360,7 +5364,7 @@ function closeOrderDetailsModal() {
     (i.extra || []).forEach(x => rows.push({ k:x.label, t:x.value }));
     if(i.origin) rows.push({ k:"Country of Origin", t:i.origin });
     if(i.expiry){ const d = new Date(i.expiry + "T00:00:00"); if(!isNaN(d)) rows.push({ k:"Expiry Date", t:d.toLocaleDateString("en-GB", { day:"2-digit", month:"short", year:"numeric" }) }); }
-    if(pct) rows.push({ k:"Old Price", t:`${money(i.old)} (${pct}% off)`, h:`<s>${escapeHtml(money(i.old))}</s> <span class="pk-off">${pct}% off</span>` });
+    if(pct) rows.push({ k:"Old Price", t:`${money(i.old)} (${pct}% off)`, h:`<span class="pk-old-price">${escapeHtml(money(i.old))}</span> <span class="pk-off">${pct}% off</span>` });
     if(i.price != null && i.price !== "") rows.push({ k:"Price", t:money(i.price), h:`<b>${escapeHtml(money(i.price))}</b>` });
     return rows.filter(r => r.t);
   }
