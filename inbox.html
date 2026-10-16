@@ -680,6 +680,11 @@ input,textarea,select,[contenteditable="true"],.allow-select,.allow-select *{-we
     text-overflow:ellipsis;
   }
   .thread-avatar-wrap .channel-badge{ border-color:#001f3c; }
+  .thread-name-row{ display:flex; align-items:center; gap:5px; min-width:0; }
+  .thread-name-row .thread-name{ min-width:0; flex:0 1 auto; }
+  .thread-verified{ display:inline-flex; flex:0 0 auto; color:#2fd88a; }
+  .thread-verified[hidden]{ display:none; }
+  .thread-verified svg{ width:16px; height:16px; }
   .thread-channel{
     display:flex; align-items:center; gap:6px;
     font-size:11.5px; font-weight:600; margin-top:1px; color:#9fb4cf;
@@ -1571,7 +1576,7 @@ input,textarea,select,[contenteditable="true"],.allow-select,.allow-select *{-we
     align-items:flex-end;
     gap:8px;
     padding:10px 12px calc(10px + env(safe-area-inset-bottom));
-    border-top:1px solid var(--hairline);
+    border-top:1.5px solid color-mix(in srgb, var(--text-3) 55%, transparent);
     background:var(--body-bg);
   }
   .composer-attach{
@@ -2553,7 +2558,7 @@ html:not([data-theme="light"]) .odm-card { background: rgba(124,111,247,0.08); b
     </button>
     <span class="thread-avatar-wrap" id="threadAvatarWrap"></span>
     <span class="thread-identity">
-      <span class="thread-name" id="threadName"></span>
+      <span class="thread-name-row"><span class="thread-name" id="threadName"></span><span class="thread-verified" id="threadVerified" title="Verified customer" hidden></span></span>
       <span class="thread-channel" id="threadChannel"></span>
     </span>
     <button class="thread-more" id="threadMoreBtn" aria-label="More options">
@@ -3716,6 +3721,8 @@ function closeOrderDetailsModal() {
       : `<div class="avatar-initials" style="background:${hashColor(conv.customer_name || "?")}">${initials(conv.customer_name)}</div>`;
     els.threadAvatarWrap.innerHTML = avatarHtml;
     els.threadName.textContent = conv.customer_name || "Unknown";
+    const _tc = getCustomerRecord(conv), _tv = document.getElementById("threadVerified");
+    _tv.innerHTML = VERIFIED_SVG_WEB; _tv.hidden = !(_tc && _tc.status === "registered");
     const ago = conv.updated_at ? formatRelativeTime(conv.updated_at) : "";
     const fresh = conv.updated_at && (Date.now() - new Date(conv.updated_at).getTime()) < 15 * 60000;
     els.threadChannel.textContent = ago ? (ago === "Just now" ? "Active just now" : "Last message " + ago) : "";
