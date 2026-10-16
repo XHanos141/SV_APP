@@ -106,7 +106,7 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 .pdot{width:6px;height:6px;border-radius:50%;background:#4cc790;animation:pp 2s infinite}
 @keyframes pp{50%{opacity:.35}}
 /* ===== tabs v2: 4 primary tabs + animated sub-filter ===== */
-.tabs-wrap{position:sticky;top:calc(var(--topH,56px) + var(--vswH,0px));z-index:18;background:var(--bg);border-bottom:1px solid var(--line);margin-top:8px}
+.tabs-wrap{position:sticky;top:calc(var(--topH,56px) + var(--vswH,0px));z-index:18;background:var(--bg);border-bottom:1px solid var(--line);margin-top:0}
 .tabs{position:relative;display:grid;grid-template-columns:repeat(4,1fr);padding:0 8px;--acc:var(--purple)}
 .tab{display:flex;align-items:center;justify-content:center;gap:6px;min-height:46px;padding:0 2px;font-size:13.5px;font-weight:500;color:var(--t3);transition:color .2s}
 .tab.on{color:var(--t1);font-weight:600}
@@ -247,10 +247,11 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 .btn.pri{background:var(--purple);border-color:var(--purple);color:#fff}
 
 /* ===== 3 views: Overview / Payments / Settings ===== */
-.vsw-wrap{position:sticky;top:var(--topH,56px);z-index:19;background:var(--bg);padding:10px 16px 0}
-.vsw{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;padding:3px;background:var(--s1);border:1px solid var(--line);border-radius:12px}
-.vsw button{min-height:36px;border-radius:9px;font-size:13px;font-weight:500;color:var(--t3);transition:.2s var(--ease)}
-.vsw button.on{background:var(--s2);color:var(--t1);font-weight:600;box-shadow:0 1px 3px rgba(0,0,0,.18)}
+.vsw-wrap{position:sticky;top:var(--topH,56px);z-index:19;background:var(--bg);border-bottom:1px solid var(--line)}
+.vsw{position:relative;display:grid;grid-template-columns:repeat(3,1fr);padding:0 8px}
+.vsw button{display:flex;align-items:center;justify-content:center;min-height:46px;font-size:13.5px;font-weight:500;color:var(--t3);transition:color .2s}
+.vsw button.on{color:var(--t1);font-weight:600}
+.vind{position:absolute;left:0;bottom:-1px;height:3px;border-radius:3px 3px 0 0;background:var(--purple);transition:transform .35s var(--ease),width .35s var(--ease)}
 .view{display:none}.view.on{display:block}
 body:not([data-view=pay]) .fab{display:none}
 .view-in{animation:vin .35s var(--ease) both}
@@ -359,8 +360,9 @@ body:not([data-view=pay]) .fab{display:none}
   <div class="sv-header__end"><div class="header-badge"><span class="pdot"></span>Live</div></div>
 </div>
 
-<div class="vsw-wrap" id="vswWrap"><div class="vsw" role="tablist" aria-label="Payment hub sections">
+<div class="vsw-wrap" id="vswWrap"><div class="vsw" id="vsw" role="tablist" aria-label="Payment hub sections">
   <button class="on" role="tab" data-v="ov">Overview</button><button role="tab" data-v="pay">Payments</button><button role="tab" data-v="set">Settings</button>
+  <span class="vind" id="vind"></span>
 </div></div>
 
 <!-- ============ OVERVIEW ============ -->
@@ -546,7 +548,7 @@ function render(){renderChips();renderStats();renderList()}
 
 /* tab extras */
 $('#attCard').onclick=()=>{filter='issues';sub='all';setView('pay');render()};
-(function(){const top=document.querySelector('.sv-header');const set=()=>{document.documentElement.style.setProperty('--topH',top.offsetHeight+'px');document.documentElement.style.setProperty('--vswH',$('#vswWrap').offsetHeight+'px');placeInd()};
+(function(){const top=document.querySelector('.sv-header');const set=()=>{document.documentElement.style.setProperty('--topH',top.offsetHeight+'px');placeInd()};
   set();addEventListener('resize',set);if(window.ResizeObserver)new ResizeObserver(set).observe(top);
   if(document.fonts&&document.fonts.ready)document.fonts.ready.then(set);
   let x0,y0;const L=$('#list');
@@ -655,7 +657,9 @@ function setView(v){
   window.scrollTo({top:0});
   if(v==='ov')odoRoll('#view-ov');
   if(v==='pay')placeInd();
+  placeVind();
 }
+function placeVind(){const on=document.querySelector('.vsw button.on');if(!on)return;const w=Math.max(on.offsetWidth-28,24);$('#vind').style.width=w+'px';$('#vind').style.transform=`translateX(${on.offsetLeft+(on.offsetWidth-w)/2}px)`}
 document.querySelectorAll('.vsw button').forEach(b=>b.onclick=()=>setView(b.dataset.v));
 $('#pmStrip').onclick=()=>setView('set');
 function mt(t){const e=$('#mt');e.textContent=t;e.classList.add('show');clearTimeout(mt.t);mt.t=setTimeout(()=>e.classList.remove('show'),2600)}
@@ -726,7 +730,7 @@ pmRender();
 /* theme */
 $('#backBtn').onclick=()=>{if(window.parent!==window)parent.postMessage({type:'sv-back'},'*');else history.back()};
 render();
-ovReady=true;odoRoll('#view-ov');
+ovReady=true;odoRoll('#view-ov');placeVind();
 </script>
 </body>
 </html>
