@@ -1522,6 +1522,15 @@ input,textarea,select,[contenteditable="true"],.allow-select,.allow-select *{-we
   .note-card__confirm button:disabled{ opacity:.6; }
   .note-card.confirming .note-card__confirm{ display:flex; }
   .note-card.confirming .note-card__meta, .note-card.confirming .note-card__del{ display:none; }
+  /* note card layout: [lock  INTERNAL NOTE  date, time ............ bin] then text below */
+  .note-card{ display:block; padding:10px 12px 12px; }
+  .note-card__head{ display:flex; align-items:center; gap:8px; min-height:28px; }
+  .note-card__head .note-card__icon{ width:16px; height:16px; margin:0; }
+  .note-card__head .note-card__label{ margin:0; white-space:nowrap; }
+  .note-card__when{ font-size:11.5px; font-weight:600; color:var(--text-3); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; min-width:0; }
+  .note-card__head .note-card__del{ position:static; margin-left:auto; flex:0 0 auto; width:28px; height:28px; margin-right:-4px; }
+  .note-card .note-card__body{ padding-right:0; margin-top:4px; }
+  .note-card.confirming .note-card__del{ visibility:hidden; }
 
   .composer-lock{
     flex:0 0 auto;
@@ -4603,15 +4612,19 @@ function closeOrderDetailsModal() {
     card.className = "note-card";
     const time = new Date(m.created_at).toLocaleTimeString(undefined, { hour:"numeric", minute:"2-digit", hour12:true });
     const author = m.author_name || "You";
+    const when = (typeof odmDateTime === "function") ? odmDateTime(m.created_at) : time;
     card.innerHTML = `
-      <div class="note-card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg></div>
-      <div class="note-card__body">
-        <div class="note-card__label">Internal Note</div>
-        <div class="note-card__text"></div>
-        <div class="note-card__meta">${author} · ${time}</div>
-        <div class="note-card__confirm"><span>Delete this note?</span><button type="button" data-nact="cancel">Cancel</button><button type="button" data-nact="del">Delete</button></div>
+      <div class="note-card__head">
+        <div class="note-card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg></div>
+        <span class="note-card__label">Internal Note</span>
+        <span class="note-card__when"></span>
+        <button type="button" class="note-card__del" data-nact="ask" aria-label="Delete note"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M6 6l1 14h10l1-14"/><path d="M10 11v6M14 11v6"/></svg></button>
       </div>
-      <button type="button" class="note-card__del" data-nact="ask" aria-label="Delete note"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M6 6l1 14h10l1-14"/><path d="M10 11v6M14 11v6"/></svg></button>`;
+      <div class="note-card__body">
+        <div class="note-card__text"></div>
+        <div class="note-card__confirm"><span>Delete this note?</span><button type="button" data-nact="cancel">Cancel</button><button type="button" data-nact="del">Delete</button></div>
+      </div>`;
+    card.querySelector(".note-card__when").textContent = when;
     if(m.id != null) row.dataset.msgId = m.id;
     card.addEventListener("click", async e => {
       const b = e.target.closest("[data-nact]"); if(!b) return;
@@ -4637,7 +4650,7 @@ function closeOrderDetailsModal() {
     noteText.textContent = m.content;
     if(m.attachments && m.attachments.length){
       if(!m.content) noteText.remove();
-      card.querySelector(".note-card__body").insertBefore(buildAttachments(m.attachments), card.querySelector(".note-card__meta"));
+      card.querySelector(".note-card__body").insertBefore(buildAttachments(m.attachments), card.querySelector(".note-card__confirm"));
     }
     row.appendChild(card);
     return row;
