@@ -1644,7 +1644,6 @@ input,textarea,select,[contenteditable="true"],.allow-select,.allow-select *{-we
   /* ---------- Chat: order context (same order card as everywhere else) ---------- */
   .order-strip{ padding:7px 12px 1px; background:var(--body-bg); border-bottom:1px solid var(--hairline); }
   .order-strip[hidden]{ display:none; }
-  .order-strip__label{ display:block; font-size:10.5px; font-weight:700; color:var(--text-3); margin:0 2px 5px; }
   .order-strip .oc-card{ margin-bottom:8px; }
 
   /* ---------- Chat: actions menu ---------- */
@@ -3785,7 +3784,7 @@ function closeOrderDetailsModal() {
     if(!pick){ orderStripEl.hidden = true; orderStripEl.onclick = null; return; }
     const o = pick.o;
     orderStripEl.hidden = false;
-    orderStripEl.innerHTML = `<span class="order-strip__label">${pick.mentioned ? "Order mentioned in this chat" : "Current order"}</span>${orderCardHtml(o)}`;
+    orderStripEl.innerHTML = orderCardHtml(o);
     orderStripEl.onclick = (e) => {
       const card = e.target.closest(".oc-card");
       if(!card) return;
