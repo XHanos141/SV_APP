@@ -1974,6 +1974,12 @@ html:not([data-theme="light"]) .odm-card { background: rgba(124,111,247,0.08); b
     border-color:rgba(43,116,227,.5);
     box-shadow:0 2px 4px rgba(15,22,33,.08), 0 12px 26px -6px rgba(43,116,227,.5), inset 0 1.5px 0 rgba(255,255,255,.95), inset 0 -2px 4px rgba(43,116,227,.08);
   }
+  html:not([data-theme="light"]) .from-customer .msg-bubble__text{
+    background:linear-gradient(160deg, #1f3047 0%, #162130 100%);
+    color:var(--text-1);
+    border-color:rgba(77,143,245,.45);
+    box-shadow:0 2px 4px rgba(0,0,0,.3), 0 10px 24px -8px rgba(43,116,227,.45), inset 0 1px 0 rgba(255,255,255,.07), inset 0 -2px 4px rgba(0,0,0,.2);
+  }
 
 
   /* popovers & menus: scale/fade from their anchor instead of popping */
@@ -4756,7 +4762,8 @@ function closeOrderDetailsModal() {
   });
 
   els.composerInput.addEventListener("keydown", (e) => {
-    if(e.key === "Enter" && !e.shiftKey){
+    // Enter adds a new line; messages send only from the send button (Ctrl/Cmd+Enter also sends on desktop)
+    if(e.key === "Enter" && (e.ctrlKey || e.metaKey)){
       e.preventDefault();
       els.composerForm.requestSubmit();
     }
