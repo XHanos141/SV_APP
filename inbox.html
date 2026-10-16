@@ -1645,6 +1645,15 @@ input,textarea,select,[contenteditable="true"],.allow-select,.allow-select *{-we
   .order-strip{ padding:7px 12px 1px; background:var(--body-bg); border-bottom:1px solid var(--hairline); }
   .order-strip[hidden]{ display:none; }
   .order-strip .oc-card{ margin-bottom:8px; }
+  .oc-card{ -webkit-touch-callout:none; -webkit-user-select:none; user-select:none; -webkit-tap-highlight-color:transparent; }
+  .oc-wrap{ position:relative; }
+  .oc-pinbadge{ position:absolute; top:-6px; left:12px; z-index:2; width:20px; height:20px; border-radius:50%; background:var(--cyan,#009ddc); color:#fff; display:flex; align-items:center; justify-content:center; box-shadow:0 2px 6px rgba(0,0,0,.25); pointer-events:none; }
+  .oc-pinbadge svg{ width:11px; height:11px; }
+  .oc-pop-backdrop{ position:fixed; inset:0; z-index:99998; background:transparent; }
+  .oc-pop{ position:fixed; z-index:99999; min-width:178px; padding:6px; background:var(--surface); border:1px solid var(--hairline); border-radius:14px; box-shadow:0 16px 38px rgba(0,0,0,.32); animation:svRise .16s var(--ease-out) both; }
+  .oc-pop button{ display:flex; align-items:center; gap:10px; width:100%; padding:11px 12px; border-radius:9px; font-size:13.5px; font-weight:600; color:var(--text-1); text-align:left; background:none; border:0; }
+  .oc-pop button:active{ background:var(--surface-2); }
+  .oc-pop button svg{ width:16px; height:16px; color:var(--text-2); flex:0 0 auto; }
 
   /* ---------- Chat: actions menu ---------- */
   .thread-menu-backdrop{ position:fixed; inset:0; z-index:40; display:none; }
@@ -3767,6 +3776,8 @@ function closeOrderDetailsModal() {
     if(!cust) return null;
     const orders = allOrdersOf(cust);
     if(!orders.length) return null;
+    const pid = pinnedOrderId(conv);
+    if(pid){ const po = orders.find(x => x.id === pid); if(po) return { o:po, mentioned:false, pinned:true }; }
     const ids = [];
     (messages || []).forEach(m => {
       if(isNoteMsg(m)) return;
@@ -4238,7 +4249,8 @@ function closeOrderDetailsModal() {
   function orderCardHtml(o){
     const px = /^PX-/.test(o.id);
     const created = odmDateTime(o.placed_at), statusAt = odmDateTime(o.status_at || o.placed_at);
-    return `<div class="oc-wrap"><button type="button" class="oc-card" data-act="open-order" data-oid="${escAttr(o.id)}" aria-expanded="false" aria-label="${orderKind(o.id)} ${escAttr(o.id)}, ${escAttr(o.status)}. Show order details">
+    const pinnedBadge = pinnedOrderId(sheet.conv || activeConv()) === o.id ? `<span class="oc-pinbadge" aria-label="Pinned to chat"><svg viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 17v5"/><path d="M9 3h6l-1 6 3 3v2H7v-2l3-3-1-6Z"/></svg></span>` : "";
+    return `<div class="oc-wrap${pinnedBadge ? " is-pinned" : ""}">${pinnedBadge}<button type="button" class="oc-card" data-act="open-order" data-oid="${escAttr(o.id)}" aria-expanded="false" aria-label="${orderKind(o.id)} ${escAttr(o.id)}, ${escAttr(o.status)}. Show order details">
       <span class="oc-card__head">
         <span class="oc-card__left">
           <span class="oc-card__idrow"><span class="oc-card__label">Order ID</span><span class="oc-card__id${px ? " proxy" : ""}">${escapeHtml(o.id)}</span></span>
@@ -5077,6 +5089,74 @@ function closeOrderDetailsModal() {
   document.getElementById("pinBtn").addEventListener("click", e => {
     e.stopPropagation(); setAttachMenu(false); setQuickMenu(false); openProductPicker();
   });
+
+  /* ---------- Pin an order card to the chat (long-press) ---------- */
+  const PIN_ORDER_KEY = id => "sv-pinorder-" + id;
+  function pinnedOrderId(conv){
+    if(!conv) return null;
+    if(conv.pinned_order !== undefined) return conv.pinned_order;
+    try{ return localStorage.getItem(PIN_ORDER_KEY(conv.id)) || null; }catch(_){ return null; }
+  }
+  async function savePinnedOrder(conv, oid){
+    conv.pinned_order = oid || null;
+    try{ oid ? localStorage.setItem(PIN_ORDER_KEY(conv.id), oid) : localStorage.removeItem(PIN_ORDER_KEY(conv.id)); }catch(_){}
+    if(supabase){
+      const { error } = await supabase.from("conversations").update({ pinned_order: oid || null }).eq("id", conv.id);
+      if(error) console.error("order pin save failed (needs conversations.pinned_order column):", error);
+    }
+  }
+  function refreshAfterOrderPin(conv){
+    if(state.activeConversationId === conv.id) renderOrderStrip(conv, state.activeMessages);
+    if(document.getElementById("custSheet").classList.contains("open") || document.getElementById("custSheet").getAttribute("aria-hidden") === "false") renderSheet();
+  }
+  function closeOrderPop(){
+    document.querySelectorAll(".oc-pop, .oc-pop-backdrop").forEach(n => n.remove());
+  }
+  function openOrderPop(card, x, y, conv){
+    closeOrderPop();
+    const oid = card.dataset.oid, isPinned = pinnedOrderId(conv) === oid;
+    const bd = document.createElement("div"); bd.className = "oc-pop-backdrop";
+    const pop = document.createElement("div"); pop.className = "oc-pop"; pop.setAttribute("role", "menu");
+    pop.innerHTML = `<button type="button" role="menuitem">${isPinned ? UNPIN_SVG : PIN_SVG}${isPinned ? "Unpin from chat" : "Pin to chat"}</button>`;
+    document.body.appendChild(bd); document.body.appendChild(pop);
+    const w = pop.offsetWidth, h = pop.offsetHeight;
+    pop.style.left = Math.max(10, Math.min(x - w / 2, window.innerWidth - w - 10)) + "px";
+    pop.style.top = Math.max(10, Math.min(y - h - 14 < 10 ? y + 14 : y - h - 14, window.innerHeight - h - 10)) + "px";
+    bd.addEventListener("click", closeOrderPop);
+    bd.addEventListener("contextmenu", e => { e.preventDefault(); closeOrderPop(); });
+    pop.querySelector("button").addEventListener("click", () => {
+      closeOrderPop();
+      savePinnedOrder(conv, isPinned ? null : oid);
+      refreshAfterOrderPin(conv);
+      showToast(isPinned ? "Order unpinned" : "Order pinned to chat");
+    });
+  }
+  (function(){
+    let timer = null, sx = 0, sy = 0, swallowUntil = 0;
+    const cancel = () => { clearTimeout(timer); timer = null; };
+    document.addEventListener("pointerdown", e => {
+      const card = e.target.closest(".oc-card[data-oid]");
+      if(!card || e.button > 0) return;
+      const inStrip = !!card.closest("#orderStrip"), inSheet = !!card.closest("#custSheet");
+      if(!inStrip && !inSheet) return;
+      sx = e.clientX; sy = e.clientY;
+      cancel();
+      timer = setTimeout(() => {
+        timer = null;
+        const conv = inSheet ? (sheet.conv || activeConv()) : activeConv();
+        if(!conv) return;
+        swallowUntil = Date.now() + 700;
+        if(navigator.vibrate) try{ navigator.vibrate(12); }catch(_){}
+        openOrderPop(card, sx, sy, conv);
+      }, 500);
+    });
+    document.addEventListener("pointermove", e => { if(timer && Math.hypot(e.clientX - sx, e.clientY - sy) > 10) cancel(); });
+    ["pointerup", "pointercancel", "scroll"].forEach(t => document.addEventListener(t, cancel, true));
+    document.addEventListener("click", e => {          // the release after a long-press must not also expand the card
+      if(Date.now() < swallowUntil && e.target.closest(".oc-card")){ e.stopPropagation(); e.preventDefault(); }
+    }, true);
+    document.addEventListener("contextmenu", e => { if(e.target.closest(".oc-card[data-oid]")) e.preventDefault(); });
+  })();
 
   /* ---------- Master toolbox: one button, mini tray slides up with all tools ---------- */
   (function(){
