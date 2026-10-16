@@ -1295,6 +1295,10 @@ input,textarea,select,[contenteditable="true"],.allow-select,.allow-select *{-we
   }
   html:not([data-theme="light"]) .oc-card{ background:#1A2235; border-color:rgba(45,190,245,0.32); box-shadow:none; }
   .oc-card:hover{ border-color:rgba(0,157,220,.55); }
+  /* platform cards: same thin blue border as the order card */
+  .platform-row{ border-color:rgba(10,155,220,0.30); }
+  html:not([data-theme="light"]) .platform-row{ border-color:rgba(45,190,245,0.32); }
+  .platform-row.active, html:not([data-theme="light"]) .platform-row.active{ border-color:rgba(10,155,220,0.5); }
   .oc-card__head{ display:flex; align-items:center; justify-content:space-between; gap:10px; padding:12px 14px; min-height:63px; }
   .oc-card__left{ display:flex; flex-direction:column; min-width:0; overflow:hidden; }
   .oc-card__idrow{ display:flex; align-items:center; gap:6px; }
