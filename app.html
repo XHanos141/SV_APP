@@ -6110,7 +6110,7 @@ html[data-theme="dark"] .stock-badge.low { color: #F4A922; }
 
 /* Product Stats Row */
 .prod-stats {
-  display: grid; grid-template-columns: repeat(4,1fr);
+  display: grid; grid-template-columns: repeat(5,1fr);
   border-top: 1px solid #ececec; padding-top: 10px;
   transition: border-color 0.35s ease;
 }
@@ -26881,6 +26881,10 @@ function renderProductsTab(searchDisplayVal) {
         <div class="prod-stat">
           <div class="prod-stat-label">Price</div>
           <div class="prod-stat-val purple">৳${p.price.toLocaleString('en-IN')}</div>
+        </div>
+        <div class="prod-stat">
+          <div class="prod-stat-label">Profit</div>
+          <div class="prod-stat-val ${mCls}">৳${(p.price - p.cost).toLocaleString('en-IN')}</div>
         </div>
         <div class="prod-stat">
           <div class="prod-stat-label">Margin</div>
