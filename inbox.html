@@ -613,8 +613,12 @@ input,textarea,select,[contenteditable="true"],.allow-select,.allow-select *{-we
   #threadView:not([hidden]){
     display:flex;
     flex-direction:column;
-    height:100vh;
+    position:fixed; top:0; bottom:0; left:0; right:0;
+    max-width:480px; margin:0 auto;
+    z-index:30;
+    background:var(--body-bg);
   }
+  html.thread-open, html.thread-open body{ overflow:hidden; }
 
   .thread-header{
     position:sticky;
@@ -1998,9 +2002,8 @@ html:not([data-theme="light"]) .odm-card { background: rgba(124,111,247,0.08); b
   .thread-messages.msgs-in{ animation:svFade .18s ease both; }
   @keyframes svThreadIn{ from{ transform:translate3d(100%,0,0); } to{ transform:translate3d(0,0,0); } }
   @keyframes svThreadOut{ from{ transform:translate3d(0,0,0); } to{ transform:translate3d(100%,0,0); } }
-  #threadView.is-overlay{ position:fixed; top:0; left:0; right:0; max-width:480px; margin:0 auto; z-index:30; background:var(--body-bg); overflow:hidden; box-shadow:-14px 0 30px rgba(0,0,0,.18); }
-  #threadView.is-overlay.v-in-fwd{ animation:svThreadIn .3s var(--ease-out) both; }
-  #threadView.is-overlay.is-out{ animation:svThreadOut .26s var(--ease-io) both; pointer-events:none; }
+  #threadView.v-in-fwd{ animation:svThreadIn .3s var(--ease-out) both; }
+  #threadView.is-out{ animation:svThreadOut .26s var(--ease-io) both; pointer-events:none; }
   /* the fixed bottom nav lives inside #listView: a transform on it would re-anchor the nav to the list (nav jumps up for a sec) -> fade only */
   #listView.v-in-back, #listView.v-in-fwd, #listView.v-in-fade{ animation:svFade .22s ease both; transform:none; }
   .msg-new{ animation:svMsgIn .28s var(--ease-out) both; }
@@ -3705,17 +3708,12 @@ function closeOrderDetailsModal() {
       }
     }
 
-    if(!threadPushed){ try{ history.pushState({ svThread:id }, ""); threadPushed = true; }catch(_){} }
-    listScrollY = window.scrollY || 0;
-    clearTimeout(els.threadView._ovT);
-    els.threadView.classList.remove("is-out");
-    els.threadView.classList.add("is-overlay");          // chat slides in over the list; list is hidden only after it lands
-    svShow(els.threadView, "fwd");
-    els.threadView._ovT = setTimeout(() => {
-      if(state.activeConversationId !== id) return;
-      els.listView.hidden = true;
-      els.threadView.classList.remove("is-overlay");
-    }, 320);
+    if(!threadPushed){ try{ history.pushState({ svThread:id, d:2 }, ""); threadPushed = true; }catch(_){} }
+    const tv = els.threadView;
+    clearTimeout(tv._ovT);
+    tv.classList.remove("is-out");
+    document.documentElement.classList.add("thread-open");
+    if(tv.hidden) svShow(tv, "fwd");                 // slide in once; switching channels inside an open chat doesn't re-animate
     state.activeConversationId = id;
 
     renderThreadHeader(conv);
@@ -3724,27 +3722,23 @@ function closeOrderDetailsModal() {
 
   let threadPushed = false;
   function goBackFromThread(){                     // in-app back arrow: pop the history entry so system back stays in sync
-    if(threadPushed) history.back(); else backToList();
+    if(threadPushed){ threadPushed = false; history.back(); } else backToList();
   }
-  window.addEventListener("popstate", () => {      // phone back button: close the chat, stay in the inbox
-    if(threadPushed && !(history.state && history.state.svThread)){ threadPushed = false; if(!els.threadView.hidden) backToList(); }
-  });
   function backToList(){
     clearPending(true);
     const tv = els.threadView;
     clearTimeout(tv._ovT); clearTimeout(tv._svT);
-    els.listView.hidden = false;                         // list is already in place underneath
-    els.listView.classList.remove("v-in-fwd", "v-in-back", "v-in-fade", "v-out", "v-out-fade");
+    els.listView.hidden = false;
     tv.classList.remove("v-in-fwd", "v-in-back", "v-out");
-    tv.classList.add("is-overlay", "is-out");            // chat slides away to the right
-    tv._ovT = setTimeout(() => { tv.hidden = true; tv.classList.remove("is-overlay", "is-out"); }, 270);
+    tv.classList.add("is-out");                          // chat slides away; list is already in place underneath
+    document.documentElement.classList.remove("thread-open");
+    tv._ovT = setTimeout(() => { tv.hidden = true; tv.classList.remove("is-out"); }, 270);
     state.activeConversationId = null;
     if(messagesRealtimeChannel && supabase){
       supabase.removeChannel(messagesRealtimeChannel);
       messagesRealtimeChannel = null;
     }
     render();
-    window.scrollTo(0, listScrollY);
   }
 
   function renderThreadHeader(conv){
@@ -4125,11 +4119,17 @@ function closeOrderDetailsModal() {
     els.custSheet.classList.add("open");
     els.custSheet.setAttribute("aria-hidden", "false");
     document.body.classList.add("sheet-open");
+    if(!sheetPushed){ try{ history.pushState({ svSheet:1, d:3 }, ""); sheetPushed = true; }catch(_){} }
     const t = document.getElementById("custSheetTitle");   // focus only once the sheet is visible
     if(t) t.focus({ preventScroll:true });
   }
 
-  function closeCustomerPanel(){
+  let sheetPushed = false;
+  function closeCustomerPanel(){                     // X / backdrop / actions: pop the history entry, popstate closes the UI
+    if(!els.custSheet.classList.contains("open")) return;
+    if(sheetPushed){ sheetPushed = false; history.back(); } else closeCustomerPanelUI();
+  }
+  function closeCustomerPanelUI(){
     if(!els.custSheet.classList.contains("open")) return;
     els.custSheetBackdrop.classList.remove("open");
     els.custSheet.classList.remove("open", "is-full");
@@ -6026,12 +6026,16 @@ function closeOrderDetailsModal() {
   let embeddedHist = false;
   try{ embeddedHist = !!window.frameElement; }catch(e){ embeddedHist = true; }
   if(embeddedHist){                                  // history: [root] -> [list] -> [chat]; back from list closes the overlay
-    try{ history.replaceState({ svInboxRoot:1 }, ""); history.pushState({ svInboxList:1 }, ""); }catch(e){ embeddedHist = false; }
+    try{ history.replaceState({ svInboxRoot:1, d:0 }, ""); history.pushState({ svInboxList:1, d:1 }, ""); }catch(e){ embeddedHist = false; }
   }
+  /* back stack: inbox list (1) -> chat (2) -> customer profile (3); system back always closes the top layer first,
+     and from the list it closes the inbox and returns to the main app */
   window.addEventListener("popstate", () => {
-    if(embeddedHist && history.state && history.state.svInboxRoot){
-      try{ window.parent.postMessage({ type:"sv-close-inbox" }, "*"); }catch(e){}
-    }
+    const st = history.state || {};
+    const d = typeof st.d === "number" ? st.d : 1;
+    if(d < 3 && els.custSheet.classList.contains("open")){ sheetPushed = false; closeCustomerPanelUI(); }
+    if(d < 2 && !els.threadView.hidden && state.activeConversationId){ threadPushed = false; backToList(); }
+    if(d < 1 && embeddedHist){ try{ window.parent.postMessage({ type:"sv-close-inbox" }, "*"); }catch(e){} }
   });
   document.getElementById("inboxBackBtn").addEventListener("click", () => {
     if(embeddedHist && history.state && history.state.svInboxList){ history.back(); return; }   // pops to root -> closes via popstate
