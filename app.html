@@ -378,6 +378,31 @@ html[data-theme="dark"] .import-order-trigger:hover { background: rgba(124,111,2
 }
 html[data-theme="dark"] .import-order-hint { color: rgba(255,255,255,0.35); }
 
+/* ---- Import Order drawer: Buy For Me orders ---- */
+.px-import-card{background:#fff;border:1px solid #e6e9f0;border-radius:16px;padding:12px;margin-bottom:10px;box-shadow:0 2px 8px rgba(11,18,32,.05);font-family:'Plus Jakarta Sans','DM Sans',sans-serif;color:#0b1220}
+html[data-theme="dark"] .px-import-card{background:#162130;border-color:rgba(255,255,255,.08);color:#eaf2f8;box-shadow:0 4px 14px rgba(0,0,0,.35)}
+.pxi-top{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.pxi-id{font:800 11px 'Roboto Mono',monospace;color:#F26430;background:rgba(242,100,48,.12);border:1px solid rgba(242,100,48,.3);padding:2px 8px;border-radius:7px}
+.pxi-pill{font-size:10.5px;font-weight:800;padding:3px 9px;border-radius:99px;background:rgba(124,111,247,.14);color:#7c6ff7}
+.pxi-pill.wait{background:rgba(244,169,34,.16);color:#C27808}
+.pxi-pill.ok{background:rgba(47,155,104,.14);color:#2f9b68}
+.pxi-amt{margin-left:auto;font-size:15px;font-weight:800}
+.pxi-cust{margin-top:8px;font-size:12.5px;font-weight:700;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.pxi-cust a{color:#25D366;text-decoration:none;font-weight:800;font-size:11.5px}
+.pxi-sub{margin-top:3px;font-size:11.5px;font-weight:600;color:#8a90a0}
+.pxi-chip{display:inline-block;margin-top:8px;font-size:11px;font-weight:800;padding:4px 9px;border-radius:9px;background:rgba(244,169,34,.14);color:#C27808}
+.pxi-chip.pay{background:rgba(47,155,104,.12);color:#2f9b68}
+.pxi-fields{display:flex;gap:8px;margin-top:10px}
+.pxi-fields input{flex:1;min-width:0;height:36px;border-radius:10px;border:1.5px solid #dce0e8;background:transparent;color:inherit;padding:0 10px;font:600 12px 'DM Sans',sans-serif}
+html[data-theme="dark"] .pxi-fields input{border-color:#2b3244}
+.pxi-actions{display:flex;gap:8px;margin-top:10px}
+.pxi-btn{flex:1;height:38px;border-radius:11px;border:none;font:800 12.5px 'Plus Jakarta Sans',sans-serif;cursor:pointer;background:#F26430;color:#fff}
+.pxi-btn.green{background:#2f9b68}
+.pxi-btn.ghost{flex:0 0 auto;padding:0 14px;background:transparent;color:#d95353;border:1.5px solid rgba(217,83,83,.45)}
+.pxi-btn:disabled{opacity:.55}
+.pxi-empty{text-align:center;padding:14px 8px;color:#8a90a0;font-size:12px;font-weight:600}
+
+
 /* DRAFT ORDERS */
 .draft-icon { background: rgba(244,169,34,0.12); }
 html[data-theme="dark"] .draft-icon { background: rgba(244,169,34,0.15); }
@@ -18688,7 +18713,7 @@ function svMenuCounts() {
   try { inv = invoices.length; } catch (e) {}
   return {
     draft: q('#draftCardsContainer .draft-card:not(.return-card):not(.paid-out):not(.delete-out)') + returns,
-    imports: q('#importOrderCardsContainer .draft-card:not(.paid-out):not(.delete-out)'),
+    imports: q('#importOrderCardsContainer .px-import-card'),
     margin: margin,
     invoices: inv
   };
@@ -22231,7 +22256,7 @@ async function loadOrdersFromSupabase() {
     rows.forEach(o => {
       const items = orderRowToItems(o);
       const isWeb = o.source === 'web';
-      if (isWeb && !o.delivered_at && !known.has(o.id) && (o.status === 'paid' || o.status === 'processing')) {
+      if (isWeb && o.order_type !== 'proxy' && !o.delivered_at && !known.has(o.id) && (o.status === 'paid' || o.status === 'processing')) {
         container.appendChild(buildWebReadyCardEl(webOrderToReadyData(o)));
         known.add(o.id);
       }
@@ -25405,6 +25430,115 @@ function importOrder(event) {
   showToast("Import Order — coming soon");
 }
 
+/* ====== IMPORT ORDER (Buy For Me orders, live) ====== */
+const IMP_NEXT = { paid: ['purchasing', 'Start purchasing'], purchasing: ['ordered', 'Mark ordered'], ordered: ['shipped_intl', 'Mark shipped'], shipped_intl: ['arrived_bd', 'Arrived in BD'], arrived_bd: ['delivered', 'Mark delivered'] };
+const IMP_LABEL = { approved: 'Awaiting payment', paid: 'Paid', purchasing: 'Purchasing', ordered: 'Ordered', shipped_intl: 'Shipped intl', arrived_bd: 'In Bangladesh' };
+const IMP_METHOD = { bkash: 'bKash', nagad: 'Nagad', rocket: 'Rocket', upay: 'Upay', cellfin: 'Cellfin', bank: 'Bank Transfer', crypto: 'Crypto', card: 'Card' };
+let IMP_ROWS = [], _impBusy = false, _impLoading = false;
+
+function impAge(iso) {
+  const h = Math.max(0, (Date.now() - new Date(iso).getTime()) / 36e5);
+  return h < 1 ? 'just now' : h < 48 ? Math.floor(h) + 'h' : Math.floor(h / 24) + 'd';
+}
+async function loadImportOrders() {
+  if (_impLoading) return;
+  _impLoading = true;
+  try {
+    const rows = await sbFetch('proxy_requests?select=*,customers(full_name,phone),orders(id,order_number,payment_method,payment_ref,total_amount,created_at,status)&status=in.(approved,paid,purchasing,ordered,shipped_intl,arrived_bd)&order=updated_at.asc');
+    const next = Array.isArray(rows) ? rows : [];
+    if (JSON.stringify(next) === JSON.stringify(IMP_ROWS)) return;
+    IMP_ROWS = next;
+    renderImportOrders();
+  } catch (e) { /* not signed in as admin yet, or offline */ }
+  finally { _impLoading = false; }
+}
+function impCardHtml(r) {
+  const o = r.orders || {}, c = r.customers || {};
+  const items = ((r.product_snapshot || {}).items || []);
+  const first = items[0] ? (items[0].name || 'Product') : 'Product';
+  const more = items.length > 1 ? ' +' + (items.length - 1) + ' more' : '';
+  const wa = String(c.phone || '').replace(/\D/g, '').replace(/^880/, '').replace(/^0/, '');
+  const amt = rwMoney(o.total_amount != null ? o.total_amount : r.quote_total);
+  const unpaid = r.status === 'approved';
+  const ref = String(o.payment_ref || '').trim();
+  const methodTxt = IMP_METHOD[String(o.payment_method || '').toLowerCase()] || o.payment_method || '';
+  let chip = '';
+  if (unpaid) chip = ref
+    ? `<span class="pxi-chip pay">${escapeHtml(methodTxt)} · TrxID ${escapeHtml(ref)}</span>`
+    : `<span class="pxi-chip">Unpaid · ${impAge(o.created_at || r.updated_at)}</span>`;
+  const fields = unpaid ? '' : `
+    <div class="pxi-fields">
+      <input type="text" data-f="store" placeholder="Store order no." value="${escapeHtml(r.store_order_no || '')}" onchange="impSaveTracking('${r.id}', this)">
+      <input type="text" data-f="trk" placeholder="Intl tracking no." value="${escapeHtml(r.intl_tracking_no || '')}" onchange="impSaveTracking('${r.id}', this)">
+    </div>`;
+  let actions = '';
+  if (unpaid) {
+    actions = (ref ? `<button class="pxi-btn green" onclick="impConfirmPayment('${r.id}', this)">Confirm payment</button>` : '<div class="pxi-sub" style="flex:1;align-self:center">Waiting for customer payment</div>')
+      + `<button class="pxi-btn ghost" onclick="impCancel('${r.id}', this)">Cancel</button>`;
+  } else if (IMP_NEXT[r.status]) {
+    actions = `<button class="pxi-btn" onclick="impAdvance('${r.id}', '${IMP_NEXT[r.status][0]}', this)">${IMP_NEXT[r.status][1]}</button>`;
+  }
+  return `
+  <div class="px-import-card" data-req="${r.id}">
+    <div class="pxi-top">
+      <span class="pxi-id">${escapeHtml(o.order_number || r.request_no || 'PX')}</span>
+      <span class="pxi-pill ${unpaid ? 'wait' : r.status === 'paid' ? 'ok' : ''}">${IMP_LABEL[r.status] || r.status}</span>
+      <span class="pxi-amt">${amt}</span>
+    </div>
+    <div class="pxi-cust">${escapeHtml(c.full_name || 'Customer')}${wa ? `<a href="https://wa.me/880${wa}" target="_blank" rel="noopener">WhatsApp</a>` : ''}</div>
+    <div class="pxi-sub">${escapeHtml(first)}${more} · ${escapeHtml(r.request_no || '')}</div>
+    ${chip}${fields}
+    ${actions ? `<div class="pxi-actions">${actions}</div>` : ''}
+  </div>`;
+}
+function renderImportOrders() {
+  const box = document.getElementById('importOrderCardsContainer');
+  if (!box) return;
+  const active = document.activeElement;
+  if (active && box.contains(active) && active.tagName === 'INPUT') return;
+  box.innerHTML = IMP_ROWS.length ? IMP_ROWS.map(impCardHtml).join('') : '<div class="pxi-empty">No Buy For Me orders yet</div>';
+}
+async function impRun(btn, fn, okMsg) {
+  if (_impBusy) return;
+  _impBusy = true; if (btn) btn.disabled = true;
+  try { await fn(); if (okMsg) showToast(okMsg); }
+  catch (err) { showToast('⚠ ' + _dbErrMsg(err)); }
+  finally { _impBusy = false; if (btn) btn.disabled = false; }
+  IMP_ROWS = []; await loadImportOrders();
+}
+function impRow(id) { return IMP_ROWS.find(x => x.id === id); }
+function impConfirmPayment(id, btn) {
+  const r = impRow(id); if (!r || !r.orders) return;
+  impRun(btn, async () => {
+    await requireFingerprint();
+    await sbFetch('rpc/confirm_order_payment', 'POST', { p_order_id: r.orders.id, p_method: r.orders.payment_method, p_ref: r.orders.payment_ref || null });
+  }, (r.orders.order_number || 'Order') + ' paid');
+}
+function impAdvance(id, status, btn) {
+  const card = btn.closest('.px-import-card');
+  const store = card ? (card.querySelector('[data-f="store"]') || {}).value : '';
+  const trk = card ? (card.querySelector('[data-f="trk"]') || {}).value : '';
+  impRun(btn, () => sbFetch('rpc/admin_set_proxy_status', 'POST', { p_id: id, p_status: status, p_store_order_no: store || null, p_tracking_no: trk || null }), 'Status updated');
+}
+async function impSaveTracking(id, input) {
+  const card = input.closest('.px-import-card'); if (!card) return;
+  const store = (card.querySelector('[data-f="store"]') || {}).value || '';
+  const trk = (card.querySelector('[data-f="trk"]') || {}).value || '';
+  try { await sbFetch('rpc/admin_set_proxy_tracking', 'POST', { p_id: id, p_store_order_no: store, p_tracking_no: trk }); showToast('Saved'); }
+  catch (err) { showToast('⚠ ' + _dbErrMsg(err)); }
+}
+function impCancel(id, btn) {
+  const r = impRow(id); if (!r) return;
+  const hasRef = !!String((r.orders || {}).payment_ref || '').trim();
+  if (!confirm('Cancel ' + ((r.orders || {}).order_number || 'this order') + '? The customer will see it as cancelled.')) return;
+  if (hasRef && !confirm('Customer already submitted a payment (TrxID). Cancel anyway? Refund must be handled manually.')) return;
+  const reason = prompt('Reason (optional)') || '';
+  impRun(btn, () => sbFetch('rpc/admin_close_proxy', 'POST', { p_id: id, p_reason: reason, p_reject: false, p_force: hasRef }), 'Order cancelled');
+}
+setTimeout(loadImportOrders, 2500);
+setInterval(() => { if (!document.hidden) loadImportOrders(); }, 60000);
+document.addEventListener('visibilitychange', () => { if (!document.hidden) loadImportOrders(); });
+
 /* ====== DRAFT ORDERS / RETURNS TOGGLE ====== */
 function setDraftView(view) {
   draftView = view;
@@ -28060,7 +28194,7 @@ let AL_STORE = [];
 let _alStoreBusy = false;
 async function loadStoreOrderAlerts() {
   try {
-    const rows = await sbFetchOrderRows('orders?select=*,order_items(*)&source=eq.web&status=in.(pending,processing,paid)&delivered_at=is.null&order=created_at.asc');
+    const rows = await sbFetchOrderRows('orders?select=*,order_items(*)&source=eq.web&order_type=eq.internal&status=in.(pending,processing,paid)&delivered_at=is.null&order=created_at.asc');
     AL_STORE = (Array.isArray(rows) ? rows : []).filter(o => o.status !== 'pending' ||
       String(o.payment_method || '').toLowerCase() === 'cod' || String(o.payment_ref || '').trim() !== '')
       .sort((a, b) => (a.status === 'pending' ? 0 : 1) - (b.status === 'pending' ? 0 : 1));
