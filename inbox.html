@@ -889,6 +889,9 @@ input,textarea,select,[contenteditable="true"],.allow-select,.allow-select *{-we
     font-weight:700;
     color:var(--text-1);
   }
+  .platform-row.is-switch{ cursor:pointer; -webkit-tap-highlight-color:transparent; transition:transform .12s ease, border-color .15s ease; }
+  .platform-row.is-switch:active{ transform:scale(.985); border-color:rgba(43,116,227,.5); }
+  .platform-row__tag--go{ color:var(--inbox-blue-t) !important; background:rgba(43,116,227,.12) !important; }
   .platform-row__tag{
     font-size:10.5px;
     font-weight:700;
@@ -1623,6 +1626,8 @@ input,textarea,select,[contenteditable="true"],.allow-select,.allow-select *{-we
   .thread-status.waiting{ color:var(--orange); background:rgba(242,100,48,.10); border-color:rgba(242,100,48,.35); }
   .thread-status.assigned{ color:var(--inbox-blue-t); background:rgba(43,116,227,.12); border-color:rgba(43,116,227,.38); }
   .thread-status.done{ color:var(--green); background:rgba(0,155,114,.12); border-color:rgba(0,155,114,.38); }
+  /* chat stays minimal: status + channel bar removed — pick the platform from Customer profile > Connected channels */
+  #threadToolbar{ display:none !important; }
   .chan-switch{ display:flex; gap:6px; }
   .chan-switch button{ display:inline-flex; align-items:center; gap:6px; height:28px; padding:0 10px 0 5px; border-radius:100px; font-size:11.5px; font-weight:700; color:var(--text-2); background:var(--surface-2); border:1px solid var(--hairline); position:relative; }
   .chan-switch button[aria-selected="true"]{ color:var(--inbox-blue-t); background:rgba(43,116,227,.12); border-color:rgba(43,116,227,.45); }
@@ -4167,19 +4172,32 @@ function closeOrderDetailsModal() {
     return hit ? hit.customer_name : "";
   }
   function platformsHtmlFor(cust){
+    const key = sheet.conv && sheet.conv.customer_key;
     return cust.channels.map(ch => {
       const isActive = sheet.conv.channel && ch === sheet.conv.channel;
       const ident = channelIdentity(cust, ch);
-      return `<div class="platform-row${isActive ? " active" : ""}"${isActive ? ' aria-current="true"' : ""}>
+      // another chat of the same customer on this platform -> tap the row to reply from there
+      const target = (!isActive && key) ? (state.conversations || []).find(c => c.customer_key === key && c.channel === ch) : null;
+      const attrs = isActive ? ' aria-current="true"' : (target ? ` role="button" tabindex="0" data-switch-id="${escapeHtml(target.id)}" aria-label="Reply on ${escapeHtml((CHANNEL_META[ch] && CHANNEL_META[ch].label) || ch)}"` : "");
+      return `<div class="platform-row${isActive ? " active" : ""}${target ? " is-switch" : ""}"${attrs}>
         <span class="platform-row__icon ${CHANNEL_ICON_CLASS[ch]}">${channelBadgeSvg(ch)}</span>
         <span class="platform-row__text">
           <span class="platform-row__label">${(CHANNEL_META[ch] && CHANNEL_META[ch].label) || ch}</span>
           ${ident ? `<span class="platform-row__ident">${escapeHtml(ident)}</span>` : `<span class="platform-row__ident is-empty">Not available yet</span>`}
         </span>
-        ${isActive ? `<span class="platform-row__tag">Viewing now</span>` : ""}
+        ${isActive ? `<span class="platform-row__tag">Viewing now</span>` : (target ? `<span class="platform-row__tag platform-row__tag--go">Reply here</span>` : "")}
       </div>`;
     }).join("");
   }
+  function switchPlatformFromSheet(row){
+    const id = row && row.dataset.switchId; if(!id) return;
+    closeCustomerPanel();
+    openConversation(id);
+  }
+  els.custSheetScroll.addEventListener("click", (e) => switchPlatformFromSheet(e.target.closest(".platform-row.is-switch")));
+  els.custSheetScroll.addEventListener("keydown", (e) => {
+    if((e.key === "Enter" || e.key === " ") && e.target.matches(".platform-row.is-switch")){ e.preventDefault(); switchPlatformFromSheet(e.target); }
+  });
 
   function statsHtml(cust){
     const recs = allOrdersOf(cust);
