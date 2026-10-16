@@ -5053,6 +5053,9 @@ function closeOrderDetailsModal() {
       tray.classList.toggle("open", open);
       toolBtn.setAttribute("aria-expanded", open ? "true" : "false");
     };
+    // keep the keyboard open: tapping the toolbox or a tool must not pull focus off the text box
+    toolBtn.addEventListener("mousedown", e => e.preventDefault());
+    tray.addEventListener("mousedown", e => e.preventDefault());
     toolBtn.addEventListener("click", e => { e.stopPropagation(); setTray(!tray.classList.contains("open")); });
     document.addEventListener("click", e => { if(!tray.contains(e.target) && !toolBtn.contains(e.target)) setTray(false); });
     document.addEventListener("keydown", e => { if(e.key === "Escape") setTray(false); });
