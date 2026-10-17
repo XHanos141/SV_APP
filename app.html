@@ -20192,10 +20192,10 @@ function generateOwnerInvoiceHTML(inv, size) {
       </div>
     </div>
     <div style="padding-top:${isA4?'10px':'8px'};border-top:1.5px solid #ececec;display:flex;justify-content:flex-end">
-      <div style="display:inline-flex;align-items:center;gap:6px;background:linear-gradient(135deg,#7C6FF7,#4535c4);color:#fff;font-family:'Plus Jakarta Sans',sans-serif;font-size:${isA4?'11px':'10px'};font-weight:800;padding:${isA4?'7px 16px':'5px 12px'};border-radius:999px">
+      <div style="display:inline-flex;border-radius:999px;overflow:hidden"><div style="display:inline-flex;align-items:center;gap:6px;background:linear-gradient(135deg,#7C6FF7,#4535c4);color:#fff;font-family:'Plus Jakarta Sans',sans-serif;font-size:${isA4?'11px':'10px'};font-weight:800;padding:${isA4?'7px 16px':'5px 12px'}">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-checkmark"/></svg>
         BLENDED MARGIN ${blended.toFixed(1)}%
-      </div>
+      </div></div>
     </div>
   </div>
   <div style="padding:${isA4?'12px 22px':'8px 14px'};display:flex;justify-content:space-between;align-items:center;border-top:1px solid #ececec">
@@ -20365,12 +20365,12 @@ function _executePdfRender(htmlContent, filename, size, label, pdfOpts) {
           headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
           body: JSON.stringify({ html: el.outerHTML, size: isA4 ? 'a4' : 'receipt', bleed: !!pdfOpts.fullBleed, filename })
         });
-        if (!res.ok) throw new Error('PDF server ' + res.status);
+        if (!res.ok) { const j = await res.json().catch(() => ({})); const err = new Error('PDF server ' + res.status); err.userMessage = res.status === 401 ? 'Session expired — sign in again' : res.status === 403 ? 'Admin access required' : (j && j.error) || ''; throw err; }
         const blob = await res.blob();
         if (!blob.type || blob.type.indexOf('pdf') < 0) throw new Error('Not a PDF');
         svPdfSaved(blob, filename, '#7c6ff7');
         tmp.remove();
-      } catch (err) { btn.textContent = '⬇ Download PDF'; btn.disabled = false; showToast('PDF failed — check connection and retry'); console.error(err); }
+      } catch (err) { btn.textContent = '⬇ Download PDF'; btn.disabled = false; showToast(err && err.userMessage ? 'PDF failed — ' + err.userMessage : 'PDF failed — check connection and retry', 'error'); console.error(err); }
     })();
   };
 }
