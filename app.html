@@ -2017,190 +2017,17 @@ html[data-theme="dark"] .saved-empty-subtitle { color: rgba(255,255,255,0.22); }
 /* ============================================================
    ====== INVOICE CARDS ======
    ============================================================ */
-.invoice-icon { background: rgba(47,155,104,0.12); }
-html[data-theme="dark"] .invoice-icon { background: rgba(47,155,104,0.15); }
-.invoice-icon svg { color: #2f9b68; }
 
 .voucher-icon { background: rgba(217,83,83,0.1); }
 html[data-theme="dark"] .voucher-icon { background: rgba(217,83,83,0.15); }
 .voucher-icon svg { color: #d95353; }
 html[data-theme="dark"] .voucher-icon svg { color: #f07070; }
-html[data-theme="dark"] .invoice-icon svg { color: #3bbf7f; }
 /* Menu rows stay neutral: the tint classes are reused on the row for the inner icon colours only */
 .section-header:where([class*="-icon"]) { background: transparent; }
 html[data-theme="dark"] .section-header:where([class*="-icon"]) { background: transparent; }
-.invoice-badge { background: rgba(47,155,104,0.12); color: #2f9b68; }
-html[data-theme="dark"] .invoice-badge { background: rgba(47,155,104,0.15); color: #3bbf7f; }
 
-/* ====== PRODUCT INVOICE CARD (hamburger menu) ====== */
-.ivc{background:#fff;border:1px solid #e8eaf0;border-radius:16px;padding:12px;margin-bottom:10px;cursor:pointer;position:relative;box-shadow:0 1px 2px rgba(0,31,60,.04);transition:border-color .2s,box-shadow .2s,transform .15s}
-.ivc::before{content:'';position:absolute;left:0;top:14px;bottom:14px;width:3px;border-radius:0 3px 3px 0;background:#7c6ff7}
-.ivc.is-return::before{background:#E15A26}
-.ivc:active{transform:scale(.99)}
-.ivc:focus-visible{outline:2px solid #7c6ff7;outline-offset:2px}
-.ivc-top{display:flex;align-items:center;gap:10px}
-.ivc-ico{width:36px;height:36px;border-radius:10px;flex:none;display:flex;align-items:center;justify-content:center;background:color-mix(in srgb,var(--c) 14%,transparent)}
-.ivc-ico svg{width:18px;height:18px}
-.ivc-who{flex:1;min-width:0}
-.ivc-name{font:800 14px/1.2 "Plus Jakarta Sans",sans-serif;color:#001f3c;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.ivc-sub{font:500 11px/1.3 "DM Sans",sans-serif;color:#8c92a1;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.ivc-ret{color:#E15A26;font-weight:800}
-.ivc-meta{display:flex;flex-direction:column;align-items:flex-end;gap:3px;flex:none}
-.ivc-id{font:800 10.5px/1 "Plus Jakarta Sans",sans-serif;color:#0A9BDC;background:rgba(10,155,220,.1);border:1px solid rgba(10,155,220,.4);border-radius:99px;padding:3px 8px}
-.ivc-id.px{color:#E15A26;background:rgba(225,90,38,.08);border:1px dashed rgba(225,90,38,.55)}
-.ivc-date{font:600 10.5px/1 "DM Sans",sans-serif;color:#8c92a1}
-.ivc-items{margin:10px 0 0;padding:4px 10px;background:#f6f7fa;border-radius:12px}
-.ivc-item{display:flex;align-items:center;gap:8px;padding:7px 0}
-.ivc-item+.ivc-item{border-top:1px dashed #dfe2ea}
-.ivc-item-l{flex:1;min-width:0}
-.ivc-item-name{font:700 12.5px/1.25 "DM Sans",sans-serif;color:#001f3c;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.ivc-item-sku{font:700 9.5px/1 "Courier Prime",monospace;letter-spacing:.6px;color:#0A9BDC}
-.ivc-item-q{font:800 11px/1 "Plus Jakarta Sans",sans-serif;color:#5b6272;background:#e9ebf2;border-radius:6px;padding:3px 6px;flex:none}
-.ivc-item-t{font:800 12.5px/1 "Plus Jakarta Sans",sans-serif;color:#001f3c;min-width:44px;text-align:right;flex:none}
-.ivc-more{font:600 11px/1 "DM Sans",sans-serif;color:#8c92a1;padding:2px 0 8px;border-top:1px dashed #dfe2ea;padding-top:8px}
-.ivc-foot{display:flex;align-items:flex-end;justify-content:space-between;gap:10px;margin-top:10px}
-.ivc-math{display:flex;flex-direction:column;gap:3px;font:500 11.5px/1.2 "DM Sans",sans-serif;color:#6b7280}
-.ivc-math b{font-weight:700;color:#001f3c}
-.ivc-math .g,.ivc-math .g b{color:#2f9b68}
-.ivc-total{text-align:right}
-.ivc-total small{display:block;font:800 10px/1 "Plus Jakarta Sans",sans-serif;letter-spacing:.6px;text-transform:uppercase;color:#001f3c}
-.ivc-total b{display:block;font:900 20px/1.1 "Plus Jakarta Sans",sans-serif;color:#001f3c;margin-top:3px}
-html[data-theme="dark"] .ivc{background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.08);box-shadow:none}
-html[data-theme="dark"] .ivc-name,html[data-theme="dark"] .ivc-item-name,html[data-theme="dark"] .ivc-item-t,html[data-theme="dark"] .ivc-math b,html[data-theme="dark"] .ivc-total small,html[data-theme="dark"] .ivc-total b{color:#fff}
-html[data-theme="dark"] .ivc-sub,html[data-theme="dark"] .ivc-date,html[data-theme="dark"] .ivc-more,html[data-theme="dark"] .ivc-math{color:rgba(255,255,255,.5)}
-html[data-theme="dark"] .ivc-items{background:rgba(255,255,255,.05)}
-html[data-theme="dark"] .ivc-item+.ivc-item,html[data-theme="dark"] .ivc-more{border-color:rgba(255,255,255,.1)}
-html[data-theme="dark"] .ivc-item-q{background:rgba(255,255,255,.1);color:rgba(255,255,255,.7)}
-html[data-theme="dark"] .ivc-id:not(.px){background:rgba(10,155,220,.18);border-color:rgba(10,155,220,.5)}
-html[data-theme="dark"] .ivc-id.px{background:rgba(225,90,38,.14)}
-html[data-theme="dark"] .ivc-math .g,html[data-theme="dark"] .ivc-math .g b{color:#3bbf7f}
-html[data-theme="dark"] html[data-theme="dark"] 
-.invoice-card {
-  background: #f8f9fb;
-  border: 1px solid #ececec;
-  border-radius: 14px;
-  padding: 12px 14px 0;
-  margin-bottom: 8px;
-  cursor: pointer;
-  transition: background 0.2s ease, border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
-  position: relative;
-  overflow: hidden;
-  height: auto;
-}
-html[data-theme="dark"] .invoice-card {
-  background: rgba(255,255,255,0.04);
-  border-color: rgba(255,255,255,0.07);
-}
-.invoice-card:hover {
-  border-color: rgba(124,111,247,0.3);
-  box-shadow: 0 4px 16px rgba(124,111,247,0.1);
-  transform: translateY(-1px);
-}
-html[data-theme="dark"] .invoice-card:hover {
-  border-color: rgba(124,111,247,0.4);
-  box-shadow: 0 4px 16px rgba(124,111,247,0.2);
-}
-.invoice-card:active { transform: translateY(0); }
 
-.invoice-card-header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  margin-bottom: 10px;
-}
 
-.invoice-header-left {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  flex: 1;
-  min-width: 0;
-}
-
-.invoice-brand-icon {
-  width: 32px;
-  height: 32px;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-.invoice-brand-icon svg {
-  width: 18px;
-  height: 18px;
-}
-
-.invoice-brand-meta {
-  flex: 1;
-  min-width: 0;
-}
-.invoice-brand-name {
-  font-family: "Plus Jakarta Sans", sans-serif;
-  font-size: 13px;
-  font-weight: 700;
-  color: #001f3c;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  transition: color 0.35s ease;
-}
-html[data-theme="dark"] .invoice-brand-name { color: #ffffff; }
-.invoice-customer {
-  font-size: 11px;
-  font-weight: 500;
-  color: #8c92a1;
-  transition: color 0.35s ease;
-}
-html[data-theme="dark"] .invoice-customer { color: rgba(255,255,255,0.45); }
-
-.invoice-header-right {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 2px;
-  flex-shrink: 0;
-  margin-left: 10px;
-}
-.invoice-order-id {
-  font-family: "Plus Jakarta Sans", sans-serif;
-  font-size: 11px;
-  font-weight: 700;
-  color: #7C6FF7;
-  transition: color 0.35s ease;
-}
-html[data-theme="dark"] .invoice-order-id { color: #a095f5; }
-.invoice-header-date {
-  font-size: 10px;
-  font-weight: 500;
-  color: #8c92a1;
-  transition: color 0.35s ease;
-}
-html[data-theme="dark"] .invoice-header-date { color: rgba(255,255,255,0.4); }
-
-.invoice-items {
-  margin-bottom: 10px;
-}
-
-.invoice-item {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 5px 0;
-  border-bottom: 1px solid #f0f1f4;
-  transition: border-color 0.35s ease;
-}
-html[data-theme="dark"] .invoice-item {
-  border-bottom-color: rgba(255,255,255,0.06);
-}
-.invoice-item:last-child {
-  border-bottom: none;
-}
-
-.invoice-item-left {
-  flex: 1;
-  min-width: 0;
-}
 .invoice-item-name {
   font-size: 12px;
   font-weight: 600;
@@ -2211,36 +2038,6 @@ html[data-theme="dark"] .invoice-item {
   transition: color 0.35s ease;
 }
 html[data-theme="dark"] .invoice-item-name { color: #ffffff; }
-.invoice-item-meta {
-  font-size: 10px;
-  color: #8c92a1;
-  font-weight: 500;
-  margin-top: 1px;
-  transition: color 0.35s ease;
-}
-html[data-theme="dark"] .invoice-item-meta { color: rgba(255,255,255,0.4); }
-
-.invoice-item-right {
-  text-align: right;
-  flex-shrink: 0;
-  margin-left: 8px;
-}
-.invoice-each {
-  font-family: "Roboto Mono", monospace;
-  font-size: 10px;
-  font-weight: 600;
-  color: #8c92a1;
-  transition: color 0.35s ease;
-}
-html[data-theme="dark"] .invoice-each { color: rgba(255,255,255,0.4); }
-.invoice-item-total {
-  font-family: "Plus Jakarta Sans", sans-serif;
-  font-size: 12px;
-  font-weight: 700;
-  color: #001f3c;
-  transition: color 0.35s ease;
-}
-html[data-theme="dark"] .invoice-item-total { color: #ffffff; }
 
 .invoice-divider-line {
   height: 0;
@@ -2251,39 +2048,6 @@ html[data-theme="dark"] .invoice-item-total { color: #ffffff; }
 html[data-theme="dark"] .invoice-divider-line {
   border-top-color: rgba(255,255,255,0.1);
 }
-
-.invoice-footer {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.invoice-discount {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  font-family: "Plus Jakarta Sans", sans-serif;
-  font-size: 12px;
-  font-weight: 700;
-  color: #d95353;
-  transition: color 0.35s ease;
-}
-html[data-theme="dark"] .invoice-discount { color: #ff6b6b; }
-.invoice-discount svg {
-  width: 14px;
-  height: 14px;
-  color: inherit;
-  flex-shrink: 0;
-}
-
-.invoice-grand {
-  font-family: "Plus Jakarta Sans", sans-serif;
-  font-size: 16px;
-  font-weight: 800;
-  color: #001f3c;
-  transition: color 0.35s ease;
-}
-html[data-theme="dark"] .invoice-grand { color: #ffffff; }
 
 /* Create Invoice button in draft actions */
 .btn-invoice {
@@ -6402,11 +6166,6 @@ html[data-theme="dark"] .tx-exp-divider { background:rgba(255,255,255,0.08); }
 html[data-theme="dark"] .tx-exp-item { border-bottom-color:rgba(255,255,255,0.05); }
 .tx-exp-item:last-child { border-bottom:none; }
 .tx-card-expand.expanded .tx-exp-item,
-.invoice-items .tx-exp-item { opacity:1; transform:translateY(0); }
-html[data-theme="dark"] .invoice-items .tx-exp-item-amt { color:#ffffff !important; }
-.invoice-card .draft-math-row { padding:3px 0; display:flex; justify-content:space-between; align-items:center; width:100%; }
-.invoice-card .draft-math-total { padding:8px 0 12px; display:flex; justify-content:space-between; align-items:center; width:100%; }
-.invoice-card .invoice-divider-line { margin:6px 0 2px; }
 .tx-card-expand.expanded .tx-exp-item:nth-child(1) { transition-delay:0.09s; }
 .tx-card-expand.expanded .tx-exp-item:nth-child(2) { transition-delay:0.15s; }
 .tx-card-expand.expanded .tx-exp-item:nth-child(3) { transition-delay:0.21s; }
@@ -18541,7 +18300,7 @@ window.addEventListener('storage', function (e) {
 });
 
 /* SECTIONS */
-const sectionState = { draft: true, calc: false, settings: false, margin: false, invoice: false, voucher: false, website: false };
+const sectionState = { draft: true, calc: false, settings: false, margin: false, voucher: false, website: false };
 
 function openCreateVoucher() { openIssueVoucherModal(); }
 
@@ -18724,15 +18483,13 @@ function svSetBadge(el, n, pop) {
 }
 function svMenuCounts() {
   const q = sel => document.querySelectorAll(sel).length;
-  let returns = 0, margin = 0, inv = 0;
+  let returns = 0, margin = 0;
   try { returns = draftReturns.length; } catch (e) {}
   try { margin = savedCalculations.length; } catch (e) {}
-  try { inv = invoices.length; } catch (e) {}
   return {
     draft: q('#draftCardsContainer .draft-card:not(.return-card):not(.paid-out):not(.delete-out)') + returns,
     imports: q('#importOrderCardsContainer .px-import-card'),
-    margin: margin,
-    invoices: inv
+    margin: margin
   };
 }
 function svSyncMenuBadges(pop) {
@@ -18740,7 +18497,6 @@ function svSyncMenuBadges(pop) {
   svSetBadge(document.getElementById('draftBadge'), c.draft, pop);
   svSetBadge(document.getElementById('importOrderBadge'), c.imports, pop);
   svSetBadge(document.getElementById('marginBadge'), c.margin, pop);
-  svSetBadge(document.getElementById('invoiceBadge'), c.invoices, pop);
   const hb = document.getElementById('hamburgerBadge');
   if (hb) {
     const total = c.draft + c.imports;
@@ -20448,75 +20204,11 @@ function createInvoiceFromDraft(index, event) {
   if (_dupInv !== -1) invoices.splice(_dupInv, 1);
   invoices.unshift(invoice);
   saveInvoicesToStorage();
-  renderInvoices();
-
-  if (!sectionState.invoice) toggleSection("invoice");
-
-  const toast = document.getElementById("exportToast");
-  toast.textContent = "Invoice created from " + draftId;
-  toast.classList.add("visible");
-  setTimeout(() => { toast.classList.remove("visible"); toast.textContent = "Data exported!"; }, 2000);
+  openInvoiceDetailModal(invoice.id);
 }
 
 function getBrandSvg(color) {
   return '<svg viewBox="0 0 24 24" fill="none" stroke="' + color + '" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l9 5v10l-9 5-9-5V7z"/><path d="M12 22V12"/><path d="M12 12L3 7"/><path d="M12 12l9-5"/></svg>';
-}
-
-function renderInvoices() {
-  const container = document.getElementById("invoiceCardsContainer");
-  const empty = document.getElementById("invoiceEmpty");
-  const badge = document.getElementById("invoiceBadge");
-  if (!container || !empty || !badge) return;
-
-  svSyncMenuBadges(true);
-
-  if (invoices.length === 0) {
-    container.innerHTML = "";
-    empty.classList.add("visible");
-    return;
-  }
-  empty.classList.remove("visible");
-
-  const _m = n => '৳' + Number(n || 0).toLocaleString('en-IN');
-  container.innerHTML = invoices.map(inv => {
-    const items = inv.items || [];
-    const units = items.reduce((s, i) => s + (Number(i.qty) || 0), 0);
-    const sub = items.reduce((s, i) => s + (Number(i.total) || 0), 0);
-    const isRet = inv.refType === 'return';
-    const isPx = /^PX/i.test(String(inv.linkedDraftId || ''));
-    const free = !inv.shipping;
-    const rows = items.slice(0, 2).map(it => `
-      <div class="ivc-item">
-        <div class="ivc-item-l"><div class="ivc-item-name">${escapeHtml(it.name)}</div>${it.sku ? `<span class="ivc-item-sku">${escapeHtml(it.sku)}</span>` : ''}</div>
-        <span class="ivc-item-q">×${Number(it.qty) || 0}</span>
-        <span class="ivc-item-t">${_m(it.total)}</span>
-      </div>`).join('');
-    const more = items.length > 2 ? `<div class="ivc-more">+${items.length - 2} more item${items.length - 2 > 1 ? 's' : ''}</div>` : '';
-    const idc = escapeHtml(String(inv.id));
-    return `
-      <div class="ivc${isRet ? ' is-return' : ''}" onclick="openInvoiceDetailModal('${idc}')" role="button" tabindex="0" onkeydown="if(event.key==='Enter')openInvoiceDetailModal('${idc}')">
-        <div class="ivc-top">
-          <div class="ivc-ico" style="--c:${inv.brandColor || '#7c6ff7'}">${getBrandSvg(inv.brandColor || '#7c6ff7')}</div>
-          <div class="ivc-who">
-            <div class="ivc-name">${escapeHtml(inv.customerName || 'Customer')}</div>
-            <div class="ivc-sub">${escapeHtml(inv.brandName || '')} BD · ${units} unit${units === 1 ? '' : 's'}${isRet ? ' · <b class="ivc-ret">Return</b>' : ''}</div>
-          </div>
-          <div class="ivc-meta">
-            <span class="ivc-id${isPx ? ' px' : ''}">${escapeHtml(inv.linkedDraftId || '')}</span>
-            <span class="ivc-date">${escapeHtml(inv.date || '')}</span>
-          </div>
-        </div>
-        <div class="ivc-items">${rows}${more}</div>
-        <div class="ivc-foot">
-          <div class="ivc-math">
-            <span>Subtotal <b>${_m(sub)}</b></span>
-            <span class="${free ? 'g' : ''}">Delivery <b>${free ? 'Free' : _m(inv.shipping)}</b></span>
-            ${inv.discount > 0 ? `<span class="g">Discount <b>−${_m(inv.discount)}</b></span>` : ''}
-          </div>
-          <div class="ivc-total"><small>${isRet ? 'Refund' : 'Grand Total'}</small><b>${_m(inv.totalAmount)}</b></div>
-        </div>
-      </div>`;
-  }).join('');
 }
 
 function openInvoiceDetailModal(invoiceId) {
@@ -20625,7 +20317,6 @@ function deleteInvoice() {
   if (!currentViewingInvoiceId) return;
   invoices = invoices.filter(i => i.id !== currentViewingInvoiceId);
   saveInvoicesToStorage();
-  renderInvoices();
   closeInvoiceModal();
 
   const toast = document.getElementById("exportToast");
@@ -20689,7 +20380,6 @@ try { updateDraftDisplay(1); } catch(e) {}
 loadCalculationsFromStorage();
 renderSavedCalculations();
 loadInvoicesFromStorage();
-renderInvoices();
 // Load saved custom products
 try {
   const savedProds = localStorage.getItem('svbd-products');
@@ -25776,11 +25466,7 @@ function createInvoiceFromReturn(idx, event) {
   if (dup !== -1) invoices.splice(dup, 1);
   invoices.unshift(invoice);
   saveInvoicesToStorage();
-  renderInvoices();
-
-  if (!sectionState.invoice) toggleSection('invoice');
-
-  showToast('Return receipt created · ' + ret.id);
+  openInvoiceDetailModal(invoice.id);
 }
 
 function generateCustomerReturnReceiptHTML(ret, size) {
