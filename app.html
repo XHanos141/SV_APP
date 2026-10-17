@@ -2032,6 +2032,67 @@ html[data-theme="dark"] .section-header:where([class*="-icon"]) { background: tr
 .invoice-badge { background: rgba(47,155,104,0.12); color: #2f9b68; }
 html[data-theme="dark"] .invoice-badge { background: rgba(47,155,104,0.15); color: #3bbf7f; }
 
+/* ====== PRODUCT INVOICE CARD (hamburger menu) ====== */
+.ivc{background:#fff;border:1px solid #e8eaf0;border-radius:16px;padding:12px;margin-bottom:10px;cursor:pointer;position:relative;box-shadow:0 1px 2px rgba(0,31,60,.04);transition:border-color .2s,box-shadow .2s,transform .15s}
+.ivc::before{content:'';position:absolute;left:0;top:14px;bottom:14px;width:3px;border-radius:0 3px 3px 0;background:#7c6ff7}
+.ivc.is-return::before{background:#E15A26}
+.ivc:active{transform:scale(.99)}
+.ivc:focus-visible{outline:2px solid #7c6ff7;outline-offset:2px}
+.ivc-top{display:flex;align-items:center;gap:10px}
+.ivc-ico{width:36px;height:36px;border-radius:10px;flex:none;display:flex;align-items:center;justify-content:center;background:color-mix(in srgb,var(--c) 14%,transparent)}
+.ivc-ico svg{width:18px;height:18px}
+.ivc-who{flex:1;min-width:0}
+.ivc-name{font:800 14px/1.2 "Plus Jakarta Sans",sans-serif;color:#001f3c;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ivc-sub{font:500 11px/1.3 "DM Sans",sans-serif;color:#8c92a1;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ivc-ret{color:#E15A26;font-weight:800}
+.ivc-meta{display:flex;flex-direction:column;align-items:flex-end;gap:3px;flex:none}
+.ivc-id{font:800 10.5px/1 "Plus Jakarta Sans",sans-serif;color:#0A9BDC;background:rgba(10,155,220,.1);border:1px solid rgba(10,155,220,.4);border-radius:99px;padding:3px 8px}
+.ivc-id.px{color:#E15A26;background:rgba(225,90,38,.08);border:1px dashed rgba(225,90,38,.55)}
+.ivc-date{font:600 10.5px/1 "DM Sans",sans-serif;color:#8c92a1}
+.ivc-items{margin:10px 0 0;padding:4px 10px;background:#f6f7fa;border-radius:12px}
+.ivc-item{display:flex;align-items:center;gap:8px;padding:7px 0}
+.ivc-item+.ivc-item{border-top:1px dashed #dfe2ea}
+.ivc-item-l{flex:1;min-width:0}
+.ivc-item-name{font:700 12.5px/1.25 "DM Sans",sans-serif;color:#001f3c;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ivc-item-sku{font:700 9.5px/1 "Courier Prime",monospace;letter-spacing:.6px;color:#0A9BDC}
+.ivc-item-q{font:800 11px/1 "Plus Jakarta Sans",sans-serif;color:#5b6272;background:#e9ebf2;border-radius:6px;padding:3px 6px;flex:none}
+.ivc-item-t{font:800 12.5px/1 "Plus Jakarta Sans",sans-serif;color:#001f3c;min-width:44px;text-align:right;flex:none}
+.ivc-more{font:600 11px/1 "DM Sans",sans-serif;color:#8c92a1;padding:2px 0 8px;border-top:1px dashed #dfe2ea;padding-top:8px}
+.ivc-foot{display:flex;align-items:flex-end;justify-content:space-between;gap:10px;margin-top:10px}
+.ivc-math{display:flex;flex-direction:column;gap:3px;font:500 11.5px/1.2 "DM Sans",sans-serif;color:#6b7280}
+.ivc-math b{font-weight:700;color:#001f3c}
+.ivc-math .g,.ivc-math .g b{color:#2f9b68}
+.ivc-total{text-align:right}
+.ivc-total small{display:block;font:800 10px/1 "Plus Jakarta Sans",sans-serif;letter-spacing:.6px;text-transform:uppercase;color:#001f3c}
+.ivc-total b{display:block;font:900 20px/1.1 "Plus Jakarta Sans",sans-serif;color:#001f3c;margin-top:3px}
+.ivc-act{display:flex;gap:8px;margin-top:10px}
+.ivc-btn{flex:1;display:flex;align-items:center;justify-content:center;gap:6px;height:34px;border-radius:10px;border:1px solid transparent;font:800 11.5px "Plus Jakarta Sans",sans-serif;cursor:pointer;transition:transform .15s,background .2s}
+.ivc-btn:active{transform:scale(.97)}
+.ivc-btn.cust{background:rgba(124,111,247,.1);color:#6a5de6;border-color:rgba(124,111,247,.25)}
+.ivc-btn.own{background:#001f3c;color:#fff}
+html[data-theme="dark"] .ivc{background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.08);box-shadow:none}
+html[data-theme="dark"] .ivc-name,html[data-theme="dark"] .ivc-item-name,html[data-theme="dark"] .ivc-item-t,html[data-theme="dark"] .ivc-math b,html[data-theme="dark"] .ivc-total small,html[data-theme="dark"] .ivc-total b{color:#fff}
+html[data-theme="dark"] .ivc-sub,html[data-theme="dark"] .ivc-date,html[data-theme="dark"] .ivc-more,html[data-theme="dark"] .ivc-math{color:rgba(255,255,255,.5)}
+html[data-theme="dark"] .ivc-items{background:rgba(255,255,255,.05)}
+html[data-theme="dark"] .ivc-item+.ivc-item,html[data-theme="dark"] .ivc-more{border-color:rgba(255,255,255,.1)}
+html[data-theme="dark"] .ivc-item-q{background:rgba(255,255,255,.1);color:rgba(255,255,255,.7)}
+html[data-theme="dark"] .ivc-id:not(.px){background:rgba(10,155,220,.18);border-color:rgba(10,155,220,.5)}
+html[data-theme="dark"] .ivc-id.px{background:rgba(225,90,38,.14)}
+html[data-theme="dark"] .ivc-math .g,html[data-theme="dark"] .ivc-math .g b{color:#3bbf7f}
+html[data-theme="dark"] .ivc-btn.cust{color:#b4abff;background:rgba(124,111,247,.16)}
+html[data-theme="dark"] .ivc-btn.own{background:rgba(255,255,255,.12)}
+/* optional menu: Settings toggle hides the whole Product Invoices section */
+html.ivm-off #invoiceSection{display:none}
+.ivm-sw{position:relative;width:44px;height:26px;flex:none;margin-left:10px}
+.ivm-sw input{position:absolute;inset:0;width:100%;height:100%;opacity:0;margin:0;cursor:pointer;z-index:1}
+.ivm-sw span{position:absolute;inset:0;border-radius:99px;background:#d5d9e2;transition:background .2s}
+.ivm-sw span::after{content:'';position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.3);transition:transform .2s}
+.ivm-sw input:checked+span{background:#7c6ff7}
+.ivm-sw input:checked+span::after{transform:translateX(18px)}
+.ivm-sw input:focus-visible+span{outline:2px solid #7c6ff7;outline-offset:2px}
+html[data-theme="dark"] .ivm-sw span{background:rgba(255,255,255,.18)}
+html[data-theme="dark"] .ivm-sw input:checked+span{background:#7c6ff7}
+
 .invoice-card {
   background: #f8f9fb;
   border: 1px solid #ececec;
@@ -14360,6 +14421,16 @@ function showToast(message, type = 'success') {
         <div class="section-inner">
           <div class="settings-panel">
 
+            <!-- PRODUCT INVOICES MENU TOGGLE -->
+            <div class="st-row">
+              <div class="st-row-header" style="cursor:default">
+                <div class="st-row-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-file-document"/></svg></div>
+                <span class="st-row-label">Product Invoices Menu</span>
+                <span class="st-row-value" id="ivmValue">Shown</span>
+                <label class="ivm-sw"><input type="checkbox" id="ivmSwitch" checked onchange="svSetInvoiceMenu(this.checked,true)" aria-label="Show Product Invoices in the menu"><span></span></label>
+              </div>
+            </div>
+
             <!-- EXCHANGE RATE ROW -->
             <div class="st-row">
               <div class="st-row-header" id="stRateRowHeader" onclick="toggleSettingRow('stRate')">
@@ -19652,7 +19723,7 @@ function downloadSavedCalc() {
    ====== INVOICE MANAGEMENT ======
    ============================================================ */
 let invoices = [];
-let currentViewingInvoiceId = null;
+var currentViewingInvoiceId = null; /* var: script body is wrapped in try{}, a let would be invisible to inline onclick handlers */
 let currentViewingType = null;
 
 function saveInvoicesToStorage() {
@@ -20457,47 +20528,50 @@ function renderInvoices() {
   }
   empty.classList.remove("visible");
 
+  const _m = n => '৳' + Number(n || 0).toLocaleString('en-IN');
   container.innerHTML = invoices.map(inv => {
+    const items = inv.items || [];
+    const units = items.reduce((s, i) => s + (Number(i.qty) || 0), 0);
+    const sub = items.reduce((s, i) => s + (Number(i.total) || 0), 0);
+    const isRet = inv.refType === 'return';
+    const isPx = /^PX/i.test(String(inv.linkedDraftId || ''));
+    const free = !inv.shipping;
+    const rows = items.slice(0, 2).map(it => `
+      <div class="ivc-item">
+        <div class="ivc-item-l"><div class="ivc-item-name">${escapeHtml(it.name)}</div>${it.sku ? `<span class="ivc-item-sku">${escapeHtml(it.sku)}</span>` : ''}</div>
+        <span class="ivc-item-q">×${Number(it.qty) || 0}</span>
+        <span class="ivc-item-t">${_m(it.total)}</span>
+      </div>`).join('');
+    const more = items.length > 2 ? `<div class="ivc-more">+${items.length - 2} more item${items.length - 2 > 1 ? 's' : ''}</div>` : '';
+    const dl = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-download"/></svg>';
+    const idc = escapeHtml(String(inv.id));
     return `
-      <div class="invoice-card" onclick="openInvoiceDetailModal('${inv.id}')">
-        <div class="invoice-card-header">
-          <div class="invoice-header-left">
-            <div class="invoice-brand-icon" style="background:${inv.brandColor}15">
-              ${getBrandSvg(inv.brandColor)}
-            </div>
-            <div class="invoice-brand-meta">
-              <div class="invoice-brand-name">${escapeHtml(inv.brandName)} <span style="font-weight:500;color:#8c92a1">BD</span></div>
-              <div class="invoice-customer">${escapeHtml(inv.customerName)}</div>
-            </div>
+      <div class="ivc${isRet ? ' is-return' : ''}" onclick="openInvoiceDetailModal('${idc}')" role="button" tabindex="0" onkeydown="if(event.key==='Enter')openInvoiceDetailModal('${idc}')">
+        <div class="ivc-top">
+          <div class="ivc-ico" style="--c:${inv.brandColor || '#7c6ff7'}">${getBrandSvg(inv.brandColor || '#7c6ff7')}</div>
+          <div class="ivc-who">
+            <div class="ivc-name">${escapeHtml(inv.customerName || 'Customer')}</div>
+            <div class="ivc-sub">${escapeHtml(inv.brandName || '')} BD · ${units} unit${units === 1 ? '' : 's'}${isRet ? ' · <b class="ivc-ret">Return</b>' : ''}</div>
           </div>
-          <div class="invoice-header-right">
-            <span class="invoice-order-id">${escapeHtml(inv.linkedDraftId)}</span>
-            <span class="invoice-header-date">${escapeHtml(inv.date)}</span>
+          <div class="ivc-meta">
+            <span class="ivc-id${isPx ? ' px' : ''}">${escapeHtml(inv.linkedDraftId || '')}</span>
+            <span class="ivc-date">${escapeHtml(inv.date || '')}</span>
           </div>
         </div>
-        <div class="invoice-items">
-          ${inv.items.slice(0, 3).map(item => `
-            <div class="tx-exp-item" style="align-items:center;padding:6px 0">
-              <div class="tx-exp-item-left" style="flex:1;min-width:0">
-                <div class="tx-exp-item-name" style="font-weight:600">${escapeHtml(item.name)}</div>
-                <span class="tx-exp-item-sku">${escapeHtml(item.sku||'')}</span>
-              </div>
-              <span style="font-size:13px;font-weight:700;color:#001f3c;flex-shrink:0">${item.qty}×৳${item.total.toLocaleString('en-IN')}</span>
-            </div>
-          `).join('')}
-          ${inv.items.length > 3 ? `<div class="tx-exp-item"><div class="tx-exp-item-left"><div class="tx-exp-item-name" style="color:#8c92a1">+${inv.items.length - 3} more items</div></div></div>` : ''}
+        <div class="ivc-items">${rows}${more}</div>
+        <div class="ivc-foot">
+          <div class="ivc-math">
+            <span>Subtotal <b>${_m(sub)}</b></span>
+            <span class="${free ? 'g' : ''}">Delivery <b>${free ? 'Free' : _m(inv.shipping)}</b></span>
+            ${inv.discount > 0 ? `<span class="g">Discount <b>−${_m(inv.discount)}</b></span>` : ''}
+          </div>
+          <div class="ivc-total"><small>${isRet ? 'Refund' : 'Grand Total'}</small><b>${_m(inv.totalAmount)}</b></div>
         </div>
-        <div class="invoice-divider-line"></div>
-        <div style="padding:6px 0 0">
-          ${(()=>{ const sub=inv.items.reduce((s,i)=>s+i.total,0); const freeShip=inv.shipping===0; return `
-            <div class="draft-math-row"><span class="draft-math-label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-card-payment"/></svg>Subtotal</span><span class="draft-math-val">৳${sub.toLocaleString('en-IN')}</span></div>
-            ${inv.discount>0?`<div class="draft-math-row discount-row"><span class="draft-math-label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-archive-box"/></svg>Discount${inv.voucher ? `<span class="draft-voucher-tag">${escapeHtml(inv.voucher)}</span>` : ''}</span><span class="draft-math-val">-৳${inv.discount.toLocaleString('en-IN')}</span></div>`:''}
-            <div class="draft-math-row shipping-row${freeShip?' free-shipping':''}"><span class="draft-math-label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13" rx="1"/><path d="M16 8h4l3 3v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>Delivery</span><span class="draft-math-val">${freeShip?'FREE':'৳'+inv.shipping.toLocaleString('en-IN')}</span></div>
-            <div class="draft-math-total"><span class="draft-math-total-label">Grand Total</span><span class="draft-math-total-amt">৳${inv.totalAmount.toLocaleString('en-IN')}</span></div>
-          `; })()}
+        <div class="ivc-act">
+          <button type="button" class="ivc-btn cust" onclick="event.stopPropagation();openPdfSizePicker('customer','${idc}')">${dl}Customer PDF</button>
+          <button type="button" class="ivc-btn own" onclick="event.stopPropagation();openPdfSizePicker('owner','${idc}')">${dl}Owner PDF</button>
         </div>
-      </div>
-    `;
+      </div>`;
   }).join('');
 }
 
@@ -20671,6 +20745,14 @@ try { updateDraftDisplay(1); } catch(e) {}
 loadCalculationsFromStorage();
 renderSavedCalculations();
 loadInvoicesFromStorage();
+window.svSetInvoiceMenu = function (on, persist) {
+  document.documentElement.classList.toggle('ivm-off', !on);
+  const sw = document.getElementById('ivmSwitch'); if (sw) sw.checked = on;
+  const v = document.getElementById('ivmValue'); if (v) v.textContent = on ? 'Shown' : 'Hidden';
+  if (persist) { try { localStorage.setItem('svbd-menu-invoices', on ? '1' : '0'); } catch (e) {} }
+};
+(function () { let on = true; try { on = localStorage.getItem('svbd-menu-invoices') !== '0'; } catch (e) {} window.svSetInvoiceMenu(on, false); })();
+
 renderInvoices();
 // Load saved custom products
 try {
