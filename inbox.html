@@ -2289,16 +2289,14 @@ html:not([data-theme="light"]) .odm-card { background: rgba(124,111,247,0.08); b
   .pin-card__sub{ font-size:11.5px; color:var(--text-3); display:flex; gap:8px; align-items:center; white-space:nowrap; overflow:hidden; }
   .pin-card{ height:65px; box-sizing:border-box; padding:0 8px 0 10px; }   /* same height as the order card */
   .pin-card .hub-thumb{ width:48px; height:48px; border-radius:10px; flex:0 0 auto; }
-  .pin-card__main{ display:flex; flex-direction:column; justify-content:center; gap:2px; }
-  .pin-card__r1{ display:flex; align-items:center; gap:6px; height:18px; overflow:hidden; }
-  .pin-card__r1:empty{ display:none; }
-  .pin-card__cat{ flex:0 0 auto; width:18px; height:18px; border-radius:6px; display:flex; align-items:center; justify-content:center; }
-  .pin-card__cat svg{ width:11px; height:11px; fill:#fff; stroke:#fff; }
-  .pin-card__name{ font-size:13px; line-height:16px; }
+  .pin-card__main{ display:flex; flex-direction:column; justify-content:center; gap:0; min-width:0; }
+  .pin-card__main .odm-pc-cat{ margin-bottom:0; min-height:17px; }
+  .pin-card__main .odm-pc-cat:empty{ display:none; }
+  .pin-card__name{ font-size:13px; line-height:1.2; }
+  .pin-card__spec{ font-size:11px; font-weight:600; opacity:.6; white-space:nowrap; }
+  .pin-card__main .odm-pi-sku{ margin-top:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; min-width:0; }
   .pin-card__x{ width:32px; height:32px; }
-  .pin-card__subcat{ font-size:10px; line-height:14px; font-weight:800; letter-spacing:.02em; padding:0 8px; border-radius:100px; border:1px solid transparent; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; min-width:0; }
   .pin-card__r3{ display:flex; align-items:center; justify-content:space-between; gap:8px; min-width:0; }
-  .pin-card__sku{ font-family:'Roboto Mono',ui-monospace,monospace; font-size:11px; font-weight:600; color:var(--text-3); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; min-width:0; }
   .pin-card__end{ display:flex; align-items:center; gap:6px; flex:0 0 auto; font-size:11px; line-height:15px; }
   .pin-card__end .stock-tag{ font-size:11px; font-weight:800; }
   .pin-card__price{ font-size:11.5px; font-weight:800; color:var(--text-1); }
@@ -5094,11 +5092,16 @@ function closeOrderDetailsModal() {
     if(p.stock_qty <= SV_LOW_STOCK) return `<span class="stock-tag low">Low · ${p.stock_qty} left</span>`;
     return `<span class="stock-tag in">In stock</span>`;
   }
-  function pinCatsHtml(pin){
+  function pinCatsHtml(pin){                       // same category badge + subcategory text as the order-details product card
     if(!pin.category && !pin.subcategory) return "";
     const key = PK_CATS[pin.category] ? pin.category : "general", m = pkMeta(pin.category);
-    return `<span class="pin-card__cat" style="background:linear-gradient(135deg,${m.c1},${m.c2})" title="${escapeHtml(m.label)}"><svg viewBox="0 0 24 24"><use href="#cat-icon-${key}"/></svg></span>`
-      + (pin.subcategory ? `<span class="pin-card__subcat" style="color:${m.c1};background:${m.c1}1f;border-color:${m.c1}59">${escapeHtml(pin.subcategory)}</span>` : "");
+    return `<span class="odm-item-cat-badge" style="background:linear-gradient(135deg,${m.c1},${m.c2})" title="${escapeHtml(m.label)}"><svg viewBox="0 0 24 24"><use href="#cat-icon-${key}"/></svg></span>${pin.subcategory ? `<span>${escapeHtml(pin.subcategory)}</span>` : ""}`;
+  }
+  function pkSpecOf(sd){
+    sd = sd || {};
+    const pa = (sd.potency_amount !== null && sd.potency_amount !== undefined && String(sd.potency_amount).trim() !== "") ? `${Number(sd.potency_amount)} ${String(sd.potency_unit || "").toLowerCase()}`.trim() : "";
+    const cc = sd.capsule_count !== null && sd.capsule_count !== undefined ? `${sd.capsule_count} Capsules` : "";
+    return [pa, cc].filter(Boolean).join(" \u2022 ");
   }
   function pinOf(conv){
     if(!conv) return null;
@@ -5115,9 +5118,9 @@ function closeOrderDetailsModal() {
       <div class="pin-card">
         ${thumbHtml(pin.image)}
         <div class="pin-card__main">
-          <div class="pin-card__r1" data-pin-cats>${pinCatsHtml(pin)}</div>
-          <div class="pin-card__name">${escapeHtml(pin.name || "Product")}</div>
-          <div class="pin-card__r3"><span class="pin-card__sku">${escapeHtml(pin.sku || "—")}</span><span class="pin-card__end">${pin.price != null ? `<span class="pin-card__price">${escapeHtml(money(pin.price))}</span>` : ""}<span data-pin-stock>${stockTag(pin)}</span></span></div>
+          <div class="odm-pc-cat" data-pin-cats>${pinCatsHtml(pin)}</div>
+          <div class="odm-pc-name pin-card__name">${escapeHtml(pin.name || "Product")}<span class="pin-card__spec" data-pin-spec>${pin.spec ? " " + escapeHtml(pin.spec) : ""}</span></div>
+          <div class="pin-card__r3"><span class="odm-pi-sku">${escapeHtml(pin.sku || "")}</span><span class="pin-card__end">${pin.price != null ? `<span class="pin-card__price">${escapeHtml(money(pin.price))}</span>` : ""}<span data-pin-stock>${stockTag(pin)}</span></span></div>
         </div>
         <button type="button" class="pin-card__x" id="unpinBtn" aria-label="Unpin product">${UNPIN_SVG}</button>
       </div>`;
@@ -5127,9 +5130,13 @@ function closeOrderDetailsModal() {
   async function refreshPinnedStock(conv, pin){      // price + stock come live from the catalog, not from the pin-time snapshot
     const c = hubClient(); if(!c || !pin.id) return;
     try{
-      const { data } = await c.from("products").select("price,stock_qty,is_active,archived,category,subcategory").eq("id", pin.id).maybeSingle();
+      const { data } = await c.from("products").select("price,stock_qty,is_active,archived,category,subcategory,supplement_details(potency_amount,potency_unit,capsule_count)").eq("id", pin.id).maybeSingle();
       if(!data || state.activeConversationId !== conv.id || !pinOf(conv) || pinOf(conv).id !== pin.id) return;
+      const sdet = one(data.supplement_details); delete data.supplement_details;
       Object.assign(pin, data);
+      if(sdet) pin.spec = pkSpecOf(sdet);
+      const sp = pinnedEl.querySelector("[data-pin-spec]");
+      if(sp) sp.textContent = pin.spec ? " " + pin.spec : "";
       const el = pinnedEl.querySelector("[data-pin-stock]");
       if(el) el.innerHTML = stockTag(pin);
       const ce = pinnedEl.querySelector("[data-pin-cats]");
@@ -5577,7 +5584,7 @@ function closeOrderDetailsModal() {
     }else if(e.target.closest("[data-pk-pin]")){
       const pinned = pinOf(conv);
       if(pinned && pinned.id === i.id){ closeProductPicker(); unpinActive(); return; }
-      const snap = { id:i.id, name:i.title, sku:i.sku, brand:i.brand, category:i.category, subcategory:i.subcategory, price:i.price, stock_qty:i.qty, is_active:i.is_active, archived:i.archived, image:i.image || null };
+      const snap = { id:i.id, name:i.title, sku:i.sku, brand:i.brand, category:i.category, subcategory:i.subcategory, spec:i.spec, price:i.price, stock_qty:i.qty, is_active:i.is_active, archived:i.archived, image:i.image || null };
       closeProductPicker();
       await savePin(conv, snap);
       renderPinned(conv, true);
