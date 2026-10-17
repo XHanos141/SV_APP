@@ -5955,8 +5955,8 @@ function closeOrderDetailsModal() {
       const { data } = await c.from("products").select("id,price,old_price,category,subcategory,product_web(web_images),supplement_details(potency_amount,potency_unit,capsule_count)").in("id", ids);
       if(my !== hub.token || !data) return;
       const by = {};
-      data.forEach(p => { const sd = one(p.supplement_details); by[p.id] = { images:(() => { const w = one(p.product_web); return w && Array.isArray(w.web_images) ? w.web_images.filter(Boolean) : []; })(), price:p.price, old_price:p.old_price, category:p.category, subcategory:p.subcategory, spec:sd ? pkSpecOf(sd) : "" }; });
-      hub.wl.rows.forEach(r => r.items.forEach(it => { const x = by[it.product_id]; if(x) Object.assign(it, x); }));
+      data.forEach(p => { const sd = one(p.supplement_details); by[p.id] = { images:(() => { const w = one(p.product_web); return w && Array.isArray(w.web_images) ? w.web_images.map(x => safeUrl(typeof x === "string" ? x : ((x && x.url) || ""))).filter(Boolean) : []; })(), price:p.price, old_price:p.old_price, category:p.category, subcategory:p.subcategory, spec:sd ? pkSpecOf(sd) : "" }; });
+      hub.wl.rows.forEach(r => r.items.forEach(it => { const x = by[it.product_id]; if(x){ Object.assign(it, x); if(!it.image && x.images.length) it.image = x.images[0]; } }));
       if(hub.tab === "wishlist") hubRender(true);
     }catch(_){}
   }
