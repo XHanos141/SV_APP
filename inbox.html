@@ -2223,7 +2223,6 @@ html:not([data-theme="light"]) .odm-card { background: rgba(124,111,247,0.08); b
   .composer-legacy{ display:none !important; }
   .composer-tools{ position:relative; }
   .composer-tools[aria-expanded="true"]{ transform:none; background:rgba(43,116,227,.14); color:var(--inbox-blue-t); }
-  .composer-tools.has-pin::after{ content:""; position:absolute; top:6px; right:6px; width:8px; height:8px; border-radius:50%; background:var(--inbox-blue); border:2px solid var(--body-bg); box-sizing:content-box; }
   .tool-tray{
     position:absolute; left:12px; bottom:calc(100% + 8px); z-index:26; padding:8px; display:flex; gap:4px;
     background:var(--surface); border:1px solid var(--hairline); border-radius:18px; box-shadow:0 10px 30px rgba(0,0,0,.2);
@@ -5288,9 +5287,6 @@ function closeOrderDetailsModal() {
       else if(k === "quick") qBtn.click();
       else document.getElementById({ photo:"fileInPhoto", camera:"fileInCamera", file:"fileInDoc" }[k]).click();
     });
-    new MutationObserver(() => toolBtn.classList.toggle("has-pin", pinBtn.classList.contains("is-active")))
-      .observe(pinBtn, { attributes:true, attributeFilter:["class"] });
-    toolBtn.classList.toggle("has-pin", pinBtn.classList.contains("is-active"));
   })();
 
   /* ---------- Choose Product: live catalog (products + supplement_details + product_web) ---------- */
