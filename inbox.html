@@ -2275,35 +2275,27 @@ html:not([data-theme="light"]) .odm-card { background: rgba(124,111,247,0.08); b
   .img-viewer__x{ position:absolute; top:calc(14px + env(safe-area-inset-top)); right:16px; width:40px; height:40px; border-radius:50%; background:rgba(255,255,255,.14); color:#fff; font-size:26px; line-height:1; }
 
   /* ---------- Pinned product card ---------- */
-  .pinned-product{ padding:8px 12px; background:var(--body-bg); border-bottom:1px solid var(--hairline); overflow:hidden;
-    transition:max-height .26s var(--ease-out), opacity .2s ease, padding .26s var(--ease-out); max-height:90px; }
+  .pinned-product{ display:flex; flex-direction:column; gap:8px; padding:12px 12px 8px; background:var(--body-bg); border-bottom:1px solid var(--hairline); overflow-x:hidden; overflow-y:auto;
+    transition:max-height .26s var(--ease-out), opacity .2s ease, padding .26s var(--ease-out); max-height:min(44vh, 340px); }
   .pinned-product[hidden]{ display:none; }
   .pinned-product.is-in{ animation:svRise .3s var(--ease-out) both; }
   .pinned-product.is-leaving{ max-height:0; opacity:0; padding-top:0; padding-bottom:0; }
-  .pin-card{ display:flex; align-items:center; gap:10px; padding:8px 8px 8px 10px; border-radius:14px; background:var(--surface);
-    border:1px solid rgba(43,116,227,.4); box-shadow:0 1px 0 rgba(255,255,255,.04) inset; }
-  .pin-card__pin{ flex:0 0 auto; width:18px; height:18px; color:var(--inbox-blue-t); }
-  .pin-card__main{ flex:1; min-width:0; }
-  .pin-card__label{ font-size:10px; font-weight:800; letter-spacing:.04em; text-transform:uppercase; color:var(--inbox-blue-t); }
-  .pin-card__name{ font-size:13.5px; font-weight:800; color:var(--text-1); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-  .pin-card__sub{ font-size:11.5px; color:var(--text-3); display:flex; gap:8px; align-items:center; white-space:nowrap; overflow:hidden; }
-  .pin-card{ height:65px; box-sizing:border-box; padding:0 8px 0 10px; }   /* same height as the order card */
+  /* pinned product card: same look + height as the order card */
+  .pin-card{ position:relative; flex:0 0 auto; display:flex; align-items:center; gap:10px; height:65px; box-sizing:border-box; padding:0 10px 0 10px; border-radius:12px;
+    background:var(--surface); border:1px solid rgba(10,155,220,0.30); box-shadow:0 1px 3px rgba(15,22,33,0.06);
+    -webkit-touch-callout:none; -webkit-user-select:none; user-select:none; -webkit-tap-highlight-color:transparent; transition:opacity .22s ease, transform .22s ease; }
+  html:not([data-theme="light"]) .pin-card{ background:#1A2235; border-color:rgba(45,190,245,0.32); box-shadow:none; }
+  .pin-card.is-out{ opacity:0; transform:translateX(28px); pointer-events:none; }
   .pin-card .hub-thumb{ width:48px; height:48px; border-radius:10px; flex:0 0 auto; }
-  .pin-card__main{ display:flex; flex-direction:column; justify-content:center; gap:0; min-width:0; }
+  .pin-card__main{ flex:1; min-width:0; display:flex; flex-direction:column; justify-content:center; gap:0; }
   .pin-card__main .odm-pc-cat{ margin-bottom:0; min-height:17px; }
   .pin-card__main .odm-pc-cat:empty{ display:none; }
   .pin-card__name{ font-size:13px; line-height:1.2; }
   .pin-card__spec{ font-size:11px; font-weight:600; opacity:.6; white-space:nowrap; }
   .pin-card__main .odm-pi-sku{ margin-top:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; min-width:0; }
-  .pin-card__x{ width:32px; height:32px; }
-  .pin-card__r3{ display:flex; align-items:center; justify-content:space-between; gap:8px; min-width:0; }
-  .pin-card__end{ display:flex; align-items:center; gap:6px; flex:0 0 auto; font-size:11px; line-height:15px; }
-  .pin-card__end .stock-tag{ font-size:11px; font-weight:800; }
-  .pin-card__price{ font-size:11.5px; font-weight:800; color:var(--text-1); }
-  .pin-card__x{ flex:0 0 auto; width:34px; height:34px; border-radius:50%; display:flex; align-items:center; justify-content:center; color:var(--text-2);
-    background:var(--surface-2); transition:background .2s ease, color .2s ease, transform .18s var(--ease-out); }
-  .pin-card__x:active{ transform:scale(.9); }
-  .pin-card__x svg{ width:16px; height:16px; }
+  .pin-card__side{ flex:0 0 auto; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:5px; min-width:44px; }
+  .pin-card__side .pk-qty{ min-width:34px; height:24px; font-size:12px; }
+  .pin-card__price{ font-size:12px; font-weight:800; color:var(--text-1); line-height:1; white-space:nowrap; }
   .stock-tag{ font-weight:800; }
   .stock-tag.in{ color:#2fd88a; } .stock-tag.low{ color:#e0a020; } .stock-tag.out{ color:#e46a6a; }
   /* product picker sheet */
@@ -3869,8 +3861,8 @@ function closeOrderDetailsModal() {
       ["assign", mine ? "Unassign" : "Assign to me"],
       ["done", done ? "Reopen conversation" : "Mark as done"],
       ["unread", "Mark as unread"],
-      ["pin", pinOf(conv) ? "Change pinned product" : "Pin a product"],
-      ...(pinOf(conv) ? [["unpin", "Unpin product"]] : []),
+      ["pin", "Pin a product"],
+      ...(pinsOf(conv).length ? [["unpin", pinsOf(conv).length > 1 ? "Unpin all products" : "Unpin product"]] : []),
       ["profile", "View customer profile"]
     ];
     threadMenu.innerHTML = items.map(([k, label]) => `<button type="button" role="menuitem" data-menu="${k}">${MENU_ICONS[k]}${label}</button>`).join("");
@@ -3902,7 +3894,7 @@ function closeOrderDetailsModal() {
       case "pin":
         openProductPicker(); break;
       case "unpin":
-        unpinActive(); break;
+        unpinAll(); break;
       case "profile":
         openCustomerPanel(conv); break;
     }
@@ -5103,63 +5095,93 @@ function closeOrderDetailsModal() {
     const cc = sd.capsule_count !== null && sd.capsule_count !== undefined ? `${sd.capsule_count} Capsules` : "";
     return [pa, cc].filter(Boolean).join(" \u2022 ");
   }
-  function pinOf(conv){
-    if(!conv) return null;
-    if(conv.pinned_product !== undefined) return conv.pinned_product;
-    try{ const raw = localStorage.getItem(PIN_KEY(conv.id)); return raw ? JSON.parse(raw) : null; }catch(_){ return null; }
+  const PIN_MAX = 5;
+  function pinsOf(conv){                           // pinned_product holds an array (older chats stored a single object)
+    if(!conv) return [];
+    let v = conv.pinned_product;
+    if(v === undefined){ try{ const raw = localStorage.getItem(PIN_KEY(conv.id)); v = raw ? JSON.parse(raw) : null; }catch(_){ v = null; } }
+    if(!v) return [];
+    return (Array.isArray(v) ? v : [v]).filter(x => x && x.id);
   }
-  function renderPinned(conv, animate){
-    const pin = pinOf(conv);
-    document.getElementById("pinBtn").classList.toggle("is-active", !!pin);
-    if(!pin){ pinnedEl.hidden = true; pinnedEl.innerHTML = ""; return; }
-    pinnedEl.classList.remove("is-leaving");
-    pinnedEl.hidden = false;
-    pinnedEl.innerHTML = `
-      <div class="pin-card">
+  const PIN_BADGE_HTML = `<span class="oc-pinbadge" aria-label="Pinned to chat"><svg viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 17v5"/><path d="M9 3h6l-1 6 3 3v2H7v-2l3-3-1-6Z"/></svg></span>`;
+  function pinQtyClass(p){
+    if(p.archived || p.is_active === false) return "out";
+    const q = Number(p.stock_qty) || 0;
+    return q <= 0 ? "out" : (q <= SV_LOW_STOCK ? "low" : "ok");
+  }
+  function pinCardHtml(pin){
+    return `<div class="pin-card" data-pid="${escapeHtml(pin.id)}">
+        ${PIN_BADGE_HTML}
         ${thumbHtml(pin.image)}
         <div class="pin-card__main">
           <div class="odm-pc-cat" data-pin-cats>${pinCatsHtml(pin)}</div>
           <div class="odm-pc-name pin-card__name">${escapeHtml(pin.name || "Product")}<span class="pin-card__spec" data-pin-spec>${pin.spec ? " " + escapeHtml(pin.spec) : ""}</span></div>
-          <div class="pin-card__r3"><span class="odm-pi-sku">${escapeHtml(pin.sku || "")}</span><span class="pin-card__end">${pin.price != null ? `<span class="pin-card__price">${escapeHtml(money(pin.price))}</span>` : ""}<span data-pin-stock>${stockTag(pin)}</span></span></div>
+          <div class="odm-pi-sku">${escapeHtml(pin.sku || "")}</div>
         </div>
-        <button type="button" class="pin-card__x" id="unpinBtn" aria-label="Unpin product">${UNPIN_SVG}</button>
+        <div class="pin-card__side">
+          <span class="pk-qty ${pinQtyClass(pin)}" data-pin-qty>${pin.stock_qty == null ? "–" : Number(pin.stock_qty) || 0}</span>
+          <span class="pin-card__price" data-pin-price>${pin.price != null ? escapeHtml(money(pin.price)) : ""}</span>
+        </div>
       </div>`;
+  }
+  function renderPinned(conv, animate){
+    const pins = pinsOf(conv);
+    document.getElementById("pinBtn").classList.toggle("is-active", pins.length > 0);
+    if(!pins.length){ pinnedEl.hidden = true; pinnedEl.innerHTML = ""; return; }
+    pinnedEl.classList.remove("is-leaving");
+    pinnedEl.hidden = false;
+    pinnedEl.innerHTML = pins.map(pinCardHtml).join("");
     if(animate){ pinnedEl.classList.remove("is-in"); void pinnedEl.offsetWidth; pinnedEl.classList.add("is-in"); }
-    refreshPinnedStock(conv, pin);
+    pins.forEach(pin => refreshPinnedStock(conv, pin));
   }
   async function refreshPinnedStock(conv, pin){      // price + stock come live from the catalog, not from the pin-time snapshot
     const c = hubClient(); if(!c || !pin.id) return;
     try{
       const { data } = await c.from("products").select("price,stock_qty,is_active,archived,category,subcategory,supplement_details(potency_amount,potency_unit,capsule_count)").eq("id", pin.id).maybeSingle();
-      if(!data || state.activeConversationId !== conv.id || !pinOf(conv) || pinOf(conv).id !== pin.id) return;
+      if(!data || state.activeConversationId !== conv.id) return;
+      const card = Array.from(pinnedEl.querySelectorAll(".pin-card")).find(n => n.dataset.pid === pin.id);
+      if(!card) return;
       const sdet = one(data.supplement_details); delete data.supplement_details;
       Object.assign(pin, data);
       if(sdet) pin.spec = pkSpecOf(sdet);
-      const sp = pinnedEl.querySelector("[data-pin-spec]");
-      if(sp) sp.textContent = pin.spec ? " " + pin.spec : "";
-      const el = pinnedEl.querySelector("[data-pin-stock]");
-      if(el) el.innerHTML = stockTag(pin);
-      const ce = pinnedEl.querySelector("[data-pin-cats]");
-      if(ce) ce.innerHTML = pinCatsHtml(pin);
+      card.querySelector("[data-pin-spec]").textContent = pin.spec ? " " + pin.spec : "";
+      const q = card.querySelector("[data-pin-qty]"); q.className = "pk-qty " + pinQtyClass(pin); q.textContent = pin.stock_qty == null ? "–" : Number(pin.stock_qty) || 0;
+      card.querySelector("[data-pin-price]").textContent = pin.price != null ? money(pin.price) : "";
+      card.querySelector("[data-pin-cats]").innerHTML = pinCatsHtml(pin);
     }catch(_){}
   }
-  async function savePin(conv, pin){
-    conv.pinned_product = pin;
-    document.getElementById("pinBtn").classList.toggle("is-active", !!pin);
-    try{ pin ? localStorage.setItem(PIN_KEY(conv.id), JSON.stringify(pin)) : localStorage.removeItem(PIN_KEY(conv.id)); }catch(_){}
+  async function savePin(conv, pins){
+    const arr = pins && pins.length ? pins : null;
+    conv.pinned_product = arr;
+    document.getElementById("pinBtn").classList.toggle("is-active", !!arr);
+    try{ arr ? localStorage.setItem(PIN_KEY(conv.id), JSON.stringify(arr)) : localStorage.removeItem(PIN_KEY(conv.id)); }catch(_){}
     if(supabase){
-      const { error } = await supabase.from("conversations").update({ pinned_product: pin }).eq("id", conv.id);
+      const { error } = await supabase.from("conversations").update({ pinned_product: arr }).eq("id", conv.id);
       if(error){ console.error("pin save failed:", error); showToast("Couldn't save the pin for the team."); }
     }
   }
-  function unpinActive(){
-    const conv = activeConv(); if(!conv || !pinOf(conv)) return;
-    pinnedEl.classList.add("is-leaving");
-    savePin(conv, null);
-    setTimeout(() => { if(pinOf(conv) === null){ pinnedEl.hidden = true; pinnedEl.innerHTML = ""; pinnedEl.classList.remove("is-leaving"); } }, 260);
+  function unpinProduct(id){
+    const conv = activeConv(); if(!conv) return;
+    const pins = pinsOf(conv), rest = pins.filter(x => x.id !== id);
+    if(rest.length === pins.length) return;
+    savePin(conv, rest);
+    if(!rest.length){ unpinCollapse(conv); }
+    else{
+      const card = Array.from(pinnedEl.querySelectorAll(".pin-card")).find(n => n.dataset.pid === id);
+      if(card) card.classList.add("is-out");
+      setTimeout(() => { if(state.activeConversationId === conv.id) renderPinned(conv, false); }, 230);
+    }
     showToast("Product unpinned");
   }
-  pinnedEl.addEventListener("click", e => { if(e.target.closest("#unpinBtn")) unpinActive(); });
+  function unpinCollapse(conv){
+    pinnedEl.classList.add("is-leaving");
+    setTimeout(() => { if(!pinsOf(conv).length){ pinnedEl.hidden = true; pinnedEl.innerHTML = ""; pinnedEl.classList.remove("is-leaving"); } }, 260);
+  }
+  function unpinAll(){
+    const conv = activeConv(); if(!conv || !pinsOf(conv).length) return;
+    savePin(conv, null); unpinCollapse(conv);
+    showToast("Products unpinned");
+  }
   document.getElementById("pinBtn").addEventListener("click", e => {
     e.stopPropagation(); setAttachMenu(false); setQuickMenu(false); openProductPicker();
   });
@@ -5186,9 +5208,8 @@ function closeOrderDetailsModal() {
   function closeOrderPop(){
     document.querySelectorAll(".oc-pop, .oc-pop-backdrop").forEach(n => n.remove());
   }
-  function openOrderPop(card, x, y, conv){
+  function openPinPop(x, y, isPinned, onToggle){
     closeOrderPop();
-    const oid = card.dataset.oid, isPinned = pinnedOrderId(conv) === oid;
     const bd = document.createElement("div"); bd.className = "oc-pop-backdrop";
     const pop = document.createElement("div"); pop.className = "oc-pop"; pop.setAttribute("role", "menu");
     pop.innerHTML = `<button type="button" role="menuitem">${isPinned ? UNPIN_SVG : PIN_SVG}${isPinned ? "Unpin from chat" : "Pin to chat"}</button>`;
@@ -5198,8 +5219,11 @@ function closeOrderDetailsModal() {
     pop.style.top = Math.max(10, Math.min(y - h - 14 < 10 ? y + 14 : y - h - 14, window.innerHeight - h - 10)) + "px";
     bd.addEventListener("click", closeOrderPop);
     bd.addEventListener("contextmenu", e => { e.preventDefault(); closeOrderPop(); });
-    pop.querySelector("button").addEventListener("click", () => {
-      closeOrderPop();
+    pop.querySelector("button").addEventListener("click", () => { closeOrderPop(); onToggle(); });
+  }
+  function openOrderPop(card, x, y, conv){
+    const oid = card.dataset.oid, isPinned = pinnedOrderId(conv) === oid;
+    openPinPop(x, y, isPinned, () => {
       savePinnedOrder(conv, isPinned ? null : oid);
       refreshAfterOrderPin(conv);
       showToast(isPinned ? "Order unpinned" : "Order pinned to chat");
@@ -5209,9 +5233,10 @@ function closeOrderDetailsModal() {
     let timer = null, sx = 0, sy = 0, swallowUntil = 0;
     const cancel = () => { clearTimeout(timer); timer = null; };
     document.addEventListener("pointerdown", e => {
-      const card = e.target.closest(".oc-card[data-oid]");
+      const card = e.target.closest(".oc-card[data-oid], .pin-card[data-pid]");
       if(!card || e.button > 0) return;
-      const inStrip = !!card.closest("#orderStrip"), inSheet = !!card.closest("#custSheet");
+      const isProd = card.classList.contains("pin-card");
+      const inStrip = !!card.closest("#orderStrip, #pinnedProduct"), inSheet = !isProd && !!card.closest("#custSheet");
       if(!inStrip && !inSheet) return;
       sx = e.clientX; sy = e.clientY;
       cancel();
@@ -5221,15 +5246,16 @@ function closeOrderDetailsModal() {
         if(!conv) return;
         swallowUntil = Date.now() + 700;
         if(navigator.vibrate) try{ navigator.vibrate(12); }catch(_){}
-        openOrderPop(card, sx, sy, conv);
+        if(isProd) openPinPop(sx, sy, true, () => unpinProduct(card.dataset.pid));
+        else openOrderPop(card, sx, sy, conv);
       }, 500);
     });
     document.addEventListener("pointermove", e => { if(timer && Math.hypot(e.clientX - sx, e.clientY - sy) > 10) cancel(); });
     ["pointerup", "pointercancel", "scroll"].forEach(t => document.addEventListener(t, cancel, true));
     document.addEventListener("click", e => {          // the release after a long-press must not also expand the card
-      if(Date.now() < swallowUntil && e.target.closest(".oc-card")){ e.stopPropagation(); e.preventDefault(); }
+      if(Date.now() < swallowUntil && e.target.closest(".oc-card, .pin-card")){ e.stopPropagation(); e.preventDefault(); }
     }, true);
-    document.addEventListener("contextmenu", e => { if(e.target.closest(".oc-card[data-oid]")) e.preventDefault(); });
+    document.addEventListener("contextmenu", e => { if(e.target.closest(".oc-card[data-oid], .pin-card[data-pid]")) e.preventDefault(); });
   })();
 
   /* ---------- Master toolbox: one button, mini tray slides up with all tools ---------- */
@@ -5521,7 +5547,7 @@ function closeOrderDetailsModal() {
   function showProductDetail(id){
     const i = pk.list.find(x => x.id === id); if(!i) return;
     pk.cur = i;
-    const pinned = pinOf(activeConv()), isPinned = pinned && pinned.id === i.id;
+    const isPinned = pinsOf(activeConv()).some(x => x.id === i.id);
     const facts = pkFacts(i);
     const sec = (t, txt) => txt ? `<div class="pk-sec"><h3>${t}</h3><p>${escapeHtml(txt)}</p></div>` : "";
     document.getElementById("ppDetailView").innerHTML = `
@@ -5582,11 +5608,12 @@ function closeOrderDetailsModal() {
       closeProductPicker(); updateSendState(); autoResizeComposer(); els.composerInput.focus();
       showToast("Product link added — review and send");
     }else if(e.target.closest("[data-pk-pin]")){
-      const pinned = pinOf(conv);
-      if(pinned && pinned.id === i.id){ closeProductPicker(); unpinActive(); return; }
+      const pins = pinsOf(conv);
+      if(pins.some(x => x.id === i.id)){ closeProductPicker(); unpinProduct(i.id); return; }
+      if(pins.length >= PIN_MAX){ showToast("You can pin up to " + PIN_MAX + " products"); return; }
       const snap = { id:i.id, name:i.title, sku:i.sku, brand:i.brand, category:i.category, subcategory:i.subcategory, spec:i.spec, price:i.price, stock_qty:i.qty, is_active:i.is_active, archived:i.archived, image:i.image || null };
       closeProductPicker();
-      await savePin(conv, snap);
+      await savePin(conv, [...pins, snap]);
       renderPinned(conv, true);
       showToast("Product pinned");
     }
