@@ -2287,16 +2287,21 @@ html:not([data-theme="light"]) .odm-card { background: rgba(124,111,247,0.08); b
   .pin-card__label{ font-size:10px; font-weight:800; letter-spacing:.04em; text-transform:uppercase; color:var(--inbox-blue-t); }
   .pin-card__name{ font-size:13.5px; font-weight:800; color:var(--text-1); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
   .pin-card__sub{ font-size:11.5px; color:var(--text-3); display:flex; gap:8px; align-items:center; white-space:nowrap; overflow:hidden; }
-  .pin-card .hub-thumb{ width:58px; height:58px; border-radius:12px; flex:0 0 auto; }
-  .pin-card__main{ display:flex; flex-direction:column; gap:3px; }
-  .pin-card__r1{ display:flex; align-items:center; gap:6px; min-height:20px; overflow:hidden; }
-  .pin-card__cat{ flex:0 0 auto; width:20px; height:20px; border-radius:6px; display:flex; align-items:center; justify-content:center; }
-  .pin-card__cat svg{ width:12px; height:12px; fill:#fff; stroke:#fff; }
-  .pin-card__subcat{ font-size:10.5px; font-weight:800; letter-spacing:.02em; padding:1px 8px; border-radius:100px; border:1px solid transparent; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; min-width:0; }
+  .pin-card{ height:65px; box-sizing:border-box; padding:0 8px 0 10px; }   /* same height as the order card */
+  .pin-card .hub-thumb{ width:48px; height:48px; border-radius:10px; flex:0 0 auto; }
+  .pin-card__main{ display:flex; flex-direction:column; justify-content:center; gap:2px; }
+  .pin-card__r1{ display:flex; align-items:center; gap:6px; height:18px; overflow:hidden; }
+  .pin-card__r1:empty{ display:none; }
+  .pin-card__cat{ flex:0 0 auto; width:18px; height:18px; border-radius:6px; display:flex; align-items:center; justify-content:center; }
+  .pin-card__cat svg{ width:11px; height:11px; fill:#fff; stroke:#fff; }
+  .pin-card__name{ font-size:13px; line-height:16px; }
+  .pin-card__x{ width:32px; height:32px; }
+  .pin-card__subcat{ font-size:10px; line-height:14px; font-weight:800; letter-spacing:.02em; padding:0 8px; border-radius:100px; border:1px solid transparent; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; min-width:0; }
   .pin-card__r3{ display:flex; align-items:center; justify-content:space-between; gap:8px; min-width:0; }
   .pin-card__sku{ font-family:'Roboto Mono',ui-monospace,monospace; font-size:11px; font-weight:600; color:var(--text-3); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; min-width:0; }
-  .pin-card__end{ display:flex; align-items:center; gap:6px; flex:0 0 auto; }
-  .pin-card__price{ font-size:12px; font-weight:800; color:var(--text-1); }
+  .pin-card__end{ display:flex; align-items:center; gap:6px; flex:0 0 auto; font-size:11px; line-height:15px; }
+  .pin-card__end .stock-tag{ font-size:11px; font-weight:800; }
+  .pin-card__price{ font-size:11.5px; font-weight:800; color:var(--text-1); }
   .pin-card__x{ flex:0 0 auto; width:34px; height:34px; border-radius:50%; display:flex; align-items:center; justify-content:center; color:var(--text-2);
     background:var(--surface-2); transition:background .2s ease, color .2s ease, transform .18s var(--ease-out); }
   .pin-card__x:active{ transform:scale(.9); }
@@ -5123,7 +5128,7 @@ function closeOrderDetailsModal() {
     const c = hubClient(); if(!c || !pin.id) return;
     try{
       const { data } = await c.from("products").select("price,stock_qty,is_active,archived,category,subcategory").eq("id", pin.id).maybeSingle();
-      if(!data || state.activeConversationId !== conv.id || pinOf(conv) !== pin) return;
+      if(!data || state.activeConversationId !== conv.id || !pinOf(conv) || pinOf(conv).id !== pin.id) return;
       Object.assign(pin, data);
       const el = pinnedEl.querySelector("[data-pin-stock]");
       if(el) el.innerHTML = stockTag(pin);
