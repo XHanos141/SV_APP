@@ -2193,6 +2193,10 @@ html:not([data-theme="light"]) .odm-card { background: rgba(124,111,247,0.08); b
   .hub-card .cust-list-row__name > span{ overflow:hidden; text-overflow:ellipsis; white-space:nowrap; min-width:0; }
   .hub-card .cust-list-row__id{ border-radius:8px; margin-top:0; }
   .hub-card .hub-row__sub{ margin-top:0; max-width:100%; }
+  .hub-card.is-static{ cursor:default; }
+  .cust-list-row__avatar.is-tap{ cursor:pointer; position:relative; }
+  .cust-list-row__avatar.is-tap::after{ content:""; position:absolute; inset:-6px; }
+  .cust-list-row__avatar.is-tap:active{ transform:scale(.94); }
   .hub-card__badges{ display:flex; flex-direction:column; gap:5px; flex:0 0 auto; }
   .hub-stat{ display:flex; align-items:center; justify-content:space-between; gap:8px; min-width:86px; padding:4px 10px; border-radius:999px; font-size:12.5px; font-weight:700; background:rgba(122,134,156,.14); color:var(--text-3); }
   .hub-stat small{ font-size:10.5px; font-weight:500; opacity:.9; }
@@ -5903,7 +5907,7 @@ function closeOrderDetailsModal() {
     if(hub.autoOpen && hub.tab === "customers"){
       const row = box.querySelector(`[data-hub-row][data-code="${CSS.escape(hub.autoOpen)}"]`);
       hub.autoOpen = null;
-      if(row){ toggleHubRow(row, true); row.scrollIntoView({ block:"center" }); }
+      if(row){ row.scrollIntoView({ block:"center" }); openHubProfile(row.dataset.code); }
     }
   }
 
@@ -5917,25 +5921,17 @@ function closeOrderDetailsModal() {
   const statBadge = (cls, label, n) => `<span class="hub-stat ${n > 0 ? cls : ""}"><small>${label}</small>${n}</span>`;
   function customerRowHtml(c){
     const orders = Number(c.orders) || 0, returns = Number(c.returns) || 0;
+    const av = avatarHtml(c.name, c.avatar_url).replace('class="cust-list-row__avatar"', `class="cust-list-row__avatar is-tap" data-profile="${escapeHtml(c.customer_code || "")}" role="button" tabindex="0" aria-label="Open customer profile"`);
     return `
-      <div ${rowAttrs(`data-code="${escapeHtml(c.customer_code || "")}"`).replace('class="cust-list-row hub-row"', 'class="cust-list-row hub-row hub-card"')}>
-        ${avatarHtml(c.name, c.avatar_url)}
+      <div ${rowAttrs(`data-code="${escapeHtml(c.customer_code || "")}"`).replace('class="cust-list-row hub-row"', 'class="cust-list-row hub-row hub-card is-static"').replace(' data-hub-row','').replace(' role="button" tabindex="0" aria-expanded="false"','')}>
+        ${av}
         <div class="cust-list-row__main">
           <div class="cust-list-row__name"><span>${escapeHtml(c.name || "Unnamed customer")}</span>${c.has_login ? VERIFIED_BADGE_SVG : ""}</div>
           <div class="hub-row__sub">${escapeHtml(c.email || c.phone || "No contact on file")}</div>
           ${c.customer_code ? `<span class="cust-list-row__id">${escapeHtml(c.customer_code)}</span>` : ""}
         </div>
         <div class="hub-card__badges">${statBadge("is-orders", "Orders", orders)}${statBadge("is-returns", "Returns", returns)}</div>
-      </div>
-      <div class="hub-detail" hidden><dl>
-        <dt>Customer ID</dt><dd>${dash(c.customer_code)}</dd>
-        <dt>Email</dt><dd>${dash(c.email)}</dd>
-        <dt>Phone</dt><dd>${dash(c.phone)}</dd>
-        <dt>Address</dt><dd>${dash(c.address)}</dd>
-        <dt>Joined</dt><dd>${c.since ? fmtDate(c.since) : "—"}</dd>
-        <dt>Paid orders</dt><dd>${orders}</dd>
-        <dt>Total spent</dt><dd>৳${Number(c.spent || 0).toLocaleString("en-US")}</dd>
-      </dl></div>`;
+      </div>`;
   }
 
   function statusBadge(item){
@@ -6009,7 +6005,7 @@ function closeOrderDetailsModal() {
     if(!list.length) return q ? emptyBlock("No matches", "No saved product or customer matches that search.") : emptyBlock("No wishlist entries yet", "Products customers save on the website will appear here.");
     return list.map(r => `
       <div ${rowAttrs().replace('class="cust-list-row hub-row"', 'class="cust-list-row hub-row hub-card"')}>
-        ${avatarHtml(r.customer.name, "")}
+        ${avatarHtml(r.customer.name, "").replace('class="cust-list-row__avatar"', `class="cust-list-row__avatar is-tap" data-profile="${escapeHtml(r.customer.code || "")}" role="button" tabindex="0" aria-label="Open customer profile"`)}
         <div class="cust-list-row__main">
           <div class="cust-list-row__name"><span>${escapeHtml(r.customer.name || "Unnamed customer")}</span>${r.customer.code ? VERIFIED_BADGE_SVG : ""}</div>
           <div class="hub-row__sub">${escapeHtml(r.customer.email || "")}</div>
@@ -6044,6 +6040,32 @@ function closeOrderDetailsModal() {
     const open = force !== undefined ? force : detail.hidden;
     detail.hidden = !open;
     row.setAttribute("aria-expanded", open ? "true" : "false");
+  }
+  /* Avatar tap -> the same Customer profile sheet as in chat, filled with live data (customer row + their orders) */
+  const HUB_ORDER_STATUS = o => o.cancelled_at ? "Cancelled" : o.delivered_at ? "Delivered" : o.shipped_at ? "Shipped" : "Pending";
+  async function openHubProfile(code){
+    if(!code) return;
+    try{
+      let c = (hub.cust.rows || []).find(x => x.customer_code === code);
+      if(!c){
+        const res = await hubRpc("admin_list_customers", { p_q:code, p_limit:5, p_offset:0 });
+        c = (res.rows || []).find(x => x.customer_code === code);
+      }
+      if(!c) return;
+      const cl = hubClient(); if(!cl) return;
+      const { data, error } = await cl.from("orders").select("order_number,status,total_amount,payment_method,created_at,processing_at,shipped_at,delivered_at,cancelled_at").eq("customer_id", c.id).order("created_at", { ascending:false });
+      if(error) throw error;
+      const recs = (data || []).filter(o => o.order_number).map(o => {
+        const st = HUB_ORDER_STATUS(o);
+        return { id:o.order_number, payment_status:o.status === "paid" ? "Paid" : "Unpaid", payment_method:o.payment_method || undefined, amount:Number(o.total_amount) || 0, status:st,
+                 placed_at:o.created_at, status_at:o.delivered_at || o.shipped_at || o.processing_at || o.cancelled_at || o.created_at };
+      });
+      const cur = recs.filter(o => o.status === "Pending" || o.status === "Shipped");
+      const key = "live_" + code;
+      MOCK_CUSTOMERS[key] = { customer_id:c.customer_code, name:c.name, status:"registered", phone:c.phone || null, email:c.email || null, address:c.address || null,
+        customer_since:c.since, avatar_url:c.avatar_url || "", channels:[], current_orders:cur, past_orders:recs.filter(o => cur.indexOf(o) < 0) };
+      openCustomerPanel({ customer_key:key, customer_name:c.name, channel:null });
+    }catch(err){ console.error("Open customer profile failed:", err); }
   }
   function focusCustomer(code){
     hub.autoOpen = code; hub.q = code; els.hubSearch.value = code;
@@ -6084,6 +6106,8 @@ function closeOrderDetailsModal() {
     pkZoomOpen(imgs, 0, () => t.querySelector("img"));
   }, true);
   els.customersListScroll.addEventListener("click", e => {
+    const av = e.target.closest("[data-profile]");
+    if(av){ e.stopPropagation(); openHubProfile(av.dataset.profile); return; }
     if(e.target.closest("[data-more]")){ hubLoad(false); return; }
     if(e.target.closest("[data-retry]")){ hubLoad(true); return; }
     const f = e.target.closest("[data-focus-cust]");
@@ -6092,6 +6116,7 @@ function closeOrderDetailsModal() {
     if(row) toggleHubRow(row);
   });
   els.customersListScroll.addEventListener("keydown", e => {
+    if((e.key === "Enter" || e.key === " ") && e.target.matches("[data-profile]")){ e.preventDefault(); openHubProfile(e.target.dataset.profile); return; }
     if((e.key === "Enter" || e.key === " ") && e.target.matches("[data-hub-row]")){ e.preventDefault(); toggleHubRow(e.target); }
   });
 
