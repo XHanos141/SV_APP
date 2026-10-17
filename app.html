@@ -2174,7 +2174,17 @@ html[data-theme="dark"] .invoice-modal-order-id { color: #a095f5; }
 .ivp-line{display:flex;align-items:flex-start;gap:7px;font:500 12px/1.4 "DM Sans",sans-serif;color:#5b6272;margin-top:3px}
 .ivp-line svg{flex:none;margin-top:2px;color:#0A9BDC}
 .ivp-date{font:700 13px/1.2 "DM Sans",sans-serif;color:#001f3c}
-.ivp-status{margin-top:8px;font:800 10px/1 "Plus Jakarta Sans",sans-serif;text-transform:capitalize;color:#2f9b68;background:rgba(47,155,104,.12);border-radius:99px;padding:5px 9px}
+.ivp-bill-r{gap:6px}
+.ivp-b{display:inline-block;font:800 10.5px/1 "Plus Jakarta Sans",sans-serif;letter-spacing:.5px;text-transform:uppercase;padding:5px 10px;border-radius:99px;border:1px solid;white-space:nowrap}
+.ivp-b.s{text-transform:none;letter-spacing:0;font-size:11.5px}
+.ivp-b.g{color:#2f9b68;background:rgba(47,155,104,.12);border-color:rgba(47,155,104,.35)}
+.ivp-b.a{color:#a86400;background:rgba(232,160,32,.16);border-color:rgba(200,130,10,.4)}
+.ivp-b.c{color:#0A9BDC;background:rgba(10,155,220,.1);border-color:rgba(10,155,220,.4)}
+.ivp-b.p{color:#6a5de6;background:rgba(124,111,247,.12);border-color:rgba(124,111,247,.35)}
+html[data-theme="dark"] .ivp-b.g{color:#3bbf7f;background:rgba(59,191,127,.16);border-color:rgba(59,191,127,.4)}
+html[data-theme="dark"] .ivp-b.a{color:#f0b34a;background:rgba(240,179,74,.16);border-color:rgba(240,179,74,.4)}
+html[data-theme="dark"] .ivp-b.c{color:#4fc0f5;background:rgba(10,155,220,.18);border-color:rgba(10,155,220,.5)}
+html[data-theme="dark"] .ivp-b.p{color:#b4abff;background:rgba(124,111,247,.2);border-color:rgba(124,111,247,.5)}
 .ivp-sec{display:flex;justify-content:space-between;font:800 10px/1 "Plus Jakarta Sans",sans-serif;letter-spacing:.8px;text-transform:uppercase;color:#8c92a1;padding:2px 2px 8px;border-bottom:1px solid #ececf2}
 .ivp-item{display:flex;align-items:center;gap:10px;padding:11px 2px;border-bottom:1px dashed #e3e5ee}
 .ivp-n{flex:none;width:22px;height:22px;border-radius:7px;background:#eeedfd;color:#6a5de6;font:800 11px/22px "Plus Jakarta Sans",sans-serif;text-align:center}
@@ -19551,6 +19561,11 @@ function _ciLockup(h, tc, bdc, b, ih) {
   return `<div style="display:flex;align-items:center;gap:${r(9.1)}px"><span style="display:block;flex-shrink:0;width:${w}px;height:${ih}px;line-height:0;position:relative;top:-3px">${_CI_LOGO_SVG.replace('<svg ', '<svg width="' + w + '" height="' + ih + '" style="display:block" ')}</span><div style="transform:translateY(${(5.3*k-2).toFixed(2)}px);line-height:1"><div style="${F};font-size:${(16.6*k+b).toFixed(2)}px;font-weight:800;color:${tc};letter-spacing:${r(1)}px;line-height:1;white-space:nowrap">SUPPVERSE</div><div style="${F};font-size:${(10.6*k+b*0.6).toFixed(2)}px;font-weight:700;color:${bdc};letter-spacing:.22em;line-height:1;margin-left:${r(1)}px">BD</div></div></div>`;
 }
 const _ciPill = s => { const x = _CI_TXB[s] || _CI_TXB.paid; return `<span style="display:inline-block;${_CI_PJ};font-size:12px;font-weight:700;padding:4px 14px;border-radius:999px;border:1px solid ${x.b};background:${x.bg};color:${x.c};line-height:1.2">${x.t}</span>`; };
+const _ciPayPill = inv => {
+  const p = svInvoicePay(inv); if (!p) return _ciPill(inv.status || 'paid');
+  const c = p.k === 'g' ? ['#2f9b68', 'rgba(47,155,104,.12)', 'rgba(47,155,104,.35)'] : ['#a86400', 'rgba(232,160,32,.16)', 'rgba(200,130,10,.4)'];
+  return `<span style="display:inline-block;${_CI_PJ};font-size:12px;font-weight:700;padding:4px 14px;border-radius:999px;border:1px solid ${c[2]};background:${c[1]};color:${c[0]};line-height:1.2">${escapeHtml(p.t)}</span>`;
+};
 const _ciChip = (d, solid) => `<span style="flex:none;width:26px;height:26px;border-radius:8px;background:#eef2f8;display:inline-flex;align-items:center;justify-content:center"><svg width="16" height="16" viewBox="0 0 24 24" style="${solid ? 'fill:#001f3c;stroke:none' : 'fill:none;stroke:#001f3c;stroke-width:2.3;stroke-linecap:butt;stroke-linejoin:round'}">${d}</svg></span>`;
 /* Order ID badge — mirrors the LOCKED .order-id-badge (SV-) and .tracking-tag (PX- proxy), inlined for PDF */
 const _ciOrderBadge = id => {
@@ -19603,7 +19618,7 @@ function _ciIntro(inv) {
     <div style="display:flex;align-items:center;gap:10px;min-height:26px">${_ciChip(_CI_IC.user, true)}<span style="${_CI_PJ};font-size:17px;font-weight:700">${escapeHtml(inv.customerName || '')}</span></div>
     <div style="display:flex;justify-content:flex-end;align-items:center">${_ciOrderBadge(inv.linkedDraftId)}</div>
     <div style="display:flex;align-items:center;gap:10px;min-height:26px">${_ciChip(_CI_IC.phone)}<span style="font-size:14px;font-weight:600">${escapeHtml(inv.customerPhone || '')}</span></div>
-    <div style="display:flex;justify-content:flex-end;align-items:center">${_ciPill(inv.status || 'paid')}</div>
+    <div style="display:flex;justify-content:flex-end;align-items:center">${_ciPayPill(inv)}</div>
     <div style="display:flex;align-items:center;gap:10px;min-height:26px">${_ciChip(_CI_IC.pin)}<span style="font-size:14px;font-weight:600;line-height:1.4">${escapeHtml(inv.customerLocation || '')}</span></div>
     <div style="display:flex;justify-content:flex-end;align-items:center;font-size:14px;font-weight:700;color:#001f3c">${escapeHtml(inv.date || '')}</div>
   </div></div>`;
@@ -20183,6 +20198,16 @@ function showToast(msg, type) {
 }
 
 /* ====== CREATE INVOICE FROM DRAFT ====== */
+/* Payment badge model for an invoice: COD -> due until collected, prepaid/paid -> Paid, otherwise Unpaid */
+function svInvoicePay(inv) {
+  const due = '\u09f3' + Number(inv.amountDue != null ? inv.amountDue : (inv.totalAmount || 0)).toLocaleString('en-IN');
+  if (inv.payType === 'cod') return inv.paid ? { t: 'Paid', k: 'g' } : { t: 'COD \u00b7 ' + due + ' due', k: 'a' };
+  if (inv.payType === 'prepaid') return { t: 'Paid', k: 'g' };
+  if (inv.payType === 'unpaid') return { t: 'Unpaid \u00b7 ' + due + ' due', k: 'a' };
+  return null;
+}
+const SV_INV_STAGE = { ready: ['Ready to ship', 'c'], shipped: ['Shipped', 'p'], delivered: ['Delivered', 'g'] };
+
 function createInvoiceFromDraft(index, event) {
   if (event) event.stopPropagation();
   const card = document.getElementById("draft-" + index);
@@ -20224,9 +20249,22 @@ function createInvoiceFromDraft(index, event) {
 
   const totalAmount = items.reduce((sum, i) => sum + i.total, 0) - discount + shipping;
 
+  /* payment + fulfilment state for the invoice badges */
+  const rw = card._rw || null;
+  const pm = card.getAttribute("data-pay-method") || "";
+  let payType = "unpaid", paid = false, stage = "";
+  if (rw) { payType = rw.cod ? "cod" : "prepaid"; paid = !rw.cod; stage = card.getAttribute("data-stage") || "ready"; }
+  else if (status === "paid") { payType = "prepaid"; paid = true; }
+  else if (pm === "cod") { payType = "cod"; }
+  else if (status === "shipped") { stage = "shipped"; }
+
   const invoice = {
-    id: "INV-" + Date.now(),
+    id: draftId, /* invoice number = order ID (unique per order) */
     linkedDraftId: draftId,
+    payType: payType,
+    paid: paid,
+    amountDue: paid ? 0 : totalAmount,
+    stage: stage,
     brandName: "SuppVerse",
     brandColor: "#7C6FF7",
     customerName: customer,
@@ -20309,7 +20347,7 @@ function openInvoiceDetailModal(invoiceId) {
   const subtotal = inv.items.reduce((sum, i) => sum + (Number(i.total) || 0), 0);
   const units = inv.items.reduce((sum, i) => sum + (Number(i.qty) || 0), 0);
   const free = !(inv.shipping > 0);
-  const status = String(inv.status || '').replace(/[-_]/g, ' ');
+  const pay = svInvoicePay(inv), stg = SV_INV_STAGE[inv.stage];
 
   const headerHtml = `
     <div class="ivp-head">
@@ -20329,7 +20367,8 @@ function openInvoiceDetailModal(invoiceId) {
       <div class="ivp-bill-r">
         <div class="ivp-lbl">Date</div>
         <div class="ivp-date">${escapeHtml(dateStr)}</div>
-        ${status ? `<span class="ivp-status">${escapeHtml(status)}</span>` : ''}
+        ${pay ? `<span class="ivp-b ${pay.k}">${escapeHtml(pay.t)}</span>` : ''}
+        ${stg ? `<span class="ivp-b s ${stg[1]}">${stg[0]}</span>` : ''}
       </div>
     </div>`;
 
