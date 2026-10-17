@@ -2179,6 +2179,27 @@ html:not([data-theme="light"]) .odm-card { background: rgba(124,111,247,0.08); b
   .cust-list-scroll.hub-noanim .cust-list-row{ animation:none; }
   .hub-row{ cursor:pointer; }
   .hub-row__sub{ font-size:12px; color:var(--text-3); margin-top:2px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  /* ---------- Customer / wishlist-by-customer cards: same bubble look + 9px 13px padding as chat bubbles ---------- */
+  .cust-list-scroll .hub-card{ margin:10px 14px 0; padding:9px 13px; gap:13px; min-height:72px; border:1px solid rgba(43,116,227,.5); border-radius:16px;
+    background:linear-gradient(160deg,#ffffff 0%,#eef4ff 100%);
+    box-shadow:0 2px 4px rgba(15,22,33,.08), 0 12px 26px -6px rgba(43,116,227,.5), inset 0 1.5px 0 rgba(255,255,255,.95), inset 0 -2px 4px rgba(43,116,227,.08); }
+  html:not([data-theme="light"]) .cust-list-scroll .hub-card{ background:linear-gradient(160deg,#1f3047 0%,#162130 100%); border-color:rgba(77,143,245,.45);
+    box-shadow:0 2px 4px rgba(0,0,0,.3), 0 10px 24px -8px rgba(43,116,227,.45), inset 0 1px 0 rgba(255,255,255,.07), inset 0 -2px 4px rgba(0,0,0,.2); }
+  .cust-list-scroll .hub-card:hover{ background:linear-gradient(160deg,#ffffff 0%,#eef4ff 100%); }
+  html:not([data-theme="light"]) .cust-list-scroll .hub-card:hover{ background:linear-gradient(160deg,#1f3047 0%,#162130 100%); }
+  .hub-card .cust-list-row__avatar{ width:54px; height:54px; font-size:17px; }
+  .hub-card .cust-list-row__main{ display:flex; flex-direction:column; align-items:flex-start; gap:2px; }
+  .hub-card .cust-list-row__name{ font-size:15px; line-height:1.2; max-width:100%; }
+  .hub-card .cust-list-row__name > span{ overflow:hidden; text-overflow:ellipsis; white-space:nowrap; min-width:0; }
+  .hub-card .cust-list-row__id{ border-radius:8px; margin-top:0; }
+  .hub-card .hub-row__sub{ margin-top:0; max-width:100%; }
+  .hub-card__badges{ display:flex; flex-direction:column; gap:5px; flex:0 0 auto; }
+  .hub-stat{ display:flex; align-items:center; justify-content:space-between; gap:8px; min-width:86px; padding:4px 10px; border-radius:999px; font-size:12.5px; font-weight:700; background:rgba(122,134,156,.14); color:var(--text-3); }
+  .hub-stat small{ font-size:10.5px; font-weight:500; opacity:.9; }
+  .hub-stat.is-orders{ background:rgba(0,155,114,.14); color:var(--green); }
+  .hub-stat.is-returns{ background:rgba(217,83,83,.14); color:var(--red); }
+  .hub-stat.is-wish{ background:rgba(232,82,127,.14); color:#e8527f; }
+  .hub-stat .wl-heart{ width:11px; height:11px; fill:currentColor; margin-right:3px; vertical-align:-1px; }
   .hub-pill{ flex:0 0 auto; font-size:11px; font-weight:800; padding:3px 9px; border-radius:999px; background:rgba(0,157,220,.14); color:var(--cyan); white-space:nowrap; }
   .hub-badge{ flex:0 0 auto; font-size:11px; font-weight:800; padding:3px 9px; border-radius:999px; white-space:nowrap; background:var(--surface-2); color:var(--text-3); }
   .hub-badge.is-pending{ background:rgba(244,169,34,.16); color:#e0a020; }
@@ -5893,18 +5914,18 @@ function closeOrderDetailsModal() {
   }
   const rowAttrs = (extra) => `class="cust-list-row hub-row" data-hub-row role="button" tabindex="0" aria-expanded="false" ${extra || ""}`;
 
+  const statBadge = (cls, label, n) => `<span class="hub-stat ${n > 0 ? cls : ""}"><small>${label}</small>${n}</span>`;
   function customerRowHtml(c){
-    const sub = [c.email, c.phone].filter(Boolean).join(" · ");
-    const orders = Number(c.orders) || 0;
+    const orders = Number(c.orders) || 0, returns = Number(c.returns) || 0;
     return `
-      <div ${rowAttrs(`data-code="${escapeHtml(c.customer_code || "")}"`)}>
+      <div ${rowAttrs(`data-code="${escapeHtml(c.customer_code || "")}"`).replace('class="cust-list-row hub-row"', 'class="cust-list-row hub-row hub-card"')}>
         ${avatarHtml(c.name, c.avatar_url)}
         <div class="cust-list-row__main">
-          <div class="cust-list-row__name">${escapeHtml(c.name || "Unnamed customer")}</div>
+          <div class="cust-list-row__name"><span>${escapeHtml(c.name || "Unnamed customer")}</span>${c.has_login ? VERIFIED_BADGE_SVG : ""}</div>
+          <div class="hub-row__sub">${escapeHtml(c.email || c.phone || "No contact on file")}</div>
           ${c.customer_code ? `<span class="cust-list-row__id">${escapeHtml(c.customer_code)}</span>` : ""}
-          <div class="hub-row__sub">${escapeHtml(sub || "No contact on file")}</div>
         </div>
-        <span class="hub-pill">${orders} order${orders === 1 ? "" : "s"}</span>
+        <div class="hub-card__badges">${statBadge("is-orders", "Orders", orders)}${statBadge("is-returns", "Returns", returns)}</div>
       </div>
       <div class="hub-detail" hidden><dl>
         <dt>Customer ID</dt><dd>${dash(c.customer_code)}</dd>
@@ -5987,14 +6008,14 @@ function closeOrderDetailsModal() {
       || r.items.some(it => (itemName(it) + " " + itemSub(it)).toLowerCase().includes(q)));
     if(!list.length) return q ? emptyBlock("No matches", "No saved product or customer matches that search.") : emptyBlock("No wishlist entries yet", "Products customers save on the website will appear here.");
     return list.map(r => `
-      <div ${rowAttrs()}>
+      <div ${rowAttrs().replace('class="cust-list-row hub-row"', 'class="cust-list-row hub-row hub-card"')}>
         ${avatarHtml(r.customer.name, "")}
         <div class="cust-list-row__main">
-          <div class="cust-list-row__name">${escapeHtml(r.customer.name || "Unnamed customer")}</div>
-          ${r.customer.code ? `<span class="cust-list-row__id">${escapeHtml(r.customer.code)}</span>` : ""}
+          <div class="cust-list-row__name"><span>${escapeHtml(r.customer.name || "Unnamed customer")}</span>${r.customer.code ? VERIFIED_BADGE_SVG : ""}</div>
           <div class="hub-row__sub">${escapeHtml(r.customer.email || "")}</div>
+          ${r.customer.code ? `<span class="cust-list-row__id">${escapeHtml(r.customer.code)}</span>` : ""}
         </div>
-        <span class="hub-pill">${HEART_SVG}${r.items.length} saved</span>
+        <div class="hub-card__badges"><span class="hub-stat is-wish"><small>Wishlist</small><span>${HEART_SVG}${r.items.length}</span></span></div>
       </div>
       <div class="hub-detail" hidden>${r.items.map(it => `
         <div class="hub-sub">${thumbHtml(it.image)}<div class="hub-sub__main"><div class="hub-sub__name">${escapeHtml(itemName(it))}</div><div class="hub-row__sub">${escapeHtml(itemSub(it) || " ")}</div></div>${statusBadge(it)}</div>`).join("")}
