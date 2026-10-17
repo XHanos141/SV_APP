@@ -1084,6 +1084,15 @@ input,textarea,select,[contenteditable="true"],.allow-select,.allow-select *{-we
 
 
   /* ---------- ID card — ported from SV-Web profile.html (.id-card / .cid-*) ---------- */
+  /* ---- Guest variant of the ID card: same size/layout, flat slate colour + dashed ID ---- */
+  .cs-idcard.cs-idcard--guest{ background:#161f30; box-shadow:0 10px 30px rgba(0,0,0,0.28); }
+  .cs-idcard.cs-idcard--guest .idc-avatar{ background:linear-gradient(135deg,#3f4a5e,#252e3e); box-shadow:inset 0 1px 0 rgba(255,255,255,0.2); outline:2px dashed rgba(242,100,48,0.8); outline-offset:3px; }
+  .idc-guest{ font-family:var(--font-head); font-size:10.5px; font-weight:800; letter-spacing:.4px; color:#ffb08f; background:rgba(242,100,48,0.16); border:1px solid rgba(242,100,48,0.45); border-radius:7px; padding:1px 7px; display:inline-flex; align-items:center; gap:3px; }
+  .idc-guest svg{ width:10px; height:10px; }
+  .cs-idcard.cs-idcard--guest .cid-row{ background:transparent; border:1px dashed rgba(255,255,255,0.42); }
+  #csIdCard.cs-idcard--guest .cid-row{ min-height:18px; padding:1px 8px 1px 6px; box-sizing:border-box; }
+  .cs-idcard.cs-idcard--guest .cid-value{ color:rgba(255,255,255,0.82); }
+  .cs-head__mini .c.is-guest{ color:var(--text-2); background:transparent; border:1px dashed rgba(150,160,175,.6); }
   .cs-idcard{
     position:relative; overflow:hidden; border-radius:16px; padding:12px 14px 8px; color:#fff; margin-bottom:10px;
     background:radial-gradient(ellipse 80% 60% at 50% -10%,rgba(255,255,255,0.06) 0%,transparent 65%),radial-gradient(ellipse 60% 80% at -10% 0%,rgba(124,111,247,0.22) 0%,transparent 55%),linear-gradient(135deg,#0f3258 0%,#002248 28%,#001f3c 60%,#000d20 100%);
@@ -3351,6 +3360,7 @@ function closeOrderDetailsModal() {
       email: null,
       channels: ["instagram", "messenger"],
       channel_handles: { instagram:"@farzana.akter", messenger:"Farzana Akter" },   // mock
+      first_seen: new Date(Date.now()-86400000).toISOString(),
       current_order: null,
       past_orders: []
     }
@@ -4180,7 +4190,7 @@ function closeOrderDetailsModal() {
   function renderSheet(opts){
     const cust = getSheetCustomer();
     els.custSheetHead.innerHTML = buildSheetHead(cust);
-    els.custSheetHead.classList.toggle("cs-head--slim", sheet.view === "profile" && cust.status === "registered");
+    els.custSheetHead.classList.toggle("cs-head--slim", sheet.view === "profile");
     els.custSheetHead.classList.remove("is-condensed");
     els.custSheetScroll.innerHTML = sheet.view === "order" ? buildOrderDetail(cust)
       : sheet.view === "orders" ? buildAllOrders(cust)
@@ -4201,12 +4211,12 @@ function closeOrderDetailsModal() {
           <div class="cs-head__sub">${escapeHtml(cust.name || "Unknown")}${cust.customer_id ? " · " + escapeHtml(cust.customer_id) : ""}</div>
         </div>${closeBtn}`;
     }
-    const isReg = cust.status === "registered";
+    const isReg = true;
     if(isReg){
       const ini = escapeHtml((cust.name || "?").trim().charAt(0).toUpperCase());
       return `<div class="cs-head__text">
           <h2 class="cs-head__title" id="custSheetTitle" tabindex="-1">Customer profile</h2>
-          <div class="cs-head__mini" aria-hidden="true"><span class="a">${ini}</span><span class="n">${escapeHtml(cust.name || "Unknown")}</span>${cust.customer_id ? `<span class="c">${escapeHtml(cust.customer_id)}</span>` : ""}</div>
+          <div class="cs-head__mini" aria-hidden="true"><span class="a">${ini}</span><span class="n">${escapeHtml(cust.name || "Unknown")}</span>${cust.customer_id ? `<span class="c">${escapeHtml(cust.customer_id)}</span>` : `<span class="c is-guest">Not registered</span>`}</div>
         </div>${closeBtn}`;
     }
     const idPill = cust.customer_id ? `<span class="cust-sheet__id-row"><span class="cust-sheet__id-value">${escapeHtml(cust.customer_id)}</span></span>` : "";
@@ -4438,6 +4448,20 @@ function closeOrderDetailsModal() {
     }
     return idCardHtmlLocal(cust);
   }
+  function guestIdCardHtml(cust){
+    const conv = sheet.conv || {};
+    let h = (window.SVCustomerCard ? window.SVCustomerCard.html({
+      name: cust.name, customer_id: "", customer_since: cust.first_seen || conv.updated_at,
+      phone: cust.phone, email: cust.email, address: cust.address, avatar_url: "", verified: false
+    }) : idCardHtmlLocal(cust));
+    const gIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>';
+    h = h.replace('<section class="cs-idcard"', '<section class="cs-idcard cs-idcard--guest" id="csIdCard"');
+    h = h.replace(/<span class="idc-verified">[\s\S]*?<\/span>/, '');
+    h = h.replace(/(<span class="idc-name">[\s\S]*?<\/span>)/, '$1<span class="idc-guest">' + gIcon + 'Guest</span>');
+    h = h.replace('Customer since', 'First seen');
+    h = h.replace('<span class="cid-value"></span>', '<span class="cid-value">Not registered</span>');
+    return h;
+  }
   function idCardHtmlLocal(cust){
     const ini = escapeHtml((cust.name || "?").trim().charAt(0).toUpperCase());
     return `<section class="cs-idcard" id="csIdCard" aria-label="Customer ID card">
@@ -4468,23 +4492,6 @@ function closeOrderDetailsModal() {
     const isRegistered = cust.status === "registered";
     const platformsHtml = platformsHtmlFor(cust);
 
-    if(!isRegistered){
-      const weakMatchHtml = cust.match_confidence === "weak"
-        ? `<div class="guest-callout" style="border-color:rgba(0,157,220,0.3); background:rgba(0,157,220,0.08);">
-            <svg viewBox="0 0 24 24" fill="none" stroke="var(--cyan)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4M12 8h.01"/></svg>
-            <p><strong>Possible match only</strong> — these platforms are linked by name alone, not confirmed. Verify with the customer before treating them as the same person.</p>
-          </div>`
-        : "";
-      return `
-        ${weakMatchHtml}
-        <div class="guest-callout">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4M12 17h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/></svg>
-          <p><strong>No SuppVerse account found</strong> for this person yet — order history isn't available. If they've ordered before under a different contact, use "Link to existing customer" to connect them.</p>
-        </div>
-        <div class="cust-sheet__section-label">Chatting from</div>
-        <div class="platform-list">${platformsHtml}</div>`;
-    }
-
     const ORDERS_SHOWN = 2;   // each section shows at most 2 cards; "View all" appears only when there are more
     const curAll = currentOrdersOf(cust);
     const prevAll = cust.past_orders || [];
@@ -4500,7 +4507,7 @@ function closeOrderDetailsModal() {
       : `<div class="empty-note">No previous orders.</div>`;
 
     return `
-      ${idCardHtml(cust)}
+      ${isRegistered ? idCardHtml(cust) : guestIdCardHtml(cust)}
       ${statsHtml(cust)}
 
       <div class="cust-sheet__section-label">${ICONS.chan}Connected channels</div>
