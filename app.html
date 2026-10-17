@@ -2065,11 +2065,6 @@ html[data-theme="dark"] .invoice-badge { background: rgba(47,155,104,0.15); colo
 .ivc-total{text-align:right}
 .ivc-total small{display:block;font:800 10px/1 "Plus Jakarta Sans",sans-serif;letter-spacing:.6px;text-transform:uppercase;color:#001f3c}
 .ivc-total b{display:block;font:900 20px/1.1 "Plus Jakarta Sans",sans-serif;color:#001f3c;margin-top:3px}
-.ivc-act{display:flex;gap:8px;margin-top:10px}
-.ivc-btn{flex:1;display:flex;align-items:center;justify-content:center;gap:6px;height:34px;border-radius:10px;border:1px solid transparent;font:800 11.5px "Plus Jakarta Sans",sans-serif;cursor:pointer;transition:transform .15s,background .2s}
-.ivc-btn:active{transform:scale(.97)}
-.ivc-btn.cust{background:rgba(124,111,247,.1);color:#6a5de6;border-color:rgba(124,111,247,.25)}
-.ivc-btn.own{background:#001f3c;color:#fff}
 html[data-theme="dark"] .ivc{background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.08);box-shadow:none}
 html[data-theme="dark"] .ivc-name,html[data-theme="dark"] .ivc-item-name,html[data-theme="dark"] .ivc-item-t,html[data-theme="dark"] .ivc-math b,html[data-theme="dark"] .ivc-total small,html[data-theme="dark"] .ivc-total b{color:#fff}
 html[data-theme="dark"] .ivc-sub,html[data-theme="dark"] .ivc-date,html[data-theme="dark"] .ivc-more,html[data-theme="dark"] .ivc-math{color:rgba(255,255,255,.5)}
@@ -2079,9 +2074,7 @@ html[data-theme="dark"] .ivc-item-q{background:rgba(255,255,255,.1);color:rgba(2
 html[data-theme="dark"] .ivc-id:not(.px){background:rgba(10,155,220,.18);border-color:rgba(10,155,220,.5)}
 html[data-theme="dark"] .ivc-id.px{background:rgba(225,90,38,.14)}
 html[data-theme="dark"] .ivc-math .g,html[data-theme="dark"] .ivc-math .g b{color:#3bbf7f}
-html[data-theme="dark"] .ivc-btn.cust{color:#b4abff;background:rgba(124,111,247,.16)}
-html[data-theme="dark"] .ivc-btn.own{background:rgba(255,255,255,.12)}
-/* optional menu: Settings toggle hides the whole Product Invoices section */
+html[data-theme="dark"] html[data-theme="dark"] /* optional menu: Settings toggle hides the whole Product Invoices section */
 html.ivm-off #invoiceSection{display:none}
 .ivm-sw{position:relative;width:44px;height:26px;flex:none;margin-left:10px}
 .ivm-sw input{position:absolute;inset:0;width:100%;height:100%;opacity:0;margin:0;cursor:pointer;z-index:1}
@@ -20543,7 +20536,6 @@ function renderInvoices() {
         <span class="ivc-item-t">${_m(it.total)}</span>
       </div>`).join('');
     const more = items.length > 2 ? `<div class="ivc-more">+${items.length - 2} more item${items.length - 2 > 1 ? 's' : ''}</div>` : '';
-    const dl = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-download"/></svg>';
     const idc = escapeHtml(String(inv.id));
     return `
       <div class="ivc${isRet ? ' is-return' : ''}" onclick="openInvoiceDetailModal('${idc}')" role="button" tabindex="0" onkeydown="if(event.key==='Enter')openInvoiceDetailModal('${idc}')">
@@ -20566,10 +20558,6 @@ function renderInvoices() {
             ${inv.discount > 0 ? `<span class="g">Discount <b>−${_m(inv.discount)}</b></span>` : ''}
           </div>
           <div class="ivc-total"><small>${isRet ? 'Refund' : 'Grand Total'}</small><b>${_m(inv.totalAmount)}</b></div>
-        </div>
-        <div class="ivc-act">
-          <button type="button" class="ivc-btn cust" onclick="event.stopPropagation();openPdfSizePicker('customer','${idc}')">${dl}Customer PDF</button>
-          <button type="button" class="ivc-btn own" onclick="event.stopPropagation();openPdfSizePicker('owner','${idc}')">${dl}Owner PDF</button>
         </div>
       </div>`;
   }).join('');
