@@ -2304,6 +2304,28 @@ html:not([data-theme="light"]) .odm-card { background: rgba(124,111,247,0.08); b
   .pin-card__side{ flex:0 0 auto; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:5px; min-width:44px; }
   .pin-card__side .pk-qty{ min-width:34px; height:24px; font-size:12px; }
   .pin-card__price{ font-size:12px; font-weight:800; color:var(--text-1); line-height:1; white-space:nowrap; }
+  /* Wishlist > By product: same card as the pinned product, with a saved-count heart in the pin slot */
+  .wl-card{ margin:8px 12px 0; cursor:pointer; height:94px; padding-top:0; padding-bottom:0; }
+  .wl-card .pin-card__name{ white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .wl-card .pin-card__main{ gap:2px; }
+  .wl-spec{ font-size:11.5px; font-weight:600; line-height:1.2; color:var(--text-2); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .wl-card:active{ transform:scale(.99); }
+  .wl-card[aria-expanded="true"]{ border-color:rgba(10,155,220,0.65); }
+  .wl-card + .hub-detail{ margin:6px 12px 2px; }
+  .wl-saved{ display:inline-flex; align-items:center; gap:4px; height:20px; padding:0 8px 0 6px; border-radius:99px; background:rgba(239,68,68,0.14); border:1px solid rgba(239,68,68,0.38); color:var(--text-1); font-family:var(--font-head); font-size:11px; font-weight:800; }
+  .wl-saved .wl-heart{ fill:#ef4444; }
+  .wl-card{ padding-right:7px; padding-left:8px; }
+  .wl-card .wl-thumb{ cursor:zoom-in; }
+  .wl-card .hub-thumb{ width:68px; height:68px; border-radius:12px; }
+  .wl-card .pin-card__side{ gap:4px; min-width:58px; align-items:flex-end; }
+  .wl-card .pin-card__price{ font-size:15px; }
+  .wl-old-row{ display:flex; flex-direction:column; align-items:flex-end; gap:1px; }
+  .wl-old{ position:relative; display:inline-block; font-size:12px; font-weight:600; color:#ef4444; }
+  .wl-old::after{ content:''; position:absolute; left:0; right:-2px; top:0; bottom:0; height:1.5px; margin:auto; background:var(--text-3); border-radius:1px; transform:rotate(-8deg); }
+  .wl-off{ display:inline-flex; align-items:center; background:rgba(5,150,105,0.20); color:#34D399; border:1px solid #059669; font-family:var(--font-head); font-size:8px; font-weight:800; padding:1px 5px; border-radius:4px; text-transform:uppercase; letter-spacing:.2px; line-height:1.2; }
+  html[data-theme="light"] .wl-off{ background:#D1FAE5; color:#059669; border-color:#10B981; }
+  .wl-heart{ width:11px; height:11px; fill:currentColor; flex:none; }
+  .hub-pill .wl-heart, .hub-count .wl-heart{ width:12px; height:12px; fill:#ef4444; margin-right:4px; vertical-align:-1px; }
   .stock-tag{ font-weight:800; }
   .stock-tag.in{ color:#2fd88a; } .stock-tag.low{ color:#e0a020; } .stock-tag.out{ color:#e46a6a; }
   /* product picker sheet */
@@ -2567,7 +2589,7 @@ html:not([data-theme="light"]) .odm-card { background: rgba(124,111,247,0.08); b
       <span>Customers</span>
     </button>
     <button class="nav-item" data-nav="wishlist">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20.5s-7.5-4.6-9.2-9.3C1.7 8 3.6 5 6.8 5c2 0 3.5 1.1 5.2 3 1.7-1.9 3.2-3 5.2-3 3.2 0 5.1 3 4 6.2-1.7 4.7-9.2 9.3-9.2 9.3Z"/></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
       <span>Wishlist</span>
     </button>
     <button class="nav-item" data-nav="subscribers">
@@ -5734,6 +5756,7 @@ function closeOrderDetailsModal() {
     wl:{ rows:null, mode:"product" }
   };
   const HUB_PAGE = 30;
+  const HEART_SVG = '<svg class="wl-heart" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.8 1-1a5.5 5.5 0 0 0 0-7.8z"/></svg>';   // same heart as the website profile Wishlist tile
   els.hubSearch = document.getElementById("hubSearch");
   els.hubModeTabs = document.getElementById("hubModeTabs");
   els.hubStatusTabs = document.getElementById("hubStatusTabs");
@@ -5789,6 +5812,7 @@ function closeOrderDetailsModal() {
         const rows = await hubRpc("admin_list_wishlists");
         if(my !== hub.token) return;
         hub.wl.rows = rows || [];
+        enrichWishlist(my);
       }
       hub.error = null;
     }catch(err){
@@ -5848,7 +5872,8 @@ function closeOrderDetailsModal() {
       html = hub.wl.mode === "product" ? wishlistByProductHtml(q) : wishlistByCustomerHtml(q);
       count = wishlistCount();
     }
-    els.customersCount.textContent = count;
+    if(hub.tab === "wishlist" && count) els.customersCount.innerHTML = HEART_SVG + escapeHtml(count);
+    else els.customersCount.textContent = count;
     box.innerHTML = html;
     if(hub.autoOpen && hub.tab === "customers"){
       const row = box.querySelector(`[data-hub-row][data-code="${CSS.escape(hub.autoOpen)}"]`);
@@ -5902,6 +5927,39 @@ function closeOrderDetailsModal() {
     const entries = rows.reduce((n, r) => n + r.items.length, 0);
     return entries ? `${entries} saved` : "";
   }
+  function wishlistCardHtml(g){
+    const it = g.item, n = g.customers.length;
+    const pin = { category:it.category, subcategory:it.subcategory };
+    const saved = `<span class="wl-saved" aria-label="${n} saved">${HEART_SVG}${n}</span>`;
+    const old = Number(it.old_price) || 0, price = Number(it.price) || 0;
+    const hasOld = !it.missing && old > price && price > 0;   // same rule as the web product card
+    const side = saved + (it.missing ? statusBadge(it)
+      : `<span class="pin-card__price">${it.price != null ? escapeHtml(money(it.price)) : ""}</span>`
+        + (hasOld ? `<div class="wl-old-row"><span class="wl-old">${escapeHtml(money(old))}</span><span class="wl-off">${Math.round((old - price) / old * 100)}% OFF</span></div>` : ""));   // no stock badge: only out-of-stock web products get wishlisted
+    return `<div class="pin-card wl-card" data-hub-row role="button" tabindex="0" aria-expanded="false">
+        ${it.missing ? thumbHtml(it.image) : thumbHtml(it.image).replace('class="hub-thumb"', `class="hub-thumb wl-thumb" data-wl-pid="${escapeHtml(String(it.product_id))}" role="button" aria-label="View photos"`)}
+        <div class="pin-card__main">
+          <div class="odm-pc-cat">${it.missing ? "" : pinCatsHtml(pin)}</div>
+          <div class="odm-pc-name pin-card__name">${escapeHtml((it.missing || !it.brand || itemName(it).toLowerCase().startsWith(String(it.brand).toLowerCase()) ? itemName(it) : it.brand + " " + itemName(it)).trim())}</div>
+          ${it.spec ? `<div class="wl-spec">${escapeHtml(it.spec)}</div>` : ""}
+          <div class="odm-pi-sku">${escapeHtml(it.sku || "")}</div>
+        </div>
+        <div class="pin-card__side">${side}</div>
+      </div>`;
+  }
+  async function enrichWishlist(my){      // RPC rows carry no category/spec/price/stock: fetch them from the catalog, then redraw
+    const c = hubClient(); if(!c) return;
+    const ids = [...new Set((hub.wl.rows || []).flatMap(r => r.items.map(i => i.product_id)).filter(Boolean))];
+    if(!ids.length) return;
+    try{
+      const { data } = await c.from("products").select("id,price,old_price,category,subcategory,product_web(web_images),supplement_details(potency_amount,potency_unit,capsule_count)").in("id", ids);
+      if(my !== hub.token || !data) return;
+      const by = {};
+      data.forEach(p => { const sd = one(p.supplement_details); by[p.id] = { images:(() => { const w = one(p.product_web); return w && Array.isArray(w.web_images) ? w.web_images.filter(Boolean) : []; })(), price:p.price, old_price:p.old_price, category:p.category, subcategory:p.subcategory, spec:sd ? pkSpecOf(sd) : "" }; });
+      hub.wl.rows.forEach(r => r.items.forEach(it => { const x = by[it.product_id]; if(x) Object.assign(it, x); }));
+      if(hub.tab === "wishlist") hubRender(true);
+    }catch(_){}
+  }
   function wishlistByProductHtml(q){
     const map = new Map();
     (hub.wl.rows || []).forEach(r => r.items.forEach(it => {
@@ -5914,14 +5972,7 @@ function closeOrderDetailsModal() {
     list.sort((a, b) => b.customers.length - a.customers.length || itemName(a.item).localeCompare(itemName(b.item)));
     if(!list.length) return q ? emptyBlock("No matches", "No saved product or customer matches that search.") : emptyBlock("No wishlist entries yet", "Products customers save on the website will appear here.");
     return list.map(g => `
-      <div ${rowAttrs()}>
-        ${thumbHtml(g.item.image)}
-        <div class="cust-list-row__main">
-          <div class="cust-list-row__name">${escapeHtml(itemName(g.item))}</div>
-          <div class="hub-row__sub">${escapeHtml(itemSub(g.item) || " ")}</div>
-        </div>
-        ${statusBadge(g.item)}<span class="hub-pill">${g.customers.length} saved</span>
-      </div>
+      ${wishlistCardHtml(g)}
       <div class="hub-detail" hidden>${g.customers.map(c => `
         <div class="hub-sub"><div class="hub-sub__main"><div class="hub-sub__name">${escapeHtml(c.name || "Unnamed customer")}</div><div class="hub-row__sub">${escapeHtml([c.code, c.email].filter(Boolean).join(" · "))}</div></div>
         ${c.code ? `<button class="hub-link" data-focus-cust="${escapeHtml(c.code)}">View</button>` : ""}</div>`).join("")}</div>`).join("");
@@ -5939,7 +5990,7 @@ function closeOrderDetailsModal() {
           ${r.customer.code ? `<span class="cust-list-row__id">${escapeHtml(r.customer.code)}</span>` : ""}
           <div class="hub-row__sub">${escapeHtml(r.customer.email || "")}</div>
         </div>
-        <span class="hub-pill">${r.items.length} saved</span>
+        <span class="hub-pill">${HEART_SVG}${r.items.length} saved</span>
       </div>
       <div class="hub-detail" hidden>${r.items.map(it => `
         <div class="hub-sub">${thumbHtml(it.image)}<div class="hub-sub__main"><div class="hub-sub__name">${escapeHtml(itemName(it))}</div><div class="hub-row__sub">${escapeHtml(itemSub(it) || " ")}</div></div>${statusBadge(it)}</div>`).join("")}
@@ -5997,6 +6048,16 @@ function closeOrderDetailsModal() {
     const b = e.target.closest("[data-substatus]");
     if(b && b.dataset.substatus !== hub.subs.status){ hub.subs.status = b.dataset.substatus; syncHubHeader(); hubLoad(true); }
   });
+  els.customersListScroll.addEventListener("click", e => {        // tap a wishlist photo -> the same zoom gallery as the pinned product (does not expand the row)
+    const t = e.target.closest(".wl-thumb"); if(!t) return;
+    e.stopPropagation();
+    let it = null;
+    (hub.wl.rows || []).some(r => r.items.some(x => { if(String(x.product_id) === t.dataset.wlPid){ it = x; return true; } return false; }));
+    if(!it) return;
+    const imgs = (it.images && it.images.length) ? it.images : [imgOf(it.image)].filter(Boolean);
+    if(!imgs.length) return;
+    pkZoomOpen(imgs, 0, () => t.querySelector("img"));
+  }, true);
   els.customersListScroll.addEventListener("click", e => {
     if(e.target.closest("[data-more]")){ hubLoad(false); return; }
     if(e.target.closest("[data-retry]")){ hubLoad(true); return; }
