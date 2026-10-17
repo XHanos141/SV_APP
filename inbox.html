@@ -2147,6 +2147,9 @@ html:not([data-theme="light"]) .odm-card { background: rgba(124,111,247,0.08); b
   #customersView .inbox-header{ flex:0 0 auto; }
   #customersView .inbox-header__body{ padding-bottom:0; }
   #customersView .search-row{ margin-bottom:12px; }
+  /* match the Unified Inbox header spacing (same gaps above the search and around the tabs) */
+  #customersView .inbox-header__top{ margin-bottom:8px; }
+  #customersView[data-hub-tab="wishlist"] .search-row, #customersView[data-hub-tab="subscribers"] .search-row{ margin-bottom:6px; }
   #customersView .status-tabs{ margin-bottom:-4px; }
   #hubSearch{ width:100%; height:38px; background:var(--surface); border:1px solid var(--hairline); border-radius:10px;
     padding:0 14px 0 38px; font-size:14.5px; color:var(--text-1); font-family:var(--font-body); outline:none;
@@ -5836,6 +5839,7 @@ function closeOrderDetailsModal() {
       els.hubTitle.textContent = title;
       els.hubTitle.classList.remove("title-swap"); void els.hubTitle.offsetWidth; els.hubTitle.classList.add("title-swap");
     }
+    document.getElementById("customersView").dataset.hubTab = hub.tab;
     syncPills(els.hubModeTabs, hub.tab === "wishlist" && !hub.error, `[data-wlmode="${hub.wl.mode}"]`);
     syncPills(els.hubStatusTabs, hub.tab === "subscribers" && !hub.error, `[data-substatus="${hub.subs.status}"]`);
     const c = hub.subs.counts;
