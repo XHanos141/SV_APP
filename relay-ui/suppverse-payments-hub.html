@@ -22,7 +22,7 @@
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 html,body{background:var(--bg);color:var(--t1);font-family:'DM Sans',system-ui,sans-serif;font-size:14px;line-height:1.45}
-body{max-width:480px;margin:0 auto;min-height:100vh;padding:0 0 96px;transition:background .3s}
+body{max-width:480px;margin:0 auto;min-height:100vh;padding:0 0 calc(92px + env(safe-area-inset-bottom));transition:background .3s}
 h1,h2,h3,.jk{font-family:'Plus Jakarta Sans','DM Sans',sans-serif}
 .mono{font-family:'Roboto Mono',monospace}
 button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
@@ -106,7 +106,7 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 .pdot{width:6px;height:6px;border-radius:50%;background:#4cc790;animation:pp 2s infinite}
 @keyframes pp{50%{opacity:.35}}
 /* ===== tabs v2: 4 primary tabs + animated sub-filter ===== */
-.tabs-wrap{position:sticky;top:calc(var(--topH,56px) + var(--vswH,0px));z-index:18;background:var(--bg);border-bottom:1px solid var(--line);margin-top:0}
+.tabs-wrap{position:sticky;top:var(--topH,56px);z-index:18;background:var(--bg);border-bottom:1px solid var(--line);margin-top:0}
 .tabs{position:relative;display:grid;grid-template-columns:repeat(4,1fr);padding:0 8px;--acc:var(--purple)}
 .tab{display:flex;align-items:center;justify-content:center;gap:6px;min-height:46px;padding:0 2px;font-size:13.5px;font-weight:500;color:var(--t3);transition:color .2s}
 .tab.on{color:var(--t1);font-weight:600}
@@ -182,7 +182,7 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 .toast b{font-size:13.5px}.toast small{display:block;color:var(--t3);font-size:12px}
 
 /* FAB */
-.fab{position:fixed;right:max(16px,calc(50% - 224px));bottom:20px;background:var(--purple);color:#fff;border-radius:99px;padding:13px 18px;font-weight:600;display:flex;gap:8px;align-items:center;box-shadow:0 8px 20px rgba(124,111,247,.4);z-index:15}
+.fab{position:fixed;right:max(16px,calc(50% - 224px));bottom:calc(78px + env(safe-area-inset-bottom));background:var(--purple);color:#fff;border-radius:99px;padding:13px 18px;font-weight:600;display:flex;gap:8px;align-items:center;box-shadow:0 8px 20px rgba(124,111,247,.4);z-index:15}
 .fab svg{width:16px;height:16px;stroke:#fff;fill:none;stroke-width:2.4;stroke-linecap:round}
 
 /* sheet */
@@ -247,11 +247,13 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 .btn.pri{background:var(--purple);border-color:var(--purple);color:#fff}
 
 /* ===== 3 views: Overview / Payments / Settings ===== */
-.vsw-wrap{position:sticky;top:var(--topH,56px);z-index:19;background:var(--bg);border-bottom:1px solid var(--line)}
-.vsw{position:relative;display:grid;grid-template-columns:repeat(3,1fr);padding:0 8px}
-.vsw button{display:flex;align-items:center;justify-content:center;min-height:46px;font-size:13.5px;font-weight:500;color:var(--t3);transition:color .2s}
-.vsw button.on{color:var(--t1);font-weight:600}
-.vind{position:absolute;left:0;bottom:-1px;height:3px;border-radius:3px 3px 0 0;background:var(--purple);transition:transform .35s var(--ease),width .35s var(--ease)}
+/* bottom nav (same pattern as inbox.html) */
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;max-width:480px;margin:0 auto;background:var(--s1);border-top:1px solid var(--line);display:flex;padding:9px 4px calc(9px + env(safe-area-inset-bottom));z-index:30}
+.nav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;color:var(--t3);padding:4px 0;transition:color .2s,transform .15s}
+.nav-item svg{width:21px;height:21px}
+.nav-item span{font-size:10px;font-weight:600}
+.nav-item[aria-current="page"]{color:var(--purple)}
+.nav-item:active{transform:scale(.94)}
 .view{display:none}.view.on{display:block}
 body:not([data-view=pay]) .fab{display:none}
 .view-in{animation:vin .35s var(--ease) both}
@@ -336,7 +338,7 @@ body:not([data-view=pay]) .fab{display:none}
 .dh-r{display:flex;align-items:center;gap:10px;padding:11px 0;border-top:1px dashed var(--line);font-size:13px}
 .dh-r:first-child{border-top:0}.dh-r .v{margin-left:auto;display:flex;align-items:center;gap:8px;color:var(--t3);font-size:12.5px}
 .fix{background:var(--p-soft);color:var(--purple);font-weight:700;font-size:11.5px;padding:5px 10px;border-radius:9px}
-.mt{position:fixed;left:50%;bottom:24px;transform:translate(-50%,20px);background:var(--s2);color:var(--t1);border:1px solid var(--line);font-size:12.5px;padding:10px 14px;border-radius:12px;opacity:0;pointer-events:none;transition:.25s;z-index:70;max-width:88%;text-align:center;box-shadow:var(--shadow)}
+.mt{position:fixed;left:50%;bottom:calc(84px + env(safe-area-inset-bottom));transform:translate(-50%,20px);background:var(--s2);color:var(--t1);border:1px solid var(--line);font-size:12.5px;padding:10px 14px;border-radius:12px;opacity:0;pointer-events:none;transition:.25s;z-index:70;max-width:88%;text-align:center;box-shadow:var(--shadow)}
 .mt.show{opacity:1;transform:translate(-50%,0)}
 @media(prefers-reduced-motion:reduce){.od-s{transition:none}.pulse{animation:none}}
 
@@ -359,11 +361,6 @@ body:not([data-view=pay]) .fab{display:none}
   </div>
   <div class="sv-header__end"><div class="header-badge"><span class="pdot"></span>Live</div></div>
 </div>
-
-<div class="vsw-wrap" id="vswWrap"><div class="vsw" id="vsw" role="tablist" aria-label="Payment hub sections">
-  <button class="on" role="tab" data-v="ov">Overview</button><button role="tab" data-v="pay">Payments</button><button role="tab" data-v="set">Settings</button>
-  <span class="vind" id="vind"></span>
-</div></div>
 
 <!-- ============ OVERVIEW ============ -->
 <div class="view on" id="view-ov"><section class="wrap">
@@ -440,6 +437,12 @@ body:not([data-view=pay]) .fab{display:none}
     <div class="dh-r">App version<span class="v">v1.0</span></div>
   </div>
 </section></div>
+
+<nav class="bottom-nav" aria-label="Payment hub sections">
+  <button class="nav-item" data-v="ov" aria-current="page"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg><span>Overview</span></button>
+  <button class="nav-item" data-v="pay"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="5" width="19" height="14" rx="2.5"/><path d="M2.5 10h19M6.5 15h4"/></svg><span>Payments</span></button>
+  <button class="nav-item" data-v="set"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h8M18 6h2M4 12h2M12 12h8M4 18h10M20 18h0"/><circle cx="15" cy="6" r="2.2"/><circle cx="9" cy="12" r="2.2"/><circle cx="17" cy="18" r="2.2"/></svg><span>Settings</span></button>
+</nav>
 
 <button class="fab" id="sim"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>Simulate payment</button>
 
@@ -652,15 +655,13 @@ $('#raHead').onclick=()=>odoRoll('#view-ov');
 /* ===== views ===== */
 function setView(v){
   document.body.dataset.view=v;
-  document.querySelectorAll('.vsw button').forEach(b=>{const on=b.dataset.v===v;b.classList.toggle('on',on);b.setAttribute('aria-selected',on)});
+  document.querySelectorAll('.nav-item').forEach(b=>{if(b.dataset.v===v)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current')});
   document.querySelectorAll('.view').forEach(p=>{const on=p.id==='view-'+v;p.classList.toggle('on',on);if(on){p.classList.remove('view-in');void p.offsetWidth;p.classList.add('view-in')}});
   window.scrollTo({top:0});
   if(v==='ov')odoRoll('#view-ov');
   if(v==='pay')placeInd();
-  placeVind();
 }
-function placeVind(){const on=document.querySelector('.vsw button.on');if(!on)return;const w=Math.max(on.offsetWidth-28,24);$('#vind').style.width=w+'px';$('#vind').style.transform=`translateX(${on.offsetLeft+(on.offsetWidth-w)/2}px)`}
-document.querySelectorAll('.vsw button').forEach(b=>b.onclick=()=>setView(b.dataset.v));
+document.querySelectorAll('.nav-item').forEach(b=>b.onclick=()=>setView(b.dataset.v));
 $('#pmStrip').onclick=()=>setView('set');
 function mt(t){const e=$('#mt');e.textContent=t;e.classList.add('show');clearTimeout(mt.t);mt.t=setTimeout(()=>e.classList.remove('show'),2600)}
 
@@ -730,7 +731,7 @@ pmRender();
 /* theme */
 $('#backBtn').onclick=()=>{if(window.parent!==window)parent.postMessage({type:'sv-back'},'*');else history.back()};
 render();
-ovReady=true;odoRoll('#view-ov');placeVind();
+ovReady=true;odoRoll('#view-ov');
 </script>
 </body>
 </html>
