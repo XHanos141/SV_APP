@@ -2322,15 +2322,12 @@ html:not([data-theme="light"]) .odm-card { background: rgba(124,111,247,0.08); b
   .from-admin .msg-file__ico{ background:rgba(255,255,255,.2); color:#fff; }
   .from-admin .msg-file__size{ color:rgba(255,255,255,.8); }
   .note-card__body .msg-atts{ margin:6px 0 4px; }
-  .img-viewer{ position:fixed; inset:0; z-index:90; background:rgba(0,0,0,.92); display:flex; align-items:center; justify-content:center; animation:svFade .22s ease both; }
+  .img-viewer{ position:fixed; inset:0; z-index:999; background:rgba(8,12,20,.64); -webkit-backdrop-filter:blur(30px) saturate(1.15); backdrop-filter:blur(30px) saturate(1.15); display:flex; flex-direction:column; opacity:0; transition:opacity .3s ease; }
   .img-viewer[hidden]{ display:none; }
-  .img-viewer img{ max-width:96vw; max-height:88vh; border-radius:8px; }
-  .iv-stage{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; overflow:hidden; touch-action:none; }
-  .iv-stage img{ transform-origin:center; will-change:transform; user-select:none; -webkit-user-drag:none; }
-  .iv-stage video{ display:none; max-width:100vw; max-height:86vh; background:#000; border-radius:8px; }
-  .img-viewer.is-video video{ display:block; }
-  .img-viewer.is-video .iv-stage img{ display:none; }
-  .img-viewer__x{ z-index:2; position:absolute; top:calc(14px + env(safe-area-inset-top)); right:16px; width:40px; height:40px; border-radius:50%; background:rgba(255,255,255,.14); color:#fff; font-size:26px; line-height:1; }
+  .img-viewer.open{ opacity:1; }
+  .iv-top{ display:flex; align-items:center; padding:calc(12px + env(safe-area-inset-top)) 14px 12px; position:relative; z-index:2; }
+  .iv-stage{ flex:1; position:relative; display:flex; align-items:center; justify-content:center; overflow:hidden; padding:0 0 calc(12px + env(safe-area-inset-bottom)); transition:transform .42s cubic-bezier(.22,1,.36,1); will-change:transform; }
+  .iv-stage video{ max-width:100%; max-height:100%; background:#000; border-radius:10px; }
 
   /* ---------- Pinned product card ---------- */
   .pinned-product{ display:flex; flex-direction:column; gap:8px; padding:12px 12px 8px; background:var(--body-bg); border-bottom:1px solid var(--hairline); overflow-x:hidden; overflow-y:auto;
@@ -2856,7 +2853,7 @@ html:not([data-theme="light"]) .odm-card { background: rgba(124,111,247,0.08); b
   <div class="pp-view pk-detail" id="ppDetailView" hidden></div>
 </div>
 
-<div class="img-viewer" id="imgViewer" hidden><div class="iv-stage" id="ivStage"><img id="imgViewerImg" alt="" draggable="false"><video id="ivVideo" controls playsinline></video></div><button type="button" class="img-viewer__x" id="ivClose" aria-label="Close">&times;</button></div>
+<div class="img-viewer" id="imgViewer" hidden><div class="iv-top"><button type="button" class="pk-zoom__back" id="ivClose" aria-label="Close video"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg><span>Back</span></button></div><div class="iv-stage" id="ivStage"><video id="ivVideo" controls playsinline></video></div></div>
 
 <div class="cust-sheet-backdrop" id="custSheetBackdrop"></div>
 <div class="cust-sheet" id="custSheet" role="dialog" aria-modal="true" aria-labelledby="custSheetTitle" aria-hidden="true">
@@ -5358,6 +5355,7 @@ function closeOrderDetailsModal() {
     const wrap = document.createElement("div");
     wrap.className = "msg-atts";
     let thumbs = null;
+    const imgThumbs = [];                       // every photo in this message, so the zoom can swipe between them
     const card = (tag, label, sub, extra) => {
       const el = document.createElement(tag);
       el.className = "msg-file" + (extra || "");
@@ -5390,6 +5388,7 @@ function closeOrderDetailsModal() {
           img.alt = a.name || "Photo"; img.loading = "lazy";
           resolveAttUrl(a).then(u => { if(u) img.src = u; });
           box.appendChild(img);
+          imgThumbs.push({ a, el:img });
         }else{
           const v = document.createElement("video");
           v.muted = true; v.playsInline = true; v.preload = "metadata";
@@ -5399,7 +5398,15 @@ function closeOrderDetailsModal() {
           pl.className = "msg-thumb__play"; pl.innerHTML = `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>`;
           box.appendChild(pl);
         }
-        box.addEventListener("click", () => resolveAttUrl(a).then(u => { if(u) openMediaViewer(kind, u, a.name || (kind === "video" ? "Video" : "Photo")); }));
+        box.addEventListener("click", () => {
+          if(kind === "video"){ resolveAttUrl(a).then(u => { if(u) openVideoViewer(u, box); }); return; }
+          const group = imgThumbs.slice();
+          Promise.all(group.map(g => resolveAttUrl(g.a))).then(urls => {
+            const items = group.map((g, k) => ({ u:urls[k], el:g.el })).filter(o => o.u);
+            const idx = items.findIndex(o => o.el === box.querySelector("img"));
+            if(items.length) pkZoomOpen(items.map(o => o.u), Math.max(0, idx), k => items[k] && items[k].el);
+          });
+        });
         thumbs.appendChild(box);
       }else if(kind === "audio"){
         const au = document.createElement("audio");
@@ -5963,77 +5970,41 @@ function closeOrderDetailsModal() {
     }
   });
 
+  /* Video viewer: same blurred backdrop + fly-from-thumbnail motion as the product zoom (photos use pkZoomOpen) */
   const imgViewer = document.getElementById("imgViewer");
-  const ivStage = document.getElementById("ivStage"), ivImg = document.getElementById("imgViewerImg"), ivVideo = document.getElementById("ivVideo");
-  let ivS = 1, ivX = 0, ivY = 0, ivPinch = null, ivPan = null, ivMoved = false, ivLastTap = 0;
-  const ivPtrs = new Map();
-  const ivApply = () => { ivImg.style.transform = `translate(${ivX}px,${ivY}px) scale(${ivS})`; };
-  const ivDist = () => { const p = [...ivPtrs.values()]; return Math.hypot(p[0].x - p[1].x, p[0].y - p[1].y) || 1; };
-  function ivClamp(){
-    if(ivS <= 1){ ivX = 0; ivY = 0; return; }
-    const mx = Math.max(0, (ivImg.offsetWidth * ivS - innerWidth) / 2), my = Math.max(0, (ivImg.offsetHeight * ivS - innerHeight) / 2);
-    ivX = Math.max(-mx, Math.min(mx, ivX)); ivY = Math.max(-my, Math.min(my, ivY));
+  const ivStage = document.getElementById("ivStage"), ivVideo = document.getElementById("ivVideo");
+  let ivFrom = null, ivTimer = 0;
+  function ivFlyTo(el){                         // transform that shrinks the stage onto a thumbnail box
+    const r = el && el.isConnected ? el.getBoundingClientRect() : null;
+    if(!r || r.width < 20 || r.height < 20 || r.bottom < 0 || r.top > innerHeight || pkReduce) return "";
+    ivStage.style.transition = "none"; const prev = ivStage.style.transform; ivStage.style.transform = "none";
+    const sr = ivStage.getBoundingClientRect(); ivStage.style.transform = prev; void ivStage.offsetWidth; ivStage.style.transition = "";
+    const dx = (r.left + r.width / 2) - (sr.left + sr.width / 2), dy = (r.top + r.height / 2) - (sr.top + sr.height / 2);
+    return "translate(" + dx + "px," + dy + "px) scale(" + Math.min(r.width / sr.width, r.height / sr.height) + ")";
   }
-  function ivReset(){ ivS = 1; ivX = 0; ivY = 0; ivPtrs.clear(); ivPinch = null; ivPan = null; ivApply(); }
-  function openMediaViewer(kind, src, alt){
-    ivReset();
-    imgViewer.classList.toggle("is-video", kind === "video");
-    if(kind === "video"){
-      ivImg.removeAttribute("src"); ivVideo.src = src; ivVideo.play().catch(() => {});
-    }else{
-      ivVideo.removeAttribute("src"); ivImg.src = src; ivImg.alt = alt || "";
-    }
+  function openVideoViewer(src, fromEl){
+    clearTimeout(ivTimer); ivFrom = fromEl || null;
+    ivVideo.src = src;
     imgViewer.hidden = false;
+    const start = ivFlyTo(ivFrom);
+    ivStage.style.transition = "none"; ivStage.style.transform = start || "none"; void ivStage.offsetWidth; ivStage.style.transition = "";
+    ivStage.style.transform = "none";
+    imgViewer.classList.add("open");
+    ivVideo.play().catch(() => {});
   }
-  function openImgViewer(src, alt){ openMediaViewer("image", src, alt); }
   function closeImgViewer(){
-    if(imgViewer.hidden) return;
-    imgViewer.hidden = true;
-    ivVideo.pause(); ivVideo.removeAttribute("src"); ivVideo.load();
-    ivImg.removeAttribute("src"); ivReset();
+    if(imgViewer.hidden || !imgViewer.classList.contains("open")) return;
+    ivVideo.pause();
+    const end = ivFlyTo(ivFrom);
+    if(end) ivStage.style.transform = end;
+    imgViewer.classList.remove("open");
+    clearTimeout(ivTimer);
+    ivTimer = setTimeout(() => {
+      imgViewer.hidden = true; ivVideo.removeAttribute("src"); ivVideo.load();
+      ivStage.style.transition = "none"; ivStage.style.transform = "none"; void ivStage.offsetWidth; ivStage.style.transition = "";
+    }, 420);
   }
   document.getElementById("ivClose").addEventListener("click", closeImgViewer);
-  ivStage.addEventListener("click", e => { if(e.target === ivStage && ivS === 1) closeImgViewer(); });
-  ivStage.addEventListener("pointerdown", e => {
-    if(imgViewer.classList.contains("is-video")) return;
-    ivPtrs.set(e.pointerId, { x:e.clientX, y:e.clientY });
-    ivMoved = false;
-    if(ivPtrs.size === 2){ ivPinch = { d:ivDist(), s:ivS }; ivPan = null; }
-    else if(ivPtrs.size === 1){ ivPan = { x:e.clientX, y:e.clientY, tx:ivX, ty:ivY }; }
-  });
-  ivStage.addEventListener("pointermove", e => {
-    if(!ivPtrs.has(e.pointerId)) return;
-    ivPtrs.set(e.pointerId, { x:e.clientX, y:e.clientY });
-    if(ivPinch && ivPtrs.size >= 2){
-      ivS = Math.max(1, Math.min(5, ivPinch.s * ivDist() / ivPinch.d));
-      ivMoved = true; ivClamp(); ivApply();
-    }else if(ivPan && ivPtrs.size === 1){
-      const dx = e.clientX - ivPan.x, dy = e.clientY - ivPan.y;
-      if(Math.abs(dx) + Math.abs(dy) > 4) ivMoved = true;
-      if(ivS > 1){ ivX = ivPan.tx + dx; ivY = ivPan.ty + dy; ivClamp(); ivApply(); }
-    }
-  });
-  const ivUp = e => {
-    if(!ivPtrs.has(e.pointerId)) return;
-    ivPtrs.delete(e.pointerId);
-    if(ivPtrs.size < 2) ivPinch = null;
-    if(ivPtrs.size === 1){ const p = [...ivPtrs.values()][0]; ivPan = { x:p.x, y:p.y, tx:ivX, ty:ivY }; }
-    if(ivPtrs.size === 0){
-      ivPan = null;
-      if(!ivMoved && e.type === "pointerup" && e.target === ivImg){   // double-tap toggles zoom
-        const now = Date.now();
-        if(now - ivLastTap < 300){ ivS = ivS > 1 ? 1 : 2.5; ivClamp(); ivApply(); ivLastTap = 0; }
-        else ivLastTap = now;
-      }
-    }
-  };
-  ivStage.addEventListener("pointerup", ivUp);
-  ivStage.addEventListener("pointercancel", ivUp);
-  ivStage.addEventListener("wheel", e => {
-    if(imgViewer.classList.contains("is-video")) return;
-    e.preventDefault();
-    ivS = Math.max(1, Math.min(5, ivS * (e.deltaY < 0 ? 1.15 : 0.87))); ivClamp(); ivApply();
-  }, { passive:false });
 
   document.getElementById("threadMoreBtn").addEventListener("click", () => {
     threadMenu.classList.contains("open") ? closeThreadMenu() : openThreadMenu();
