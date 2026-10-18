@@ -2159,6 +2159,11 @@ html[data-theme="dark"] .invoice-modal-order-id { color: #a095f5; }
 }
 
 /* ====== INVOICE POPUP (order invoice) ====== */
+.invoice-modal-footer-split .btn-pdf-customer{flex:1.5}
+.invoice-modal-footer-split .btn-pdf-owner{flex:1;background:transparent;color:#001f3c;border:1.5px solid rgba(0,31,60,.18)}
+.invoice-modal-footer-split .btn-pdf-owner:hover{background:rgba(0,31,60,.05)}
+html[data-theme="dark"] .invoice-modal-footer-split .btn-pdf-owner{color:#fff;border-color:rgba(255,255,255,.25)}
+html[data-theme="dark"] .invoice-modal-footer-split .btn-pdf-owner:hover{background:rgba(255,255,255,.08)}
 .btn-invoice-print{flex:1;height:44px;border:1.5px solid rgba(0,31,60,.14);background:transparent;color:#001f3c;border-radius:14px;font:700 13px "DM Sans",sans-serif;display:flex;align-items:center;justify-content:center;gap:8px;cursor:pointer}
 .btn-invoice-print:active{transform:scale(.97)}
 html[data-theme="dark"] .btn-invoice-print{color:#fff;border-color:rgba(255,255,255,.2)}
@@ -20187,7 +20192,7 @@ function _executePdfRender(htmlContent, filename, size, label, pdfOpts) {
 }
 
 /* ====== PRINT (flag-gated; set true once a printer is available) ====== */
-const PRINT_ENABLED = false;
+const PRINT_ENABLED = true;
 
 function svPrintInvoice(invoiceId, size) {
   const inv = invoices.find(i => i.id === invoiceId);
