@@ -8459,11 +8459,13 @@ html[data-theme="dark"] #pxQuoteSheet .pxq-rq { color:#FF9466; border-color:rgba
 #pxQuoteSheet .pxq-pr-l { font-size:10.5px; font-weight:700; letter-spacing:.04em; text-transform:uppercase; opacity:.65; }
 #pxQuoteSheet .pxq-pr-cell b { font:800 17px 'Plus Jakarta Sans',sans-serif; }
 #pxQuoteSheet .pxq-pr-cell i { font-style:normal; font-size:10.5px; font-weight:600; opacity:.55; }
-#pxQuoteSheet .pxq-pr-est { cursor:pointer; border-color:rgba(242,100,48,.45); background:rgba(242,100,48,.08); }
-#pxQuoteSheet .pxq-pr-est b { color:#F26430; }
-html[data-theme="dark"] #pxQuoteSheet .pxq-pr-est b { color:#FF9466; }
-#pxQuoteSheet .pxq-pr-est:disabled { cursor:default; opacity:.6; }
-#pxQuoteSheet .pxq-pr-est:active:not(:disabled) { transform:scale(.98); }
+#pxQuoteSheet #pxQuoteSheet .pxq-pr-new { margin:0; opacity:1; text-transform:none; letter-spacing:0; font-size:inherit; font-weight:inherit; border:1.5px solid rgba(242,100,48,.55); background:transparent; cursor:text; }
+#pxQuoteSheet .pxq-pr-new:focus-within { border-color:#F26430; box-shadow:0 0 0 3px rgba(242,100,48,.15); }
+#pxQuoteSheet .pxq-pr-in { display:flex; align-items:baseline; gap:3px; }
+#pxQuoteSheet .pxq-pr-in em { font:800 17px 'Plus Jakarta Sans',sans-serif; font-style:normal; color:#F26430; }
+#pxQuoteSheet .pxq-pr-new input { padding:0; border:none; border-radius:0; background:transparent; font:800 17px 'Plus Jakarta Sans',sans-serif; width:100%; min-width:0; }
+#pxQuoteSheet .pxq-pr-new input:focus { border:none; }
+#pxQuoteSheet .pxq-pr-est { background:rgba(127,127,127,.06); }
 #pxQuoteSheet .pxq-delta { min-height:18px; margin-top:8px; font-size:12px; font-weight:700; display:flex; align-items:center; gap:6px; }
 #pxQuoteSheet .pxq-delta.up { color:#2f9b68; }
 #pxQuoteSheet .pxq-delta.down { color:#d95353; }
@@ -8541,11 +8543,9 @@ html[data-theme="dark"] #alertsTabContent .rq-tag { border-color:rgba(251,202,18
     </div>
     <div id="pxqCust"></div>
     <div class="pxq-pr-grid">
-      <div class="pxq-pr-cell"><span class="pxq-pr-l">Old price</span><b id="pxqOld">—</b><i id="pxqOldSub">No quote yet</i></div>
-      <button type="button" class="pxq-pr-cell pxq-pr-est" id="pxqEst" disabled><span class="pxq-pr-l">Est. price</span><b id="pxqEstV">—</b><i>Tap to use</i></button>
+      <div class="pxq-pr-cell" id="pxqEst"><span class="pxq-pr-l">Est. price</span><b id="pxqEstV">—</b><i>From customer prices</i></div>
+      <label class="pxq-pr-cell pxq-pr-new" for="pxqTotal"><span class="pxq-pr-l">New price</span><span class="pxq-pr-in"><em>৳</em><input id="pxqTotal" type="number" inputmode="decimal" min="1" step="1" placeholder="0"></span><i>Editable</i></label>
     </div>
-    <label for="pxqTotal">New price (BDT)</label>
-    <input id="pxqTotal" type="number" inputmode="decimal" min="1" step="1" placeholder="0">
     <div class="pxq-delta" id="pxqDelta"></div>
     <label>Quote valid for</label>
     <div class="pxq-dd" id="pxqDD">
@@ -28439,8 +28439,8 @@ function pxqFmt(n){ return '৳' + Math.round(n).toLocaleString('en-US'); }
 function pxqDelta(){
   const el = document.getElementById('pxqDelta'); if (!el) return;
   const v = Number(document.getElementById('pxqTotal').value);
-  const base = _pxqOld != null ? _pxqOld : _pxqEst;
-  const lbl = _pxqOld != null ? 'vs old price' : 'vs est. price';
+  const base = _pxqEst;
+  const lbl = 'vs est. price';
   if (!(v > 0) || base == null) { el.className = 'pxq-delta'; el.innerHTML = ''; return; }
   const d = Math.round(v - base);
   if (d === 0) { el.className = 'pxq-delta same'; el.innerHTML = 'No change <span>' + lbl + '</span>'; return; }
@@ -28476,10 +28476,7 @@ async function openQuoteSheet(id){
   const totalEl = document.getElementById('pxqTotal');
   const estEl = document.getElementById('pxqEst');
   totalEl.value = _pxqOld != null ? _pxqOld : '';
-  document.getElementById('pxqOld').textContent = _pxqOld != null ? pxqFmt(_pxqOld) : '—';
-  document.getElementById('pxqOldSub').textContent = _pxqOld != null ? 'Last quote sent' : 'No quote yet';
   document.getElementById('pxqEstV').textContent = '…';
-  estEl.disabled = true; estEl.onclick = null;
   document.getElementById('pxqNote').value = req.adminNote || '';
   const cn = document.getElementById('pxqCust');
   if (cn) cn.innerHTML = req.notes ? '<div class="pxq-cn"><div class="pxq-cn-l">Customer note</div><div class="pxq-cn-t">' + escapeHtml(req.notes) + '</div>' + al_pxNoteFlag(req) + '</div>' : '';
@@ -28492,8 +28489,6 @@ async function openQuoteSheet(id){
     const est = Math.round(usd * (1 + (Number(f.sales_tax) || 0) / 100 + (Number(f.service_charge) || 0) / 100) * Number(f.usd_rate));
     _pxqEst = est;
     document.getElementById('pxqEstV').textContent = pxqFmt(est);
-    estEl.disabled = false;
-    estEl.onclick = () => { totalEl.value = est; pxqDelta(); };
     if (!totalEl.value) totalEl.value = est;
   } else {
     document.getElementById('pxqEstV').textContent = '—';
