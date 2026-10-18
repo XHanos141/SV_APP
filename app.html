@@ -6299,11 +6299,12 @@ html[data-theme="dark"] .tx-exp-total-amt { color:#ffffff; }
 .tx-col-left  { flex:1; min-width:0; }
 .tx-col-right { flex-shrink:0; display:flex; flex-direction:column; align-items:flex-end; gap:4px; }
 .tx-col-right .tx-date { margin-left:0; }
-.tx-status-row { display:flex; align-items:center; gap:6px; }
-.tx-inv-btn { width:28px; height:26px; flex:none; display:flex; align-items:center; justify-content:center; padding:0; border-radius:9px; border:1px solid rgba(124,111,247,0.3); background:rgba(124,111,247,0.12); color:#6a5de6; cursor:pointer; transition:transform .15s, background .2s; }
-.tx-inv-btn svg { width:15px; height:15px; }
-.tx-inv-btn:active { transform:scale(.92); }
-html[data-theme="dark"] .tx-inv-btn { color:#b4abff; background:rgba(124,111,247,0.2); border-color:rgba(124,111,247,0.45); }
+.tx-status-row { display:flex; align-items:stretch; gap:6px; }
+/* invoice button: same height as the status pill (stretches to it), solid fill, white icon; ::after enlarges the tap area */
+.tx-inv-btn { position:relative; height:auto; aspect-ratio:1/1; flex:none; display:flex; align-items:center; justify-content:center; padding:0; border-radius:999px; border:1px solid #7c6ff7; background:#7c6ff7; color:#fff; cursor:pointer; transition:transform .15s, filter .2s; }
+.tx-inv-btn::after { content:''; position:absolute; inset:-8px; }
+.tx-inv-btn svg { width:11px; height:11px; stroke:#fff; }
+.tx-inv-btn:active { transform:scale(.9); filter:brightness(.92); }
 .tx-bottom-cols { align-items:center; margin-top:4px; }
 .tx-bottom-cols .tx-col-right { flex-direction:row; align-items:center; gap:5px; }
 .tx-col-right .tx-grand { font-family:"Plus Jakarta Sans",sans-serif; font-size:15px; font-weight:800; color:#001f3c; transition:color 0.35s ease; white-space:nowrap; }
