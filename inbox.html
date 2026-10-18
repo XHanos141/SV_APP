@@ -3476,15 +3476,29 @@ function closeOrderDetailsModal() {
   };
 
   /* ---------- Supabase data layer ---------- */
+  // Demo chats stay visible beside the live ones until the demo data is retired (set false to hide them).
+  const SHOW_DEMO = true;
+  const isDemoId = id => typeof id === "string" && /^m\d+$/.test(id);   // demo ids are m1, m2…; real ones are UUIDs
+  const live = id => !!supabase && !isDemoId(id);                        // true only for real conversations
+  // Same signed-in admin client the host app uses (RLS: admins only), so no second login and no key in this file.
+  function adminClient(){
+    try{ return window.parent !== window ? (window.parent.svSupabase || null) : null; }catch(_){ return null; }
+  }
   async function initSupabase(){
-    if(!SUPABASE_URL || !SUPABASE_ANON_KEY){
+    let client = adminClient();
+    if(!client && SUPABASE_URL && SUPABASE_ANON_KEY){
+      try{
+        const mod = await import("https://esm.sh/@supabase/supabase-js@2");
+        client = mod.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+      }catch(_){ client = null; }
+    }
+    if(!client){
       state.conversations = MOCK_CONVERSATIONS;
       render();
       return;
     }
     try{
-      const mod = await import("https://esm.sh/@supabase/supabase-js@2");
-      supabase = mod.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+      supabase = client;
       await fetchConversations();
       subscribeRealtime();
     }catch(err){
@@ -3502,9 +3516,11 @@ function closeOrderDetailsModal() {
 
     if(error){
       console.error("fetchConversations error:", error);
+      state.conversations = SHOW_DEMO ? MOCK_CONVERSATIONS : [];
+      render();
       return;
     }
-    state.conversations = data || [];
+    state.conversations = (data || []).concat(SHOW_DEMO ? MOCK_CONVERSATIONS : []);
     render();
   }
 
@@ -3774,7 +3790,7 @@ function closeOrderDetailsModal() {
 
     if((conv.unread_count || 0) > 0){
       conv.unread_count = 0;
-      if(supabase){
+      if(live(id)){
         supabase.from("conversations").update({ unread_count:0 }).eq("id", id)
           .then(({ error }) => { if(error) console.error("mark read error:", error); });
       }
@@ -3940,7 +3956,7 @@ function closeOrderDetailsModal() {
   function closeThreadMenu(){ threadMenu.classList.remove("open"); threadMenuBackdrop.classList.remove("open"); }
   function updateConv(conv, fields){
     Object.assign(conv, fields);
-    if(supabase) supabase.from("conversations").update(fields).eq("id", conv.id)
+    if(live(conv.id)) supabase.from("conversations").update(fields).eq("id", conv.id)
       .then(({ error }) => { if(error) console.error("update conversation error:", error); });
   }
   threadMenuBackdrop.addEventListener("click", closeThreadMenu);
@@ -4733,10 +4749,10 @@ function closeOrderDetailsModal() {
     els.threadMessages.style.visibility = "hidden";      // no empty-chat flash while messages load
     let messages = [];
 
-    if(supabase){
+    if(live(conv.id)){
       const { data, error } = await supabase
         .from("messages")
-        .select("id, conversation_id, sender_type, content, created_at, channel")
+        .select("id, conversation_id, sender_type, is_internal, content, created_at, channel, author_name, attachments")
         .eq("conversation_id", conv.id)
         .order("created_at", { ascending:true });
       if(error){
@@ -4746,6 +4762,7 @@ function closeOrderDetailsModal() {
       }
       subscribeMessagesRealtime(conv.id);
     }else{
+      if(messagesRealtimeChannel && supabase){ supabase.removeChannel(messagesRealtimeChannel); messagesRealtimeChannel = null; }
       messages = MOCK_MESSAGES[conv.id] || [];
     }
 
@@ -4809,7 +4826,7 @@ function closeOrderDetailsModal() {
       if(act === "ask"){ card.classList.add("confirming"); return; }
       if(act === "cancel"){ card.classList.remove("confirming"); return; }
       const id = row.dataset.msgId;
-      if(supabase){
+      if(live(state.activeConversationId)){
         if(!id){ card.classList.remove("confirming"); showToast("Still saving — try again in a moment"); return; }
         b.disabled = true;
         const { data, error } = await supabase.from("messages").delete().eq("id", id).select("id");
@@ -4951,6 +4968,11 @@ function closeOrderDetailsModal() {
 
     const conv = state.conversations.find(c => c.id === state.activeConversationId);
 
+    if(live(state.activeConversationId) && !state.noteMode){
+      showToast("Sending to Messenger isn't connected yet. Use a private note, or reply from Meta.");
+      return;
+    }
+
     let atts = null;
     if(pendingAtts.length){
       els.composerForm.classList.add("is-sending");
@@ -4982,7 +5004,7 @@ function closeOrderDetailsModal() {
       autoResizeComposer();
       updateSendState();
       syncQuickReplies();
-      if(supabase){
+      if(live(state.activeConversationId)){
         const { data: ins, error } = await supabase.from("messages").insert(dbRow(note)).select("id").single();
         if(error) console.error("sendNote error:", error);
         else if(ins && ins.id != null){
@@ -5013,7 +5035,7 @@ function closeOrderDetailsModal() {
     updateSendState();
     syncQuickReplies();
 
-    if(supabase){
+    if(live(state.activeConversationId)){
       const { error } = await supabase.from("messages").insert(dbRow(message));
       if(error) console.error("sendMessage error:", error);
       if(conv){
@@ -5089,7 +5111,7 @@ function closeOrderDetailsModal() {
   async function stageAttachments(convId){
     const items = pendingAtts.slice();
     const local = items.map(a => ({ name:a.name, type:a.type, size:a.size, url:a.url || URL.createObjectURL(a.file) }));
-    if(!supabase) return { local, meta:null };
+    if(!live(convId)) return { local, meta:null };
     const meta = [];
     for(const a of items){
       const safe = a.name.replace(/[^\w.\-]+/g, "_").slice(-80);
@@ -5221,7 +5243,7 @@ function closeOrderDetailsModal() {
     conv.pinned_product = arr;
     document.getElementById("pinBtn").classList.toggle("is-active", !!arr);
     try{ arr ? localStorage.setItem(PIN_KEY(conv.id), JSON.stringify(arr)) : localStorage.removeItem(PIN_KEY(conv.id)); }catch(_){}
-    if(supabase){
+    if(live(conv.id)){
       const { error } = await supabase.from("conversations").update({ pinned_product: arr }).eq("id", conv.id);
       if(error){ console.error("pin save failed:", error); showToast("Couldn't save the pin for the team."); }
     }
@@ -5262,7 +5284,7 @@ function closeOrderDetailsModal() {
   async function savePinnedOrder(conv, oid){
     conv.pinned_order = oid || null;
     try{ oid ? localStorage.setItem(PIN_ORDER_KEY(conv.id), oid) : localStorage.removeItem(PIN_ORDER_KEY(conv.id)); }catch(_){}
-    if(supabase){
+    if(live(conv.id)){
       const { error } = await supabase.from("conversations").update({ pinned_order: oid || null }).eq("id", conv.id);
       if(error) console.error("order pin save failed (needs conversations.pinned_order column):", error);
     }
