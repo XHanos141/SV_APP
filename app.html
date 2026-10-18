@@ -8454,18 +8454,15 @@ html[data-theme="dark"] #pxQuoteSheet .pxq-rq { color:#FF9466; border-color:rgba
 #pxQuoteSheet .pxq-sub .pxq-cn2 { opacity:.7; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 #pxQuoteSheet .pxq-x { width:32px; height:32px; border-radius:10px; border:1px solid rgba(127,127,127,.25); background:rgba(127,127,127,.08); color:inherit; display:flex; align-items:center; justify-content:center; cursor:pointer; padding:0; flex-shrink:0; }
 #pxQuoteSheet .pxq-x svg { width:15px; height:15px; }
-#pxQuoteSheet .pxq-pr-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:4px; }
-#pxQuoteSheet .pxq-pr-cell { display:flex; flex-direction:column; gap:2px; text-align:left; padding:10px 12px; border-radius:12px; border:1px solid rgba(127,127,127,.22); background:rgba(127,127,127,.06); color:inherit; font-family:inherit; }
-#pxQuoteSheet .pxq-pr-l { font-size:10.5px; font-weight:700; letter-spacing:.04em; text-transform:uppercase; opacity:.65; }
-#pxQuoteSheet .pxq-pr-cell b { font:800 17px 'Plus Jakarta Sans',sans-serif; }
-#pxQuoteSheet .pxq-pr-cell i { font-style:normal; font-size:10.5px; font-weight:600; opacity:.55; }
-#pxQuoteSheet #pxQuoteSheet .pxq-pr-new { margin:0; opacity:1; text-transform:none; letter-spacing:0; font-size:inherit; font-weight:inherit; border:1.5px solid rgba(242,100,48,.55); background:transparent; cursor:text; }
-#pxQuoteSheet .pxq-pr-new:focus-within { border-color:#F26430; box-shadow:0 0 0 3px rgba(242,100,48,.15); }
-#pxQuoteSheet .pxq-pr-in { display:flex; align-items:baseline; gap:3px; }
-#pxQuoteSheet .pxq-pr-in em { font:800 17px 'Plus Jakarta Sans',sans-serif; font-style:normal; color:#F26430; }
-#pxQuoteSheet .pxq-pr-new input { padding:0; border:none; border-radius:0; background:transparent; font:800 17px 'Plus Jakarta Sans',sans-serif; width:100%; min-width:0; }
-#pxQuoteSheet .pxq-pr-new input:focus { border:none; }
-#pxQuoteSheet .pxq-pr-est { background:rgba(127,127,127,.06); }
+#pxQuoteSheet .pxq-pr-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+#pxQuoteSheet .pxq-pl { display:block; font-size:11px; font-weight:700; letter-spacing:.4px; text-transform:uppercase; opacity:.65; margin:12px 0 6px; }
+#pxQuoteSheet .pxq-pbox { display:flex; align-items:center; gap:4px; height:50px; padding:0 14px; border-radius:12px; border:1.5px solid rgba(127,127,127,.28); background:rgba(127,127,127,.08); font:700 15px 'DM Sans',sans-serif; box-sizing:border-box; }
+#pxQuoteSheet .pxq-pbox em { font-style:normal; font-weight:800; opacity:.7; }
+#pxQuoteSheet .pxq-pnew { border-color:rgba(242,100,48,.4); background:transparent; }
+#pxQuoteSheet .pxq-pnew em { color:#F26430; opacity:1; }
+#pxQuoteSheet .pxq-pnew:focus-within { border-color:#F26430; box-shadow:0 0 0 3px rgba(242,100,48,.15); }
+#pxQuoteSheet .pxq-pnew input { flex:1; min-width:0; height:100%; padding:0; border:none; border-radius:0; background:transparent; font:700 15px 'DM Sans',sans-serif; color:inherit; outline:none; }
+#pxQuoteSheet .pxq-pnew input:focus { border:none; }
 #pxQuoteSheet .pxq-delta { min-height:18px; margin-top:8px; font-size:12px; font-weight:700; display:flex; align-items:center; gap:6px; }
 #pxQuoteSheet .pxq-delta.up { color:#2f9b68; }
 #pxQuoteSheet .pxq-delta.down { color:#d95353; }
@@ -8543,8 +8540,8 @@ html[data-theme="dark"] #alertsTabContent .rq-tag { border-color:rgba(251,202,18
     </div>
     <div id="pxqCust"></div>
     <div class="pxq-pr-grid">
-      <div class="pxq-pr-cell" id="pxqEst"><span class="pxq-pr-l">Est. price</span><b id="pxqEstV">—</b><i>From customer prices</i></div>
-      <label class="pxq-pr-cell pxq-pr-new" for="pxqTotal"><span class="pxq-pr-l">New price</span><span class="pxq-pr-in"><em>৳</em><input id="pxqTotal" type="number" inputmode="decimal" min="1" step="1" placeholder="0"></span><i>Editable</i></label>
+      <div><span class="pxq-pl">Est. price</span><div class="pxq-pbox" id="pxqEst"><em>৳</em><span id="pxqEstV">—</span></div></div>
+      <div><span class="pxq-pl">New price (BDT)</span><div class="pxq-pbox pxq-pnew"><em>৳</em><input id="pxqTotal" type="number" inputmode="decimal" min="1" step="1" placeholder="0"></div></div>
     </div>
     <div class="pxq-delta" id="pxqDelta"></div>
     <label>Quote valid for</label>
@@ -28488,7 +28485,7 @@ async function openQuoteSheet(id){
   if (f && usd > 0 && Number(f.usd_rate) > 0) {
     const est = Math.round(usd * (1 + (Number(f.sales_tax) || 0) / 100 + (Number(f.service_charge) || 0) / 100) * Number(f.usd_rate));
     _pxqEst = est;
-    document.getElementById('pxqEstV').textContent = pxqFmt(est);
+    document.getElementById('pxqEstV').textContent = est.toLocaleString('en-US');
     if (!totalEl.value) totalEl.value = est;
   } else {
     document.getElementById('pxqEstV').textContent = '—';
