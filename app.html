@@ -8451,7 +8451,7 @@ html[data-theme="dark"] #pxQuoteSheet .pxq-card { background:#162130; color:#e8e
 #pxQuoteSheet .pxq-sub { display:flex; align-items:center; gap:7px; margin:3px 0 0; opacity:1; font-size:12px; font-weight:600; }
 #pxQuoteSheet .pxq-rq { font:800 11px 'Plus Jakarta Sans',sans-serif; color:#F26430; background:rgba(242,100,48,.12); border:1px solid rgba(242,100,48,.38); border-radius:6px; padding:3px 8px; letter-spacing:.3px; line-height:1; }
 html[data-theme="dark"] #pxQuoteSheet .pxq-rq { color:#FF9466; border-color:rgba(255,148,102,.5); }
-#pxQuoteSheet .pxq-sub .pxq-cn2 { opacity:.7; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+#pxQuoteSheet .pxq-sub .pxq-cn2 { opacity:1; font:800 14px 'Plus Jakarta Sans',sans-serif; color:inherit; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; min-width:0; }
 #pxQuoteSheet .pxq-x { width:32px; height:32px; border-radius:10px; border:1px solid rgba(127,127,127,.25); background:rgba(127,127,127,.08); color:inherit; display:flex; align-items:center; justify-content:center; cursor:pointer; padding:0; flex-shrink:0; }
 #pxQuoteSheet .pxq-x svg { width:15px; height:15px; }
 #pxQuoteSheet .pxq-pr-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
@@ -8469,6 +8469,8 @@ html[data-theme="dark"] #pxQuoteSheet .pxq-rq { color:#FF9466; border-color:rgba
 #pxQuoteSheet .pxq-delta.same { opacity:.6; }
 #pxQuoteSheet .pxq-delta span { opacity:.6; font-weight:600; }
 #pxQuoteSheet input:focus, #pxQuoteSheet textarea:focus { border-color:#F26430; }
+#pxQuoteSheet textarea { border-color:rgba(242,100,48,.4); }
+#pxQuoteSheet textarea:focus { box-shadow:0 0 0 3px rgba(242,100,48,.15); }
 #pxQuoteSheet .pxq-dd { position:relative; }
 #pxQuoteSheet .pxq-dd-btn { width:100%; display:flex; align-items:center; justify-content:space-between; padding:12px 14px; border-radius:12px; border:1.5px solid rgba(242,100,48,.4); background:transparent; color:inherit; font:600 15px 'DM Sans',sans-serif; cursor:pointer; }
 #pxQuoteSheet .pxq-dd-btn svg { width:16px; height:16px; transition:transform .18s; opacity:.7; }
@@ -28469,7 +28471,7 @@ async function openQuoteSheet(id){
   const req = AL_PROXY.find(r => r.id === id);
   if (!req) return;
   _pxqId = id; _pxqEst = null; _pxqOld = req.finalBdt != null ? Math.round(req.finalBdt) : null;
-  document.getElementById('pxqSub').innerHTML = '<span class="pxq-rq">' + escapeHtml(req.reqNo || 'Request') + '</span><span class="pxq-cn2">' + escapeHtml(req.customer.name || '') + '</span>';
+  document.getElementById('pxqSub').innerHTML = '<span class="pxq-cn2">' + escapeHtml(req.customer.name || '') + '</span><span class="pxq-rq">' + escapeHtml(req.reqNo || 'Request') + '</span>';
   const totalEl = document.getElementById('pxqTotal');
   const estEl = document.getElementById('pxqEst');
   totalEl.value = _pxqOld != null ? _pxqOld : '';
