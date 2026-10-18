@@ -1039,6 +1039,10 @@ html[data-theme="dark"] .svc-btns .svc-no { color: rgba(255,255,255,.7); border-
 .svc-btns .svc-yes { background: var(--svc-c); color: #fff; box-shadow: 0 4px 12px var(--svc-g); }
 .svc-btns button:active { transform: scale(.97); }
 .svc-ship { --svc-c: #7c6ff7; --svc-g: rgba(124,111,247,.4); }
+.svi .svc-sheet p { margin: 0 0 16px; }
+.svi .svc-sheet p b { color: #0A9BDC; font-weight: 800; }
+.svi .svc-btns button { box-sizing: border-box; flex: 1 1 0; display: flex; align-items: center; justify-content: center; gap: 6px; min-width: 0; }
+.svi .svi-print { margin-top: 8px; }
 .cr-sheet { max-height: 88vh; overflow-y: auto; }
 .cr-sum { font-size: 12.5px; color: #6b7280; margin: 0 0 12px; line-height: 1.5; }
 html[data-theme="dark"] .cr-sum { color: rgba(255,255,255,.6); }
@@ -2158,7 +2162,6 @@ html[data-theme="dark"] .invoice-modal-order-id { color: #a095f5; }
   height: 13px;
 }
 
-/* ====== INVOICE POPUP (order invoice) ====== */
 .invoice-modal-footer-split .btn-pdf-customer{flex:1.5}
 .invoice-modal-footer-split .btn-pdf-owner{flex:1;background:transparent;color:#001f3c;border:1.5px solid rgba(0,31,60,.18)}
 .invoice-modal-footer-split .btn-pdf-owner:hover{background:rgba(0,31,60,.05)}
@@ -2168,10 +2171,6 @@ html[data-theme="dark"] .invoice-modal-footer-split .btn-pdf-owner:hover{backgro
 .btn-invoice-print:active{transform:scale(.97)}
 html[data-theme="dark"] .btn-invoice-print{color:#fff;border-color:rgba(255,255,255,.2)}
 .pdf-confirm-tag.print{background:rgba(10,155,220,.12);color:#0A9BDC}
-.ivp-pick{padding:18px 4px 10px;text-align:center}
-.ivp-pick-t{font:800 16px/1.2 "Plus Jakarta Sans",sans-serif;color:#001f3c;margin-bottom:6px}
-.ivp-pick-s{font:500 13px/1.45 "DM Sans",sans-serif;color:#8c92a1}
-.ivp-pick-s b{color:#0A9BDC;font-weight:800}
 .pdf-confirm-id{display:flex;align-items:center;justify-content:space-between;gap:10px;background:#f3f6fb;border-radius:14px;padding:11px 14px;margin-bottom:14px}
 .pdf-confirm-id small{display:block;font:800 9.5px/1 "Plus Jakarta Sans",sans-serif;letter-spacing:.8px;text-transform:uppercase;color:#8c92a1;margin-bottom:5px}
 .pdf-confirm-id b{font:800 16px/1 "Plus Jakarta Sans",sans-serif;color:#001f3c}
@@ -2179,60 +2178,8 @@ html[data-theme="dark"] .btn-invoice-print{color:#fff;border-color:rgba(255,255,
 .pdf-confirm-tag.customer{background:rgba(47,155,104,.12);color:#2f9b68}
 .pdf-confirm-tag.owner{background:rgba(0,31,60,.1);color:#001f3c}
 .pdf-confirm-note{font:500 12px/1.4 "DM Sans",sans-serif;color:#8c92a1;margin:-4px 0 14px}
-html[data-theme="dark"] .ivp-pick-t,html[data-theme="dark"] .pdf-confirm-id b{color:#fff}
 html[data-theme="dark"] .pdf-confirm-id{background:rgba(255,255,255,.06)}
 html[data-theme="dark"] .pdf-confirm-tag.owner{background:rgba(255,255,255,.12);color:#fff}
-.ivp-head{display:flex;align-items:center;justify-content:space-between;gap:10px}
-.ivp-brand{display:flex;align-items:center;gap:10px;min-width:0}
-.ivp-logo{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex:none}
-.ivp-logo svg{width:18px;height:18px}
-.ivp-bname{font:800 17px/1 "Plus Jakarta Sans",sans-serif;color:#001f3c;white-space:nowrap}
-.ivp-bname span{font-weight:500;color:#8c92a1}
-.ivp-id{font:800 12px/1 "Plus Jakarta Sans",sans-serif;color:#0A9BDC;background:rgba(10,155,220,.1);border:1px solid rgba(10,155,220,.4);border-radius:99px;padding:6px 11px;flex:none}
-.ivp-bill{display:flex;justify-content:space-between;gap:14px;margin-top:16px;padding:12px 14px;background:#f6f7fa;border-radius:14px}
-.ivp-bill-l{flex:1;min-width:0}
-.ivp-bill-r{flex:none;text-align:right;display:flex;flex-direction:column;align-items:flex-end}
-.ivp-lbl{font:800 9.5px/1 "Plus Jakarta Sans",sans-serif;letter-spacing:.8px;text-transform:uppercase;color:#8c92a1;margin-bottom:6px}
-.ivp-cust{font:800 16px/1.2 "Plus Jakarta Sans",sans-serif;color:#001f3c;margin-bottom:6px}
-.ivp-line{display:flex;align-items:flex-start;gap:7px;font:500 12px/1.4 "DM Sans",sans-serif;color:#5b6272;margin-top:3px}
-.ivp-line svg{flex:none;margin-top:2px;color:#0A9BDC}
-.ivp-date{font:700 13px/1.2 "DM Sans",sans-serif;color:#001f3c}
-.ivp-bill-r{gap:6px}
-.ivp-b{display:inline-block;font:800 10.5px/1 "Plus Jakarta Sans",sans-serif;letter-spacing:.5px;text-transform:uppercase;padding:5px 10px;border-radius:99px;border:1px solid;white-space:nowrap}
-.ivp-b.s{text-transform:none;letter-spacing:0;font-size:11.5px}
-.ivp-b.g{color:#2f9b68;background:rgba(47,155,104,.12);border-color:rgba(47,155,104,.35)}
-.ivp-b.a{color:#a86400;background:rgba(232,160,32,.16);border-color:rgba(200,130,10,.4)}
-.ivp-b.c{color:#0A9BDC;background:rgba(10,155,220,.1);border-color:rgba(10,155,220,.4)}
-.ivp-b.p{color:#6a5de6;background:rgba(124,111,247,.12);border-color:rgba(124,111,247,.35)}
-html[data-theme="dark"] .ivp-b.g{color:#3bbf7f;background:rgba(59,191,127,.16);border-color:rgba(59,191,127,.4)}
-html[data-theme="dark"] .ivp-b.a{color:#f0b34a;background:rgba(240,179,74,.16);border-color:rgba(240,179,74,.4)}
-html[data-theme="dark"] .ivp-b.c{color:#4fc0f5;background:rgba(10,155,220,.18);border-color:rgba(10,155,220,.5)}
-html[data-theme="dark"] .ivp-b.p{color:#b4abff;background:rgba(124,111,247,.2);border-color:rgba(124,111,247,.5)}
-.ivp-sec{display:flex;justify-content:space-between;font:800 10px/1 "Plus Jakarta Sans",sans-serif;letter-spacing:.8px;text-transform:uppercase;color:#8c92a1;padding:2px 2px 8px;border-bottom:1px solid #ececf2}
-.ivp-item{display:flex;align-items:center;gap:10px;padding:11px 2px;border-bottom:1px dashed #e3e5ee}
-.ivp-n{flex:none;width:22px;height:22px;border-radius:7px;background:#eeedfd;color:#6a5de6;font:800 11px/22px "Plus Jakarta Sans",sans-serif;text-align:center}
-.ivp-iname{flex:1;min-width:0}
-.ivp-iname b{display:block;font:700 14px/1.25 "DM Sans",sans-serif;color:#001f3c}
-.ivp-iname i{display:block;font:700 10px/1 "Courier Prime",monospace;font-style:normal;letter-spacing:.6px;color:#0A9BDC;margin-top:4px}
-.ivp-iprice{flex:none;text-align:right}
-.ivp-iprice b{display:block;font:800 14px/1.2 "Plus Jakarta Sans",sans-serif;color:#001f3c}
-.ivp-iprice small{display:block;font:600 11px/1 "DM Sans",sans-serif;color:#8c92a1;margin-top:4px}
-.ivp-sum{padding:10px 2px 4px}
-.ivp-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;font:500 13px/1.2 "DM Sans",sans-serif;color:#5b6272}
-.ivp-row b{font:700 13px/1.2 "Plus Jakarta Sans",sans-serif;color:#001f3c}
-.ivp-row.g,.ivp-row.g b{color:#2f9b68}
-.ivp-grand{display:flex;justify-content:space-between;align-items:center;margin-top:8px;padding:13px 14px;background:#f1f3f9;border-radius:14px}
-.ivp-grand span{font:800 12px/1 "Plus Jakarta Sans",sans-serif;letter-spacing:.6px;text-transform:uppercase;color:#001f3c}
-.ivp-grand b{font:900 24px/1 "Plus Jakarta Sans",sans-serif;color:#001f3c}
-html[data-theme="dark"] .ivp-bname,html[data-theme="dark"] .ivp-cust,html[data-theme="dark"] .ivp-date,html[data-theme="dark"] .ivp-iname b,html[data-theme="dark"] .ivp-iprice b,html[data-theme="dark"] .ivp-row b,html[data-theme="dark"] .ivp-grand span,html[data-theme="dark"] .ivp-grand b{color:#fff}
-html[data-theme="dark"] .ivp-bill,html[data-theme="dark"] .ivp-grand{background:rgba(255,255,255,.06)}
-html[data-theme="dark"] .ivp-line,html[data-theme="dark"] .ivp-row{color:rgba(255,255,255,.6)}
-html[data-theme="dark"] .ivp-lbl,html[data-theme="dark"] .ivp-sec,html[data-theme="dark"] .ivp-iprice small{color:rgba(255,255,255,.45)}
-html[data-theme="dark"] .ivp-sec{border-color:rgba(255,255,255,.08)}
-html[data-theme="dark"] .ivp-item{border-color:rgba(255,255,255,.1)}
-html[data-theme="dark"] .ivp-n{background:rgba(124,111,247,.2);color:#b4abff}
-html[data-theme="dark"] .ivp-row.g,html[data-theme="dark"] .ivp-row.g b{color:#3bbf7f}
-html[data-theme="dark"] .ivp-id{background:rgba(10,155,220,.18);border-color:rgba(10,155,220,.5)}
 
 /* ====== INVOICE MODAL FOOTER - TWO BUTTONS ====== */
 .invoice-modal-footer-split {
@@ -20391,6 +20338,35 @@ function showToast(msg, type) {
 }
 
 /* ====== CREATE INVOICE FROM DRAFT ====== */
+function svInvoiceSheet(inv) {
+  const old = document.getElementById('svInvSheet'); if (old) old.remove();
+  currentViewingInvoiceId = inv.id;
+  const ic = d => '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' + d + '</svg>';
+  const dl = ic('<use href="#icon-download"/>');
+  const pr = ic('<path d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2M6 14h12v8H6z"/>');
+  const ov = document.createElement('div');
+  ov.id = 'svInvSheet'; ov.className = 'svc-ov svc-ok svi';
+  ov.setAttribute('role', 'dialog'); ov.setAttribute('aria-modal', 'true');
+  ov.innerHTML = '<div class="svc-sheet"><div class="svc-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-file-document"/></svg></div>'
+    + '<p>Order <b>' + escapeHtml(String(inv.linkedDraftId)) + '</b> is ready. Choose which copy to download.</p>'
+    + '<div class="svc-btns"><button type="button" class="svc-yes" data-k="customer">' + dl + 'Customer PDF</button><button type="button" class="svc-no" data-k="owner">' + dl + 'Owner PDF</button></div>'
+    + (PRINT_ENABLED ? '<div class="svc-btns svi-print"><button type="button" class="svc-no" data-k="print">' + pr + 'Print Invoice</button></div>' : '')
+    + '</div>';
+  const done = () => {
+    ov.classList.remove('show');
+    document.removeEventListener('keydown', onKey);
+    setTimeout(() => ov.remove(), 220);
+  };
+  const onKey = e => { if (e.key === 'Escape') done(); };
+  ov.addEventListener('click', e => { if (e.target === ov) done(); });
+  ov.querySelectorAll('button[data-k]').forEach(btn => btn.addEventListener('click', e => {
+    e.stopPropagation(); const k = btn.getAttribute('data-k'); done(); openPdfSizePicker(k, inv.id);
+  }));
+  document.addEventListener('keydown', onKey);
+  document.body.appendChild(ov);
+  requestAnimationFrame(() => requestAnimationFrame(() => ov.classList.add('show')));
+}
+
 /* Invoice from a Sales card: read-only document built from the sale record (sales data is never modified) */
 function createInvoiceFromSale(txId, event) {
   if (event) event.stopPropagation();
@@ -20426,7 +20402,6 @@ function svInvoicePay(inv) {
   if (inv.payType === 'unpaid') return { t: 'Unpaid \u00b7 ' + due + ' due', k: 'a' };
   return null;
 }
-const SV_INV_STAGE = { ready: ['Ready to ship', 'c'], shipped: ['Shipped', 'p'], delivered: ['Delivered', 'g'] };
 
 function createInvoiceFromDraft(index, event) {
   if (event) event.stopPropagation();
@@ -20509,10 +20484,6 @@ function createInvoiceFromDraft(index, event) {
   openInvoiceDetailModal(invoice.id);
 }
 
-function getBrandSvg(color) {
-  return '<svg viewBox="0 0 24 24" fill="none" stroke="' + color + '" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l9 5v10l-9 5-9-5V7z"/><path d="M12 22V12"/><path d="M12 12L3 7"/><path d="M12 12l9-5"/></svg>';
-}
-
 function openInvoiceDetailModal(invoiceId) {
   const inv = invoices.find(i => i.id === invoiceId);
   if (!inv) return;
@@ -20559,27 +20530,8 @@ function openInvoiceDetailModal(invoiceId) {
     return;
   }
 
-  // ── STANDARD ORDER INVOICE (slim: details already live on the draft card) ──
-  const headerHtml = `
-    <div class="ivp-head">
-      <div class="ivp-brand">
-        <div class="ivp-logo" style="background:${inv.brandColor}15">${getBrandSvg(inv.brandColor)}</div>
-        <div class="ivp-bname">${escapeHtml(inv.brandName)} <span>BD</span></div>
-      </div>
-      <span class="ivp-id">${escapeHtml(inv.linkedDraftId)}</span>
-    </div>`;
-  const bodyHtml = `
-    <div class="ivp-pick">
-      <div class="ivp-pick-t">Download Invoice PDF</div>
-      <div class="ivp-pick-s">Order <b>${escapeHtml(inv.linkedDraftId)}</b> is ready. Choose which copy to download.</div>
-    </div>`;
-
-  document.getElementById("invoiceModalTitle").innerHTML = headerHtml;
-  document.getElementById("invoiceModalDate").textContent = "";
-  document.getElementById("invoiceModalBody").innerHTML = bodyHtml;
-  const _pr = document.getElementById("invoiceModalPrintRow");
-  if (_pr) _pr.style.display = (PRINT_ENABLED && inv.refType !== 'return') ? '' : 'none';
-  document.getElementById("invoiceModalOverlay").classList.add("active");
+  // ── STANDARD ORDER INVOICE: icon > content > actions (same sheet style as the Ship / Confirm popups) ──
+  svInvoiceSheet(inv);
 }
 
 function handleInvoiceModalDelete() {
