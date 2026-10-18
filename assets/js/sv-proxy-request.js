@@ -108,8 +108,8 @@ function renderProxyRequest(row, fees){
       +'<div class="pxr-sum"><span>Service Charge ('+est.svcPct+'%)</span><strong>'+usd(est.svc)+'</strong></div>'
       +'<div class="pxr-sum"><span>Rate</span><strong>1 USD = ৳'+est.rate+'</strong></div><div class="pxr-div"></div>'
       +(row.quote_total!=null?'<div class="pxr-final"><span>Final price sent</span><strong>'+bdt(row.quote_total)+'</strong></div>':'')
-      +'<div class="pxr-tot pxr-main"><b>Total (BDT)</b><span class="pxr-totval"><span class="pxr-totnum">'+bdt(est.bdt)+'</span><button type="button" class="pxr-copybtn" data-copy="'+bdt(est.bdt)+'" aria-label="Copy total"><span class="pxr-idle">'+ICON_COPY+'</span><span class="pxr-done">'+ICON_CHECK+'</span></button></span></div>'
-      +'<div class="pxr-tot pxr-tot2"><b>Total (USD)</b><span class="pxr-totval"><span class="pxr-totnum">'+usd(est.total)+'</span><button type="button" class="pxr-copybtn" data-copy="'+usd(est.total)+'" aria-label="Copy total"><span class="pxr-idle">'+ICON_COPY+'</span><span class="pxr-done">'+ICON_CHECK+'</span></button></span></div>'
+      +'<div class="pxr-tot"><b>Total (USD)</b><span class="pxr-totval"><span class="pxr-totnum">'+usd(est.total)+'</span><button type="button" class="pxr-copybtn" data-copy="'+usd(est.total)+'" aria-label="Copy total"><span class="pxr-idle">'+ICON_COPY+'</span><span class="pxr-done">'+ICON_CHECK+'</span></button></span></div>'
+      +'<div class="pxr-tot pxr-tot2 pxr-main"><b>Total (BDT)</b><span class="pxr-totval"><span class="pxr-totnum">'+bdt(est.bdt)+'</span><button type="button" class="pxr-copybtn" data-copy="'+bdt(est.bdt)+'" aria-label="Copy total"><span class="pxr-idle">'+ICON_COPY+'</span><span class="pxr-done">'+ICON_CHECK+'</span></button></span></div>'
      :'<div class="pxr-warn">Fee settings are not saved yet. Open Website → Buy For Me → Fee &amp; Markup Rates and press Save Changes.</div>')
     +'</div></section>';
   document.getElementById('pxrRoot').innerHTML=h;
