@@ -3480,6 +3480,7 @@ function closeOrderDetailsModal() {
   const SHOW_DEMO = true;
   const isDemoId = id => typeof id === "string" && /^m\d+$/.test(id);   // demo ids are m1, m2…; real ones are UUIDs
   const live = id => !!supabase && !isDemoId(id);                        // true only for real conversations
+  const seenIds = new Set();                                              // message ids already on screen (realtime + own sends)
   // Same signed-in admin client the host app uses (RLS: admins only), so no second login and no key in this file.
   function adminClient(){
     try{ return window.parent !== window ? (window.parent.svSupabase || null) : null; }catch(_){ return null; }
@@ -4760,6 +4761,7 @@ function closeOrderDetailsModal() {
       }else{
         messages = data || [];
       }
+      seenIds.clear(); messages.forEach(m => { if(m.id) seenIds.add(m.id); });
       subscribeMessagesRealtime(conv.id);
     }else{
       if(messagesRealtimeChannel && supabase){ supabase.removeChannel(messagesRealtimeChannel); messagesRealtimeChannel = null; }
@@ -4777,7 +4779,9 @@ function closeOrderDetailsModal() {
     messagesRealtimeChannel = supabase
       .channel("messages-" + conversationId)
       .on("postgres_changes", { event:"INSERT", schema:"public", table:"messages", filter:`conversation_id=eq.${conversationId}` }, (payload) => {
-        appendMessage(payload.new);
+        const m = payload.new;
+        if(m && m.id){ if(seenIds.has(m.id)) return; seenIds.add(m.id); }
+        appendMessage(m);
       })
       .subscribe();
   }
@@ -4960,6 +4964,24 @@ function closeOrderDetailsModal() {
   // keep the keyboard open: tapping Send must not pull focus off the text box
   document.getElementById("sendBtn").addEventListener("mousedown", (e) => e.preventDefault());
 
+  // Sends a reply to the real customer through the meta-send Edge Function (admin session, 24h rule enforced there).
+  async function sendLiveReply(conv, text){
+    try{
+      const { data, error } = await supabase.functions.invoke("meta-send", { body:{ conversation_id:conv.id, text } });
+      let res = data;
+      if(error){ try{ res = await error.context.json(); }catch(_){ res = { ok:false, error:"Couldn't reach the server. Try again." }; } }
+      if(!res || !res.ok){ showToast((res && res.error) || "Couldn't send the message."); return false; }
+      if(res.warning) showToast(res.warning);
+      const row = res.data;
+      if(row && row.id && !seenIds.has(row.id)){ seenIds.add(row.id); appendMessage(row); }
+      return true;
+    }catch(err){
+      console.error("sendLiveReply failed:", err);
+      showToast("Couldn't send the message. Try again.");
+      return false;
+    }
+  }
+
   els.composerForm.addEventListener("submit", async (e) => {
     e.preventDefault();
     if(document.activeElement !== els.composerInput) els.composerInput.focus({ preventScroll:true });
@@ -4969,7 +4991,15 @@ function closeOrderDetailsModal() {
     const conv = state.conversations.find(c => c.id === state.activeConversationId);
 
     if(live(state.activeConversationId) && !state.noteMode){
-      showToast("Sending to Messenger isn't connected yet. Use a private note, or reply from Meta.");
+      if(pendingAtts.length){ showToast("Photos and files can't be sent to Messenger yet."); return; }
+      if(!content) return;
+      if(conv && conv.channel !== "messenger"){ showToast("Only Messenger replies are connected so far."); return; }
+      els.composerForm.classList.add("is-sending");
+      const sent = await sendLiveReply(conv, content);
+      els.composerForm.classList.remove("is-sending");
+      if(!sent) return;                        // error toast already shown; the text stays so it can be retried
+      els.composerInput.value = "";
+      autoResizeComposer(); updateSendState(); syncQuickReplies();
       return;
     }
 
@@ -4998,6 +5028,7 @@ function closeOrderDetailsModal() {
         created_at: new Date().toISOString(),
         author_name: "You"
       };
+      if(live(state.activeConversationId)){ note.id = crypto.randomUUID(); seenIds.add(note.id); }
       if(atts) note.attachments = atts.local;
       appendMessage(note, { skipLastMessage:true });
       els.composerInput.value = "";
