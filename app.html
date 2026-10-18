@@ -28871,6 +28871,7 @@ function channelIcon(ch) {
 function channelLabel(ch) {
   return channelIcon(ch);
 }
+window.channelIcon = channelIcon;
 const PAY_ALIAS = { bkash:'bkash', nagad:'nagad', cash:'cash', cod:'cash', bank:'bank', banktransfer:'bank', usdt:'usdt', usdc:'usdc', upay:'upay', rocket:'rocket', cellfin:'cellfin' };
 function payKey(p) {
   return PAY_ALIAS[String(p || '').toLowerCase().replace(/[^a-z]/g, '')] || 'other';
