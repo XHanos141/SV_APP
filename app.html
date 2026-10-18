@@ -8392,6 +8392,16 @@ html[data-theme="dark"] .odm-summary-total-label { color: #fff; }
 
 .odm-card { background: rgba(124,111,247,0.05); border: 1px solid rgba(124,111,247,0.12); border-radius: 14px; padding: 13px 14px; }
 html[data-theme="dark"] .odm-card { background: rgba(124,111,247,0.08); border-color: rgba(124,111,247,0.2); }
+/* Order Details: bubble card effect (same as SV-Web cards): header, products, summary, payment */
+#orderDetailsModal .odm-oh, #orderDetailsModal #odmItems.odm-card, #orderDetailsModal .odm-mc {
+  background: #ffffff; border: 1px solid rgba(10,155,220,.55); border-radius: 16px;
+  box-shadow: 0 2px 5px rgba(15,22,33,.10), 0 10px 22px -6px rgba(10,155,220,.42), inset 0 1.5px 0 rgba(255,255,255,1), inset 0 -3px 6px rgba(10,22,40,.06);
+}
+html[data-theme="dark"] #orderDetailsModal .odm-oh, html[data-theme="dark"] #orderDetailsModal #odmItems.odm-card, html[data-theme="dark"] #orderDetailsModal .odm-mc {
+  background: linear-gradient(160deg,#1b3247 0%,#141f2f 100%); border-color: rgba(45,190,245,.5);
+  box-shadow: 0 2px 5px rgba(0,0,0,.35), 0 10px 22px -8px rgba(45,190,245,.4), inset 0 1px 0 rgba(255,255,255,.07), inset 0 -2px 4px rgba(0,0,0,.2);
+}
+#orderDetailsModal .odm-body { padding-bottom: 32px; }   /* room for the last card's glow */
 
 
 /* ---- Buy For Me (proxy) request: alert card extras + details modal ---- */
