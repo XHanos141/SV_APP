@@ -2310,6 +2310,8 @@ html:not([data-theme="light"]) .odm-card { background: rgba(124,111,247,0.08); b
   .msg-thumb__play{ position:absolute; left:50%; top:50%; width:36px; height:36px; margin:-18px 0 0 -18px; border-radius:50%; background:rgba(0,0,0,.55); border:1.5px solid rgba(255,255,255,.85); color:#fff; display:flex; align-items:center; justify-content:center; pointer-events:none; }
   .msg-thumb__play svg{ width:16px; height:16px; margin-left:2px; }
   .msg-thumb:active{ transform:scale(.97); }
+  .msg-thumb.is-loading{ background:linear-gradient(100deg,var(--surface-2) 30%,var(--surface) 50%,var(--surface-2) 70%); background-size:200% 100%; animation:ivShimmer 1.2s linear infinite; }
+  @keyframes ivShimmer{ from{ background-position:200% 0; } to{ background-position:-200% 0; } }
   .msg-audio{ display:block; width:min(260px,68vw); height:40px; }
   .msg-file--off{ opacity:.7; }
   .msg-img{ display:block; min-width:120px; min-height:90px; max-width:min(240px,68vw); max-height:260px; object-fit:cover; border-radius:14px; background:var(--surface-2); cursor:zoom-in; animation:svFade .3s ease both; }
@@ -5344,12 +5346,36 @@ function closeOrderDetailsModal() {
     if(!list.length) return "";
     return list.every(a => attKind(a) === "image") ? (list.length > 1 ? "Sent photos" : "Sent a photo") : "Sent an attachment";
   }
+  /* Signed links for private chat files: one batched request per render (not one per file) + a 50-minute cache */
+  const attUrlCache = new Map();               // path -> { url, exp }
+  let attQueue = null;
   function resolveAttUrl(a){
     if(a.url) return Promise.resolve(a.url);
     if(!supabase || !a.path) return Promise.resolve("");
-    return supabase.storage.from("chat-attachments").createSignedUrl(a.path, 3600)
-      .then(r => { const u = (r.data && r.data.signedUrl) || ""; if(u) a.url = u; return u; })
-      .catch(() => "");
+    const hit = attUrlCache.get(a.path);
+    if(hit && hit.exp > Date.now()){ a.url = hit.url; return Promise.resolve(hit.url); }
+    return new Promise(resolve => {
+      if(!attQueue){
+        const q = attQueue = new Map();
+        setTimeout(async () => {
+          attQueue = null;
+          const paths = [...q.keys()];
+          const byPath = {};
+          try{
+            const r = await supabase.storage.from("chat-attachments").createSignedUrls(paths, 3600);
+            ((r && r.data) || []).forEach(x => { if(x && x.path && x.signedUrl) byPath[x.path] = x.signedUrl; });
+          }catch(e){ console.error("signed urls failed:", e); }
+          paths.forEach(pth => {
+            const u = byPath[pth] || "";
+            if(u) attUrlCache.set(pth, { url:u, exp:Date.now() + 50 * 60000 });
+            q.get(pth).forEach(fn => fn(u));
+          });
+        }, 15);
+      }
+      const waiters = attQueue.get(a.path) || [];
+      waiters.push(u => { if(u) a.url = u; resolve(u); });
+      attQueue.set(a.path, waiters);
+    });
   }
   function buildAttachments(list){
     const wrap = document.createElement("div");
@@ -5386,13 +5412,19 @@ function closeOrderDetailsModal() {
         if(kind === "image"){
           const img = document.createElement("img");
           img.alt = a.name || "Photo"; img.loading = "lazy";
-          resolveAttUrl(a).then(u => { if(u) img.src = u; });
+          box.classList.add("is-loading");
+          const done = () => box.classList.remove("is-loading");
+          img.addEventListener("load", done); img.addEventListener("error", done);
+          resolveAttUrl(a).then(u => { if(u) img.src = u; else done(); });
           box.appendChild(img);
           imgThumbs.push({ a, el:img });
         }else{
           const v = document.createElement("video");
           v.muted = true; v.playsInline = true; v.preload = "metadata";
-          resolveAttUrl(a).then(u => { if(u) v.src = u + "#t=0.1"; });
+          box.classList.add("is-loading");
+          const done = () => box.classList.remove("is-loading");
+          v.addEventListener("loadeddata", done); v.addEventListener("error", done);
+          resolveAttUrl(a).then(u => { if(u) v.src = u + "#t=0.1"; else done(); });
           box.appendChild(v);
           const pl = document.createElement("span");
           pl.className = "msg-thumb__play"; pl.innerHTML = `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>`;
