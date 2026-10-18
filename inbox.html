@@ -2157,6 +2157,12 @@ html:not([data-theme="light"]) .odm-card { background: rgba(124,111,247,0.08); b
     padding:0 14px 0 38px; font-size:14.5px; color:var(--text-1); font-family:var(--font-body); outline:none;
     transition:border-color .2s ease, box-shadow .2s ease; }
   #hubSearch::placeholder{ color:var(--text-3); }
+  #csLinkSearch{ width:100%; height:40px; background:var(--surface); border:1px solid var(--hairline); border-radius:10px;
+    padding:0 14px; font-size:14.5px; color:var(--text-1); font-family:var(--font-body); outline:none; margin:4px 0 8px;
+    transition:border-color .2s ease, box-shadow .2s ease; }
+  #csLinkSearch::placeholder{ color:var(--text-3); }
+  #csLinkSearch:focus{ border-color:#7C6FF7; box-shadow:0 0 0 3px rgba(124,111,247,.12); }
+  .cs-linkrow{ width:100%; text-align:left; background:none; border:0; border-bottom:1px solid var(--hairline); cursor:pointer; color:inherit; font:inherit; display:flex; align-items:center; gap:12px; }
   #hubSearch:focus{ border-color:#7C6FF7; box-shadow:0 0 0 3px rgba(124,111,247,.12); }
   .hub-count{ font-size:11px; font-weight:800; padding:4px 10px; border-radius:999px; background:rgba(255,255,255,.12); color:#fff; white-space:nowrap; }
   .hub-count:empty{ display:none; }
@@ -3512,7 +3518,7 @@ function closeOrderDetailsModal() {
   async function fetchConversations(){
     const { data, error } = await supabase
       .from("conversations")
-      .select("id, customer_name, customer_avatar, channel, last_message, updated_at, unread_count, convo_status, assigned_to")
+      .select("id, customer_name, customer_avatar, channel, last_message, updated_at, unread_count, convo_status, assigned_to, customer_id, external_thread_id")
       .order("updated_at", { ascending:false });
 
     if(error){
@@ -3522,6 +3528,7 @@ function closeOrderDetailsModal() {
       return;
     }
     state.conversations = (data || []).concat(SHOW_DEMO ? MOCK_CONVERSATIONS : []);
+    await hydrateLinks();
     render();
   }
 
@@ -4115,9 +4122,153 @@ function closeOrderDetailsModal() {
     };
   }
   function localFor(){
-    const key = sheet.conv && sheet.conv.customer_key;
+    // unlinked chats (no customer key) get their own tag/note bucket, so the profile opens for them too
+    const key = sheet.conv && (sheet.conv.customer_key || (sheet.conv.id ? "chat_" + sheet.conv.id : null));
     if(!key) return null;
     return profileLocal[key] || (profileLocal[key] = { tags:[], notes:[] });
+  }
+
+  /* ---------- Linking a live chat to a registered customer ----------
+     A link = chats.customer_id + a customer_channels row (so this person's future chats link themselves).
+     The profile card then shows the customer's own site profile (avatar, contact, orders); the chat list keeps the platform photo. */
+  const linkCache = {};   // customer uuid -> { key, at }
+  async function loadLinkedCustomer(customerId, force){
+    const hit = linkCache[customerId];
+    if(!force && hit && Date.now() - hit.at < 120000) return hit.key;
+    const cl = hubClient(); if(!cl) return null;
+    const { data: row, error: e0 } = await cl.from("customers").select("customer_code").eq("id", customerId).maybeSingle();
+    if(e0 || !row || !row.customer_code) return null;
+    const res = await hubRpc("admin_list_customers", { p_q:row.customer_code, p_limit:5, p_offset:0 });
+    const c = ((res && res.rows) || []).find(x => x.id === customerId);
+    if(!c) return null;
+    const [o, ch] = await Promise.all([
+      cl.from("orders").select("order_number,status,total_amount,payment_method,created_at,processing_at,shipped_at,delivered_at,cancelled_at").eq("customer_id", c.id).order("created_at", { ascending:false }).limit(50),
+      cl.from("customer_channels").select("channel,display_name").eq("customer_id", c.id)
+    ]);
+    const recs = ((o && o.data) || []).filter(x => x.order_number).map(x => {
+      const st = x.cancelled_at ? "Cancelled" : x.delivered_at ? "Delivered" : x.shipped_at ? "Shipped" : "Pending";
+      return { id:x.order_number, payment_status:x.status === "paid" ? "Paid" : "Unpaid", payment_method:x.payment_method || undefined, amount:Number(x.total_amount) || 0, status:st,
+               placed_at:x.created_at, status_at:x.delivered_at || x.shipped_at || x.processing_at || x.cancelled_at || x.created_at };
+    });
+    const cur = recs.filter(x => x.status === "Pending" || x.status === "Shipped");
+    const handles = {}, chans = [];
+    (((ch && ch.data) || [])).forEach(r => { if(r.channel && chans.indexOf(r.channel) < 0) chans.push(r.channel); if(r.display_name) handles[r.channel] = r.display_name; });
+    (state.conversations || []).forEach(cv => {
+      if(cv.customer_id === customerId && cv.channel){
+        if(chans.indexOf(cv.channel) < 0) chans.push(cv.channel);
+        if(!handles[cv.channel] && cv.customer_name) handles[cv.channel] = cv.customer_name;
+      }
+    });
+    const key = "link_" + c.customer_code;
+    MOCK_CUSTOMERS[key] = { customer_id:c.customer_code, name:c.name, status:"registered", phone:c.phone || null, email:c.email || null, address:c.address || null,
+      customer_since:c.since, avatar_url:c.avatar_url || "", channels:chans, channel_handles:handles, current_orders:cur, past_orders:recs.filter(x => cur.indexOf(x) < 0) };
+    linkCache[customerId] = { key, at:Date.now() };
+    return key;
+  }
+  async function hydrateLinks(){
+    const liveConvs = (state.conversations || []).filter(c => c.customer_id && !isDemoId(c.id));
+    const ids = [...new Set(liveConvs.map(c => c.customer_id))];
+    for(const id of ids){
+      try{
+        const key = await loadLinkedCustomer(id);
+        liveConvs.forEach(c => { if(c.customer_id === id) c.customer_key = key || null; });
+      }catch(err){ console.error("Load linked customer failed:", err); }
+    }
+  }
+  function refreshThreadAfterLink(conv){
+    if(!conv || state.activeConversationId !== conv.id) return;
+    const rec = getCustomerRecord(conv), tv = document.getElementById("threadVerified");
+    if(tv){ tv.innerHTML = VERIFIED_SVG_WEB; tv.hidden = !(rec && rec.status === "registered"); }
+    renderThreadToolbar(conv);
+  }
+  function linkBlockHtml(conv, isRegistered){
+    if(!conv || !conv.id || !live(conv.id) || isRegistered) return "";
+    return `<button type="button" class="cs-btn cs-btn--block" data-act="link-open" style="margin:12px 0 4px">Link to registered customer</button>
+      <p class="cs-fineprint" style="margin:4px 0 0">Is this person already a customer? Link their ${escapeHtml((CHANNEL_META[conv.channel] && CHANNEL_META[conv.channel].label) || "chat")} account to show their site profile and orders.</p>`;
+  }
+  function unlinkBlockHtml(conv, isRegistered){
+    if(!conv || !conv.id || !live(conv.id) || !isRegistered || !conv.customer_id) return "";
+    return `<button type="button" class="cs-btn cs-btn--block" data-act="unlink" style="margin:6px 0 2px">Unlink this chat from the customer</button>`;
+  }
+  function buildLinkView(conv){
+    const lbl = (CHANNEL_META[conv.channel] && CHANNEL_META[conv.channel].label) || "chat";
+    return `<div class="cs-linkview">
+      <p class="cs-fineprint" style="margin:0 0 8px;text-align:left">Find the registered customer who owns this ${escapeHtml(lbl)} account (${escapeHtml(conv.customer_name || "unknown")}).</p>
+      <input id="csLinkSearch" type="search" inputmode="search" placeholder="Search name, email, phone or CU-ID" autocomplete="off" aria-label="Search registered customers">
+      <div id="csLinkResults"><div class="empty-note">Type at least 2 characters.</div></div>
+    </div>`;
+  }
+  function linkRowHtml(c){
+    return `<button type="button" class="cust-list-row cs-linkrow" data-act="link-pick" data-id="${escapeHtml(c.id)}">
+      ${avatarHtml(c.name, c.avatar_url)}
+      <div class="cust-list-row__main">
+        <div class="cust-list-row__name"><span>${escapeHtml(c.name || "Unnamed customer")}</span></div>
+        <div class="hub-row__sub">${escapeHtml(c.email || c.phone || "No contact on file")}</div>
+        ${c.customer_code ? `<span class="cust-list-row__id">${escapeHtml(c.customer_code)}</span>` : ""}
+      </div></button>`;
+  }
+  let linkTimer = null, linkSeq = 0;
+  function scheduleLinkSearch(q){ clearTimeout(linkTimer); linkTimer = setTimeout(() => runLinkSearch(q), 280); }
+  async function runLinkSearch(q){
+    const box = document.getElementById("csLinkResults"); if(!box) return;
+    q = (q || "").trim();
+    if(q.length < 2){ box.innerHTML = '<div class="empty-note">Type at least 2 characters.</div>'; return; }
+    const seq = ++linkSeq;
+    box.innerHTML = '<div class="empty-note">Searching…</div>';
+    try{
+      const res = await hubRpc("admin_list_customers", { p_q:q, p_limit:12, p_offset:0 });
+      if(seq !== linkSeq) return;
+      const rows = (res && res.rows) || [];
+      box.innerHTML = rows.length ? rows.map(linkRowHtml).join("") : '<div class="empty-note">No registered customer found.</div>';
+    }catch(err){
+      if(seq !== linkSeq) return;
+      console.error("Customer search failed:", err);
+      box.innerHTML = '<div class="empty-note">Search failed. Try again.</div>';
+    }
+  }
+  async function linkConversation(customerId){
+    const conv = sheet.conv, cl = hubClient();
+    if(!conv || !conv.id || !live(conv.id) || !customerId || !cl) return;
+    if(!conv.external_thread_id){ showToast("This chat has no platform id to link."); return; }
+    try{
+      const { error: e1 } = await cl.from("customer_channels").upsert(
+        { customer_id:customerId, channel:conv.channel, external_id:conv.external_thread_id, display_name:conv.customer_name || null },
+        { onConflict:"channel,external_id" });
+      if(e1) throw e1;
+      const { error: e2 } = await cl.from("conversations").update({ customer_id:customerId }).eq("id", conv.id);
+      if(e2) throw e2;
+      conv.customer_id = customerId;
+      const key = await loadLinkedCustomer(customerId, true);
+      (state.conversations || []).forEach(c => { if(c.customer_id === customerId) c.customer_key = key || null; });
+      const rec = key ? MOCK_CUSTOMERS[key] : null;
+      showToast(rec ? "Linked to " + (rec.name || "customer") : "Linked, but the profile couldn't be loaded");
+      goView("profile");
+      render();
+      refreshThreadAfterLink(conv);
+    }catch(err){
+      console.error("Link failed:", err);
+      showToast("Couldn't link the customer. Try again.");
+    }
+  }
+  async function unlinkConversation(){
+    const conv = sheet.conv, cl = hubClient();
+    if(!conv || !conv.id || !live(conv.id) || !conv.customer_id || !cl) return;
+    try{
+      if(conv.external_thread_id){
+        const { error: e1 } = await cl.from("customer_channels").delete().eq("channel", conv.channel).eq("external_id", conv.external_thread_id);
+        if(e1) throw e1;
+      }
+      const { error: e2 } = await cl.from("conversations").update({ customer_id:null }).eq("id", conv.id);
+      if(e2) throw e2;
+      conv.customer_id = null; conv.customer_key = null;
+      showToast("Unlinked from the customer");
+      goView("profile");
+      render();
+      refreshThreadAfterLink(conv);
+    }catch(err){
+      console.error("Unlink failed:", err);
+      showToast("Couldn't unlink. Try again.");
+    }
   }
 
   /* ---------- Order Details modal bridge (same modal as the main app's Orders tab) ---------- */
@@ -4271,6 +4422,7 @@ function closeOrderDetailsModal() {
     els.custSheetHead.classList.remove("is-condensed");
     els.custSheetScroll.innerHTML = sheet.view === "order" ? buildOrderDetail(cust)
       : sheet.view === "orders" ? buildAllOrders(cust)
+      : sheet.view === "link" ? buildLinkView(sheet.conv)
       : buildCustomerPanelHtml(sheet.conv);
     if(opts && opts.focus){
       const t = document.getElementById("custSheetTitle");
@@ -4281,7 +4433,7 @@ function closeOrderDetailsModal() {
   function buildSheetHead(cust){
     const closeBtn = `<button type="button" class="cs-iconbtn" data-act="close" aria-label="Close customer profile">${ICONS.close}</button>`;
     if(sheet.view !== "profile"){
-      const title = sheet.view === "order" ? "Order details" : "All orders";
+      const title = sheet.view === "order" ? "Order details" : sheet.view === "link" ? "Link to customer" : "All orders";
       return `<button type="button" class="cs-iconbtn" data-act="back" aria-label="Back to customer profile">${ICONS.back}</button>
         <div class="cs-head__text">
           <h2 class="cs-head__title" id="custSheetTitle" tabindex="-1">${title}</h2>
@@ -4585,10 +4737,12 @@ function closeOrderDetailsModal() {
 
     return `
       ${isRegistered ? idCardHtml(cust) : guestIdCardHtml(cust)}
+      ${linkBlockHtml(conv, isRegistered)}
       ${statsHtml(cust)}
 
       <div class="cust-sheet__section-label">${ICONS.chan}Connected channels</div>
       <div class="platform-list">${platformsHtml}</div>
+      ${unlinkBlockHtml(conv, isRegistered)}
 
       ${sectionHead(ICONS.bag, curAll.length > 1 ? "Current orders" : "Current order", curAll.length)}
       ${currentHtml}
@@ -4628,6 +4782,15 @@ function closeOrderDetailsModal() {
       case "back": goView("profile"); break;
       case "open-order": toggleOrderDropdown(el); break;
       case "all-orders": goView("orders"); break;
+      case "link-open": goView("link"); setTimeout(() => { const i = document.getElementById("csLinkSearch"); if(i) i.focus({ preventScroll:true }); }, 120); break;
+      case "link-pick": linkConversation(el.dataset.id); break;
+      case "unlink": {
+        if(el.dataset.armed !== "1"){
+          el.dataset.armed = "1"; el.textContent = "Tap again to unlink";
+          clearTimeout(el._t); el._t = setTimeout(() => { el.dataset.armed = ""; el.textContent = "Unlink this chat from the customer"; }, 3000);
+        }else unlinkConversation();
+        break;
+      }
       case "no-phone": showToast("No phone number on file"); break;
       case "toggle-val": {
         const open = el.classList.toggle("is-open");
@@ -4702,6 +4865,7 @@ function closeOrderDetailsModal() {
   });
 
   els.custSheet.addEventListener("input", (e) => {
+    if(e.target.id === "csLinkSearch"){ scheduleLinkSearch(e.target.value); return; }
     if(e.target.id === "csNoteEditInput" || e.target.id === "csNoteInput") csGrow(e.target);
     if(e.target.id === "csNoteEditInput"){
       document.getElementById("csNoteEditCount").textContent = e.target.value.length + "/" + NOTE_LEN;
