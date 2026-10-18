@@ -2349,6 +2349,14 @@ html:not([data-theme="light"]) .odm-card { background: rgba(124,111,247,0.08); b
   .wl-card .hub-thumb{ width:68px; height:68px; border-radius:12px; }
   .wl-card .pin-card__side{ gap:4px; min-width:58px; align-items:flex-end; }
   .wl-card .pin-card__price{ font-size:15px; }
+  /* Wishlist > By product: same bubble look as the Customers cards */
+  .cust-list-scroll .wl-card{ margin:10px 14px 0; border:1px solid rgba(43,116,227,.5); border-radius:16px;
+    background:linear-gradient(160deg,#ffffff 0%,#eef4ff 100%);
+    box-shadow:0 2px 4px rgba(15,22,33,.08), 0 12px 26px -6px rgba(43,116,227,.5), inset 0 1.5px 0 rgba(255,255,255,.95), inset 0 -2px 4px rgba(43,116,227,.08); }
+  html:not([data-theme="light"]) .cust-list-scroll .wl-card{ background:linear-gradient(160deg,#1f3047 0%,#162130 100%); border-color:rgba(77,143,245,.45);
+    box-shadow:0 2px 4px rgba(0,0,0,.3), 0 10px 24px -8px rgba(43,116,227,.45), inset 0 1px 0 rgba(255,255,255,.07), inset 0 -2px 4px rgba(0,0,0,.2); }
+  .cust-list-scroll .wl-card[aria-expanded="true"]{ border-color:rgba(10,155,220,0.65); }
+  .cust-list-scroll .wl-card + .hub-detail{ margin:6px 14px 2px; }
   .wl-old-row{ display:flex; flex-direction:column; align-items:flex-end; gap:1px; }
   .wl-old{ position:relative; display:inline-block; font-size:12px; font-weight:600; color:#ef4444; }
   .wl-old::after{ content:''; position:absolute; left:0; right:-2px; top:0; bottom:0; height:1.5px; margin:auto; background:var(--text-3); border-radius:1px; transform:rotate(-8deg); }
