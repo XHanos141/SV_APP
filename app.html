@@ -28277,7 +28277,6 @@ function al_proxyRequestCard(req){
       </div>
     </div>
     ${more > 0 ? `<div class="px-more">+${more} more item${more > 1 ? 's' : ''}</div>` : ''}
-    ${req.notes ? `<div class="px-cnote"><div class="px-cnote-l">Customer note</div><div class="px-cnote-t">${escapeHtml(req.notes)}</div></div>${al_pxNoteFlag(req)}` : ''}
     <div class="chips-row">
       ${al_chip('message','Contact',escapeHtml(ch.label))}
       ${al_chip('clock','Requested',escapeHtml(al_pxWhen(req.createdAt)))}
