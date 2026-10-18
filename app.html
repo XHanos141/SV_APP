@@ -6299,10 +6299,10 @@ html[data-theme="dark"] .tx-exp-total-amt { color:#ffffff; }
 .tx-col-left  { flex:1; min-width:0; }
 .tx-col-right { flex-shrink:0; display:flex; flex-direction:column; align-items:flex-end; gap:4px; }
 .tx-col-right .tx-date { margin-left:0; }
-.tx-status-row { display:flex; align-items:stretch; gap:6px; }
-/* invoice button: same height as the status pill (stretches to it), solid fill, white icon; ::after enlarges the tap area */
-.tx-inv-btn { position:relative; height:auto; aspect-ratio:1/1; flex:none; display:flex; align-items:center; justify-content:center; padding:0; border-radius:999px; border:1px solid #7c6ff7; background:#7c6ff7; color:#fff; cursor:pointer; transition:transform .15s, filter .2s; }
-.tx-inv-btn::after { content:''; position:absolute; inset:-8px; }
+.tx-status-row { display:flex; align-items:center; gap:6px; }
+/* invoice button: same badge style as the channel / payment icons (18px rounded square, solid fill, white icon); ::after enlarges the tap area */
+.tx-inv-btn { position:relative; width:18px; height:18px; flex:none; display:flex; align-items:center; justify-content:center; padding:0; border-radius:5px; border:0; background:#7c6ff7; color:#fff; box-shadow:0 1px 3px rgba(0,0,0,0.14); cursor:pointer; transition:transform .15s, filter .2s; }
+.tx-inv-btn::after { content:''; position:absolute; inset:-9px; }
 .tx-inv-btn svg { width:11px; height:11px; stroke:#fff; }
 .tx-inv-btn:active { transform:scale(.9); filter:brightness(.92); }
 .tx-bottom-cols { align-items:center; margin-top:4px; }
