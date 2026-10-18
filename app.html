@@ -8,6 +8,13 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400;1,700&family=DM+Sans:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Roboto+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
+.pxq-cn,.px-cnote{position:relative;margin:8px 0 10px;padding:9px 12px 9px 15px;border-radius:10px;background:var(--surface2,rgba(127,127,127,.08));overflow:hidden}
+.pxq-cn::before,.px-cnote::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:#F26430}
+.pxq-cn-l,.px-cnote-l{font-size:10px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;opacity:.65;margin-bottom:3px}
+.pxq-cn-t,.px-cnote-t{font-size:13.5px;line-height:1.45;word-break:break-word}
+.px-cnote-t{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.pxq-flag{margin-top:6px;font-size:11.5px;font-weight:700;color:#d95353}
+.px-cnote + .pxq-flag{margin:-4px 0 8px 4px}
 /* no long-press text selection; inputs and .allow-select stay selectable */
 html,body{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
 input,textarea,select,[contenteditable="true"],.allow-select,.allow-select *{-webkit-user-select:text;user-select:text}
@@ -8466,6 +8473,7 @@ html[data-theme="dark"] #alertsTabContent .rq-tag { border-color:rgba(251,202,18
   <div class="pxq-card">
     <h3>Send quote</h3>
     <div class="pxq-sub" id="pxqSub"></div>
+    <div id="pxqCust"></div>
     <label for="pxqTotal">Final price (BDT)</label>
     <input id="pxqTotal" type="number" inputmode="decimal" min="1" step="1" placeholder="0">
     <button type="button" class="pxq-est" id="pxqEst"></button>
@@ -28269,6 +28277,7 @@ function al_proxyRequestCard(req){
       </div>
     </div>
     ${more > 0 ? `<div class="px-more">+${more} more item${more > 1 ? 's' : ''}</div>` : ''}
+    ${req.notes ? `<div class="px-cnote"><div class="px-cnote-l">Customer note</div><div class="px-cnote-t">${escapeHtml(req.notes)}</div></div>${al_pxNoteFlag(req)}` : ''}
     <div class="chips-row">
       ${al_chip('message','Contact',escapeHtml(ch.label))}
       ${al_chip('clock','Requested',escapeHtml(al_pxWhen(req.createdAt)))}
@@ -28338,6 +28347,15 @@ async function al_pxFees(req){
     return (r && r[0] && r[0].content) || null;
   } catch (e) { return null; }
 }
+function al_pxNoteFlag(req){
+  const n = String(req.notes || '');
+  if (!n) return '';
+  const qtyWord = /\b(\d+(?:\.\d+)?)\s*(kg|kgr|kilo|gm|gram|dozen|box|pack|pcs|piece|bottle|jar)s?\b|\b(bulk|wholesale|carton)\b|কেজি|ডজন|প্যাক|বক্স/i.test(n);
+  const nums = (n.match(/\d+/g) || []).map(Number);
+  const tot = req.items.reduce((t, i) => t + i.qty, 0);
+  const diff = nums.length && nums.some(x => x !== tot && x < 1000);
+  return (qtyWord || diff) ? '<div class="pxq-flag">Note mentions quantity. Check before quoting.</div>' : '';
+}
 async function openQuoteSheet(id){
   const req = AL_PROXY.find(r => r.id === id);
   if (!req) return;
@@ -28347,6 +28365,8 @@ async function openQuoteSheet(id){
   const estEl = document.getElementById('pxqEst');
   totalEl.value = req.finalBdt != null ? Math.round(req.finalBdt) : '';
   document.getElementById('pxqNote').value = req.adminNote || '';
+  const cn = document.getElementById('pxqCust');
+  if (cn) cn.innerHTML = req.notes ? '<div class="pxq-cn"><div class="pxq-cn-l">Customer note</div><div class="pxq-cn-t">' + escapeHtml(req.notes) + '</div>' + al_pxNoteFlag(req) + '</div>' : '';
   document.getElementById('pxqErr').textContent = '';
   estEl.style.display = 'none';
   document.getElementById('pxQuoteSheet').classList.add('open');
@@ -28390,6 +28410,11 @@ async function submitQuote(){
   btn.disabled = false;
 }
 document.addEventListener('click', function(e){ if (e.target && e.target.id === 'pxQuoteSheet') closeQuoteSheet(); });
+window.openQuoteSheet = openQuoteSheet;
+window.closeQuoteSheet = closeQuoteSheet;
+window.submitQuote = submitQuote;
+window.openProxyChat = openProxyChat;
+window.openProxyDetails = openProxyDetails;
 
 let _alPxLoading = false;
 let _alHasRendered = false;
