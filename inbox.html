@@ -2310,7 +2310,19 @@ html:not([data-theme="light"]) .odm-card { background: rgba(124,111,247,0.08); b
   .msg-thumb__play{ position:absolute; left:50%; top:50%; width:36px; height:36px; margin:-18px 0 0 -18px; border-radius:50%; background:rgba(0,0,0,.55); border:1.5px solid rgba(255,255,255,.85); color:#fff; display:flex; align-items:center; justify-content:center; pointer-events:none; }
   .msg-thumb__play svg{ width:16px; height:16px; margin-left:2px; }
   .msg-thumb:active{ transform:scale(.97); }
-  .msg-thumb.is-loading{ background:linear-gradient(100deg,var(--surface-2) 30%,var(--surface) 50%,var(--surface-2) 70%); background-size:200% 100%; animation:ivShimmer 1.2s linear infinite; }
+  .msg-stack{ position:relative; width:140px; height:122px; flex:0 0 auto; padding:0; border:0; background:none; cursor:pointer; display:block; -webkit-tap-highlight-color:transparent; transition:transform .15s ease; }
+  .msg-stack:active{ transform:scale(.97); }
+  .msg-stack__card{ position:absolute; left:18px; top:8px; width:104px; height:104px; border-radius:14px; overflow:hidden; border:1px solid var(--hairline); background:var(--surface-2); box-shadow:0 6px 16px rgba(0,0,0,.22); transform-origin:50% 100%; transform:translateX(var(--x,0px)) rotate(var(--r,0deg)); animation:msgFan .5s cubic-bezier(.22,1,.36,1) both; }
+  .msg-stack__card img{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; pointer-events:none; }
+  .msg-stack__card[data-slot="l"]{ --r:-10deg; --x:-7px; z-index:1; }
+  .msg-stack__card[data-slot="r"]{ --r:10deg; --x:7px; z-index:2; }
+  .msg-stack__card[data-slot="c"]{ --r:0deg; --x:0px; z-index:3; }
+  .msg-stack--2 .msg-stack__card[data-slot="l"]{ --r:-7deg; --x:-5px; }
+  .msg-stack--2 .msg-stack__card[data-slot="r"]{ --r:7deg; --x:5px; z-index:3; }
+  .msg-stack__more{ position:absolute; right:6px; bottom:6px; padding:2px 8px; border-radius:999px; background:rgba(0,0,0,.62); color:#fff; font-size:11px; font-weight:800; pointer-events:none; }
+  @keyframes msgFan{ from{ transform:translateX(0px) rotate(0deg); } }
+  @media (prefers-reduced-motion:reduce){ .msg-stack__card{ animation:none; } }
+  .msg-thumb.is-loading, .msg-stack__card.is-loading{ background:linear-gradient(100deg,var(--surface-2) 30%,var(--surface) 50%,var(--surface-2) 70%); background-size:200% 100%; animation:ivShimmer 1.2s linear infinite; }
   @keyframes ivShimmer{ from{ background-position:200% 0; } to{ background-position:-200% 0; } }
   .msg-audio{ display:block; width:min(260px,68vw); height:40px; }
   .msg-file--off{ opacity:.7; }
@@ -5381,6 +5393,39 @@ function closeOrderDetailsModal() {
     const wrap = document.createElement("div");
     wrap.className = "msg-atts";
     let thumbs = null;
+    const stackImgs = list.filter(x => !x.failed && (x.path || x.url) && attKind(x) === "image");
+    const useStack = stackImgs.length >= 2;      // 2+ photos in one message -> one fanned stack instead of a row of boxes
+    let stackDone = false;
+    const buildStack = arr => {
+      const n = Math.min(arr.length, 3);
+      const el = document.createElement("button");
+      el.type = "button"; el.className = "msg-stack msg-stack--" + n; el.setAttribute("aria-label", "Open " + arr.length + " photos");
+      const slots = n === 3 ? ["c", "l", "r"] : ["r", "l"];    // photo 1 is always the front card
+      const imgs = [];
+      [1, 2, 0].filter(k => k < n).forEach(k => {
+        const card = document.createElement("div");
+        card.className = "msg-stack__card is-loading"; card.dataset.slot = slots[k];
+        const img = document.createElement("img");
+        img.alt = "Photo " + (k + 1); img.loading = "lazy";
+        const done = () => card.classList.remove("is-loading");
+        img.addEventListener("load", done); img.addEventListener("error", done);
+        resolveAttUrl(arr[k]).then(u => { if(u) img.src = u; else done(); });
+        card.appendChild(img); el.appendChild(card);
+        imgs[k] = img;
+        if(k === 0 && arr.length > 3){
+          const more = document.createElement("span");
+          more.className = "msg-stack__more"; more.textContent = "+" + (arr.length - 3);
+          card.appendChild(more);
+        }
+      });
+      el.addEventListener("click", () => {
+        Promise.all(arr.map(x => resolveAttUrl(x))).then(urls => {
+          const items = arr.map((x, k) => ({ u:urls[k], el:imgs[k] || imgs[0] })).filter(o => o.u);
+          if(items.length) pkZoomOpen(items.map(o => o.u), 0, k => items[k] && items[k].el);
+        });
+      });
+      return el;
+    };
     const imgThumbs = [];                       // every photo in this message, so the zoom can swipe between them
     const card = (tag, label, sub, extra) => {
       const el = document.createElement(tag);
@@ -5404,6 +5449,11 @@ function closeOrderDetailsModal() {
         }else{
           wrap.appendChild(card("div", a.title || (a.type ? a.type.charAt(0).toUpperCase() + a.type.slice(1) : "Attachment"), "Not supported yet", " msg-file--off"));
         }
+      }else if(useStack && kind === "image"){
+        if(stackDone) return;
+        stackDone = true;
+        if(!thumbs){ thumbs = document.createElement("div"); thumbs.className = "msg-thumbs"; wrap.appendChild(thumbs); }
+        thumbs.appendChild(buildStack(stackImgs));
       }else if(kind === "image" || kind === "video"){
         // fixed-size square box for every photo / video; tap opens the full-screen viewer
         if(!thumbs){ thumbs = document.createElement("div"); thumbs.className = "msg-thumbs"; wrap.appendChild(thumbs); }
