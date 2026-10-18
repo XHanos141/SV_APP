@@ -8443,6 +8443,47 @@ html[data-theme="dark"] #pxQuoteSheet .pxq-card { background:#162130; color:#e8e
 #pxQuoteSheet .pxq-send:disabled { opacity:.6; }
 #pxQuoteSheet .pxq-cancel { background:rgba(124,111,247,.12); color:inherit; }
 #pxQuoteSheet .pxq-err { color:#d95353; font-size:12px; font-weight:600; margin-top:8px; min-height:14px; }
+#pxQuoteSheet .pxq-hd { display:flex; align-items:center; gap:11px; margin-bottom:12px; }
+#pxQuoteSheet .pxq-hd-ic { width:38px; height:38px; border-radius:12px; background:linear-gradient(135deg,#F26430,#F4A922); color:#fff; display:flex; align-items:center; justify-content:center; flex-shrink:0; box-shadow:0 6px 14px -4px rgba(242,100,48,.55); }
+#pxQuoteSheet .pxq-hd-ic svg { width:18px; height:18px; }
+#pxQuoteSheet .pxq-hd-tx { flex:1; min-width:0; }
+#pxQuoteSheet h3 { margin:0; font:800 16px 'Plus Jakarta Sans',sans-serif; }
+#pxQuoteSheet .pxq-sub { display:flex; align-items:center; gap:7px; margin:3px 0 0; opacity:1; font-size:12px; font-weight:600; }
+#pxQuoteSheet .pxq-rq { font:800 11px 'Plus Jakarta Sans',sans-serif; color:#F26430; background:rgba(242,100,48,.12); border:1px solid rgba(242,100,48,.38); border-radius:6px; padding:3px 8px; letter-spacing:.3px; line-height:1; }
+html[data-theme="dark"] #pxQuoteSheet .pxq-rq { color:#FF9466; border-color:rgba(255,148,102,.5); }
+#pxQuoteSheet .pxq-sub .pxq-cn2 { opacity:.7; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+#pxQuoteSheet .pxq-x { width:32px; height:32px; border-radius:10px; border:1px solid rgba(127,127,127,.25); background:rgba(127,127,127,.08); color:inherit; display:flex; align-items:center; justify-content:center; cursor:pointer; padding:0; flex-shrink:0; }
+#pxQuoteSheet .pxq-x svg { width:15px; height:15px; }
+#pxQuoteSheet .pxq-pr-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:4px; }
+#pxQuoteSheet .pxq-pr-cell { display:flex; flex-direction:column; gap:2px; text-align:left; padding:10px 12px; border-radius:12px; border:1px solid rgba(127,127,127,.22); background:rgba(127,127,127,.06); color:inherit; font-family:inherit; }
+#pxQuoteSheet .pxq-pr-l { font-size:10.5px; font-weight:700; letter-spacing:.04em; text-transform:uppercase; opacity:.65; }
+#pxQuoteSheet .pxq-pr-cell b { font:800 17px 'Plus Jakarta Sans',sans-serif; }
+#pxQuoteSheet .pxq-pr-cell i { font-style:normal; font-size:10.5px; font-weight:600; opacity:.55; }
+#pxQuoteSheet .pxq-pr-est { cursor:pointer; border-color:rgba(242,100,48,.45); background:rgba(242,100,48,.08); }
+#pxQuoteSheet .pxq-pr-est b { color:#F26430; }
+html[data-theme="dark"] #pxQuoteSheet .pxq-pr-est b { color:#FF9466; }
+#pxQuoteSheet .pxq-pr-est:disabled { cursor:default; opacity:.6; }
+#pxQuoteSheet .pxq-pr-est:active:not(:disabled) { transform:scale(.98); }
+#pxQuoteSheet .pxq-delta { min-height:18px; margin-top:8px; font-size:12px; font-weight:700; display:flex; align-items:center; gap:6px; }
+#pxQuoteSheet .pxq-delta.up { color:#F26430; }
+#pxQuoteSheet .pxq-delta.down { color:#2f9b68; }
+#pxQuoteSheet .pxq-delta.same { opacity:.6; }
+#pxQuoteSheet .pxq-delta span { opacity:.6; font-weight:600; }
+#pxQuoteSheet input:focus, #pxQuoteSheet textarea:focus { border-color:#F26430; }
+#pxQuoteSheet .pxq-dd { position:relative; }
+#pxQuoteSheet .pxq-dd-btn { width:100%; display:flex; align-items:center; justify-content:space-between; padding:12px 14px; border-radius:12px; border:1.5px solid rgba(242,100,48,.4); background:transparent; color:inherit; font:600 15px 'DM Sans',sans-serif; cursor:pointer; }
+#pxQuoteSheet .pxq-dd-btn svg { width:16px; height:16px; transition:transform .18s; opacity:.7; }
+#pxQuoteSheet .pxq-dd.open .pxq-dd-btn { border-color:#F26430; }
+#pxQuoteSheet .pxq-dd.open .pxq-dd-btn svg { transform:rotate(180deg); }
+#pxQuoteSheet .pxq-dd-menu { display:none; position:absolute; left:0; right:0; bottom:calc(100% + 6px); z-index:3; padding:5px; border-radius:14px; background:#fff; border:1px solid rgba(242,100,48,.4); box-shadow:0 12px 28px -6px rgba(15,22,33,.28); }
+html[data-theme="dark"] #pxQuoteSheet .pxq-dd-menu { background:#1b2a3d; border-color:rgba(255,148,102,.4); box-shadow:0 12px 28px -6px rgba(0,0,0,.6); }
+#pxQuoteSheet .pxq-dd.open .pxq-dd-menu { display:block; animation:hubSlideUp .15s ease-out; }
+#pxQuoteSheet .pxq-dd-opt { width:100%; display:flex; align-items:center; justify-content:space-between; padding:11px 12px; border:none; border-radius:10px; background:transparent; color:inherit; font:600 14.5px 'DM Sans',sans-serif; text-align:left; cursor:pointer; }
+#pxQuoteSheet .pxq-dd-opt.on { background:rgba(242,100,48,.12); color:#F26430; font-weight:800; }
+html[data-theme="dark"] #pxQuoteSheet .pxq-dd-opt.on { color:#FF9466; }
+#pxQuoteSheet .pxq-dd-opt.on::after { content:''; width:7px; height:12px; border:solid currentColor; border-width:0 2.4px 2.4px 0; transform:rotate(45deg) translate(-2px,-2px); }
+#pxQuoteSheet .pxq-send { background:#F26430; }
+#pxQuoteSheet .pxq-cancel { background:rgba(242,100,48,.10); }
 #alertsTabContent .rq-tag { display:inline-flex; align-items:center; border:1.5px solid rgba(198,82,39,0.55); border-radius:6px; padding:2px 7px; font-family:'Plus Jakarta Sans',sans-serif; font-size:11px; font-weight:800; color:#E15A26; letter-spacing:.3px; background:rgba(255,255,255,0.5); flex-shrink:0; }
 html[data-theme="dark"] #alertsTabContent .rq-tag { border-color:rgba(251,202,185,0.5); color:#FF9466; background:rgba(255,255,255,0.06); }
 #alertsTabContent .px-cust { display:flex; align-items:center; gap:10px; min-width:0; }
@@ -8493,14 +8534,30 @@ html[data-theme="dark"] #alertsTabContent .rq-tag { border-color:rgba(251,202,18
 </div>
 <div id="pxQuoteSheet" role="dialog" aria-label="Send quote">
   <div class="pxq-card">
-    <h3>Send quote</h3>
-    <div class="pxq-sub" id="pxqSub"></div>
+    <div class="pxq-hd">
+      <span class="pxq-hd-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4z"/></svg></span>
+      <div class="pxq-hd-tx"><h3>Send quote</h3><div class="pxq-sub" id="pxqSub"></div></div>
+      <button type="button" class="pxq-x" onclick="closeQuoteSheet()" aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+    </div>
     <div id="pxqCust"></div>
-    <label for="pxqTotal">Final price (BDT)</label>
+    <div class="pxq-pr-grid">
+      <div class="pxq-pr-cell"><span class="pxq-pr-l">Old price</span><b id="pxqOld">—</b><i id="pxqOldSub">No quote yet</i></div>
+      <button type="button" class="pxq-pr-cell pxq-pr-est" id="pxqEst" disabled><span class="pxq-pr-l">Est. price</span><b id="pxqEstV">—</b><i>Tap to use</i></button>
+    </div>
+    <label for="pxqTotal">New price (BDT)</label>
     <input id="pxqTotal" type="number" inputmode="decimal" min="1" step="1" placeholder="0">
-    <button type="button" class="pxq-est" id="pxqEst"></button>
-    <label for="pxqValid">Quote valid for</label>
-    <select id="pxqValid"><option value="24">24 hours</option><option value="48">48 hours</option><option value="72" selected>3 days</option><option value="168">7 days</option></select>
+    <div class="pxq-delta" id="pxqDelta"></div>
+    <label>Quote valid for</label>
+    <div class="pxq-dd" id="pxqDD">
+      <input type="hidden" id="pxqValid" value="72">
+      <button type="button" class="pxq-dd-btn" id="pxqDDBtn" aria-haspopup="listbox" aria-expanded="false"><span id="pxqDDLbl">3 days</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button>
+      <div class="pxq-dd-menu" id="pxqDDMenu" role="listbox">
+        <button type="button" class="pxq-dd-opt" data-v="24" role="option">24 hours</button>
+        <button type="button" class="pxq-dd-opt" data-v="48" role="option">48 hours</button>
+        <button type="button" class="pxq-dd-opt on" data-v="72" role="option">3 days</button>
+        <button type="button" class="pxq-dd-opt" data-v="168" role="option">7 days</button>
+      </div>
+    </div>
     <label for="pxqNote">Note (optional)</label>
     <textarea id="pxqNote" maxlength="500" placeholder="Internal note"></textarea>
     <div class="pxq-err" id="pxqErr"></div>
@@ -28377,31 +28434,74 @@ function al_pxNoteFlag(req){
   const diff = nums.length && nums.some(x => x !== tot && x < 1000);
   return (qtyWord || diff) ? '<div class="pxq-flag">Note mentions quantity. Check before quoting.</div>' : '';
 }
+let _pxqEst = null, _pxqOld = null;
+function pxqFmt(n){ return '৳' + Math.round(n).toLocaleString('en-US'); }
+function pxqDelta(){
+  const el = document.getElementById('pxqDelta'); if (!el) return;
+  const v = Number(document.getElementById('pxqTotal').value);
+  const base = _pxqOld != null ? _pxqOld : _pxqEst;
+  const lbl = _pxqOld != null ? 'vs old price' : 'vs est. price';
+  if (!(v > 0) || base == null) { el.className = 'pxq-delta'; el.innerHTML = ''; return; }
+  const d = Math.round(v - base);
+  if (d === 0) { el.className = 'pxq-delta same'; el.innerHTML = 'No change <span>' + lbl + '</span>'; return; }
+  const pct = base > 0 ? (Math.abs(d) / base * 100) : 0;
+  el.className = 'pxq-delta ' + (d > 0 ? 'up' : 'down');
+  el.innerHTML = (d > 0 ? '▲ +' : '▼ −') + pxqFmt(Math.abs(d)) + ' (' + (d > 0 ? '+' : '−') + pct.toFixed(1) + '%) <span>' + lbl + '</span>';
+}
+function pxqSetValid(v){
+  document.getElementById('pxqValid').value = v;
+  let lbl = '';
+  document.querySelectorAll('#pxqDDMenu .pxq-dd-opt').forEach(o => { const on = o.dataset.v === String(v); o.classList.toggle('on', on); if (on) lbl = o.textContent; });
+  document.getElementById('pxqDDLbl').textContent = lbl;
+}
+function pxqCloseDD(){
+  const dd = document.getElementById('pxqDD'); if (!dd) return;
+  dd.classList.remove('open');
+  document.getElementById('pxqDDBtn').setAttribute('aria-expanded', 'false');
+}
+document.addEventListener('click', function(e){
+  const t = e.target; if (!t || !t.closest) return;
+  const btn = t.closest('#pxqDDBtn');
+  if (btn) { const dd = document.getElementById('pxqDD'); const open = dd.classList.toggle('open'); btn.setAttribute('aria-expanded', open ? 'true' : 'false'); return; }
+  const opt = t.closest('#pxqDDMenu .pxq-dd-opt');
+  if (opt) { pxqSetValid(opt.dataset.v); pxqCloseDD(); return; }
+  if (!t.closest('#pxqDD')) pxqCloseDD();
+});
+document.addEventListener('input', function(e){ if (e.target && e.target.id === 'pxqTotal') pxqDelta(); });
 async function openQuoteSheet(id){
   const req = AL_PROXY.find(r => r.id === id);
   if (!req) return;
-  _pxqId = id;
-  document.getElementById('pxqSub').textContent = (req.reqNo || 'Request') + ' · ' + req.customer.name;
+  _pxqId = id; _pxqEst = null; _pxqOld = req.finalBdt != null ? Math.round(req.finalBdt) : null;
+  document.getElementById('pxqSub').innerHTML = '<span class="pxq-rq">' + escapeHtml(req.reqNo || 'Request') + '</span><span class="pxq-cn2">' + escapeHtml(req.customer.name || '') + '</span>';
   const totalEl = document.getElementById('pxqTotal');
   const estEl = document.getElementById('pxqEst');
-  totalEl.value = req.finalBdt != null ? Math.round(req.finalBdt) : '';
+  totalEl.value = _pxqOld != null ? _pxqOld : '';
+  document.getElementById('pxqOld').textContent = _pxqOld != null ? pxqFmt(_pxqOld) : '—';
+  document.getElementById('pxqOldSub').textContent = _pxqOld != null ? 'Last quote sent' : 'No quote yet';
+  document.getElementById('pxqEstV').textContent = '…';
+  estEl.disabled = true; estEl.onclick = null;
   document.getElementById('pxqNote').value = req.adminNote || '';
   const cn = document.getElementById('pxqCust');
   if (cn) cn.innerHTML = req.notes ? '<div class="pxq-cn"><div class="pxq-cn-l">Customer note</div><div class="pxq-cn-t">' + escapeHtml(req.notes) + '</div>' + al_pxNoteFlag(req) + '</div>' : '';
   document.getElementById('pxqErr').textContent = '';
-  estEl.style.display = 'none';
+  pxqSetValid(72); pxqCloseDD(); pxqDelta();
   document.getElementById('pxQuoteSheet').classList.add('open');
   const f = await al_pxFees(req);
   const usd = req.items.reduce((t, i) => t + i.qty * i.price, 0);
   if (f && usd > 0 && Number(f.usd_rate) > 0) {
     const est = Math.round(usd * (1 + (Number(f.sales_tax) || 0) / 100 + (Number(f.service_charge) || 0) / 100) * Number(f.usd_rate));
-    estEl.textContent = 'Estimate from customer prices: ৳' + est.toLocaleString('en-US') + ' (tap to use)';
-    estEl.onclick = () => { totalEl.value = est; };
-    estEl.style.display = '';
+    _pxqEst = est;
+    document.getElementById('pxqEstV').textContent = pxqFmt(est);
+    estEl.disabled = false;
+    estEl.onclick = () => { totalEl.value = est; pxqDelta(); };
     if (!totalEl.value) totalEl.value = est;
+  } else {
+    document.getElementById('pxqEstV').textContent = '—';
   }
+  pxqDelta();
 }
 function closeQuoteSheet(){
+  pxqCloseDD();
   document.getElementById('pxQuoteSheet').classList.remove('open');
   _pxqId = null;
 }
