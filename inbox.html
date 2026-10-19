@@ -2720,7 +2720,7 @@ html:not([data-theme="light"]) .odm-card { background: rgba(124,111,247,0.08); b
         <button type="button" role="menuitemcheckbox" aria-checked="false" data-tool="note"><span class="tt-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></span><span class="tt-lbl">Note</span></button>
       </div>
     </div>
-    <input type="file" id="fileInPhoto" accept="image/jpeg,image/png,image/webp,image/gif" multiple hidden>
+    <input type="file" id="fileInPhoto" accept="image/jpeg,image/png,image/webp,image/gif,video/mp4,video/quicktime,video/webm" multiple hidden>
     <input type="file" id="fileInCamera" accept="image/*" capture="environment" hidden>
     <input type="file" id="fileInDoc" accept=".pdf,.doc,.docx,.xls,.xlsx,.txt,.csv,application/pdf,text/plain,text/csv" multiple hidden>
     <button type="button" class="composer-attach composer-legacy" id="attachBtn" aria-label="Attach file" aria-haspopup="menu" aria-expanded="false">
@@ -5156,15 +5156,23 @@ function closeOrderDetailsModal() {
   document.getElementById("sendBtn").addEventListener("mousedown", (e) => e.preventDefault());
 
   // Sends a reply to the real customer through the meta-send Edge Function (admin session, 24h rule enforced there).
-  async function sendLiveReply(conv, text){
+  async function sendLiveReply(conv, text, files){
     try{
-      const { data, error } = await supabase.functions.invoke("meta-send", { body:{ conversation_id:conv.id, text } });
+      const body = { conversation_id:conv.id, text };
+      if(files && files.length) body.attachments = files;
+      const { data, error } = await supabase.functions.invoke("meta-send", { body });
       let res = data;
       if(error){ try{ res = await error.context.json(); }catch(_){ res = { ok:false, error:"Couldn't reach the server. Try again." }; } }
-      if(!res || !res.ok){ showToast((res && res.error) || "Couldn't send the message."); return false; }
+      // every message that reached the customer (even before a later failure) goes into the chat
+      const rows = (res && Array.isArray(res.rows) && res.rows.length) ? res.rows : (res && res.data ? [res.data] : []);
+      rows.forEach(row => { if(row && row.id && !seenIds.has(row.id)){ seenIds.add(row.id); appendMessage(row); } });
+      if(!res || !res.ok){
+        const done = rows.filter(r => r && r.attachments && r.attachments.length).length;   // files already delivered: don't resend them
+        if(done){ pendingAtts.splice(0, done).forEach(a => a.url && URL.revokeObjectURL(a.url)); renderAttStrip(); updateSendState(); }
+        showToast((res && res.error) || "Couldn't send the message.");
+        return false;
+      }
       if(res.warning) showToast(res.warning);
-      const row = res.data;
-      if(row && row.id && !seenIds.has(row.id)){ seenIds.add(row.id); appendMessage(row); }
       return true;
     }catch(err){
       console.error("sendLiveReply failed:", err);
@@ -5182,13 +5190,22 @@ function closeOrderDetailsModal() {
     const conv = state.conversations.find(c => c.id === state.activeConversationId);
 
     if(live(state.activeConversationId) && !state.noteMode){
-      if(pendingAtts.length){ showToast("Photos and files can't be sent to Messenger yet."); return; }
-      if(!content) return;
       if(conv && conv.channel !== "messenger"){ showToast("Only Messenger replies are connected so far."); return; }
       els.composerForm.classList.add("is-sending");
-      const sent = await sendLiveReply(conv, content);
+      let files = null;
+      if(pendingAtts.length){
+        try{ files = (await stageAttachments(state.activeConversationId)).meta; }
+        catch(err){
+          console.error("attachment upload failed:", err);
+          showToast("Couldn't upload the file. Please try again.");
+          els.composerForm.classList.remove("is-sending");
+          return;
+        }
+      }
+      const sent = await sendLiveReply(conv, content, files);
       els.composerForm.classList.remove("is-sending");
-      if(!sent) return;                        // error toast already shown; the text stays so it can be retried
+      if(!sent) return;                        // error toast already shown; text and files stay so it can be retried
+      if(pendingAtts.length) clearPending(true);
       els.composerInput.value = "";
       autoResizeComposer(); updateSendState(); syncQuickReplies();
       return;
@@ -5272,8 +5289,8 @@ function closeOrderDetailsModal() {
   document.getElementById("threadBackBtn").addEventListener("click", goBackFromThread);
 
   /* ---------- Attachments: photo / camera / document ---------- */
-  const ATT_MAX_FILES = 5, ATT_MAX_BYTES = 10 * 1024 * 1024;
-  const ATT_OK = /^(image\/(jpeg|png|webp|gif)|application\/pdf|application\/msword|application\/vnd\.openxmlformats-officedocument\.(wordprocessingml\.document|spreadsheetml\.sheet)|application\/vnd\.ms-excel|text\/(plain|csv))$/;
+  const ATT_MAX_FILES = 5, ATT_MAX_BYTES = 25 * 1024 * 1024;
+  const ATT_OK = /^(image\/(jpeg|png|webp|gif)|video\/(mp4|quicktime|webm)|application\/pdf|application\/msword|application\/vnd\.openxmlformats-officedocument\.(wordprocessingml\.document|spreadsheetml\.sheet)|application\/vnd\.ms-excel|text\/(plain|csv))$/;
   const pendingAtts = [];
   let attSeq = 0;
   const attachBtn = document.getElementById("attachBtn");
@@ -5314,7 +5331,7 @@ function closeOrderDetailsModal() {
     for(const file of Array.from(list || [])){
       if(pendingAtts.length >= ATT_MAX_FILES){ showToast(`You can attach up to ${ATT_MAX_FILES} files at a time`); break; }
       if(!ATT_OK.test(file.type)){ showToast(`${file.name}: this file type isn't supported`); continue; }
-      if(file.size > ATT_MAX_BYTES){ showToast(`${file.name} is larger than 10 MB`); continue; }
+      if(file.size > ATT_MAX_BYTES){ showToast(`${file.name} is larger than 25 MB`); continue; }
       pendingAtts.push({ id:++attSeq, file, name:file.name, type:file.type, size:file.size, url:isImg(file.type) ? URL.createObjectURL(file) : "" });
     }
     renderAttStrip();
@@ -5344,11 +5361,13 @@ function closeOrderDetailsModal() {
     if(!live(convId)) return { local, meta:null };
     const meta = [];
     for(const a of items){
+      if(a.staged && a.staged.path.startsWith(convId + "/")){ meta.push(a.staged); continue; }
       const safe = a.name.replace(/[^\w.\-]+/g, "_").slice(-80);
       const path = `${convId}/${crypto.randomUUID()}-${safe}`;
       const { error } = await supabase.storage.from("chat-attachments").upload(path, a.file, { contentType:a.type, upsert:false });
       if(error) throw error;
-      meta.push({ path, name:a.name, type:a.type, size:a.size });
+      a.staged = { path, name:a.name, type:a.type, size:a.size };
+      meta.push(a.staged);
     }
     local.forEach((l, i) => { l.path = meta[i].path; });
     return { local, meta };
