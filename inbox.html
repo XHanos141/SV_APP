@@ -356,6 +356,12 @@ input,textarea,select,[contenteditable="true"],.allow-select,.allow-select *{-we
     flex:0 0 auto; min-width:20px; height:20px; padding:0 6px; border-radius:10px; background:var(--inbox-blue); color:#fff;
     font-size:11px; font-weight:800; display:inline-flex; align-items:center; justify-content:center;
   }
+  /* reply-window time left (Messenger), 24h down to 1h, then 59m down to 1m */
+  .conv-win{ flex:0 0 auto; display:inline-flex; align-items:center; gap:3px; height:19px; padding:0 7px 0 5px; border-radius:10px; font-size:10.5px; font-weight:800; color:#2f9b68; background:rgba(47,155,104,.14); }
+  .conv-win svg{ width:11px; height:11px; }
+  .conv-win b{ font-weight:800; }
+  .conv-win.warn{ color:#e08a10; background:rgba(244,169,34,.17); }
+  .conv-win.low{ color:#d95353; background:rgba(217,83,83,.14); }
   .conv-snippet{
     display:block; flex:1; min-width:0;
     font-size:13px;
@@ -3598,7 +3604,7 @@ function closeOrderDetailsModal() {
   async function fetchConversations(){
     const { data, error } = await supabase
       .from("conversations")
-      .select("id, customer_name, customer_avatar, channel, last_message, updated_at, unread_count, convo_status, assigned_to, customer_id, external_thread_id, delivered_watermark, read_watermark")
+      .select("id, customer_name, customer_avatar, channel, last_message, updated_at, unread_count, convo_status, assigned_to, customer_id, external_thread_id, delivered_watermark, read_watermark, last_customer_message_at")
       .order("updated_at", { ascending:false });
 
     if(error){
@@ -3731,6 +3737,23 @@ function closeOrderDetailsModal() {
     });
   }
 
+  // time left in the 24h reply window -> badge text/colour (null once closed)
+  function winBadgeInfo(ts){
+    const left = ts + REPLY_WINDOW_MS - Date.now();
+    if(!(left > 0)) return null;
+    const h = Math.floor(left / 3600000), m = Math.max(1, Math.floor(left / 60000));
+    return { text: h >= 1 ? h + "h" : m + "m", cls: left < 3600000 ? "low" : left < 6 * 3600000 ? "warn" : "", left };
+  }
+  function refreshWinBadges(){
+    document.querySelectorAll(".conv-win").forEach(el => {
+      const wi = winBadgeInfo(Number(el.dataset.ts));
+      if(!wi){ el.remove(); return; }
+      el.className = "conv-win" + (wi.cls ? " " + wi.cls : "");
+      el.querySelector("b").textContent = wi.text;
+    });
+  }
+  setInterval(refreshWinBadges, 30000);
+
   function render(){
     updateCounts();
     placeStatusSlide();
@@ -3755,6 +3778,11 @@ function closeOrderDetailsModal() {
         : `<div class="avatar-initials" style="background:${hashColor(c.customer_name || "?")}">${initials(c.customer_name)}</div>`;
       const badges = r.channels.slice(0,3).map(ch => `<span class="channel-badge ${ch}">${channelBadgeSvg(ch)}</span>`).join("");
 
+      let winTs = 0;
+      r.convs.forEach(x => { if(live(x.id) && x.channel === "messenger" && x.last_customer_message_at){ const t = Date.parse(x.last_customer_message_at); if(t > winTs) winTs = t; } });
+      const wi = winTs ? winBadgeInfo(winTs) : null;
+      const winHtml = wi ? `<span class="conv-win ${wi.cls}" data-ts="${winTs}" title="Time left to reply"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><b>${wi.text}</b></span>` : "";
+
       return `
         <button class="conv-row ${unread ? "is-unread" : ""}" data-id="${escapeHtml(c.id)}">
           <span class="avatar-wrap">
@@ -3768,6 +3796,7 @@ function closeOrderDetailsModal() {
             </span>
             <span class="conv-main__bottom">
               <span class="conv-snippet">${escapeHtml(({"[image]":"Photo","[video]":"Video","[audio]":"Voice message","[file]":"File","[location]":"Location","[sticker]":"Sticker"})[String(c.last_message||"").trim().toLowerCase()] || c.last_message || "")}</span>
+              ${winHtml}
               ${unread ? `<span class="conv-unread-badge" aria-label="${r.unread} unread">${r.unread > 99 ? "99+" : r.unread}</span>` : ""}
             </span>
           </span>
@@ -5452,14 +5481,10 @@ function closeOrderDetailsModal() {
     }
     if(!winTimer) winTimer = setInterval(updateWindow, 30000);
     const closed = left <= 0;
-    bar.hidden = false;
+    bar.hidden = !closed;          // the time left now shows on the chat list; only the "closed" note stays here
     if(closed){
       bar.className = "win-bar closed";
       txt.textContent = "24-hour reply window closed. You can reply again after the customer messages you. Private notes still work.";
-    }else{
-      const h = Math.floor(left / 3600000), m = Math.floor((left % 3600000) / 60000);
-      bar.className = "win-bar" + (left < 3600000 ? " low" : left < 6 * 3600000 ? " warn" : "");
-      txt.textContent = "Reply window · " + (h >= 1 ? `${h}h ${m}m left` : m >= 1 ? `${m} min left` : "less than 1 min left");
     }
     els.composerForm.classList.toggle("win-closed", closed);
     const locked = closed && !state.noteMode;
