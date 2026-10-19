@@ -357,6 +357,10 @@ input,textarea,select,[contenteditable="true"],.allow-select,.allow-select *{-we
     font-size:11px; font-weight:800; display:inline-flex; align-items:center; justify-content:center;
   }
   /* reply-window time left (Messenger), 24h down to 1h, then 59m down to 1m */
+  /* customer's mini photo = they have seen our latest message (takes the place of the unread number) */
+  .conv-seen{ flex:0 0 auto; width:20px; height:20px; border-radius:50%; overflow:hidden; display:inline-flex; align-items:center; justify-content:center; background:var(--surface-2); border:1.5px solid var(--hairline); animation:svPop .3s var(--ease-spring) both; }
+  .conv-seen img{ width:100%; height:100%; object-fit:cover; display:block; }
+  .conv-seen__ini{ width:100%; height:100%; display:flex; align-items:center; justify-content:center; font-size:8px; font-weight:800; color:#fff; }
   .conv-win{ flex:0 0 auto; display:inline-flex; align-items:center; gap:3px; height:19px; padding:0 7px 0 5px; border-radius:10px; font-size:10.5px; font-weight:800; color:#2f9b68; background:rgba(47,155,104,.14); }
   .conv-win svg{ width:11px; height:11px; }
   .conv-win b{ font-weight:800; }
@@ -3783,6 +3787,17 @@ function closeOrderDetailsModal() {
       let winTs = 0;
       r.convs.forEach(x => { if(live(x.id) && x.channel === "messenger" && x.last_customer_message_at){ const t = Date.parse(x.last_customer_message_at); if(t > winTs) winTs = t; } });
       const wi = winTs ? winBadgeInfo(winTs) : null;
+      // our message is the latest one and the customer has read it (Meta's read mark, 3s tolerance like the chat ticks)
+      let seenHtml = "";
+      if(live(c.id) && c.channel === "messenger" && c.last_customer_message_at && c.read_watermark){
+        const upd = Date.parse(c.updated_at), lastCust = Date.parse(c.last_customer_message_at), rd = Date.parse(c.read_watermark);
+        if(upd > lastCust && rd >= upd - 3000){
+          const ini = escapeHtml(initials(c.customer_name));
+          seenHtml = `<span class="conv-seen" title="Seen" aria-label="Seen by customer">${c.customer_avatar
+            ? `<img src="${escapeHtml(c.customer_avatar)}" alt="" onerror="this.replaceWith(Object.assign(document.createElement('span'),{className:'conv-seen__ini',textContent:'${ini}',style:'background:${hashColor(c.customer_name || "?")}'}))">`
+            : `<span class="conv-seen__ini" style="background:${hashColor(c.customer_name || "?")}">${ini}</span>`}</span>`;
+        }
+      }
       const winHtml = wi ? `<span class="conv-win ${wi.cls}" data-ts="${winTs}" title="Time left to reply"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><b>${wi.text}</b></span>` : "";
 
       return `
@@ -3799,7 +3814,7 @@ function closeOrderDetailsModal() {
             <span class="conv-main__bottom">
               <span class="conv-snippet">${escapeHtml(({"[image]":"Photo","[video]":"Video","[audio]":"Voice message","[file]":"File","[location]":"Location","[sticker]":"Sticker"})[String(c.last_message||"").trim().toLowerCase()] || c.last_message || "")}</span>
               ${winHtml}
-              ${unread ? `<span class="conv-unread-badge" aria-label="${r.unread} unread">${r.unread > 99 ? "99+" : r.unread}</span>` : ""}
+              ${unread ? `<span class="conv-unread-badge" aria-label="${r.unread} unread">${r.unread > 99 ? "99+" : r.unread}</span>` : seenHtml}
             </span>
           </span>
         </button>`;
