@@ -2312,6 +2312,28 @@ html:not([data-theme="light"]) .odm-card { background: rgba(124,111,247,0.08); b
   .win-bar.closed svg{ margin-top:1px; }
   .thread-composer.win-closed:not(.note-mode) #composerInput{ opacity:.55; }
   .thread-composer.win-closed:not(.note-mode) .tt-row button:not([data-tool="note"]){ opacity:.4; pointer-events:none; }
+  /* sent / delivered / seen ticks under our messages (receive-only from Meta) */
+  .msg-tick{ display:inline-flex; vertical-align:middle; margin-left:4px; color:var(--text-3); }
+  .msg-tick svg{ width:16px; height:10px; }
+  .msg-tick .t2{ display:none; }
+  .msg-tick.delivered, .msg-tick.read{ color:var(--text-2); }
+  .msg-tick.delivered .t2, .msg-tick.read .t2{ display:inline; }
+  .msg-tick.read{ color:var(--inbox-blue-t); }
+  /* emoji reactions */
+  .msg-reacts{ display:flex; gap:4px; margin-top:3px; padding:0 3px; }
+  .from-admin .msg-reacts{ justify-content:flex-end; }
+  .rx-chip{ font-size:14px; line-height:1; padding:3px 7px; border-radius:100px; background:var(--surface); border:1px solid var(--hairline); }
+  .rx-chip.page{ border-color:var(--inbox-blue-t); }
+  .rx-add{ position:relative; flex:0 0 auto; align-self:center; width:28px; height:28px; margin-left:4px; border-radius:50%; display:flex; align-items:center; justify-content:center; color:var(--text-3); opacity:.75; transition:transform .18s var(--ease-out), opacity .2s ease; }
+  .rx-add::before{ content:''; position:absolute; inset:-8px; }
+  .rx-add svg{ width:17px; height:17px; }
+  .rx-add:active{ transform:scale(.88); opacity:1; }
+  .rx-bar{ position:fixed; z-index:60; display:none; gap:2px; padding:5px 6px; background:var(--surface); border:1px solid var(--hairline); border-radius:100px; box-shadow:0 12px 30px rgba(0,0,0,.34); }
+  .rx-bar.open{ display:flex; animation:rxPop .18s var(--ease-out) both; }
+  .rx-bar button{ width:38px; height:38px; border-radius:50%; font-size:22px; line-height:1; display:flex; align-items:center; justify-content:center; transition:transform .15s var(--ease-out), background .15s ease; }
+  .rx-bar button:active{ transform:scale(1.25); }
+  .rx-bar button.on{ background:rgba(43,116,227,.18); }
+  @keyframes rxPop{ from{ opacity:0; transform:translateY(6px) scale(.94); } to{ opacity:1; transform:none; } }
   .msg-sending .msg-thumb{ cursor:default; }
   .msg-sending .msg-thumb::after{ content:""; position:absolute; inset:0; background:rgba(8,12,20,.38); }
   .msg-sending__spin{ position:absolute; left:50%; top:50%; z-index:2; width:26px; height:26px; margin:-13px 0 0 -13px; border-radius:50%; border:3px solid rgba(255,255,255,.35); border-top-color:#fff; animation:ivSpin .8s linear infinite; }
@@ -3560,7 +3582,7 @@ function closeOrderDetailsModal() {
   async function fetchConversations(){
     const { data, error } = await supabase
       .from("conversations")
-      .select("id, customer_name, customer_avatar, channel, last_message, updated_at, unread_count, convo_status, assigned_to, customer_id, external_thread_id")
+      .select("id, customer_name, customer_avatar, channel, last_message, updated_at, unread_count, convo_status, assigned_to, customer_id, external_thread_id, delivered_watermark, read_watermark")
       .order("updated_at", { ascending:false });
 
     if(error){
@@ -3572,6 +3594,7 @@ function closeOrderDetailsModal() {
     state.conversations = (data || []).concat(SHOW_DEMO ? MOCK_CONVERSATIONS : []);
     await hydrateLinks();
     render();
+    updateTicks();
   }
 
   function subscribeRealtime(){
@@ -4954,6 +4977,7 @@ function closeOrderDetailsModal() {
 
   async function loadMessages(conv){
     els.threadMessages.innerHTML = "";
+    closeRxBar(); Object.keys(reacts).forEach(k => delete reacts[k]);
     els.threadMessages.style.visibility = "hidden";      // no empty-chat flash while messages load
     let messages = [];
 
@@ -4977,6 +5001,8 @@ function closeOrderDetailsModal() {
 
     renderMessages(messages);
     updateWindow();
+    updateTicks();
+    loadReactions(conv.id);
     els.threadMessages.style.visibility = "";
   }
 
@@ -4990,6 +5016,9 @@ function closeOrderDetailsModal() {
         const m = payload.new;
         if(m && m.id){ if(seenIds.has(m.id)) return; seenIds.add(m.id); }
         appendMessage(m);
+      })
+      .on("postgres_changes", { event:"*", schema:"public", table:"message_reactions", filter:`conversation_id=eq.${conversationId}` }, () => {
+        loadReactions(conversationId);
       })
       .subscribe();
   }
@@ -5069,6 +5098,7 @@ function closeOrderDetailsModal() {
     }
     const row = document.createElement("div");
     row.className = `msg-row from-${m.sender_type}` + (tight ? " tight" : "");
+    if(m.id) row.dataset.mid = m.id;
     const bubble = document.createElement("div");
     bubble.className = "msg-bubble";
     const text = document.createElement("div");
@@ -5077,14 +5107,128 @@ function closeOrderDetailsModal() {
     const time = document.createElement("div");
     time.className = "msg-bubble__time";
     time.textContent = new Date(m.created_at).toLocaleTimeString(undefined, { hour:"numeric", minute:"2-digit", hour12:true });
+    const live_ = !!m.id && m.channel === "messenger";
+    if(live_ && m.sender_type === "admin") time.appendChild(buildTick(m.created_at));
     if(m.attachments && m.attachments.length) bubble.appendChild(buildAttachments(m.attachments));
     const hasAtts = !!(m.attachments && m.attachments.length);
     const isPlaceholder = /^\[(image|video|audio|file|location|fallback|template|sticker|share)\]$/i.test(String(m.content || "").trim());
     if((m.content && !(hasAtts && isPlaceholder)) || !hasAtts) bubble.appendChild(text);
     if(showTime) bubble.appendChild(time);
     row.appendChild(bubble);
+    if(live_ && m.sender_type === "customer"){
+      const b = document.createElement("button");
+      b.type = "button"; b.className = "rx-add"; b.setAttribute("aria-label", "React to this message");
+      b.innerHTML = RX_ICON;
+      row.appendChild(b);
+    }
+    if(m.id) renderReactionsFor(row);
     return row;
   }
+
+  /* ---------- Ticks (sent / delivered / seen) + emoji reactions ---------- */
+  var RX_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8.5 14a4.2 4.2 0 0 0 7 0"/><path d="M9 9.5h.01M15 9.5h.01"/></svg>';
+  var RX_EMOJI = ["\u{1F44D}", "\u2764\uFE0F", "\u{1F602}", "\u{1F62E}", "\u{1F622}", "\u{1F64F}"];
+  var reacts = {};       // { [message id]: { customer?: emoji, page?: emoji } }
+  var rxTarget = null;   // message id the picker is open for
+
+  function buildTick(createdAt){
+    const t = document.createElement("span");
+    t.className = "msg-tick sent"; t.dataset.ts = String(Date.parse(createdAt)); t.dataset.st = "sent";
+    t.setAttribute("role", "img"); t.setAttribute("aria-label", "Sent"); t.title = "Sent";
+    t.innerHTML = '<svg viewBox="0 0 20 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1.5 6.5 5 10 12 2"/><path class="t2" d="M8 9 9 10 16.5 2"/></svg>';
+    return t;
+  }
+  // Meta sends "everything up to this time" marks; our row time is a moment after Meta's send time, so allow 3s
+  function updateTicks(){
+    const conv = activeConv(); if(!conv || !els.threadMessages) return;
+    const del = conv.delivered_watermark ? Date.parse(conv.delivered_watermark) : 0;
+    const rd = conv.read_watermark ? Date.parse(conv.read_watermark) : 0;
+    els.threadMessages.querySelectorAll(".msg-tick").forEach(t => {
+      const ts = Number(t.dataset.ts);
+      const st = rd && ts - 3000 <= rd ? "read" : del && ts - 3000 <= del ? "delivered" : "sent";
+      if(t.dataset.st === st) return;
+      const label = st === "read" ? "Seen" : st === "delivered" ? "Delivered" : "Sent";
+      t.dataset.st = st; t.className = "msg-tick " + st; t.setAttribute("aria-label", label); t.title = label;
+    });
+  }
+
+  function renderReactionsFor(row){
+    const id = row.dataset.mid; if(!id) return;
+    const old = row.querySelector(".msg-reacts"); if(old) old.remove();
+    const r = reacts[id]; if(!r || (!r.customer && !r.page)) return;
+    const box = document.createElement("div"); box.className = "msg-reacts";
+    ["customer", "page"].forEach(who => {
+      if(!r[who]) return;
+      const c = document.createElement("span"); c.className = "rx-chip " + who; c.textContent = r[who];
+      c.title = who === "page" ? "Your reaction" : "Customer's reaction";
+      box.appendChild(c);
+    });
+    const bubble = row.querySelector(".msg-bubble"); if(!bubble) return;
+    bubble.insertBefore(box, bubble.querySelector(".msg-bubble__time"));
+  }
+  function renderAllReactions(){ els.threadMessages.querySelectorAll(".msg-row[data-mid]").forEach(renderReactionsFor); }
+
+  async function loadReactions(convId){
+    if(!live(convId)) return;
+    const { data, error } = await supabase.from("message_reactions").select("message_id, reactor, emoji").eq("conversation_id", convId);
+    if(error){ console.error("loadReactions error:", error); return; }
+    if(state.activeConversationId !== convId) return;      // switched chats meanwhile
+    Object.keys(reacts).forEach(k => delete reacts[k]);
+    (data || []).forEach(r => { (reacts[r.message_id] = reacts[r.message_id] || {})[r.reactor] = r.emoji; });
+    renderAllReactions();
+  }
+  function setPageReact(id, emoji){
+    const r = (reacts[id] = reacts[id] || {});
+    if(emoji) r.page = emoji; else delete r.page;
+    const row = els.threadMessages.querySelector('.msg-row[data-mid="' + id + '"]');
+    if(row) renderReactionsFor(row);
+  }
+
+  function getRxBar(){
+    let bar = document.getElementById("rxBar");
+    if(bar) return bar;
+    bar = document.createElement("div"); bar.id = "rxBar"; bar.className = "rx-bar"; bar.setAttribute("role", "menu");
+    RX_EMOJI.forEach(em => { const b = document.createElement("button"); b.type = "button"; b.textContent = em; b.dataset.em = em; b.setAttribute("aria-label", "React " + em); bar.appendChild(b); });
+    bar.addEventListener("click", (e) => {
+      const b = e.target.closest("button[data-em]"); if(!b || !rxTarget) return;
+      const id = rxTarget; closeRxBar(); sendReaction(id, b.dataset.em);
+    });
+    document.body.appendChild(bar);
+    return bar;
+  }
+  function closeRxBar(){ rxTarget = null; const bar = document.getElementById("rxBar"); if(bar) bar.classList.remove("open"); }
+  function openRxBar(btn){
+    const row = btn.closest(".msg-row"); const id = row && row.dataset.mid; if(!id) return;
+    if(rxTarget === id){ closeRxBar(); return; }
+    const bar = getRxBar(); rxTarget = id;
+    const cur = (reacts[id] || {}).page;
+    bar.querySelectorAll("button").forEach(b => b.classList.toggle("on", b.dataset.em === cur));
+    bar.classList.add("open");
+    const r = btn.getBoundingClientRect(), w = bar.offsetWidth, h = bar.offsetHeight;
+    const left = Math.max(8, Math.min(r.left + r.width / 2 - w / 2, window.innerWidth - w - 8));
+    const top = r.top - h - 8 >= 8 ? r.top - h - 8 : r.bottom + 8;
+    bar.style.left = left + "px"; bar.style.top = top + "px";
+  }
+  async function sendReaction(id, emoji){
+    const prev = (reacts[id] || {}).page || null;
+    const action = prev === emoji ? "unreact" : "react";
+    setPageReact(id, action === "react" ? emoji : null);                 // show it right away
+    try{
+      const { data, error } = await supabase.functions.invoke("meta-action", { body:{ conversation_id:state.activeConversationId, message_id:id, action, reaction:emoji } });
+      let res = data;
+      if(error){ try{ res = await error.context.json(); }catch(_){ res = null; } }
+      if(!res || !res.ok){ setPageReact(id, prev); showToast((res && res.error) || "Couldn't send the reaction."); }
+    }catch(err){
+      console.error("sendReaction failed:", err);
+      setPageReact(id, prev); showToast("Couldn't send the reaction.");
+    }
+  }
+  document.addEventListener("click", (e) => {
+    const add = e.target.closest && e.target.closest(".rx-add");
+    if(add && els.threadMessages.contains(add)){ e.stopPropagation(); openRxBar(add); return; }
+    if(rxTarget && !(e.target.closest && e.target.closest("#rxBar"))) closeRxBar();
+  }, true);
+  els.threadMessages.addEventListener("scroll", closeRxBar, { passive:true });
 
   /* Messages from the same sender within 5 minutes read as one group: tight spacing, time only on the last one */
   const GROUP_MS = 5 * 60 * 1000;
@@ -5139,6 +5283,7 @@ function closeOrderDetailsModal() {
     els.threadMessages.scrollTop = els.threadMessages.scrollHeight;
     (state.activeMessages = state.activeMessages || []).push(m);
     updateWindow();
+    updateTicks();
 
     const conv = state.conversations.find(c => c.id === m.conversation_id);
     if(conv && state.activeConversationId === conv.id) renderOrderStrip(conv, state.activeMessages);
