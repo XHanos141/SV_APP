@@ -5025,6 +5025,7 @@ function closeOrderDetailsModal() {
   async function loadMessages(conv){
     els.threadMessages.innerHTML = "";
     closeRxBar(); Object.keys(reacts).forEach(k => delete reacts[k]);
+    state.winReady = false;
     els.threadMessages.style.visibility = "hidden";      // no empty-chat flash while messages load
     let messages = [];
 
@@ -5047,6 +5048,7 @@ function closeOrderDetailsModal() {
     }
 
     renderMessages(messages);
+    state.winReady = true;
     updateWindow();
     updateTicks();
     loadReactions(conv.id);
@@ -5476,6 +5478,7 @@ function closeOrderDetailsModal() {
   // ms left in the window; null when it doesn't apply (demo chats, channels not connected yet)
   function replyWindowLeft(conv){
     if(!conv || !live(conv.id) || conv.channel !== "messenger") return null;
+    if(!state.winReady) return null;                 // this chat's messages are still loading: don't guess
     let last = 0;
     (state.activeMessages || []).forEach(m => {
       if(m.sender_type === "customer" && !isNoteMsg(m)){ const t = Date.parse(m.created_at); if(t > last) last = t; }
