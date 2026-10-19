@@ -2301,6 +2301,12 @@ html:not([data-theme="light"]) .odm-card { background: rgba(124,111,247,0.08); b
   .att-chip__size{ font-size:11px; color:var(--text-3); }
   .att-chip__x{ position:absolute; top:3px; right:3px; width:20px; height:20px; border-radius:50%; background:rgba(0,0,0,.62); color:#fff; display:flex; align-items:center; justify-content:center; font-size:14px; line-height:1; }
   .thread-composer.is-sending .composer-send{ opacity:.55; pointer-events:none; }
+  .thread-composer.is-sending .composer-attachments{ display:none; }
+  .msg-sending .msg-thumb{ cursor:default; }
+  .msg-sending .msg-thumb::after{ content:""; position:absolute; inset:0; background:rgba(8,12,20,.38); }
+  .msg-sending__spin{ position:absolute; left:50%; top:50%; z-index:2; width:26px; height:26px; margin:-13px 0 0 -13px; border-radius:50%; border:3px solid rgba(255,255,255,.35); border-top-color:#fff; animation:ivSpin .8s linear infinite; }
+  .msg-sending__label{ margin-top:6px; font-size:12px; font-weight:600; opacity:.7; text-align:right; }
+  @keyframes ivSpin{ to{ transform:rotate(360deg); } }
   .msg-atts{ display:flex; flex-direction:column; gap:6px; margin-bottom:4px; max-width:100%; }
   .from-admin .msg-atts{ align-items:flex-end; }
   .msg-thumbs{ display:flex; flex-wrap:wrap; gap:6px; max-width:100%; }
@@ -5129,6 +5135,28 @@ function closeOrderDetailsModal() {
     }
   }
 
+  /* Temporary bubble shown while photos upload and go out: your pictures dimmed with a spinner, plus a status line */
+  function showSendingRow(items){
+    const row = document.createElement("div");
+    row.className = "msg-row from-admin msg-new msg-sending";
+    const bubble = document.createElement("div"); bubble.className = "msg-bubble";
+    const thumbs = document.createElement("div"); thumbs.className = "msg-thumbs";
+    items.slice(0, 4).forEach(a => {
+      const box = document.createElement("div"); box.className = "msg-thumb";
+      if(a.url){ const im = document.createElement("img"); im.src = a.url; im.alt = ""; box.appendChild(im); }
+      else box.innerHTML = `<span style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;opacity:.6">${FILE_ICON}</span>`;
+      const sp = document.createElement("span"); sp.className = "msg-sending__spin"; box.appendChild(sp);
+      thumbs.appendChild(box);
+    });
+    const label = document.createElement("div"); label.className = "msg-sending__label";
+    bubble.appendChild(thumbs); bubble.appendChild(label); row.appendChild(bubble);
+    els.threadMessages.appendChild(row);
+    els.threadMessages.scrollTop = els.threadMessages.scrollHeight;
+    const ui = { setLabel(t){ label.textContent = t; }, remove(){ if(row.isConnected) row.remove(); } };
+    ui.setLabel(items.length > 1 ? `Sending ${items.length} files…` : "Sending…");
+    return ui;
+  }
+
   function updateSendState(){
     els.sendBtn.disabled = els.composerInput.value.trim().length === 0 && pendingAtts.length === 0;
   }
@@ -5156,13 +5184,14 @@ function closeOrderDetailsModal() {
   document.getElementById("sendBtn").addEventListener("mousedown", (e) => e.preventDefault());
 
   // Sends a reply to the real customer through the meta-send Edge Function (admin session, 24h rule enforced there).
-  async function sendLiveReply(conv, text, files){
+  async function sendLiveReply(conv, text, files, beforeRows){
     try{
       const body = { conversation_id:conv.id, text };
       if(files && files.length) body.attachments = files;
       const { data, error } = await supabase.functions.invoke("meta-send", { body });
       let res = data;
       if(error){ try{ res = await error.context.json(); }catch(_){ res = { ok:false, error:"Couldn't reach the server. Try again." }; } }
+      if(beforeRows) beforeRows();             // drop the temporary "sending" bubble first
       // every message that reached the customer (even before a later failure) goes into the chat
       const rows = (res && Array.isArray(res.rows) && res.rows.length) ? res.rows : (res && res.data ? [res.data] : []);
       rows.forEach(row => { if(row && row.id && !seenIds.has(row.id)){ seenIds.add(row.id); appendMessage(row); } });
@@ -5192,17 +5221,22 @@ function closeOrderDetailsModal() {
     if(live(state.activeConversationId) && !state.noteMode){
       if(conv && conv.channel !== "messenger"){ showToast("Only Messenger replies are connected so far."); return; }
       els.composerForm.classList.add("is-sending");
+      const sendUi = pendingAtts.length ? showSendingRow(pendingAtts) : null;   // photos + spinner while it uploads
       let files = null;
       if(pendingAtts.length){
-        try{ files = (await stageAttachments(state.activeConversationId)).meta; }
-        catch(err){
+        try{
+          files = (await stageAttachments(state.activeConversationId, (d, t) => { if(sendUi) sendUi.setLabel(t > 1 ? `Uploading ${d}/${t}…` : "Uploading…"); })).meta;
+        }catch(err){
           console.error("attachment upload failed:", err);
           showToast("Couldn't upload the file. Please try again.");
+          if(sendUi) sendUi.remove();
           els.composerForm.classList.remove("is-sending");
           return;
         }
+        if(sendUi) sendUi.setLabel("Sending to Messenger…");
       }
-      const sent = await sendLiveReply(conv, content, files);
+      const sent = await sendLiveReply(conv, content, files, sendUi ? sendUi.remove : null);
+      if(sendUi) sendUi.remove();
       els.composerForm.classList.remove("is-sending");
       if(!sent) return;                        // error toast already shown; text and files stay so it can be retried
       if(pendingAtts.length) clearPending(true);
@@ -5355,20 +5389,37 @@ function closeOrderDetailsModal() {
     pendingAtts.length = 0;
     renderAttStrip(); updateSendState();
   }
-  async function stageAttachments(convId){
+  /* Phone photos are several MB: shrink to max 1600px JPEG before upload (Messenger recompresses anyway) */
+  async function shrinkImage(file){
+    if(!/^image\/(jpeg|png|webp)$/.test(file.type) || file.size < 400 * 1024) return file;
+    try{
+      const bmp = await createImageBitmap(file, { imageOrientation:"from-image" });
+      const sc = Math.min(1, 1600 / Math.max(bmp.width, bmp.height));
+      const w = Math.max(1, Math.round(bmp.width * sc)), h = Math.max(1, Math.round(bmp.height * sc));
+      const cv = document.createElement("canvas"); cv.width = w; cv.height = h;
+      const ctx = cv.getContext("2d"); ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, w, h); ctx.drawImage(bmp, 0, 0, w, h);
+      if(bmp.close) bmp.close();
+      const blob = await new Promise(res => cv.toBlob(res, "image/jpeg", 0.85));
+      if(!blob || blob.size >= file.size) return file;
+      return new File([blob], file.name.replace(/\.\w+$/, "") + ".jpg", { type:"image/jpeg" });
+    }catch(_){ return file; }
+  }
+  async function stageAttachments(convId, onProgress){
     const items = pendingAtts.slice();
     const local = items.map(a => ({ name:a.name, type:a.type, size:a.size, url:a.url || URL.createObjectURL(a.file) }));
     if(!live(convId)) return { local, meta:null };
-    const meta = [];
-    for(const a of items){
-      if(a.staged && a.staged.path.startsWith(convId + "/")){ meta.push(a.staged); continue; }
-      const safe = a.name.replace(/[^\w.\-]+/g, "_").slice(-80);
+    let done = 0;
+    const meta = await Promise.all(items.map(async a => {         // all files upload at the same time
+      if(a.staged && a.staged.path.startsWith(convId + "/")){ done++; if(onProgress) onProgress(done, items.length); return a.staged; }
+      const f = await shrinkImage(a.file);
+      const safe = f.name.replace(/[^\w.\-]+/g, "_").slice(-80);
       const path = `${convId}/${crypto.randomUUID()}-${safe}`;
-      const { error } = await supabase.storage.from("chat-attachments").upload(path, a.file, { contentType:a.type, upsert:false });
+      const { error } = await supabase.storage.from("chat-attachments").upload(path, f, { contentType:f.type, upsert:false });
       if(error) throw error;
-      a.staged = { path, name:a.name, type:a.type, size:a.size };
-      meta.push(a.staged);
-    }
+      a.staged = { path, name:f.name, type:f.type, size:f.size };
+      done++; if(onProgress) onProgress(done, items.length);
+      return a.staged;
+    }));
     local.forEach((l, i) => { l.path = meta[i].path; });
     return { local, meta };
   }
