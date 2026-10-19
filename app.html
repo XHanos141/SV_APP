@@ -2172,14 +2172,6 @@ html[data-theme="dark"] .invoice-modal-footer-split .btn-pdf-owner:hover{backgro
 .btn-invoice-print{flex:1;height:44px;border:1.5px solid rgba(0,31,60,.14);background:transparent;color:#001f3c;border-radius:14px;font:700 13px "DM Sans",sans-serif;display:flex;align-items:center;justify-content:center;gap:8px;cursor:pointer}
 .btn-invoice-print:active{transform:scale(.97)}
 html[data-theme="dark"] .btn-invoice-print{color:#fff;border-color:rgba(255,255,255,.2)}
-.pdf-confirm-tag.print{background:rgba(10,155,220,.12);color:#0A9BDC}
-.pdf-confirm-id{display:flex;align-items:center;justify-content:space-between;gap:10px;background:#f3f6fb;border-radius:14px;padding:11px 14px;margin-bottom:14px}
-.pdf-confirm-id small{display:block;font:800 9.5px/1 "Plus Jakarta Sans",sans-serif;letter-spacing:.8px;text-transform:uppercase;color:#8c92a1;margin-bottom:5px}
-.pdf-confirm-id b{font:800 16px/1 "Plus Jakarta Sans",sans-serif;color:#001f3c}
-.pdf-confirm-tag{font:800 11px/1 "Plus Jakarta Sans",sans-serif;padding:6px 10px;border-radius:99px;flex:none}
-.pdf-confirm-tag.customer{background:rgba(47,155,104,.12);color:#2f9b68}
-.pdf-confirm-note{font:500 12px/1.4 "DM Sans",sans-serif;color:#8c92a1;margin:-4px 0 14px}
-html[data-theme="dark"] .pdf-confirm-id{background:rgba(255,255,255,.06)}
 
 /* ====== INVOICE MODAL FOOTER - TWO BUTTONS ====== */
 .invoice-modal-footer-split {
@@ -18084,11 +18076,6 @@ svLoadProducts();
       <div class="save-modal-subtitle">Choose paper size for the PDF</div>
     </div>
     <div class="save-modal-body">
-      <div class="pdf-confirm-id">
-        <div><small>Order ID</small><b id="pdfConfirmOrderId">--</b></div>
-        <span class="pdf-confirm-tag" id="pdfConfirmTag">Customer copy</span>
-      </div>
-      <div class="pdf-confirm-note" id="pdfConfirmNote"></div>
       <div class="pdf-size-options">
         <div class="pdf-size-card" id="pdfCardA4" onclick="selectPdfSize('a4')">
           <div class="pdf-size-icon" style="background:rgba(124,111,247,0.1)">
@@ -19957,14 +19944,6 @@ function openPdfSizePicker(type, invoiceId) {
   btn.style.cursor = 'not-allowed';
   document.getElementById('pdfSizeTitle').textContent = type === 'print' ? '🖨️ Print Invoice' : '📄 Customer Invoice PDF';
   document.getElementById('pdfDownloadLbl').textContent = type === 'print' ? 'Print' : 'Download PDF';
-  const _pinv = invoices.find(i => i.id === invoiceId);
-  document.getElementById('pdfConfirmOrderId').textContent = _pinv ? (_pinv.linkedDraftId || _pinv.id) : invoiceId;
-  const _tag = document.getElementById('pdfConfirmTag');
-  _tag.className = 'pdf-confirm-tag ' + type;
-  _tag.textContent = type === 'print' ? 'Print' : 'Customer copy';
-  document.getElementById('pdfConfirmNote').textContent = type === 'print'
-    ? 'Prints the customer copy.'
-    : 'Customer-facing invoice. Safe to share.';
   document.getElementById('pdfSizeModal').classList.add('active');
 }
 
