@@ -2313,12 +2313,17 @@ html:not([data-theme="light"]) .odm-card { background: rgba(124,111,247,0.08); b
   .thread-composer.win-closed:not(.note-mode) #composerInput{ opacity:.55; }
   .thread-composer.win-closed:not(.note-mode) .tt-row button:not([data-tool="note"]){ opacity:.4; pointer-events:none; }
   /* sent / delivered / seen ticks under our messages (receive-only from Meta) */
-  .msg-tick{ display:inline-flex; vertical-align:middle; margin-left:4px; color:var(--text-3); }
-  .msg-tick svg{ width:16px; height:10px; }
-  .msg-tick .t2{ display:none; }
-  .msg-tick.delivered, .msg-tick.read{ color:var(--text-2); }
-  .msg-tick.delivered .t2, .msg-tick.read .t2{ display:inline; }
-  .msg-tick.read{ color:var(--inbox-blue-t); }
+  /* Messenger-style receipts: hollow circle = sent, filled circle = delivered, customer's mini photo = seen */
+  .msg-tick{ display:inline-flex; vertical-align:middle; margin-left:5px; color:var(--text-3); line-height:0; }
+  .msg-tick[hidden]{ display:none; }
+  .msg-tick svg{ width:14px; height:14px; }
+  .msg-tick .rc{ fill:none; stroke:currentColor; stroke-width:1.5; }
+  .msg-tick .ck{ fill:none; stroke:currentColor; stroke-width:1.7; stroke-linecap:round; stroke-linejoin:round; }
+  .msg-tick.delivered{ color:var(--text-2); }
+  .msg-tick.delivered .rc{ fill:currentColor; }
+  .msg-tick.delivered .ck{ stroke:var(--body-bg); }
+  .msg-tick .tick-av{ width:14px; height:14px; border-radius:50%; object-fit:cover; display:block; background:var(--surface-2); }
+  .msg-tick .tick-av.ini{ display:flex; align-items:center; justify-content:center; font-size:7px; font-weight:800; line-height:1; color:#fff; background:var(--inbox-blue); }
   /* emoji reactions */
   .msg-reacts{ display:flex; gap:4px; margin-top:3px; padding:0 3px; }
   .from-admin .msg-reacts{ justify-content:flex-end; }
@@ -5135,21 +5140,39 @@ function closeOrderDetailsModal() {
     const t = document.createElement("span");
     t.className = "msg-tick sent"; t.dataset.ts = String(Date.parse(createdAt)); t.dataset.st = "sent";
     t.setAttribute("role", "img"); t.setAttribute("aria-label", "Sent"); t.title = "Sent";
-    t.innerHTML = '<svg viewBox="0 0 20 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1.5 6.5 5 10 12 2"/><path class="t2" d="M8 9 9 10 16.5 2"/></svg>';
+    t.innerHTML = TICK_SVG;
     return t;
   }
+  var TICK_SVG = '<svg viewBox="0 0 16 16"><circle class="rc" cx="8" cy="8" r="6.6"/><path class="ck" d="M5 8.3 7.2 10.5 11 5.8"/></svg>';
   // Meta sends "everything up to this time" marks; our row time is a moment after Meta's send time, so allow 3s
   function updateTicks(){
     const conv = activeConv(); if(!conv || !els.threadMessages) return;
     const del = conv.delivered_watermark ? Date.parse(conv.delivered_watermark) : 0;
     const rd = conv.read_watermark ? Date.parse(conv.read_watermark) : 0;
-    els.threadMessages.querySelectorAll(".msg-tick").forEach(t => {
+    const ticks = Array.from(els.threadMessages.querySelectorAll(".msg-tick"));
+    let lastRead = null;
+    ticks.forEach(t => {
       const ts = Number(t.dataset.ts);
       const st = rd && ts - 3000 <= rd ? "read" : del && ts - 3000 <= del ? "delivered" : "sent";
-      if(t.dataset.st === st) return;
-      const label = st === "read" ? "Seen" : st === "delivered" ? "Delivered" : "Sent";
-      t.dataset.st = st; t.className = "msg-tick " + st; t.setAttribute("aria-label", label); t.title = label;
+      if(st === "read") lastRead = t;
+      const av = st === "read" ? (conv.customer_avatar || "") + "|" + (conv.customer_name || "") : "";
+      if(t.dataset.st !== st || (st === "read" && t.dataset.av !== av)){
+        const label = st === "read" ? "Seen" : st === "delivered" ? "Delivered" : "Sent";
+        t.dataset.st = st; t.dataset.av = av; t.className = "msg-tick " + st; t.setAttribute("aria-label", label); t.title = label;
+        if(st === "read"){
+          if(conv.customer_avatar){
+            const im = document.createElement("img"); im.className = "tick-av"; im.alt = ""; im.src = conv.customer_avatar;
+            im.onerror = () => { const sp = document.createElement("span"); sp.className = "tick-av ini"; sp.textContent = initials(conv.customer_name); im.replaceWith(sp); };
+            t.replaceChildren(im);
+          }else{
+            const sp = document.createElement("span"); sp.className = "tick-av ini"; sp.textContent = initials(conv.customer_name);
+            t.replaceChildren(sp);
+          }
+        }else t.innerHTML = TICK_SVG;
+      }
     });
+    // like Messenger: the customer's mini photo shows only under the latest message they have seen
+    ticks.forEach(t => { t.hidden = t.dataset.st === "read" && t !== lastRead; });
   }
 
   function renderReactionsFor(row){
