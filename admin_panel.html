@@ -7423,6 +7423,7 @@ function togglePaypage(key, switchId){
   const isOn = sw.classList.contains('on');
   const badge = document.querySelector('#paymentPageBadgeStrip [data-pay="' + key + '"]');
   if(badge) badge.style.display = isOn ? '' : 'none';
+  savePaymentPageBadges();
 }
 
 /* QR code icon per payment method — feature not live yet, so QR stays
@@ -7471,18 +7472,36 @@ function savePaymentPageBadges(){
     state[key] = sw ? sw.classList.contains('on') : true;
   });
   localStorage.setItem('sv-payment-page-badges', JSON.stringify(state));
+  clearTimeout(window._ppSaveTimer);
+  window._ppSaveTimer = setTimeout(persistPaymentPageBadges, 400);
+}
+async function persistPaymentPageBadges(){
+  if(!window.sb){ T('Not connected to database','⚠️'); return; }
+  const methods = JSON.parse(localStorage.getItem('sv-payment-page-badges') || '{}');
+  const { error } = await sb.from('site_content').upsert({
+    page: 'checkout', section: 'payment_methods', content: { methods }, updated_at: new Date().toISOString()
+  }, { onConflict: 'page,section' });
+  if(error){ console.error('persistPaymentPageBadges error:', error.message); T('Save failed — check connection','❌'); }
+}
+async function loadPaymentPageBadgesFromDb(){
+  if(!window.sb) return;
+  const { data, error } = await sb.from('site_content').select('content').eq('page','checkout').eq('section','payment_methods').maybeSingle();
+  if(error){ console.error('loadPaymentPageBadgesFromDb error:', error.message); return; }
+  if(data && data.content && data.content.methods){
+    localStorage.setItem('sv-payment-page-badges', JSON.stringify(data.content.methods));
+    loadPaymentPageBadges();
+  }
 }
 
 function loadPaymentPageBadges(){
   const saved = JSON.parse(localStorage.getItem('sv-payment-page-badges') || '{}');
   PAYPAGE_KEYS.forEach(key=>{
-    if(saved[key] === false){
-      const swId = 'switchPaypage' + key.charAt(0).toUpperCase() + key.slice(1);
-      const sw = document.getElementById(swId);
-      if(sw) sw.classList.remove('on');
-      const badge = document.querySelector('#paymentPageBadgeStrip [data-pay="' + key + '"]');
-      if(badge) badge.style.display = 'none';
-    }
+    const on = saved[key] !== false;
+    const swId = 'switchPaypage' + key.charAt(0).toUpperCase() + key.slice(1);
+    const sw = document.getElementById(swId);
+    if(sw) sw.classList.toggle('on', on);
+    const badge = document.querySelector('#paymentPageBadgeStrip [data-pay="' + key + '"]');
+    if(badge) badge.style.display = on ? '' : 'none';
   });
 }
 loadPaymentPageBadges();
@@ -7539,6 +7558,7 @@ async function loadFooterSectionFromDb(){
   loadPaymentBadges();
 }
 loadFooterSectionFromDb();
+loadPaymentPageBadgesFromDb();
 loadStockProductsFromDb();
 setWebFormsVisible(false);
 loadWebProducts(true);
