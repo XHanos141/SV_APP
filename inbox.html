@@ -5389,17 +5389,17 @@ function closeOrderDetailsModal() {
     pendingAtts.length = 0;
     renderAttStrip(); updateSendState();
   }
-  /* Phone photos are several MB: shrink to max 1600px JPEG before upload (Messenger recompresses anyway) */
+  /* Only big phone photos (over 1.5 MB) are reduced: max 2560px, high-quality JPEG. Screenshots and smaller photos go out untouched. */
   async function shrinkImage(file){
-    if(!/^image\/(jpeg|png|webp)$/.test(file.type) || file.size < 400 * 1024) return file;
+    if(!/^image\/(jpeg|png|webp)$/.test(file.type) || file.size < 1536 * 1024) return file;
     try{
       const bmp = await createImageBitmap(file, { imageOrientation:"from-image" });
-      const sc = Math.min(1, 1600 / Math.max(bmp.width, bmp.height));
+      const sc = Math.min(1, 2560 / Math.max(bmp.width, bmp.height));
       const w = Math.max(1, Math.round(bmp.width * sc)), h = Math.max(1, Math.round(bmp.height * sc));
       const cv = document.createElement("canvas"); cv.width = w; cv.height = h;
       const ctx = cv.getContext("2d"); ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, w, h); ctx.drawImage(bmp, 0, 0, w, h);
       if(bmp.close) bmp.close();
-      const blob = await new Promise(res => cv.toBlob(res, "image/jpeg", 0.85));
+      const blob = await new Promise(res => cv.toBlob(res, "image/jpeg", 0.92));
       if(!blob || blob.size >= file.size) return file;
       return new File([blob], file.name.replace(/\.\w+$/, "") + ".jpg", { type:"image/jpeg" });
     }catch(_){ return file; }
