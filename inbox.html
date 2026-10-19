@@ -2327,9 +2327,10 @@ html:not([data-theme="light"]) .odm-card { background: rgba(124,111,247,0.08); b
   /* emoji reactions */
   /* chips hang off the bottom-right corner of the message, like Messenger */
   .msg-reacts{ position:relative; height:15px; flex:0 0 auto; z-index:2; pointer-events:none; }
-  .msg-reacts .rx-row{ position:absolute; top:-6px; right:10px; display:flex; gap:3px; pointer-events:auto; }
-  .rx-chip{ display:flex; align-items:center; justify-content:center; height:21px; min-width:25px; padding:0 5px; font-size:13px; line-height:1; border-radius:100px; background:var(--surface); box-shadow:0 0 0 2px var(--body-bg), 0 2px 6px rgba(0,0,0,.2); }
-  .rx-chip.page{ background:linear-gradient(rgba(43,116,227,.24), rgba(43,116,227,.24)), var(--surface); }
+  .msg-reacts .rx-row{ position:absolute; top:-6px; display:flex; gap:3px; pointer-events:auto; }
+  .from-customer .msg-reacts .rx-row{ left:-2px; }     /* the sharp tail corner of a customer bubble (bottom-left) */
+  .from-admin .msg-reacts .rx-row{ right:-2px; }       /* the sharp tail corner of our bubble (bottom-right) */
+  .rx-chip{ display:flex; align-items:center; justify-content:center; height:21px; min-width:25px; padding:0 5px; font-size:13px; line-height:1; border-radius:100px; background:linear-gradient(rgba(43,116,227,.24), rgba(43,116,227,.24)), var(--surface); box-shadow:0 0 0 2px var(--body-bg), 0 2px 6px rgba(0,0,0,.2); }
   /* long-press a customer message: emoji row pops in; tapping an emoji pops it */
   .msg-row[data-rx] .msg-bubble{ -webkit-user-select:none; user-select:none; -webkit-touch-callout:none; -webkit-tap-highlight-color:transparent; transition:transform .22s var(--ease-out); }
   .msg-row.rx-active .msg-bubble{ transform:scale(.965); }
