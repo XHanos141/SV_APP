@@ -2359,6 +2359,8 @@ html:not([data-theme="light"]) .odm-card { background: rgba(124,111,247,0.08); b
   .msg-sending .msg-thumb{ cursor:default; }
   .msg-sending .msg-thumb::after{ content:""; position:absolute; inset:0; background:rgba(8,12,20,.38); }
   .msg-sending__spin{ position:absolute; left:50%; top:50%; z-index:2; width:26px; height:26px; margin:-13px 0 0 -13px; border-radius:50%; border:3px solid rgba(255,255,255,.35); border-top-color:#fff; animation:ivSpin .8s linear infinite; }
+  .msg-sending-text .msg-bubble__text{ opacity:.88; }
+  .msg-sending__dot{ display:inline-block; vertical-align:middle; width:11px; height:11px; margin-left:5px; border-radius:50%; border:2px solid rgba(120,130,150,.35); border-top-color:var(--inbox-blue-t); animation:ivSpin .7s linear infinite; }
   .msg-sending__label{ margin-top:6px; font-size:12px; font-weight:600; opacity:.7; text-align:right; }
   @keyframes ivSpin{ to{ transform:rotate(360deg); } }
   .msg-atts{ display:flex; flex-direction:column; gap:6px; margin-bottom:4px; max-width:100%; }
@@ -5393,6 +5395,10 @@ function closeOrderDetailsModal() {
 
   function appendMessage(m, opts){
     opts = opts || {};
+    if(m.sender_type === "admin" && !m.is_internal && pendingTexts.length){
+      const pi = pendingTexts.findIndex(x => x.text === m.content);
+      if(pi >= 0) pendingTexts[pi].remove();
+    }
     const dividers = els.threadMessages.querySelectorAll(".day-divider");
     const lastDivider = dividers[dividers.length - 1];
     const label = formatDayLabel(m.created_at);
@@ -5441,6 +5447,21 @@ function closeOrderDetailsModal() {
     els.threadMessages.scrollTop = els.threadMessages.scrollHeight;
     const ui = { setLabel(t){ label.textContent = t; }, remove(){ if(row.isConnected) row.remove(); } };
     ui.setLabel(items.length > 1 ? `Sending ${items.length} files…` : "Sending…");
+    return ui;
+  }
+
+  // Text replies show at once with a small spinner; the real message replaces it when Meta has it
+  var pendingTexts = [];
+  var liveSendQueue = Promise.resolve();      // text replies go out one at a time, in the order they were sent
+  function showSendingText(text){
+    const row = buildMessageRow({ sender_type:"admin", content:text, created_at:new Date().toISOString(), channel:"messenger" }, false, true);
+    row.classList.add("msg-new", "msg-sending-text");
+    const t = row.querySelector(".msg-bubble__time");
+    if(t){ const sp = document.createElement("span"); sp.className = "msg-sending__dot"; t.appendChild(sp); }
+    els.threadMessages.appendChild(row);
+    els.threadMessages.scrollTop = els.threadMessages.scrollHeight;
+    const ui = { text, remove(){ const i = pendingTexts.indexOf(ui); if(i >= 0) pendingTexts.splice(i, 1); if(row.isConnected) row.remove(); } };
+    pendingTexts.push(ui);
     return ui;
   }
 
@@ -5554,6 +5575,20 @@ function closeOrderDetailsModal() {
     if(live(state.activeConversationId) && !state.noteMode){
       if(conv && conv.channel !== "messenger"){ showToast("Only Messenger replies are connected so far."); return; }
       if(replyLocked()){ showToast(WINDOW_CLOSED_MSG); updateWindow(); return; }
+      if(!pendingAtts.length){
+        const textUi = showSendingText(content);
+        els.composerInput.value = ""; autoResizeComposer(); updateSendState(); syncQuickReplies();   // clear at once
+        const job = liveSendQueue.then(() => sendLiveReply(conv, content, null, textUi.remove));
+        liveSendQueue = job.catch(() => {});
+        const ok = await job;
+        textUi.remove();
+        if(!ok){                                   // not sent: put the text back so it can be retried
+          const cur = els.composerInput.value;
+          els.composerInput.value = content + (cur ? "\n" + cur : "");
+          autoResizeComposer(); updateSendState(); syncQuickReplies();
+        }
+        return;
+      }
       els.composerForm.classList.add("is-sending");
       const sendUi = pendingAtts.length ? showSendingRow(pendingAtts) : null;   // photos + spinner while it uploads
       let files = null;
