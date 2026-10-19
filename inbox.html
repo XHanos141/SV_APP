@@ -2329,16 +2329,25 @@ html:not([data-theme="light"]) .odm-card { background: rgba(124,111,247,0.08); b
   .from-admin .msg-reacts{ justify-content:flex-end; }
   .rx-chip{ font-size:14px; line-height:1; padding:3px 7px; border-radius:100px; background:var(--surface); border:1px solid var(--hairline); }
   .rx-chip.page{ border-color:var(--inbox-blue-t); }
-  .rx-add{ position:relative; flex:0 0 auto; align-self:center; width:28px; height:28px; margin-left:4px; border-radius:50%; display:flex; align-items:center; justify-content:center; color:var(--text-3); opacity:.75; transition:transform .18s var(--ease-out), opacity .2s ease; }
-  .rx-add::before{ content:''; position:absolute; inset:-8px; }
-  .rx-add svg{ width:17px; height:17px; }
-  .rx-add:active{ transform:scale(.88); opacity:1; }
-  .rx-bar{ position:fixed; z-index:60; display:none; gap:2px; padding:5px 6px; background:var(--surface); border:1px solid var(--hairline); border-radius:100px; box-shadow:0 12px 30px rgba(0,0,0,.34); }
-  .rx-bar.open{ display:flex; animation:rxPop .18s var(--ease-out) both; }
-  .rx-bar button{ width:38px; height:38px; border-radius:50%; font-size:22px; line-height:1; display:flex; align-items:center; justify-content:center; transition:transform .15s var(--ease-out), background .15s ease; }
-  .rx-bar button:active{ transform:scale(1.25); }
-  .rx-bar button.on{ background:rgba(43,116,227,.18); }
-  @keyframes rxPop{ from{ opacity:0; transform:translateY(6px) scale(.94); } to{ opacity:1; transform:none; } }
+  /* long-press a customer message: emoji row pops in; tapping an emoji pops it */
+  .msg-row[data-rx] .msg-bubble{ -webkit-user-select:none; user-select:none; -webkit-touch-callout:none; -webkit-tap-highlight-color:transparent; transition:transform .22s var(--ease-out); }
+  .msg-row.rx-active .msg-bubble{ transform:scale(.965); }
+  .rx-bar{ position:fixed; z-index:60; display:none; align-items:center; gap:1px; padding:5px 7px; background:var(--surface); border:1px solid var(--hairline); border-radius:100px; box-shadow:0 14px 34px rgba(0,0,0,.36); }
+  .rx-bar.open{ display:flex; animation:rxBarIn .26s cubic-bezier(.34,1.56,.64,1) both; }
+  .rx-bar button{ width:38px; height:38px; border-radius:50%; font-size:23px; line-height:1; display:flex; align-items:center; justify-content:center; opacity:0; transition:transform .16s ease, background .16s ease; }
+  .rx-bar.open button{ animation:rxItemIn .34s cubic-bezier(.34,1.56,.64,1) both; animation-delay:calc(var(--i) * 35ms + 40ms); }
+  .rx-bar button:active{ transform:scale(1.28); }
+  .rx-bar button.on{ background:rgba(43,116,227,.2); }
+  .rx-bar button.tapped{ animation:rxTap .2s ease-out both !important; }
+  .rx-bar .rx-copy{ margin-left:4px; font-size:0; color:var(--text-2); }
+  .rx-bar .rx-copy svg{ width:18px; height:18px; }
+  .rx-bar .rx-copy[hidden]{ display:none; }
+  .rx-chip.pop{ animation:chipPop .42s cubic-bezier(.34,1.56,.64,1) both; }
+  @keyframes rxBarIn{ from{ opacity:0; transform:translateY(8px) scale(.82); } to{ opacity:1; transform:none; } }
+  @keyframes rxItemIn{ 0%{ opacity:0; transform:translateY(10px) scale(.2); } 100%{ opacity:1; transform:none; } }
+  @keyframes rxTap{ 0%{ opacity:1; transform:scale(1); } 55%{ opacity:1; transform:scale(1.7); } 100%{ opacity:1; transform:scale(1.35); } }
+  @keyframes chipPop{ 0%{ opacity:0; transform:scale(.2); } 100%{ opacity:1; transform:none; } }
+  @media (prefers-reduced-motion:reduce){ .rx-bar.open, .rx-bar.open button, .rx-chip.pop{ animation:none; } .rx-bar button{ opacity:1; } }
   .msg-sending .msg-thumb{ cursor:default; }
   .msg-sending .msg-thumb::after{ content:""; position:absolute; inset:0; background:rgba(8,12,20,.38); }
   .msg-sending__spin{ position:absolute; left:50%; top:50%; z-index:2; width:26px; height:26px; margin:-13px 0 0 -13px; border-radius:50%; border:3px solid rgba(255,255,255,.35); border-top-color:#fff; animation:ivSpin .8s linear infinite; }
@@ -5120,18 +5129,13 @@ function closeOrderDetailsModal() {
     if((m.content && !(hasAtts && isPlaceholder)) || !hasAtts) bubble.appendChild(text);
     if(showTime) bubble.appendChild(time);
     row.appendChild(bubble);
-    if(live_ && m.sender_type === "customer"){
-      const b = document.createElement("button");
-      b.type = "button"; b.className = "rx-add"; b.setAttribute("aria-label", "React to this message");
-      b.innerHTML = RX_ICON;
-      row.appendChild(b);
-    }
+    if(live_ && m.sender_type === "customer") row.dataset.rx = "1";   // long-press to react
     if(m.id) renderReactionsFor(row);
     return row;
   }
 
   /* ---------- Ticks (sent / delivered / seen) + emoji reactions ---------- */
-  var RX_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8.5 14a4.2 4.2 0 0 0 7 0"/><path d="M9 9.5h.01M15 9.5h.01"/></svg>';
+  var COPY_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="11" height="11" rx="2.5"/><path d="M5 15V6.5A2.5 2.5 0 0 1 7.5 4H15"/></svg>';
   var RX_EMOJI = ["\u{1F44D}", "\u2764\uFE0F", "\u{1F602}", "\u{1F62E}", "\u{1F622}", "\u{1F64F}"];
   var reacts = {};       // { [message id]: { customer?: emoji, page?: emoji } }
   var rxTarget = null;   // message id the picker is open for
@@ -5182,12 +5186,13 @@ function closeOrderDetailsModal() {
     const box = document.createElement("div"); box.className = "msg-reacts";
     ["customer", "page"].forEach(who => {
       if(!r[who]) return;
-      const c = document.createElement("span"); c.className = "rx-chip " + who; c.textContent = r[who];
+      const c = document.createElement("span"); c.className = "rx-chip " + who + (who === "page" && r.pop ? " pop" : ""); c.textContent = r[who];
       c.title = who === "page" ? "Your reaction" : "Customer's reaction";
       box.appendChild(c);
     });
     const bubble = row.querySelector(".msg-bubble"); if(!bubble) return;
     bubble.insertBefore(box, bubble.querySelector(".msg-bubble__time"));
+    delete r.pop;
   }
   function renderAllReactions(){ els.threadMessages.querySelectorAll(".msg-row[data-mid]").forEach(renderReactionsFor); }
 
@@ -5202,7 +5207,7 @@ function closeOrderDetailsModal() {
   }
   function setPageReact(id, emoji){
     const r = (reacts[id] = reacts[id] || {});
-    if(emoji) r.page = emoji; else delete r.page;
+    if(emoji){ r.page = emoji; r.pop = true; } else delete r.page;
     const row = els.threadMessages.querySelector('.msg-row[data-mid="' + id + '"]');
     if(row) renderReactionsFor(row);
   }
@@ -5211,26 +5216,54 @@ function closeOrderDetailsModal() {
     let bar = document.getElementById("rxBar");
     if(bar) return bar;
     bar = document.createElement("div"); bar.id = "rxBar"; bar.className = "rx-bar"; bar.setAttribute("role", "menu");
-    RX_EMOJI.forEach(em => { const b = document.createElement("button"); b.type = "button"; b.textContent = em; b.dataset.em = em; b.setAttribute("aria-label", "React " + em); bar.appendChild(b); });
+    RX_EMOJI.forEach((em, i) => {
+      const b = document.createElement("button"); b.type = "button"; b.textContent = em; b.dataset.em = em;
+      b.style.setProperty("--i", i); b.setAttribute("aria-label", "React " + em); bar.appendChild(b);
+    });
+    const cp = document.createElement("button"); cp.type = "button"; cp.className = "rx-copy"; cp.dataset.act = "copy";
+    cp.style.setProperty("--i", RX_EMOJI.length); cp.setAttribute("aria-label", "Copy text"); cp.innerHTML = COPY_ICON; bar.appendChild(cp);
     bar.addEventListener("click", (e) => {
-      const b = e.target.closest("button[data-em]"); if(!b || !rxTarget) return;
-      const id = rxTarget; closeRxBar(); sendReaction(id, b.dataset.em);
+      const b = e.target.closest("button"); if(!b || !rxTarget) return;
+      const id = rxTarget;
+      if(b.dataset.act === "copy"){ const m = (state.activeMessages || []).find(x => x.id === id); closeRxBar(); copyText(m && m.content); return; }
+      if(!b.dataset.em) return;
+      b.classList.add("tapped");                                       // pop, then close and react
+      setTimeout(() => { closeRxBar(); sendReaction(id, b.dataset.em); }, 170);
     });
     document.body.appendChild(bar);
     return bar;
   }
-  function closeRxBar(){ rxTarget = null; const bar = document.getElementById("rxBar"); if(bar) bar.classList.remove("open"); }
-  function openRxBar(btn){
-    const row = btn.closest(".msg-row"); const id = row && row.dataset.mid; if(!id) return;
-    if(rxTarget === id){ closeRxBar(); return; }
-    const bar = getRxBar(); rxTarget = id;
+  function closeRxBar(){
+    rxTarget = null;
+    const bar = document.getElementById("rxBar"); if(bar) bar.classList.remove("open");
+    els.threadMessages.querySelectorAll(".rx-active").forEach(r => r.classList.remove("rx-active"));
+  }
+  function openRxBar(row){
+    const id = row.dataset.mid; if(!id) return;
+    closeRxBar();
+    const bar = getRxBar(); rxTarget = id; row.classList.add("rx-active");
     const cur = (reacts[id] || {}).page;
-    bar.querySelectorAll("button").forEach(b => b.classList.toggle("on", b.dataset.em === cur));
-    bar.classList.add("open");
-    const r = btn.getBoundingClientRect(), w = bar.offsetWidth, h = bar.offsetHeight;
-    const left = Math.max(8, Math.min(r.left + r.width / 2 - w / 2, window.innerWidth - w - 8));
-    const top = r.top - h - 8 >= 8 ? r.top - h - 8 : r.bottom + 8;
+    bar.querySelectorAll("button[data-em]").forEach(b => { b.classList.remove("tapped"); b.classList.toggle("on", b.dataset.em === cur); });
+    const m = (state.activeMessages || []).find(x => x.id === id);
+    const txt = m && m.content && !/^\[[^\]]+\]$/.test(m.content) ? m.content : "";
+    bar.querySelector(".rx-copy").hidden = !txt;
+    bar.classList.remove("open"); void bar.offsetWidth; bar.classList.add("open");   // restart the pop-in
+    const bb = (row.querySelector(".msg-bubble") || row).getBoundingClientRect(), w = bar.offsetWidth, h = bar.offsetHeight;
+    const lim = els.threadMessages.getBoundingClientRect().top + 4;
+    const left = Math.max(8, Math.min(bb.left, window.innerWidth - w - 8));
+    let top = bb.top - h - 10; if(top < lim) top = bb.bottom + 10;
+    top = Math.min(top, window.innerHeight - h - 8);
     bar.style.left = left + "px"; bar.style.top = top + "px";
+  }
+  async function copyText(t){
+    if(!t) return;
+    try{ await navigator.clipboard.writeText(t); showToast("Copied"); }
+    catch(_){
+      const ta = document.createElement("textarea"); ta.value = t; ta.style.cssText = "position:fixed;opacity:0;top:0;left:0";
+      document.body.appendChild(ta); ta.select();
+      try{ document.execCommand("copy"); showToast("Copied"); }catch(__){ showToast("Couldn't copy."); }
+      ta.remove();
+    }
   }
   async function sendReaction(id, emoji){
     const prev = (reacts[id] || {}).page || null;
@@ -5246,9 +5279,28 @@ function closeOrderDetailsModal() {
       setPageReact(id, prev); showToast("Couldn't send the reaction.");
     }
   }
+
+  // long-press (about 0.4s) on a customer message opens the emoji row
+  var rxTimer = null, rxStart = null, rxSuppressUntil = 0;
+  function rxCancel(){ clearTimeout(rxTimer); rxTimer = null; }
+  els.threadMessages.addEventListener("pointerdown", (e) => {
+    if(e.pointerType === "mouse" && e.button !== 0) return;
+    const row = e.target.closest && e.target.closest(".msg-row[data-rx]");
+    if(!row || !e.target.closest(".msg-bubble")) return;
+    rxCancel(); rxStart = { x:e.clientX, y:e.clientY };
+    rxTimer = setTimeout(() => {
+      rxTimer = null; rxSuppressUntil = Date.now() + 700;
+      if(navigator.vibrate){ try{ navigator.vibrate(14); }catch(_){} }
+      openRxBar(row);
+    }, 420);
+  });
+  els.threadMessages.addEventListener("pointermove", (e) => {
+    if(rxTimer && rxStart && Math.hypot(e.clientX - rxStart.x, e.clientY - rxStart.y) > 10) rxCancel();
+  });
+  ["pointerup", "pointercancel", "pointerleave"].forEach(ev => els.threadMessages.addEventListener(ev, rxCancel));
+  els.threadMessages.addEventListener("contextmenu", (e) => { if(e.target.closest && e.target.closest(".msg-row[data-rx]")) e.preventDefault(); });
   document.addEventListener("click", (e) => {
-    const add = e.target.closest && e.target.closest(".rx-add");
-    if(add && els.threadMessages.contains(add)){ e.stopPropagation(); openRxBar(add); return; }
+    if(Date.now() < rxSuppressUntil && els.threadMessages.contains(e.target)){ e.preventDefault(); e.stopPropagation(); rxSuppressUntil = 0; return; }   // the release after a long-press
     if(rxTarget && !(e.target.closest && e.target.closest("#rxBar"))) closeRxBar();
   }, true);
   els.threadMessages.addEventListener("scroll", closeRxBar, { passive:true });
