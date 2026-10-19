@@ -361,6 +361,14 @@ input,textarea,select,[contenteditable="true"],.allow-select,.allow-select *{-we
   .conv-seen{ flex:0 0 auto; width:20px; height:20px; border-radius:50%; overflow:hidden; display:inline-flex; align-items:center; justify-content:center; background:var(--surface-2); border:1.5px solid var(--hairline); animation:svPop .3s var(--ease-spring) both; }
   .conv-seen img{ width:100%; height:100%; object-fit:cover; display:block; }
   .conv-seen__ini{ width:100%; height:100%; display:flex; align-items:center; justify-content:center; font-size:8px; font-weight:800; color:#fff; }
+  /* sent / delivered circles on the list (same icons as in the chat) while our latest message is not seen yet */
+  .conv-rcpt{ flex:0 0 auto; display:inline-flex; align-items:center; justify-content:center; width:20px; height:20px; color:var(--text-3); line-height:0; }
+  .conv-rcpt svg{ width:16px; height:16px; }
+  .conv-rcpt .rc{ fill:none; stroke:currentColor; stroke-width:1.5; }
+  .conv-rcpt .ck{ fill:none; stroke:currentColor; stroke-width:1.7; stroke-linecap:round; stroke-linejoin:round; }
+  .conv-rcpt.delivered{ color:var(--text-2); }
+  .conv-rcpt.delivered .rc{ fill:currentColor; }
+  .conv-rcpt.delivered .ck{ stroke:var(--body-bg); }
   .conv-win{ flex:0 0 auto; display:inline-flex; align-items:center; gap:3px; height:19px; padding:0 7px 0 5px; border-radius:10px; font-size:10.5px; font-weight:800; color:#2f9b68; background:rgba(47,155,104,.14); }
   .conv-win svg{ width:11px; height:11px; }
   .conv-win b{ font-weight:800; }
@@ -3787,15 +3795,22 @@ function closeOrderDetailsModal() {
       let winTs = 0;
       r.convs.forEach(x => { if(live(x.id) && x.channel === "messenger" && x.last_customer_message_at){ const t = Date.parse(x.last_customer_message_at); if(t > winTs) winTs = t; } });
       const wi = winTs ? winBadgeInfo(winTs) : null;
-      // our message is the latest one and the customer has read it (Meta's read mark, 3s tolerance like the chat ticks)
+      // our message is the latest one: customer's mini photo = seen, filled circle = delivered, hollow circle = sent
+      // (Meta's read / delivery marks, 3s tolerance like the chat ticks)
       let seenHtml = "";
-      if(live(c.id) && c.channel === "messenger" && c.last_customer_message_at && c.read_watermark){
-        const upd = Date.parse(c.updated_at), lastCust = Date.parse(c.last_customer_message_at), rd = Date.parse(c.read_watermark);
-        if(upd > lastCust && rd >= upd - 3000){
-          const ini = escapeHtml(initials(c.customer_name));
-          seenHtml = `<span class="conv-seen" title="Seen" aria-label="Seen by customer">${c.customer_avatar
-            ? `<img src="${escapeHtml(c.customer_avatar)}" alt="" onerror="this.replaceWith(Object.assign(document.createElement('span'),{className:'conv-seen__ini',textContent:'${ini}',style:'background:${hashColor(c.customer_name || "?")}'}))">`
-            : `<span class="conv-seen__ini" style="background:${hashColor(c.customer_name || "?")}">${ini}</span>`}</span>`;
+      if(live(c.id) && c.channel === "messenger" && c.last_customer_message_at){
+        const upd = Date.parse(c.updated_at), lastCust = Date.parse(c.last_customer_message_at);
+        if(upd > lastCust){
+          const rd = c.read_watermark ? Date.parse(c.read_watermark) : 0, dl = c.delivered_watermark ? Date.parse(c.delivered_watermark) : 0;
+          if(rd && rd >= upd - 3000){
+            const ini = escapeHtml(initials(c.customer_name));
+            seenHtml = `<span class="conv-seen" title="Seen" aria-label="Seen by customer">${c.customer_avatar
+              ? `<img src="${escapeHtml(c.customer_avatar)}" alt="" onerror="this.replaceWith(Object.assign(document.createElement('span'),{className:'conv-seen__ini',textContent:'${ini}',style:'background:${hashColor(c.customer_name || "?")}'}))">`
+              : `<span class="conv-seen__ini" style="background:${hashColor(c.customer_name || "?")}">${ini}</span>`}</span>`;
+          }else{
+            const delivered = dl && dl >= upd - 3000;
+            seenHtml = `<span class="conv-rcpt ${delivered ? "delivered" : "sent"}" title="${delivered ? "Delivered" : "Sent"}" aria-label="${delivered ? "Delivered" : "Sent"}">${TICK_SVG}</span>`;
+          }
         }
       }
       const winHtml = wi ? `<span class="conv-win ${wi.cls}" data-ts="${winTs}" title="Time left to reply"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><b>${wi.text}</b></span>` : "";
