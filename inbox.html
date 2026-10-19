@@ -2326,9 +2326,9 @@ html:not([data-theme="light"]) .odm-card { background: rgba(124,111,247,0.08); b
   .msg-tick .tick-av.ini{ display:flex; align-items:center; justify-content:center; font-size:7px; font-weight:800; line-height:1; color:#fff; background:var(--inbox-blue); }
   /* emoji reactions */
   /* chips hang off the bottom-right corner of the message, like Messenger */
-  .msg-reacts{ position:relative; height:12px; flex:0 0 auto; z-index:2; pointer-events:none; }
-  .msg-reacts .rx-row{ position:absolute; top:-13px; right:8px; display:flex; gap:3px; pointer-events:auto; }
-  .rx-chip{ font-size:14px; line-height:1; padding:3px 6px; border-radius:100px; background:var(--surface); box-shadow:0 0 0 2px var(--body-bg), 0 2px 6px rgba(0,0,0,.2); }
+  .msg-reacts{ position:relative; height:15px; flex:0 0 auto; z-index:2; pointer-events:none; }
+  .msg-reacts .rx-row{ position:absolute; top:-6px; right:10px; display:flex; gap:3px; pointer-events:auto; }
+  .rx-chip{ display:flex; align-items:center; justify-content:center; height:21px; min-width:25px; padding:0 5px; font-size:13px; line-height:1; border-radius:100px; background:var(--surface); box-shadow:0 0 0 2px var(--body-bg), 0 2px 6px rgba(0,0,0,.2); }
   .rx-chip.page{ background:linear-gradient(rgba(43,116,227,.24), rgba(43,116,227,.24)), var(--surface); }
   /* long-press a customer message: emoji row pops in; tapping an emoji pops it */
   .msg-row[data-rx] .msg-bubble{ -webkit-user-select:none; user-select:none; -webkit-touch-callout:none; -webkit-tap-highlight-color:transparent; transition:transform .22s var(--ease-out); }
@@ -5203,8 +5203,13 @@ function closeOrderDetailsModal() {
     const { data, error } = await supabase.from("message_reactions").select("message_id, reactor, emoji").eq("conversation_id", convId);
     if(error){ console.error("loadReactions error:", error); return; }
     if(state.activeConversationId !== convId) return;      // switched chats meanwhile
-    Object.keys(reacts).forEach(k => delete reacts[k]);
+    const old = {};
+    Object.keys(reacts).forEach(k => { old[k] = reacts[k]; delete reacts[k]; });
     (data || []).forEach(r => { (reacts[r.message_id] = reacts[r.message_id] || {})[r.reactor] = r.emoji; });
+    Object.keys(rxWant).forEach(id => {                      // our change is still being sent: keep what is on screen
+      const r = (reacts[id] = reacts[id] || {}), o = old[id];
+      if(o && o.page) r.page = o.page; else delete r.page;
+    });
     renderAllReactions();
   }
   function setPageReact(id, emoji){
@@ -5267,19 +5272,35 @@ function closeOrderDetailsModal() {
       ta.remove();
     }
   }
-  async function sendReaction(id, emoji){
-    const prev = (reacts[id] || {}).page || null;
-    const action = prev === emoji ? "unreact" : "react";
-    setPageReact(id, action === "react" ? emoji : null);                 // show it right away
+  var rxWant = {}, rxSent = {}, rxBusy = {}, rxTimers = {}, rxConv = {};
+  // Tap an emoji: show it at once, then send only the latest choice once taps settle (one request at a time per message)
+  function sendReaction(id, emoji){
+    const cur = (reacts[id] || {}).page || null;
+    const target = cur === emoji ? null : emoji;
+    setPageReact(id, target);
+    if(!(id in rxWant) && !rxBusy[id]){ rxSent[id] = cur; rxConv[id] = state.activeConversationId; }
+    rxWant[id] = target;
+    clearTimeout(rxTimers[id]); rxTimers[id] = setTimeout(() => flushReaction(id), 250);
+  }
+  async function flushReaction(id){
+    if(rxBusy[id]) return;                                   // runs again when the current send ends
+    const want = rxWant[id] || null, sent = rxSent[id] || null;
+    if(want === sent){ delete rxWant[id]; delete rxSent[id]; delete rxConv[id]; return; }
+    rxBusy[id] = true;
+    let ok = false, msg = "";
     try{
-      const { data, error } = await supabase.functions.invoke("meta-action", { body:{ conversation_id:state.activeConversationId, message_id:id, action, reaction:emoji } });
+      const body = { conversation_id: rxConv[id], message_id: id, action: want ? "react" : "unreact" };
+      if(want) body.reaction = want;
+      const { data, error } = await supabase.functions.invoke("meta-action", { body });
       let res = data;
       if(error){ try{ res = await error.context.json(); }catch(_){ res = null; } }
-      if(!res || !res.ok){ setPageReact(id, prev); showToast((res && res.error) || "Couldn't send the reaction."); }
-    }catch(err){
-      console.error("sendReaction failed:", err);
-      setPageReact(id, prev); showToast("Couldn't send the reaction.");
-    }
+      ok = !!(res && res.ok); if(!ok) msg = (res && res.error) || "";
+    }catch(err){ console.error("sendReaction failed:", err); }
+    rxBusy[id] = false;
+    if(ok) rxSent[id] = want;
+    else{ showToast(msg || "Couldn't send the reaction."); rxWant[id] = sent; setPageReact(id, sent); }
+    if((rxWant[id] || null) !== (rxSent[id] || null)) flushReaction(id);
+    else{ delete rxWant[id]; delete rxSent[id]; delete rxConv[id]; }
   }
 
   // long-press (about 0.4s) on a customer message opens the emoji row
