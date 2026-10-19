@@ -5167,7 +5167,7 @@ function closeOrderDetailsModal() {
       const rows = (res && Array.isArray(res.rows) && res.rows.length) ? res.rows : (res && res.data ? [res.data] : []);
       rows.forEach(row => { if(row && row.id && !seenIds.has(row.id)){ seenIds.add(row.id); appendMessage(row); } });
       if(!res || !res.ok){
-        const done = rows.filter(r => r && r.attachments && r.attachments.length).length;   // files already delivered: don't resend them
+        const done = rows.reduce((n, r) => n + (r && Array.isArray(r.attachments) ? r.attachments.length : 0), 0);   // files already delivered: don't resend them
         if(done){ pendingAtts.splice(0, done).forEach(a => a.url && URL.revokeObjectURL(a.url)); renderAttStrip(); updateSendState(); }
         showToast((res && res.error) || "Couldn't send the message.");
         return false;
