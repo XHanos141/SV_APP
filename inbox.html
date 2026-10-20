@@ -6544,6 +6544,27 @@ function closeOrderDetailsModal() {
     if(bmp.close) bmp.close();
     return await new Promise(res => cv.toBlob(res, "image/jpeg", 0.9));
   }
+  /* The converted card photo is saved ONCE per product (shared folder, same private bucket) and reused by every later card send.
+     The file name carries a short hash of the store photo address, so a changed photo gets a new file. */
+  const cardPhotoSeen = new Set();                        // names already confirmed in this browser session
+  function cardPhotoName(i){
+    let h = 2166136261; const src = String(i.image);
+    for(let k = 0; k < src.length; k++){ h ^= src.charCodeAt(k); h = Math.imul(h, 16777619); }
+    return String(i.id).replace(/[^A-Za-z0-9_-]/g, "").slice(0, 80) + "-" + (h >>> 0).toString(16);
+  }
+  async function cardPhotoPath(i){
+    const name = cardPhotoName(i), path = "product-cards/" + name + ".jpg";
+    if(cardPhotoSeen.has(name)) return path;
+    const { data: found } = await supabase.storage.from("chat-attachments").list("product-cards", { search:name, limit:5 });
+    if(!(found && found.some(f => f.name === name + ".jpg"))){
+      const blob = await cardImageBlob(i.image);
+      if(!blob) throw new Error("no image data");
+      const { error } = await supabase.storage.from("chat-attachments").upload(path, blob, { contentType:"image/jpeg", upsert:false });
+      if(error && !/exist|duplicate/i.test(String(error.message || error))) throw error;   // "already exists" = another admin saved it first: fine
+    }
+    cardPhotoSeen.add(name);
+    return path;
+  }
   async function sendProductCard(i){
     const conv = activeConv(); if(!conv) return;
     if(state.noteMode){ showToast("Switch to Reply to send a card"); return; }
@@ -6564,12 +6585,7 @@ function closeOrderDetailsModal() {
       let notice = "";
       if(i.image){
         try{
-          const blob = await cardImageBlob(i.image);
-          if(!blob) throw new Error("no image data");
-          const path = `${conv.id}/${crypto.randomUUID()}-card.jpg`;
-          const { error } = await supabase.storage.from("chat-attachments").upload(path, blob, { contentType:"image/jpeg", upsert:false });
-          if(error) throw error;
-          card.image_path = path;
+          card.image_path = await cardPhotoPath(i);
         }catch(err){ console.error("card photo failed:", err); notice = "Card sent without the photo"; }
       }
       const ok = await sendLiveReply(conv, "", null, ui.remove, { card });
