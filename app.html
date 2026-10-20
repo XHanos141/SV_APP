@@ -28625,7 +28625,7 @@ function renderAlertsTabNow() {
   container.innerHTML = '<div class="al-cards-wrap' + (_alAnim ? '' : ' al-no-anim') + '">' +
     al_newOrderCard() + al_proxyCards() +
     al_paymentLocalCard() + al_paymentProxyCard() +
-    al_paymentDueCard(false) +
+    al_returnRequestCard() + al_paymentDueCard(false) +
   '</div>';
   al_renderNotifs();
 }
@@ -28634,7 +28634,7 @@ function al_renderNotifs() {
   if (!nc) return;
   nc.innerHTML = '<div class="al-cards-wrap al-no-anim">' +
     al_lowStockCard() + al_outOfStockCard() + al_expiryCard() +
-    al_returnRequestCard() + al_expiredCard() +
+    al_expiredCard() +
   '</div>';
   document.querySelectorAll(':is(#alertsTabContent,#notifTabContent) .al-card:not([data-group])').forEach(c => c.setAttribute('data-group', 'stock'));
   al_equalizeCardHeights();
