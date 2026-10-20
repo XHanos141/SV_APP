@@ -2410,6 +2410,17 @@ html:not([data-theme="light"]) .odm-card { background: rgba(124,111,247,0.08); b
   .from-admin .msg-file__ico{ background:rgba(255,255,255,.2); color:#fff; }
   .from-admin .msg-file__size{ color:rgba(255,255,255,.8); }
   .note-card__body .msg-atts{ margin:6px 0 4px; }
+  /* order receipt card we sent on Messenger (receipt template) */
+  .msg-rcpt{ width:250px; max-width:100%; border-radius:16px; border:1px solid var(--hairline); background:var(--surface); color:var(--text-1); padding:12px 14px 13px; }
+  .msg-rcpt__head{ display:flex; justify-content:space-between; align-items:baseline; gap:8px; }
+  .msg-rcpt__title{ font-size:13px; font-weight:800; }
+  .msg-rcpt__pay{ font-size:11.5px; color:var(--text-2); }
+  .msg-rcpt__row{ display:flex; justify-content:space-between; gap:12px; margin-top:7px; font-size:12.5px; line-height:1.35; }
+  .msg-rcpt__row span:first-child{ min-width:0; overflow-wrap:anywhere; }
+  .msg-rcpt__row span:last-child{ white-space:nowrap; font-weight:700; }
+  .msg-rcpt__sep{ height:1px; background:var(--hairline); margin:10px 0 3px; }
+  .msg-rcpt__row.is-sub{ color:var(--text-2); }
+  .msg-rcpt__row.is-total{ font-size:14px; font-weight:800; margin-top:9px; padding-top:9px; border-top:1px solid var(--hairline); }
   /* product card we sent on Messenger (generic template) */
   .msg-card{ display:block; width:232px; max-width:100%; border-radius:16px; overflow:hidden; border:1px solid var(--hairline); background:var(--surface); color:var(--text-1); text-decoration:none; -webkit-tap-highlight-color:transparent; }
   .msg-card__img{ position:relative; width:100%; aspect-ratio:1/1; background:var(--surface-2); }
@@ -3837,7 +3848,7 @@ function closeOrderDetailsModal() {
               <span class="conv-time">${formatRelativeTime(c.updated_at)}</span>
             </span>
             <span class="conv-main__bottom">
-              <span class="conv-snippet">${escapeHtml(({"[image]":"Photo","[video]":"Video","[audio]":"Voice message","[file]":"File","[location]":"Location","[sticker]":"Sticker","[card]":"Product card"})[String(c.last_message||"").trim().toLowerCase()] || c.last_message || "")}</span>
+              <span class="conv-snippet">${escapeHtml(({"[image]":"Photo","[video]":"Video","[audio]":"Voice message","[file]":"File","[location]":"Location","[sticker]":"Sticker","[card]":"Product card","[receipt]":"Receipt"})[String(c.last_message||"").trim().toLowerCase()] || c.last_message || "")}</span>
               ${winHtml}
               ${unread ? `<span class="conv-unread-badge" aria-label="${r.unread} unread">${r.unread > 99 ? "99+" : r.unread}</span>` : seenHtml}
             </span>
@@ -4459,6 +4470,12 @@ function closeOrderDetailsModal() {
     clone.querySelectorAll("[id]").forEach(n => n.removeAttribute("id"));
     return clone.innerHTML;
   }
+  const RECEIPT_SVG = `<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:6px;vertical-align:-3px"><path d="M6 3h12v18l-3-2-3 2-3-2-3 2z"/><path d="M9 8h6M9 12h6"/></svg>`;
+  function receiptButtonHtml(oid){                          // only for real orders of a customer linked to this live Messenger chat
+    const conv = activeConv();
+    if(!conv || !live(conv.id) || conv.channel !== "messenger" || !conv.customer_id || !/^(SV|PX)-/.test(String(oid))) return "";
+    return `<button type="button" class="cs-btn cs-btn--block cs-btn--primary" data-act="send-receipt" data-oid="${escAttr(oid)}" style="margin-top:10px">${RECEIPT_SVG}Send receipt card</button>`;
+  }
   function toggleOrderDropdown(card){
     const wrap = card.closest(".oc-wrap"); if(!wrap) return;
     const open = !wrap.classList.contains("is-open");
@@ -4468,6 +4485,7 @@ function closeOrderDetailsModal() {
       });
       wrap.querySelector(".oc-detail__inner").innerHTML = orderDetailsInner(card.dataset.oid)
         || `<div class="cust-inline-empty">No details recorded for this order.</div>`;
+      wrap.querySelector(".oc-detail__inner").insertAdjacentHTML("beforeend", receiptButtonHtml(card.dataset.oid));
     }
     wrap.classList.toggle("is-open", open);
     card.setAttribute("aria-expanded", open ? "true" : "false");
@@ -4804,6 +4822,7 @@ function closeOrderDetailsModal() {
         ${row("Customer", escapeHtml(cust.name || "Unknown") + (cust.customer_id ? " · " + escapeHtml(cust.customer_id) : ""))}
       </div>
       <div class="cs-stack">
+        ${receiptButtonHtml(o.id).replace(' style="margin-top:10px"', "")}
         <button type="button" class="cs-btn cs-btn--block" data-act="copy" data-copy="${escAttr(o.id)}" data-what="Order ID">
           <span class="cs-idle" style="display:inline-flex;align-items:center;gap:6px">${ICONS.copy}Copy ${orderKind(o.id).toLowerCase()} ID</span>
           <span class="cs-done">${ICONS.check}Copied</span>
@@ -4934,6 +4953,7 @@ function closeOrderDetailsModal() {
       case "close": closeCustomerPanel(); break;
       case "back": goView("profile"); break;
       case "open-order": toggleOrderDropdown(el); break;
+      case "send-receipt": sendReceiptCard(el.dataset.oid); break;
       case "all-orders": goView("orders"); break;
       case "link-open": goView("link"); setTimeout(() => { const i = document.getElementById("csLinkSearch"); if(i) i.focus({ preventScroll:true }); }, 120); break;
       case "link-pick": linkConversation(el.dataset.id); break;
@@ -5200,7 +5220,7 @@ function closeOrderDetailsModal() {
     if(live_ && m.sender_type === "admin") time.appendChild(buildTick(m.created_at));
     if(m.attachments && m.attachments.length) bubble.appendChild(buildAttachments(m.attachments));
     const hasAtts = !!(m.attachments && m.attachments.length);
-    const isPlaceholder = /^\[(image|video|audio|file|location|fallback|template|sticker|share|card)\]$/i.test(String(m.content || "").trim());
+    const isPlaceholder = /^\[(image|video|audio|file|location|fallback|template|sticker|share|card|receipt)\]$/i.test(String(m.content || "").trim());
     if((m.content && !(hasAtts && isPlaceholder)) || !hasAtts) bubble.appendChild(text);
     if(showTime) bubble.appendChild(time);
     row.appendChild(bubble);
@@ -5920,6 +5940,22 @@ function closeOrderDetailsModal() {
     };
     list.forEach(a => {
       const kind = attKind(a);
+      if(a && a.type === "receipt"){
+        const el = document.createElement("div"); el.className = "msg-rcpt";
+        const row = (l, r, cls) => { const d = document.createElement("div"); d.className = "msg-rcpt__row" + (cls ? " " + cls : ""); const x = document.createElement("span"); x.textContent = l; const y = document.createElement("span"); y.textContent = r; d.appendChild(x); d.appendChild(y); return d; };
+        const head = document.createElement("div"); head.className = "msg-rcpt__head";
+        const t = document.createElement("span"); t.className = "msg-rcpt__title"; t.textContent = "Receipt \u00b7 " + (a.order_number || "");
+        const pm = document.createElement("span"); pm.className = "msg-rcpt__pay"; pm.textContent = a.payment || "";
+        head.appendChild(t); head.appendChild(pm); el.appendChild(head);
+        (Array.isArray(a.lines) ? a.lines : []).forEach(l => el.appendChild(row((l.qty > 1 ? l.qty + " \u00d7 " : "") + (l.title || "Product"), money(l.line))));
+        const sep = document.createElement("div"); sep.className = "msg-rcpt__sep"; el.appendChild(sep);
+        el.appendChild(row("Subtotal", money(a.subtotal), "is-sub"));
+        (Array.isArray(a.adjustments) ? a.adjustments : []).forEach(j => el.appendChild(row(j.name || "Discount", "\u2212" + money(j.amount), "is-sub")));
+        el.appendChild(row("Shipping", money(a.shipping), "is-sub"));
+        el.appendChild(row("Total", money(a.total), "is-total"));
+        wrap.appendChild(el);
+        return;
+      }
       if(a && a.type === "card"){
         const el = document.createElement(a.url ? "a" : "div");
         el.className = "msg-card";
@@ -6589,6 +6625,40 @@ function closeOrderDetailsModal() {
         }catch(err){ console.error("card photo failed:", err); notice = "Card sent without the photo"; }
       }
       const ok = await sendLiveReply(conv, "", null, ui.remove, { card });
+      if(ok && notice) showToast(notice);
+      return ok;
+    });
+    liveSendQueue = job.catch(() => {});
+    await job;
+    ui.remove();
+  }
+  /* Receipt card: the server builds it from the order in the database; the app only says WHICH order, and prepares the (reused) item photos. */
+  async function receiptPhotos(oid){
+    const cl = hubClient() || supabase; if(!cl) return {};
+    const { data: o } = await cl.from("orders").select("id").eq("order_number", oid).maybeSingle();
+    if(!o) return {};
+    const { data: items } = await cl.from("order_items").select("id, product_id, product_image").eq("order_id", o.id);
+    const out = {};
+    await Promise.all((items || []).map(async it => {
+      if(!it.product_image) return;
+      try{ out[it.id] = await cardPhotoPath({ id:it.product_id || it.id, image:it.product_image }); }
+      catch(err){ console.error("receipt photo skipped:", err); }
+    }));
+    return out;
+  }
+  async function sendReceiptCard(oid){
+    const conv = activeConv(); if(!conv || !oid) return;
+    if(state.noteMode){ showToast("Switch to Reply to send a receipt"); return; }
+    if(!live(conv.id) || conv.channel !== "messenger"){ showToast("Receipts can only be sent in live Messenger chats"); return; }
+    if(!conv.customer_id){ showToast("Link this chat to a customer first"); return; }
+    if(replyLocked()){ showToast(WINDOW_CLOSED_MSG); updateWindow(); return; }
+    closeCustomerPanel();
+    const ui = showSendingText("Sending receipt card\u2026");
+    const job = liveSendQueue.then(async () => {
+      let photos = {}, notice = "";
+      try{ photos = await receiptPhotos(oid); }
+      catch(err){ console.error("receipt photos failed:", err); notice = "Receipt sent without product photos"; }
+      const ok = await sendLiveReply(conv, "", null, ui.remove, { receipt:{ order_number:oid, item_photos:photos } });
       if(ok && notice) showToast(notice);
       return ok;
     });
