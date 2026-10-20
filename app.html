@@ -8358,6 +8358,10 @@ html[data-theme="dark"] #pxQuoteSheet .pxq-card { background:#162130; color:#e8e
 #pxQuoteSheet select option { color:#1b2230; }
 #pxQuoteSheet textarea { min-height:60px; resize:none; font-weight:500; font-size:14px; }
 #pxQuoteSheet .pxq-est { margin-top:8px; font-size:12px; font-weight:600; color:#7c6ff7; background:none; border:none; padding:0; cursor:pointer; width:auto; }
+#pxQuoteSheet .pxq-bk { margin-top:10px; padding:10px 12px; border-radius:12px; border:1px solid rgba(124,111,247,.25); font-size:13px; }
+#pxQuoteSheet .pxq-bk div { display:flex; justify-content:space-between; padding:3px 0; }
+#pxQuoteSheet .pxq-bk .pxq-sub2 { border-top:1px dashed rgba(138,148,166,.5); margin-top:4px; padding-top:7px; font-weight:800; }
+#pxQuoteSheet .pxq-bk .pxq-old span:last-child { text-decoration:line-through; text-decoration-color:#d95353; opacity:.8; font-size:12px; }
 #pxQuoteSheet .pxq-btns { display:flex; gap:10px; margin-top:16px; }
 #pxQuoteSheet .pxq-btns button { flex:1; padding:13px; border-radius:12px; border:none; font:700 14px 'DM Sans',sans-serif; cursor:pointer; }
 #pxQuoteSheet .pxq-send { background:#7c6ff7; color:#fff; }
@@ -8416,7 +8420,8 @@ html[data-theme="dark"] #alertsTabContent .rq-tag { border-color:rgba(251,202,18
   <div class="pxq-card">
     <h3>Send quote</h3>
     <div class="pxq-sub" id="pxqSub"></div>
-    <label for="pxqTotal">Final price (BDT)</label>
+    <div id="pxqBreak"></div>
+    <label for="pxqTotal">Total Due (BDT) · final approved quote</label>
     <input id="pxqTotal" type="number" inputmode="decimal" min="1" step="1" placeholder="0">
     <button type="button" class="pxq-est" id="pxqEst"></button>
     <label for="pxqValid">Quote valid for</label>
@@ -28293,6 +28298,7 @@ async function openQuoteSheet(id){
   document.getElementById('pxqNote').value = req.adminNote || '';
   document.getElementById('pxqErr').textContent = '';
   estEl.style.display = 'none';
+  document.getElementById('pxqBreak').innerHTML = '';
   document.getElementById('pxQuoteSheet').classList.add('open');
   const f = await al_pxFees(req);
   const usd = req.items.reduce((t, i) => t + i.qty * i.price, 0);
@@ -28302,6 +28308,15 @@ async function openQuoteSheet(id){
     estEl.onclick = () => { totalEl.value = est; };
     estEl.style.display = '';
     if (!totalEl.value) totalEl.value = est;
+    const tp = Number(f.sales_tax) || 0, sp = Number(f.service_charge) || 0, rt = Number(f.usd_rate);
+    const u = n => '$' + n.toFixed(2), tax = usd * tp / 100, svc = usd * sp / 100;
+    document.getElementById('pxqBreak').innerHTML = '<div class="pxq-bk">'
+      + '<div><span>Items total</span><span>' + u(usd) + '</span></div>'
+      + '<div><span>US sales tax (' + tp + '%)</span><span>' + u(tax) + '</span></div>'
+      + '<div><span>Service charge (' + sp + '%)</span><span>' + u(svc) + '</span></div>'
+      + '<div class="pxq-sub2"><span>Subtotal</span><span>' + u(usd + tax + svc) + '</span></div>'
+      + '<div><span>Rate</span><span>1 USD = ৳' + rt + '</span></div>'
+      + '<div class="pxq-old"><span>Estimated price</span><span>≈ ৳' + est.toLocaleString('en-US') + '</span></div></div>';
   }
 }
 function closeQuoteSheet(){
