@@ -8338,6 +8338,12 @@ html[data-theme="dark"] .odm-card { background: rgba(124,111,247,0.08); border-c
 
 
 /* ---- Buy For Me (proxy) request: alert card extras + details modal ---- */
+#alertsTabContent .px-st { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 700; padding: 9px 12px; border-radius: 12px; margin-bottom: 9px; }
+#alertsTabContent .px-st svg { flex: none; }
+#alertsTabContent .px-st.wait { color: #b8780a; background: rgba(244,169,34,0.14); }
+#alertsTabContent .px-st.paid { color: #1d9bf0; background: rgba(29,155,240,0.12); }
+html[data-theme="dark"] #alertsTabContent .px-st.wait { color: #F4B84A; }
+html[data-theme="dark"] #alertsTabContent .px-st.paid { color: #5cb8ff; }
 #alertsTabContent .px-more { font-size: 10.5px; font-weight: 700; color: #E15A26; margin: -4px 0 9px 4px; }
 html[data-theme="dark"] #alertsTabContent .px-more { color: #FF9466; }
 #alertsTabContent .chip.px-warn { background: rgba(226,90,38,0.14); border-radius: 8px; padding: 3px 8px; }
@@ -25179,7 +25185,7 @@ async function loadImportOrders() {
   if (_impLoading) return;
   _impLoading = true;
   try {
-    const rows = await sbFetch('proxy_requests?select=*,customers(full_name,phone),orders(id,order_number,payment_method,payment_ref,total_amount,created_at,status)&status=in.(approved,paid,purchasing,ordered,shipped_intl,arrived_bd)&order=updated_at.asc');
+    const rows = await sbFetch('proxy_requests?select=*,customers(full_name,phone),orders(id,order_number,payment_method,payment_ref,total_amount,created_at,status)&status=in.(purchasing,ordered,shipped_intl,arrived_bd)&order=updated_at.asc');
     const next = Array.isArray(rows) ? rows : [];
     if (JSON.stringify(next) === JSON.stringify(IMP_ROWS)) return;
     IMP_ROWS = next;
@@ -28106,6 +28112,9 @@ function al_pxNormalize(r){
     id: r.id,
     reqNo: r.request_no || '',
     px: (r.orders && r.orders.order_number) || '',
+    orderId: (r.orders && r.orders.id) || '',
+    payRef: String((r.orders && r.orders.payment_ref) || '').trim(),
+    payMethod: (r.orders && r.orders.payment_method) || '',
     createdAt: r.created_at,
     status: r.status || 'pending_quote',
     customer: {
@@ -28128,7 +28137,7 @@ function al_pxNormalize(r){
 
 async function loadProxyRequests(){
   try {
-    const rows = await sbFetch('proxy_requests?select=*,customers(full_name,phone,avatar_url),orders(order_number)&order=created_at.desc');
+    const rows = await sbFetch('proxy_requests?select=*,customers(full_name,phone,avatar_url),orders(id,order_number,payment_ref,payment_method)&order=created_at.desc');
     AL_PROXY = Array.isArray(rows) ? rows.map(al_pxNormalize) : [];
   } catch (e) { console.error('loadProxyRequests error:', e.message || e); AL_PROXY = []; }
   return AL_PROXY;
@@ -28143,6 +28152,20 @@ function al_proxyRequestCard(req){
   const more = req.items.length - 1;
   const unverified = req.status === 'pending_quote' && req.items.some(i => i.ai);
   const id = escapeHtml(req.id);
+  const PX_TICK = '<svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="#1d9bf0"/><path d="M7 12.5l3.2 3.2L17 8.8" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  const PX_CLOCK = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>';
+  let stRow = '', primaryBtn = '';
+  if (req.status === 'approved' && !req.payRef) {
+    stRow = `<div class="px-st wait">${PX_CLOCK}<span>Waiting for customer to pay</span></div>`;
+  } else if (req.status === 'approved') {
+    stRow = `<div class="px-st wait">${PX_CLOCK}<span>Payment submitted · TrxID ${escapeHtml(req.payRef)}</span></div>`;
+    primaryBtn = al_actionBtn('primary','receipt','Confirm payment',`alPxConfirmPay('${id}', this)`);
+  } else if (req.status === 'paid') {
+    stRow = `<div class="px-st paid">${PX_TICK}<span>Customer has paid the order</span></div>`;
+    primaryBtn = al_actionBtn('primary','check','Accept',`alPxAccept('${id}', this)`);
+  } else if (['purchasing','ordered','shipped_intl','arrived_bd'].includes(req.status)) {
+    stRow = `<div class="px-st paid">${PX_TICK}<span>Accepted · tracking in Import Order</span></div>`;
+  }
   return `
   <div class="al-card glass-shadow ${sv.tone}" data-group="order" data-px-id="${id}">
     <div class="al-card-top">
@@ -28174,18 +28197,56 @@ function al_proxyRequestCard(req){
       </div>
     </div>
     ${more > 0 ? `<div class="px-more">+${more} more item${more > 1 ? 's' : ''}</div>` : ''}
-    <div class="chips-row">
+    ${stRow || `<div class="chips-row">
       ${al_chip('message','Contact',escapeHtml(ch.label))}
       ${al_chip('clock','Requested',escapeHtml(al_pxWhen(req.createdAt)))}
       ${unverified ? al_chip('alertTri','Prices','Unverified','#E15A26').replace('class="chip"','class="chip px-warn"') : ''}
-    </div>
+    </div>`}
     <div class="al-actions-row">
       ${(req.status === 'pending_quote' || req.status === 'quoted') ? al_actionBtn('primary','send', req.status === 'quoted' ? 'Re-quote' : 'Quote', `openQuoteSheet('${id}')`) : ''}
+      ${primaryBtn}
       <button class="al-action-btn" style="background:${ch.color};color:#fff;box-shadow:0 4px 12px ${ch.color}55" onclick="openProxyChat('${id}')">${al_icon('message',13,'#fff',2.5)}<span>Chat</span></button>
       ${al_actionBtn('ghost','history','Details',`openProxyDetails('${id}')`)}
     </div>
   </div>`;
 }
+
+let _alPxBusy = false;
+async function alPxAccept(id, btn){
+  const req = AL_PROXY.find(r => r.id === id);
+  if (!req || _alPxBusy) return;
+  _alPxBusy = true; if (btn) btn.disabled = true;
+  try {
+    await requireFingerprint();
+    await sbFetch('rpc/admin_set_proxy_status', 'POST', { p_id: id, p_status: 'purchasing', p_store_order_no: null, p_tracking_no: null });
+  } catch (err) {
+    showToast('⚠ Not accepted — ' + _dbErrMsg(err));
+    if (btn) btn.disabled = false;
+    return;
+  } finally { _alPxBusy = false; }
+  showToast((req.px || 'Order') + ' accepted — moved to Import Order');
+  await loadProxyRequests();
+  IMP_ROWS = []; loadImportOrders();
+  renderAlertsTabNow();
+}
+async function alPxConfirmPay(id, btn){
+  const req = AL_PROXY.find(r => r.id === id);
+  if (!req || !req.orderId || _alPxBusy) return;
+  _alPxBusy = true; if (btn) btn.disabled = true;
+  try {
+    await requireFingerprint();
+    await sbFetch('rpc/confirm_order_payment', 'POST', { p_order_id: req.orderId, p_method: req.payMethod, p_ref: req.payRef || null });
+  } catch (err) {
+    showToast('⚠ Payment not confirmed — ' + _dbErrMsg(err));
+    if (btn) btn.disabled = false;
+    return;
+  } finally { _alPxBusy = false; }
+  showToast((req.px || 'Order') + ' paid');
+  await loadProxyRequests();
+  renderAlertsTabNow();
+}
+window.alPxAccept = alPxAccept;
+window.alPxConfirmPay = alPxConfirmPay;
 
 function al_proxyCards(){
   if (!AL_PROXY.length) {
