@@ -19772,116 +19772,6 @@ function generateCustomerInvoiceHTML(inv, size, theme) {
   return theme === 'web' ? _ciApplyWebTheme(out) : out;
 }
 
-/* Legacy customer layout — still used for the Receipt size */
-function _generateCustomerInvoiceHTMLLegacy(inv, size) {
-  const isA4 = size === 'a4';
-  const subtotal = (inv.items||[]).reduce((sum, i) => sum + i.total, 0);
-  const shippingAmt = inv.shipping || 0;
-  const grandTotal = subtotal - (inv.discount||0) + shippingAmt;
-  const shippingText = shippingAmt === 0
-    ? '<span style="color:#2f9b68;font-weight:700">Free</span>'
-    : '\u09f3' + shippingAmt.toLocaleString("en-IN");
-  const statusCfg = {
-    paid:    { style:'background:#d4edda;border:1.5px solid #1e7e4a;color:#1e7e4a', icon:'<polyline points="20 6 9 17 4 12"/>', text:'Paid' },
-    pending: { style:'background:#fef9e8;border:1.5px solid #d97706;color:#b45309', icon:'<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>', text:'Pending' },
-    shipped: { style:'background:#e0e7ff;border:1.5px solid #4f46e5;color:#4338ca', icon:'<rect x="1" y="3" width="15" height="13"/><polyline points="16 8 20 8 23 11 23 16 20 16"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/>', text:'Shipped' }
-  };
-  const st = statusCfg[inv.status || 'paid'] || statusCfg.paid;
-  const pad = isA4 ? {outer:'48px 60px', header:'-48px -60px 20px', wave:'100px', logo:'48', titleFs:'28px', bdFs:'13px', metaFs:'17px', metaSm:'14px', labelFs:'11px', itemFs:'18px', itemSub:'14px', totalFs:'26px', summaryFs:'13px', labelUpper:'15px'} : {outer:'16px 14px', header:'-16px -14px 10px', wave:'60px', logo:'26', titleFs:'15px', bdFs:'8px', metaFs:'11px', metaSm:'9px', labelFs:'7px', itemFs:'13px', itemSub:'10px', totalFs:'16px', summaryFs:'9px', labelUpper:'10px'};
-
-  const _groups = {};
-  const _groupOrder = [];
-  (inv.items||[]).forEach(item => {
-    const key = item.store || 'SuppVerse BD';
-    if (!_groups[key]) { _groups[key] = []; _groupOrder.push(key); }
-    _groups[key].push(item);
-  });
-  const _multiStore = _groupOrder.length > 1;
-  const _storeHeaderHTML = (storeName) => `
-    <tr>
-      <td colspan="2" style="padding:${isA4?'14px 0 6px':'10px 0 4px'}">
-        <div style="display:flex;align-items:center;gap:${isA4?'8px':'6px'}">
-          <svg width="${isA4?'14':'11'}" height="${isA4?'14':'11'}" viewBox="0 0 24 24" fill="none" stroke="#7c6ff7" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l1.5-5h15L21 9"/><path d="M3 9a2 2 0 0 0 4 0 2 2 0 0 0 4 0 2 2 0 0 0 4 0 2 2 0 0 0 4 0"/><path d="M5 9v10h14V9"/></svg>
-          <span style="font-family:'Plus Jakarta Sans',sans-serif;font-size:${isA4?'12px':'10px'};font-weight:800;color:#7c6ff7;letter-spacing:0.04em">${escapeHtml(storeName)}</span>
-        </div>
-        <div style="height:1px;background:#7c6ff7;opacity:0.18;margin-top:${isA4?'6px':'4px'}"></div>
-      </td>
-    </tr>`;
-  const invCategoryBadgeHTML = (category) => _invCategoryBadgeHTML(category, isA4, 'customer');
-  const _itemRowHTML = (item) => `
-    <tr>
-      <td style="padding:${isA4?'9px 0':'6px 0'};border-bottom:1px solid #d1d5db;vertical-align:top">
-        <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:${pad.itemFs};font-weight:700;color:#001f3c;line-height:1.3">${invCategoryBadgeHTML(item.category)}${escapeHtml(item.name)}</div>
-        <div style="font-family:'Courier Prime',monospace;font-size:${pad.itemSub};font-weight:700;color:#6b7280;margin-top:3px;opacity:0.8">${item.qty}u &times; \u09f3${item.each.toLocaleString("en-IN")}</div>
-      </td>
-      <td style="padding:${isA4?'9px 0':'6px 0'};border-bottom:1px solid #d1d5db;text-align:right;vertical-align:middle;font-family:'Courier Prime',monospace;font-size:${pad.itemFs};font-weight:700;color:#001f3c">\u09f3${item.total.toLocaleString("en-IN")}</td>
-    </tr>`;
-  const itemRows = _groupOrder.map(storeName => {
-    const rows = _groups[storeName].map(_itemRowHTML).join('');
-    return (_multiStore ? _storeHeaderHTML(storeName) : '') + rows;
-  }).join('');
-
-  return `<div id="customerInvoicePreview" style="font-family:'DM Sans',sans-serif;background:#fff;padding:${pad.outer};max-width:${isA4?'794px':'302px'};margin:0 auto;color:#001f3c;position:relative">
-  <div style="margin:${pad.header};padding:${isA4?'20px 40px 16px':'14px 14px 10px'};overflow:hidden;position:relative;min-height:${pad.wave}">
-    <div style="position:absolute;top:0;left:0;right:0;bottom:0;z-index:0">
-      <svg viewBox="0 0 500 80" preserveAspectRatio="none" style="width:100%;height:100%;display:block">
-        <defs>
-          <linearGradient id="cvBase${Date.now()}"><stop offset="0%" stop-color="#e8f4fc"/><stop offset="50%" stop-color="#d0e8f7"/><stop offset="100%" stop-color="#b8dcf2"/></linearGradient>
-          <linearGradient id="cvW1"><stop offset="0%" stop-color="#4a8ab5"/><stop offset="100%" stop-color="#2a6a95"/></linearGradient>
-          <linearGradient id="cvW2"><stop offset="0%" stop-color="#7ab8d8"/><stop offset="100%" stop-color="#4a90b8"/></linearGradient>
-          <linearGradient id="cvW3"><stop offset="0%" stop-color="#a8d0e8"/><stop offset="100%" stop-color="#78b0c8"/></linearGradient>
-        </defs>
-        <rect width="500" height="80" fill="url(#cvBase${Date.now()})"/>
-        <path d="M-10,-5 C60,20 120,50 200,25 C280,5 330,55 400,25 C450,5 490,35 510,10 L510,80 L-10,80 Z" fill="url(#cvW1)" opacity="0.3"/>
-        <path d="M-10,15 C80,0 160,55 240,20 C320,-5 390,45 470,15 L510,80 L-10,80 Z" fill="url(#cvW2)" opacity="0.38"/>
-        <path d="M-10,32 C90,14 190,60 280,30 C370,6 450,50 510,25 L510,80 L-10,80 Z" fill="url(#cvW3)" opacity="0.42"/>
-        <path d="M-10,48 C110,28 220,68 310,40 C400,18 460,55 510,38 L510,80 L-10,80 Z" fill="#c8e4f4" opacity="0.35"/>
-      </svg>
-    </div>
-    <div style="position:relative;z-index:1;display:flex;align-items:center;gap:10px">
-      ${brandHeaderHTML({logoSize: isA4?34:26, nameSize: pad.titleFs, bdSize: pad.bdFs, textColor: "#001f3c"})}
-    </div>
-  </div>
-  <div style="height:1px;background:#001f3c;opacity:0.12;margin:${isA4?'12px 0 10px':'8px 0 8px'}"></div>
-  <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:${isA4?'10px':'9px'};font-weight:800;color:#001f3c;letter-spacing:0.22em;text-transform:uppercase;text-align:center;margin-bottom:${isA4?'14px':'10px'}">Invoice</div>
-  <table style="width:100%;border-collapse:collapse;margin-bottom:${isA4?'14px':'10px'};padding-bottom:${isA4?'10px':'8px'};border-bottom:1px dashed #d1d5db">
-    <tr>
-      <td style="vertical-align:top;padding:0">
-        <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:${pad.labelFs};font-weight:700;color:#8c92a1;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:2px">Bill To</div>
-        <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:${pad.metaFs};font-weight:700;color:#001f3c">${escapeHtml(inv.customerName)}</div>
-        <div style="font-size:${pad.metaSm};font-weight:600;color:#001f3c;margin-top:1px">${escapeHtml(inv.customerLocation || '')}</div>
-        <div style="font-size:${pad.metaSm};font-weight:600;color:#001f3c">${escapeHtml(inv.customerPhone || '')}</div>
-      </td>
-      <td style="vertical-align:top;text-align:right;padding:0">
-        <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:${pad.metaFs};font-weight:700;color:#7c6ff7">${escapeHtml(inv.linkedDraftId)}</div>
-        <div style="font-size:${pad.metaSm};color:#8c92a1;margin-top:2px">${escapeHtml(inv.date)}</div>
-        <div style="display:inline-flex;align-items:center;gap:4px;margin-top:5px;border-radius:999px;padding:${isA4?'3px 12px':'2px 10px'};${st.style};font-family:'Plus Jakarta Sans',sans-serif;font-size:${isA4?'11px':'10px'};font-weight:700">
-          <svg width="${isA4?'13':'11'}" height="${isA4?'13':'11'}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">${st.icon}</svg>
-          ${st.text}
-        </div>
-      </td>
-    </tr>
-  </table>
-  <table style="width:100%;border-collapse:collapse">${itemRows}</table>
-  ${(inv.discount||0)>0?`<div style="display:flex;align-items:center;justify-content:space-between;padding:${isA4?'10px 0':'7px 0'};border-bottom:1.5px dashed #001f3c">`:''}
-    <div style="display:inline-flex;align-items:center;gap:5px;background:#e8f5ee;border:1px solid #2f9b68;border-radius:6px;padding:3px 8px">
-      <svg width="${isA4?'13':'12'}" height="${isA4?'13':'12'}" viewBox="0 0 24 24" fill="none" stroke="#2f9b68" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-archive-box"/></svg>
-      <span style="font-family:'Plus Jakarta Sans',sans-serif;font-size:${isA4?'10px':'9px'};font-weight:700;color:#2f9b68">Discount${inv.voucher ? ' · ' + escapeHtml(inv.voucher) : ''}</span>
-    </div>
-    <span style="font-family:'Courier Prime',monospace;font-size:${pad.itemFs};font-weight:700;color:#2f9b68">-\u09f3${inv.discount.toLocaleString("en-IN")}</span>
-  </div>
-  <table style="width:100%;border-collapse:collapse;margin-top:4px">
-    <tr style="border-bottom:1px solid #d1d5db"><td style="padding:${isA4?'7px 0':'6px 0'};font-family:'Plus Jakarta Sans',sans-serif;font-size:${pad.summaryFs};font-weight:700;color:#8c92a1;letter-spacing:0.04em;text-transform:uppercase">Subtotal</td><td style="padding:${isA4?'7px 0':'6px 0'};text-align:right;font-family:'DM Sans',sans-serif;font-size:${isA4?'15px':'14px'};font-weight:700;color:#001f3c">\u09f3${subtotal.toLocaleString("en-IN")}</td></tr>
-    <tr style="border-bottom:1.5px solid #001f3c"><td style="padding:${isA4?'7px 0':'6px 0'};font-family:'Plus Jakarta Sans',sans-serif;font-size:${pad.summaryFs};font-weight:700;color:#8c92a1;letter-spacing:0.04em;text-transform:uppercase">Shipping</td><td style="padding:${isA4?'7px 0':'6px 0'};text-align:right;font-family:'DM Sans',sans-serif;font-size:${isA4?'15px':'14px'};font-weight:700">${shippingText}</td></tr>
-    <tr><td style="padding:${isA4?'12px 0 6px':'10px 0 4px'};font-family:'Plus Jakarta Sans',sans-serif;font-size:${pad.labelUpper};font-weight:800;color:#001f3c;letter-spacing:0.06em;text-transform:uppercase">Total</td><td style="padding:${isA4?'12px 0 6px':'10px 0 4px'};text-align:right;font-family:'DM Sans',sans-serif;font-size:${pad.totalFs};font-weight:800;color:#001f3c">\u09f3${grandTotal.toLocaleString("en-IN")}</td></tr>
-  </table>
-  <div style="text-align:center;margin-top:${isA4?'16px':'10px'};padding-top:${isA4?'10px':'7px'};border-top:1px dashed #d1d5db">
-    <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:${isA4?'12px':'11px'};font-weight:600;color:#7c6ff7">Thank you for choosing SuppVerse BD</div>
-    ${isA4 ? '<div style="font-size:9px;color:#c5c9d4;margin-top:5px">Generated by SuppVerse System \u00b7 ' + new Date().toLocaleDateString() + '</div>' : ''}
-  </div>
-</div>`;
-}
-
 /* ====== GENERATE OWNER INVOICE HTML ====== */
 /* ====== OWNER INVOICE (A4) — same system as the customer invoice, plus cost / profit / margin ====== */
 function _oiMargin(m) { return m >= 30 ? ['#2f9b68', 'rgba(47,155,104,.12)'] : m >= 20 ? ['#b87a08', 'rgba(244,169,34,.14)'] : ['#d95353', 'rgba(217,83,83,.1)']; }
@@ -19994,8 +19884,8 @@ function generateOwnerInvoiceHTML(inv, size) {
   };
   return '<div id="ownerInvoicePreview" style="width:794px">' + pages.map(pageHTML).join('') + '</div>';
 }
-/* Legacy owner layout — still used for the Receipt size */
 /* ====== PDF SIZE PICKER ====== */
+/* RULE: the Receipt (80mm) PDF is admin-app only. The web store always downloads A4 (SV-Web /api/invoice is A4-only; /api/pdf is admin-gated). */
 let _pdfPendingType = null;   // 'customer' or 'print' (owner copy is A4-only and never opens the picker)
 let _pdfPendingId = null;     // invoice id
 let _pdfSelectedSize = null;  // 'a4' or 'receipt'
