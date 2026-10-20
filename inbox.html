@@ -2410,6 +2410,14 @@ html:not([data-theme="light"]) .odm-card { background: rgba(124,111,247,0.08); b
   .from-admin .msg-file__ico{ background:rgba(255,255,255,.2); color:#fff; }
   .from-admin .msg-file__size{ color:rgba(255,255,255,.8); }
   .note-card__body .msg-atts{ margin:6px 0 4px; }
+  /* product card we sent on Messenger (generic template) */
+  .msg-card{ display:block; width:232px; max-width:100%; border-radius:16px; overflow:hidden; border:1px solid var(--hairline); background:var(--surface); color:var(--text-1); text-decoration:none; -webkit-tap-highlight-color:transparent; }
+  .msg-card__img{ position:relative; width:100%; aspect-ratio:1/1; background:var(--surface-2); }
+  .msg-card__img img{ width:100%; height:100%; object-fit:cover; display:block; }
+  .msg-card__body{ padding:10px 12px 11px; }
+  .msg-card__title{ font-size:13px; font-weight:800; line-height:1.3; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+  .msg-card__sub{ margin-top:3px; font-size:12px; color:var(--text-2); }
+  .msg-card__btn{ display:block; padding:10px 12px; text-align:center; font-size:13px; font-weight:800; color:var(--inbox-blue-t); border-top:1px solid var(--hairline); }
   .img-viewer{ position:fixed; inset:0; z-index:999; background:rgba(8,12,20,.64); -webkit-backdrop-filter:blur(30px) saturate(1.15); backdrop-filter:blur(30px) saturate(1.15); display:flex; flex-direction:column; opacity:0; transition:opacity .3s ease; }
   .img-viewer[hidden]{ display:none; }
   .img-viewer.open{ opacity:1; }
@@ -2592,13 +2600,15 @@ html:not([data-theme="light"]) .odm-card { background: rgba(124,111,247,0.08); b
   .pk-sec{ margin-bottom:12px; }
   .pk-sec h3{ margin:0 0 4px; font-size:11px; font-weight:800; letter-spacing:.05em; text-transform:uppercase; color:var(--cyan); }
   .pk-sec p{ margin:0; font-size:13px; line-height:1.5; color:var(--text-2); white-space:pre-line; }
-  .pk-actions{ position:sticky; bottom:0; display:flex; gap:10px; padding:12px 0 calc(14px + env(safe-area-inset-bottom)); margin-top:6px; background:linear-gradient(180deg,transparent,var(--body-bg) 28%); }
+  .pk-actions{ position:sticky; bottom:0; display:flex; flex-wrap:wrap; gap:10px; padding:12px 0 calc(14px + env(safe-area-inset-bottom)); margin-top:6px; background:linear-gradient(180deg,transparent,var(--body-bg) 28%); }
   .pk-btn{ flex:1; height:46px; border-radius:14px; font-size:14px; font-weight:800; display:flex; align-items:center; justify-content:center; gap:8px; transition:transform .18s var(--ease-out), opacity .2s ease; }
   .pk-btn:active{ transform:scale(.97); }
   .pk-btn svg{ width:18px; height:18px; }
   .pk-btn--primary{ background:var(--cyan); color:#fff; flex:1.6; }
   .pk-btn--icon{ flex:0 0 46px; width:46px; padding:0; }
   .pk-btn--ghost{ background:var(--surface); color:var(--text-1); border:1px solid var(--hairline); }
+  .pk-btn--card{ order:-1; flex:1 0 100%; background:var(--surface); color:var(--cyan); border:1.5px solid var(--cyan); }
+  .pk-btn--card[disabled]{ opacity:.6; pointer-events:none; }
   @media (prefers-reduced-motion:reduce){ *,*::before,*::after{ transition:none !important; animation:none !important; scroll-behavior:auto !important; } }
 </style>
 <script>
@@ -3827,7 +3837,7 @@ function closeOrderDetailsModal() {
               <span class="conv-time">${formatRelativeTime(c.updated_at)}</span>
             </span>
             <span class="conv-main__bottom">
-              <span class="conv-snippet">${escapeHtml(({"[image]":"Photo","[video]":"Video","[audio]":"Voice message","[file]":"File","[location]":"Location","[sticker]":"Sticker"})[String(c.last_message||"").trim().toLowerCase()] || c.last_message || "")}</span>
+              <span class="conv-snippet">${escapeHtml(({"[image]":"Photo","[video]":"Video","[audio]":"Voice message","[file]":"File","[location]":"Location","[sticker]":"Sticker","[card]":"Product card"})[String(c.last_message||"").trim().toLowerCase()] || c.last_message || "")}</span>
               ${winHtml}
               ${unread ? `<span class="conv-unread-badge" aria-label="${r.unread} unread">${r.unread > 99 ? "99+" : r.unread}</span>` : seenHtml}
             </span>
@@ -5190,7 +5200,7 @@ function closeOrderDetailsModal() {
     if(live_ && m.sender_type === "admin") time.appendChild(buildTick(m.created_at));
     if(m.attachments && m.attachments.length) bubble.appendChild(buildAttachments(m.attachments));
     const hasAtts = !!(m.attachments && m.attachments.length);
-    const isPlaceholder = /^\[(image|video|audio|file|location|fallback|template|sticker|share)\]$/i.test(String(m.content || "").trim());
+    const isPlaceholder = /^\[(image|video|audio|file|location|fallback|template|sticker|share|card)\]$/i.test(String(m.content || "").trim());
     if((m.content && !(hasAtts && isPlaceholder)) || !hasAtts) bubble.appendChild(text);
     if(showTime) bubble.appendChild(time);
     row.appendChild(bubble);
@@ -5571,10 +5581,11 @@ function closeOrderDetailsModal() {
   document.getElementById("sendBtn").addEventListener("mousedown", (e) => e.preventDefault());
 
   // Sends a reply to the real customer through the meta-send Edge Function (admin session, 24h rule enforced there).
-  async function sendLiveReply(conv, text, files, beforeRows){
+  async function sendLiveReply(conv, text, files, beforeRows, extra){
     try{
       const body = { conversation_id:conv.id, text };
       if(files && files.length) body.attachments = files;
+      if(extra) Object.assign(body, extra);
       const { data, error } = await supabase.functions.invoke("meta-send", { body });
       let res = data;
       if(error){ try{ res = await error.context.json(); }catch(_){ res = { ok:false, error:"Couldn't reach the server. Try again." }; } }
@@ -5583,7 +5594,7 @@ function closeOrderDetailsModal() {
       const rows = (res && Array.isArray(res.rows) && res.rows.length) ? res.rows : (res && res.data ? [res.data] : []);
       rows.forEach(row => { if(row && row.id && !seenIds.has(row.id)){ seenIds.add(row.id); appendMessage(row); } });
       if(!res || !res.ok){
-        const done = rows.reduce((n, r) => n + (r && Array.isArray(r.attachments) ? r.attachments.length : 0), 0);   // files already delivered: don't resend them
+        const done = extra ? 0 : rows.reduce((n, r) => n + (r && Array.isArray(r.attachments) ? r.attachments.length : 0), 0);   // files already delivered: don't resend them
         if(done){ pendingAtts.splice(0, done).forEach(a => a.url && URL.revokeObjectURL(a.url)); renderAttStrip(); updateSendState(); }
         showToast((res && res.error) || "Couldn't send the message.");
         return false;
@@ -5909,6 +5920,26 @@ function closeOrderDetailsModal() {
     };
     list.forEach(a => {
       const kind = attKind(a);
+      if(a && a.type === "card"){
+        const el = document.createElement(a.url ? "a" : "div");
+        el.className = "msg-card";
+        if(a.url){ el.href = a.url; el.target = "_blank"; el.rel = "noopener"; }
+        if(a.img_path){
+          const ph = document.createElement("div"); ph.className = "msg-card__img";
+          const img = document.createElement("img"); img.alt = a.title || "Product";
+          resolveAttUrl({ path:a.img_path }).then(u => { if(u) img.src = u; else ph.remove(); });   // fresh object: resolveAttUrl stores .url on what it is given
+          img.addEventListener("error", () => ph.remove());
+          ph.appendChild(img); el.appendChild(ph);
+        }
+        const body = document.createElement("div"); body.className = "msg-card__body";
+        const t = document.createElement("div"); t.className = "msg-card__title"; t.textContent = a.title || "Product";
+        body.appendChild(t);
+        if(a.subtitle){ const sb = document.createElement("div"); sb.className = "msg-card__sub"; sb.textContent = a.subtitle; body.appendChild(sb); }
+        el.appendChild(body);
+        if(a.url){ const b = document.createElement("span"); b.className = "msg-card__btn"; b.textContent = a.button || "View in store"; el.appendChild(b); }
+        wrap.appendChild(el);
+        return;
+      }
       if(a.failed){
         const why = { too_large:"Too large to save", unsupported_type:"File type not supported" }[a.reason] || "Couldn't load";
         wrap.appendChild(card("div", "Attachment unavailable", why, " msg-file--off"));
@@ -5982,6 +6013,7 @@ function closeOrderDetailsModal() {
   const ppList = document.getElementById("ppList"), ppSearch = document.getElementById("ppSearch");
   const PIN_KEY = id => "sv-pin-" + id;
   const SV_SITE_URL = "https://sv-web-sigma.vercel.app";          // same storefront as app.html's SV_WEBSITE_URL
+  const CARD_SVG = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="3"/><path d="M4 13h16"/><path d="M8 17h5"/></svg>`;
   const LINK_SVG = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>`;
   const PIN_SVG = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 17v5"/><path d="M9 3h6l-1 6 3 3v2H7v-2l3-3-1-6Z"/></svg>`;
   const UNPIN_SVG = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 3 18 18"/><path d="M12 17v5"/><path d="M15 9.3V3H9v3.4M7 14v-2l2.2-2.2M17 12v2H9"/></svg>`;
@@ -6460,6 +6492,7 @@ function closeOrderDetailsModal() {
       ${facts.length ? `<dl class="pk-facts">${facts.map(f => `<dt>${escapeHtml(f.k)}</dt><dd>${f.h || escapeHtml(f.t)}</dd>`).join("")}</dl>` : ""}
       ${sec("About", i.desc)}${i.benefits.length ? sec("Benefits", i.benefits.map(b => "• " + b).join("\n")) : ""}${sec("How to use", i.usage)}${sec("Caution", i.caution)}
       <div class="pk-actions">
+        <button type="button" class="pk-btn pk-btn--card" data-pk-card="${escapeHtml(i.id)}">${CARD_SVG}Send as card</button>
         <button type="button" class="pk-btn pk-btn--primary" data-pk-send="${escapeHtml(i.id)}">Send details</button>
         <button type="button" class="pk-btn pk-btn--ghost" data-pk-pin="${escapeHtml(i.id)}">${PIN_SVG}${isPinned ? "Unpin" : "Pin"}</button>
         <button type="button" class="pk-btn pk-btn--ghost pk-btn--icon" data-pk-link="${escapeHtml(i.id)}" aria-label="Add product link to message">${LINK_SVG}</button>
@@ -6493,6 +6526,60 @@ function closeOrderDetailsModal() {
     const lines = pkFacts(i).map(r => `${r.k}: ${r.t}`);
     return lines.join("\n");
   }
+  function cardSubtitle(i){                                    // price line under the card title (80 characters max on Messenger)
+    if(i.price == null || i.price === "") return "";
+    const pct = i.old && Number(i.old) > Number(i.price) ? Math.round((1 - Number(i.price) / Number(i.old)) * 100) : 0;
+    return pct ? `${money(i.price)} \u00b7 was ${money(i.old)} (${pct}% off)` : money(i.price);
+  }
+  /* Messenger cards need a JPG/PNG: the store photo (webp) is redrawn on a white square (nothing cropped) and saved as JPG */
+  async function cardImageBlob(url){
+    const r = await fetch(url, { mode:"cors" });
+    if(!r.ok) throw new Error("image " + r.status);
+    const bmp = await createImageBitmap(await r.blob());
+    const S = Math.min(800, Math.max(bmp.width, bmp.height));
+    const cv = document.createElement("canvas"); cv.width = S; cv.height = S;
+    const ctx = cv.getContext("2d"); ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, S, S);
+    const sc = Math.min(S / bmp.width, S / bmp.height), w = Math.round(bmp.width * sc), h = Math.round(bmp.height * sc);
+    ctx.drawImage(bmp, Math.round((S - w) / 2), Math.round((S - h) / 2), w, h);
+    if(bmp.close) bmp.close();
+    return await new Promise(res => cv.toBlob(res, "image/jpeg", 0.9));
+  }
+  async function sendProductCard(i){
+    const conv = activeConv(); if(!conv) return;
+    if(state.noteMode){ showToast("Switch to Reply to send a card"); return; }
+    if(!live(conv.id)){ showToast("Cards can only be sent in live Messenger chats"); return; }
+    if(conv.channel !== "messenger"){ showToast("Cards work on Messenger only"); return; }
+    if(replyLocked()){ showToast(WINDOW_CLOSED_MSG); updateWindow(); return; }
+    if(!i.slug){ showToast("This product has no web page yet"); return; }
+    const facts = pkFacts(i);
+    const card = {
+      title:(facts[0] && facts[0].t) || i.title || i.name,
+      subtitle:cardSubtitle(i),
+      button_title:"View in store",
+      button_url:SV_SITE_URL + "/p/" + encodeURIComponent(i.slug)
+    };
+    closeProductPicker();
+    const ui = showSendingText("Sending product card\u2026");
+    const job = liveSendQueue.then(async () => {
+      let notice = "";
+      if(i.image){
+        try{
+          const blob = await cardImageBlob(i.image);
+          if(!blob) throw new Error("no image data");
+          const path = `${conv.id}/${crypto.randomUUID()}-card.jpg`;
+          const { error } = await supabase.storage.from("chat-attachments").upload(path, blob, { contentType:"image/jpeg", upsert:false });
+          if(error) throw error;
+          card.image_path = path;
+        }catch(err){ console.error("card photo failed:", err); notice = "Card sent without the photo"; }
+      }
+      const ok = await sendLiveReply(conv, "", null, ui.remove, { card });
+      if(ok && notice) showToast(notice);
+      return ok;
+    });
+    liveSendQueue = job.catch(() => {});
+    await job;
+    ui.remove();
+  }
   ppList.addEventListener("click", e => {
     const row = e.target.closest("[data-pk]"); if(row) showProductDetail(row.dataset.pk);
   });
@@ -6501,7 +6588,9 @@ function closeOrderDetailsModal() {
   });
   document.getElementById("ppDetailView").addEventListener("click", async e => {
     const i = pk.cur, conv = activeConv(); if(!i || !conv) return;
-    if(e.target.closest("[data-pk-send]")){
+    if(e.target.closest("[data-pk-card]")){
+      sendProductCard(i);
+    }else if(e.target.closest("[data-pk-send]")){
       const text = productMessage(i), cur = els.composerInput.value.trim();
       els.composerInput.value = cur ? cur + "\n\n" + text : text;
       closeProductPicker(); updateSendState(); autoResizeComposer(); els.composerInput.focus();
