@@ -19675,34 +19675,35 @@ function _crPill(inv) {
 }
 function _crRow(i, sl, last) {
   const bd = last ? '1.5px solid #001f3c' : '1px solid #eef1f6', zb = sl % 2 === 0 ? 'background:#f7f9fc;' : '';
-  return `<tr>
-  <td style="padding:9px 0 9px 7px;border-bottom:${bd};${zb}vertical-align:top;width:24px"><span style="${_CI_PJ};font-size:9.5px;font-weight:800;color:#001f3c">${sl}</span></td>
-  <td style="padding:10px 8px 10px 4px;border-bottom:${bd};${zb}vertical-align:top"><div style="${_CI_PJ};font-size:10px;font-weight:700;line-height:1.35;overflow-wrap:anywhere">${escapeHtml(i.name)}</div>${i.variant ? `<div style="font-size:8px;font-weight:600;color:#6b7690;margin-top:2px;line-height:1.35">${escapeHtml(i.variant)}</div>` : ''}</td>
-  <td style="padding:9px 7px 9px 0;border-bottom:${bd};${zb}vertical-align:top;text-align:right;white-space:nowrap"><div style="font-size:10px;font-weight:700;color:#001f3c;line-height:1.35">${_ciMoney(i.total)}</div><div style="font-size:8px;font-weight:600;color:#4a5568;margin-top:2px;line-height:1.35">${i.qty} \u00d7 ${_ciMoney(i.each)}</div></td></tr>`;
+  return `<div style="display:grid;grid-template-columns:24px minmax(0,1fr) auto;column-gap:4px;align-items:start;padding:9px 7px;border-bottom:${bd};${zb}">
+  <div style="${_CI_PJ};font-size:9.5px;font-weight:800;line-height:13.5px;color:#001f3c">${sl}</div>
+  <div style="min-width:0"><div style="${_CI_PJ};font-size:10px;font-weight:700;line-height:13.5px;overflow-wrap:anywhere">${escapeHtml(i.name)}</div>${i.variant ? `<div style="font-size:8px;font-weight:600;color:#6b7690;margin-top:2px;line-height:1.35">${escapeHtml(i.variant)}</div>` : ''}</div>
+  <div style="text-align:right;white-space:nowrap"><div style="font-size:10px;font-weight:700;color:#001f3c;line-height:13.5px">${_ciMoney(i.total)}</div><div style="font-size:8px;font-weight:600;color:#4a5568;margin-top:2px;line-height:1.35">${i.qty} \u00d7 ${_ciMoney(i.each)}</div></div></div>`;
 }
 function generateCustomerReceiptHTML(inv) {
   const items = inv.items || [], n = items.length;
   const sub = items.reduce((a, i) => a + i.total, 0), d = inv.discount || 0, s = inv.shipping || 0;
   const x = { sub, d, s, grand: sub - d + s, units: items.reduce((a, i) => a + i.qty, 0) };
-  const th = (t, al, pad, r) => `<th style="text-align:${al};padding:${pad};background:#001f3c;${r || ''}${_CI_PJ};font-size:7.5px;font-weight:800;letter-spacing:.12em;color:#fff">${t}</th>`;
-  const thead = `<thead><tr>${th('SL', 'left', '8px 0 8px 7px', 'border-radius:8px 0 0 8px;')}${th('ITEM', 'left', '8px 6px')}${th('AMOUNT', 'right', '8px 7px 8px 4px', 'border-radius:0 8px 8px 0;')}</tr></thead>`;
+  const thead = `<div style="display:grid;grid-template-columns:24px minmax(0,1fr) auto;column-gap:4px;padding:8px 7px;background:#001f3c;border-radius:8px;${_CI_PJ};font-size:7.5px;font-weight:800;letter-spacing:.12em;color:#fff"><div>SL</div><div>ITEM</div><div style="text-align:right">AMOUNT</div></div>`;
   const rows = items.map((it, k) => _crRow(it, k + 1, k === n - 1)).join('');
   const hdr = `<div style="height:63px;background:${_CI_NAVY};display:flex;align-items:flex-start;padding:18px 16px 0"><div style="transform-origin:left center">${_ciLockup(34, '#fff', '#fff', 2.5, 2.5)}</div></div>`;
   const title = `<div style="display:flex;align-items:center;gap:12px;margin:0 0 7px"><span style="flex:1;height:1px;background:linear-gradient(90deg,transparent,#001f3c)"></span><span style="${_CI_PJ};font-size:8px;font-weight:800;letter-spacing:.22em;text-transform:uppercase;padding-left:.22em">Receipt</span><span style="flex:1;height:1px;background:linear-gradient(270deg,transparent,#001f3c)"></span></div>`;
   const lab = (txt, al) => `<div style="${_CI_PJ};font-size:8.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#6b7690;text-align:${al || 'left'}">${txt}</div>`;
   const cell = (chip, txt, css) => `<div style="display:flex;align-items:flex-start;gap:8px;min-height:18px;min-width:0">${chip}<span style="${css};line-height:1.4;overflow-wrap:anywhere;display:flex;align-items:center;min-height:18px;min-width:0">${escapeHtml(txt || '')}</span></div>`;
   const right = h => `<div style="display:flex;justify-content:flex-end;align-items:center;min-height:18px">${h}</div>`;
-  const bill = `<div style="display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:10px;row-gap:5px;align-items:center;padding-bottom:8px;border-bottom:1.5px dashed #cdd5e3;margin-bottom:8px">
-    ${lab('Bill To')}${lab('Order Details', 'right')}
-    ${cell(_crChip(_CI_IC.user, true), inv.customerName, _CI_PJ + ';font-size:12px;font-weight:700')}${right(_crBadgeSm(inv.linkedDraftId))}
-    ${cell(_crChip(_CI_IC.phone), inv.customerPhone, 'font-size:10.5px;font-weight:600')}${right(_crPill(inv))}
-    ${cell(_crChip(_CI_IC.pin), inv.customerLocation, 'font-size:10.5px;font-weight:600')}${right('<span style="font-size:9.5px;font-weight:700;color:#001f3c;white-space:nowrap">' + escapeHtml(inv.date || '') + '</span>')}
+  const bill = `<div style="padding-bottom:8px;border-bottom:1.5px dashed #cdd5e3;margin-bottom:8px">
+    <div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-bottom:5px">${lab('Bill To')}<span style="font-size:9.5px;font-weight:700;color:#001f3c;white-space:nowrap">${escapeHtml(inv.date || '')}</span></div>
+    <div style="display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:10px;row-gap:5px;align-items:center">
+      ${cell(_crChip(_CI_IC.user, true), inv.customerName, _CI_PJ + ';font-size:12px;font-weight:700')}${right(_crBadgeSm(inv.linkedDraftId))}
+      ${cell(_crChip(_CI_IC.phone), inv.customerPhone, 'font-size:10.5px;font-weight:600')}${right(_crPill(inv))}
+    </div>
+    <div style="margin-top:5px">${cell(_crChip(_CI_IC.pin), inv.customerLocation, 'font-size:10.5px;font-weight:600')}</div>
   </div>`;
   const foot = `<div style="margin-top:14px;background:rgba(0,31,60,.14);padding:12px 16px;text-align:center"><div style="${_CI_PJ};font-size:10px;font-weight:700;color:#001f3c">Thank you for choosing SuppVerse BD</div><div style="font-size:8px;color:#5a6580;margin-top:3px">Generated by SuppVerse System \u00b7 ${new Date().toLocaleDateString()}</div></div>`;
   return `<div id="customerReceiptPreview" style="width:${_CR_W}px;background:#fff;color:#001f3c;font-family:'DM Sans',sans-serif">
   ${hdr}
   <div style="padding:10px 16px 0">${title}${bill}
-    <table style="width:100%;table-layout:auto;border-collapse:separate;border-spacing:0">${thead}<tbody>${rows}</tbody></table>
+    <div>${thead}${rows}</div>
     <div style="padding-top:8px">${_crMath(x, inv)}</div>
   </div>
   ${foot}
