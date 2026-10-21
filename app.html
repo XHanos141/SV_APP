@@ -8117,6 +8117,12 @@ html[data-theme="dark"] :is(#alertsTabContent,#notifTabContent) .payment-summary
 :is(#alertsTabContent,#notifTabContent) .al-action-btn span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
 /* ---- Order Details Modal ---- */
+#odmSendRow:empty { display: none; }
+.odm-send-rc { width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 12px 14px; border-radius: 14px; border: 1.5px solid #0A9BDC; background: transparent; color: #0A9BDC; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 14px; font-weight: 800; cursor: pointer; -webkit-tap-highlight-color: transparent; transition: transform 0.12s ease; }
+html[data-theme="dark"] .odm-send-rc { color: #2DBEF5; border-color: #2DBEF5; }
+.odm-send-rc:active { transform: scale(0.98); }
+.odm-send-rc[disabled] { opacity: 0.6; pointer-events: none; }
+.odm-send-rc svg { width: 16px; height: 16px; flex-shrink: 0; }
 /* Full-screen page (same feel as Buy For Me request page) */
 #orderDetailsModal { padding: 0; background: #F3F6FB; align-items: stretch; justify-content: stretch; transition: opacity .2s ease; }
 html[data-theme="dark"] #orderDetailsModal { background: #0f1621; }
@@ -8399,6 +8405,9 @@ html[data-theme="dark"] :is(#alertsTabContent,#notifTabContent) .rq-tag { border
 
       <!-- Order heading (same as web order card heading + source badge) -->
       <div id="odmOrderHead"></div>
+
+      <!-- Send the receipt card to the customer on Messenger (registered customers only) -->
+      <div id="odmSendRow"></div>
 
       <!-- Section 2: Order Items -->
       <div>
@@ -27812,11 +27821,91 @@ function renderOrderDetailsCustomer(o) {
     </div>`;
   }
 }
+/* ---- Send receipt card to the customer's Messenger chat ----
+   Same meta-send function the inbox uses: the server builds the receipt from the order in the database,
+   this only says WHICH order and prepares the (shared, reused) item photos. */
+const ODM_RC_WINDOW_MS = 24 * 60 * 60 * 1000;
+let _odmRcBusy = false;
+function odmRenderSendRow(o) {
+  const box = document.getElementById("odmSendRow");
+  if (!box) return;
+  const ok = !!(o && o.registered && /^(SV|PX)-\d+$/i.test(String(o.orderId || '')));
+  window._odmRcOrderId = ok ? String(o.orderId) : '';
+  box.innerHTML = ok
+    ? `<button type="button" class="odm-send-rc" id="odmSendRcBtn" onclick="odmSendReceipt()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12v18l-3-2-3 2-3-2-3 2z"/><path d="M9 8h6M9 12h6"/></svg><span>Send receipt to customer</span></button>`
+    : '';
+}
+async function odmCardImageBlob(url) {            // Messenger needs JPG/PNG: redraw the store photo on a white square (nothing cropped)
+  const r = await fetch(url, { mode: 'cors' });
+  if (!r.ok) throw new Error('image ' + r.status);
+  const bmp = await createImageBitmap(await r.blob());
+  const S = Math.min(800, Math.max(bmp.width, bmp.height));
+  const cv = document.createElement('canvas'); cv.width = S; cv.height = S;
+  const ctx = cv.getContext('2d'); ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, S, S);
+  const sc = Math.min(S / bmp.width, S / bmp.height), w = Math.round(bmp.width * sc), h = Math.round(bmp.height * sc);
+  ctx.drawImage(bmp, Math.round((S - w) / 2), Math.round((S - h) / 2), w, h);
+  if (bmp.close) bmp.close();
+  return await new Promise(res => cv.toBlob(res, 'image/jpeg', 0.9));
+}
+async function odmCardPhotoPath(i) {              // same file names as the inbox, so photos saved there are reused here (and the other way round)
+  let h = 2166136261; const src = String(i.image);
+  for (let k = 0; k < src.length; k++) { h ^= src.charCodeAt(k); h = Math.imul(h, 16777619); }
+  const name = String(i.id).replace(/[^A-Za-z0-9_-]/g, '').slice(0, 80) + '-' + (h >>> 0).toString(16);
+  const path = 'product-cards/' + name + '.jpg';
+  const { data: found } = await sb.storage.from('chat-attachments').list('product-cards', { search: name, limit: 5 });
+  if (!(found && found.some(f => f.name === name + '.jpg'))) {
+    const blob = await odmCardImageBlob(i.image);
+    if (!blob) throw new Error('no image data');
+    const { error } = await sb.storage.from('chat-attachments').upload(path, blob, { contentType: 'image/jpeg', upsert: false });
+    if (error && !/exist|duplicate/i.test(String(error.message || error))) throw error;
+  }
+  return path;
+}
+async function odmReceiptPhotos(orderUuid) {
+  const { data: items } = await sb.from('order_items').select('id, product_id, product_image').eq('order_id', orderUuid);
+  const out = {};
+  await Promise.all((items || []).map(async it => {
+    if (!it.product_image) return;
+    try { out[it.id] = await odmCardPhotoPath({ id: it.product_id || it.id, image: it.product_image }); }
+    catch (err) { console.error('receipt photo skipped:', err); }
+  }));
+  return out;
+}
+async function odmSendReceipt() {
+  const oid = window._odmRcOrderId, btn = document.getElementById('odmSendRcBtn');
+  if (!oid || !btn || _odmRcBusy) return;
+  const label = btn.querySelector('span'), idle = label.textContent;
+  _odmRcBusy = true; btn.disabled = true; label.textContent = 'Sending…';
+  try {
+    const { data: o, error: oe } = await sb.from('orders').select('id, customer_id').eq('order_number', oid).maybeSingle();
+    if (oe || !o || !o.customer_id) throw new Error("Couldn't find this order's customer.");
+    const { data: convs, error: ce } = await sb.from('conversations').select('id, last_customer_message_at')
+      .eq('customer_id', o.customer_id).eq('channel', 'messenger').order('last_customer_message_at', { ascending: false });
+    if (ce) throw new Error("Couldn't look up the customer's chat.");
+    if (!convs || !convs.length) throw new Error('No Messenger chat is linked to this customer yet. Link the chat in the inbox first.');
+    const conv = convs.find(c => c.last_customer_message_at && Date.now() - Date.parse(c.last_customer_message_at) < ODM_RC_WINDOW_MS);
+    if (!conv) throw new Error('The 24-hour reply window has closed for this customer. You can send after they message you.');
+    let photos = {}, notice = '';
+    try { photos = await odmReceiptPhotos(o.id); } catch (err) { console.error('receipt photos failed:', err); notice = ' (without product photos)'; }
+    const { data, error } = await sb.functions.invoke('meta-send', { body: { conversation_id: conv.id, receipt: { order_number: oid, item_photos: photos } } });
+    let res = data;
+    if (error) { try { res = await error.context.json(); } catch (_) { res = { ok: false, error: "Couldn't reach the server. Try again." }; } }
+    if (!res || !res.ok) throw new Error((res && res.error) || "Couldn't send the receipt.");
+    showToast('Receipt sent on Messenger' + notice + (res.warning ? ' — ' + res.warning : ''));
+  } catch (err) {
+    showToast('⚠ ' + (err && err.message ? err.message : "Couldn't send the receipt."));
+  } finally {
+    _odmRcBusy = false; btn.disabled = false; label.textContent = idle;
+  }
+}
+window.odmSendReceipt = odmSendReceipt;
+
 function openOrderDetailsModal(order) {
   const overlay = document.getElementById("orderDetailsModal");
   if (!overlay || !order) return;
   renderOrderDetailsCustomer(order);
   renderOrderDetailsHead(order);
+  odmRenderSendRow(order);
   renderOrderDetailsItems(order.items);
   renderOrderDetailsSummary(order);
   renderOrderDetailsPayment(order.payment);
