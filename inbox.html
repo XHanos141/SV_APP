@@ -2411,16 +2411,21 @@ html:not([data-theme="light"]) .odm-card { background: rgba(124,111,247,0.08); b
   .from-admin .msg-file__size{ color:rgba(255,255,255,.8); }
   .note-card__body .msg-atts{ margin:6px 0 4px; }
   /* order receipt card we sent on Messenger (receipt template) */
-  .msg-rcpt{ width:250px; max-width:100%; border-radius:16px; border:1px solid var(--hairline); background:var(--surface); color:var(--text-1); padding:12px 14px 13px; }
-  .msg-rcpt__head{ display:flex; justify-content:space-between; align-items:baseline; gap:8px; }
-  .msg-rcpt__title{ font-size:13px; font-weight:800; }
-  .msg-rcpt__pay{ font-size:11.5px; color:var(--text-2); }
-  .msg-rcpt__row{ display:flex; justify-content:space-between; gap:12px; margin-top:7px; font-size:12.5px; line-height:1.35; }
-  .msg-rcpt__row span:first-child{ min-width:0; overflow-wrap:anywhere; }
-  .msg-rcpt__row span:last-child{ white-space:nowrap; font-weight:700; }
-  .msg-rcpt__sep{ height:1px; background:var(--hairline); margin:10px 0 3px; }
-  .msg-rcpt__row.is-sub{ color:var(--text-2); }
-  .msg-rcpt__row.is-total{ font-size:14px; font-weight:800; margin-top:9px; padding-top:9px; border-top:1px solid var(--hairline); }
+  /* receipt card we sent on Messenger: same badges and summary rows as the draft order card / Order Details */
+  .msg-rcpt{ width:268px; max-width:100%; border-radius:12px; border:1px solid rgba(10,155,220,0.30); background:var(--surface); color:var(--text-1); padding:11px 12px 12px; box-shadow:0 1px 3px rgba(15,22,33,0.06); }
+  html:not([data-theme="light"]) .msg-rcpt{ background:#1A2235; border-color:rgba(45,190,245,0.32); box-shadow:none; }
+  .msg-rcpt__head{ display:flex; justify-content:space-between; align-items:center; gap:8px; }
+  .msg-rcpt__ids{ display:flex; align-items:center; gap:6px; min-width:0; }
+  .msg-rcpt__tag{ font-family:var(--font-head); font-size:9.5px; font-weight:800; letter-spacing:.03em; padding:2px 7px; border-radius:6px; color:#26854f; background:rgba(47,155,104,0.12); }
+  .msg-rcpt__tag.cod{ color:#c27a08; background:rgba(244,169,34,0.16); }
+  html:not([data-theme="light"]) .msg-rcpt__tag{ color:#3bbf7f; }
+  html:not([data-theme="light"]) .msg-rcpt__tag.cod{ color:#F4A922; }
+  .msg-rcpt__meta{ display:flex; align-items:center; gap:6px; margin-top:7px; }
+  .msg-rcpt__items{ margin-top:8px; border-top:1px dashed var(--hairline); }
+  .msg-rcpt__item{ display:flex; justify-content:space-between; align-items:flex-start; gap:12px; padding:8px 0; border-bottom:1px dashed var(--hairline); }
+  .msg-rcpt__name{ font-family:var(--font-head); font-size:13px; font-weight:700; line-height:1.3; min-width:0; overflow-wrap:anywhere; }
+  .msg-rcpt__amt{ font-size:12.5px; font-weight:700; white-space:nowrap; }
+  .msg-rcpt__sum{ display:flex; flex-direction:column; gap:5px; padding-top:8px; }
   /* product card we sent on Messenger (generic template) */
   .msg-card{ display:block; width:232px; max-width:100%; border-radius:16px; overflow:hidden; border:1px solid var(--hairline); background:var(--surface); color:var(--text-1); text-decoration:none; -webkit-tap-highlight-color:transparent; }
   .msg-card__img{ position:relative; width:100%; aspect-ratio:1/1; background:var(--surface-2); }
@@ -4506,6 +4511,35 @@ function closeOrderDetailsModal() {
   const isOrderRecord = (o) => /^(SV|PX)-/.test(o.id);
   function orderKind(id){ return /^PX-/.test(id) ? "Proxy order" : /^RT-/.test(id) ? "Return" : "Order"; }
   function money(n){ return "৳" + Number(n).toLocaleString(); }
+  function buildReceiptEl(a){
+    const mk = (tag, cls, txt) => { const e = document.createElement(tag); if(cls) e.className = cls; if(txt != null) e.textContent = txt; return e; };
+    const num = String(a.order_number || ""), k = a.payment ? payKey(a.payment) : "";
+    const el = mk("div", "msg-rcpt");
+    const head = mk("div", "msg-rcpt__head"), ids = mk("div", "msg-rcpt__ids");
+    ids.appendChild(mk("span", "oc-card__id" + (/^PX-/.test(num) ? " proxy" : ""), num));
+    if(k) ids.appendChild(mk("span", "msg-rcpt__tag" + (k === "cash" ? " cod" : ""), k === "cash" ? "COD" : "PAID"));
+    head.appendChild(ids);
+    if(a.status){ const st = mk("span", "oc-card__status"); st.appendChild(mk("span", "oc-card__pill " + ocPillClass({ status:a.status, id:num }), a.status)); head.appendChild(st); }
+    el.appendChild(head);
+    if(k){ const meta = mk("div", "msg-rcpt__meta"), badge = mk("span", "pmt-pay-badge mini " + k); badge.innerHTML = payBadgeIcon(k); meta.appendChild(badge); el.appendChild(meta); }
+    const items = mk("div", "msg-rcpt__items");
+    (Array.isArray(a.lines) ? a.lines : []).forEach(l => {
+      const qty = Number(l.qty) || 1, it = mk("div", "msg-rcpt__item");
+      it.appendChild(mk("div", "msg-rcpt__name", l.title || "Product"));
+      it.appendChild(mk("div", "msg-rcpt__amt", qty + "\u00d7 " + money(Number(l.line) / qty)));
+      items.appendChild(it);
+    });
+    el.appendChild(items);
+    const sum = mk("div", "msg-rcpt__sum");
+    const row = (cls, icon, label, val) => { const r = mk("div", "odm-mc-row " + cls), l = mk("span"); if(icon) l.innerHTML = icon; l.appendChild(document.createTextNode(label)); r.appendChild(l); r.appendChild(mk("span", null, val)); sum.appendChild(r); };
+    row("sub", "", "Subtotal", money(a.subtotal));
+    (Array.isArray(a.adjustments) ? a.adjustments : []).forEach(j => row("discount", ODM_ICO_TAG, j.name || "Discount", "-" + money(j.amount)));   // discount before shipping, red
+    const free = !(Number(a.shipping) > 0);
+    row("ship" + (free ? " free" : ""), ODM_ICO_TRUCK, "Shipping", free ? "Free" : money(a.shipping));
+    row("total", "", "Total", money(a.total));
+    el.appendChild(sum);
+    return el;
+  }
   function formatMonthYear(iso){
     const d = new Date(iso), M = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
     return d.getDate() + " " + M[d.getMonth()] + " " + d.getFullYear();
@@ -5942,18 +5976,7 @@ function closeOrderDetailsModal() {
     list.forEach(a => {
       const kind = attKind(a);
       if(a && a.type === "receipt"){
-        const el = document.createElement("div"); el.className = "msg-rcpt";
-        const row = (l, r, cls) => { const d = document.createElement("div"); d.className = "msg-rcpt__row" + (cls ? " " + cls : ""); const x = document.createElement("span"); x.textContent = l; const y = document.createElement("span"); y.textContent = r; d.appendChild(x); d.appendChild(y); return d; };
-        const head = document.createElement("div"); head.className = "msg-rcpt__head";
-        const t = document.createElement("span"); t.className = "msg-rcpt__title"; t.textContent = "Receipt \u00b7 " + (a.order_number || "");
-        const pm = document.createElement("span"); pm.className = "msg-rcpt__pay"; pm.textContent = a.payment || "";
-        head.appendChild(t); head.appendChild(pm); el.appendChild(head);
-        (Array.isArray(a.lines) ? a.lines : []).forEach(l => el.appendChild(row((l.qty > 1 ? l.qty + " \u00d7 " : "") + (l.title || "Product"), money(l.line))));
-        const sep = document.createElement("div"); sep.className = "msg-rcpt__sep"; el.appendChild(sep);
-        el.appendChild(row("Subtotal", money(a.subtotal), "is-sub"));
-        (Array.isArray(a.adjustments) ? a.adjustments : []).forEach(j => el.appendChild(row(j.name || "Discount", "\u2212" + money(j.amount), "is-sub")));
-        el.appendChild(row("Shipping", money(a.shipping), "is-sub"));
-        el.appendChild(row("Total", money(a.total), "is-total"));
+        const el = buildReceiptEl(a);
         wrap.appendChild(el);
         return;
       }
