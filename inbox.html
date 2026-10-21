@@ -3819,7 +3819,7 @@ function closeOrderDetailsModal() {
       // our message is the latest one: customer's mini photo = seen, filled circle = delivered, hollow circle = sent
       // (Meta's read / delivery marks, 3s tolerance like the chat ticks)
       let seenHtml = "";
-      if(live(c.id) && c.channel === "messenger" && c.last_customer_message_at){
+      if(live(c.id) && (c.channel === "messenger" || c.channel === "instagram") && c.last_customer_message_at){
         const upd = Date.parse(c.updated_at), lastCust = Date.parse(c.last_customer_message_at);
         if(upd > lastCust){
           const rd = c.read_watermark ? Date.parse(c.read_watermark) : 0, dl = c.delivered_watermark ? Date.parse(c.delivered_watermark) : 0;
@@ -5216,7 +5216,7 @@ function closeOrderDetailsModal() {
     const time = document.createElement("div");
     time.className = "msg-bubble__time";
     time.textContent = new Date(m.created_at).toLocaleTimeString(undefined, { hour:"numeric", minute:"2-digit", hour12:true });
-    const live_ = !!m.id && m.channel === "messenger";
+    const live_ = !!m.id && (m.channel === "messenger" || m.channel === "instagram");
     if(live_ && m.sender_type === "admin") time.appendChild(buildTick(m.created_at));
     if(m.attachments && m.attachments.length) bubble.appendChild(buildAttachments(m.attachments));
     const hasAtts = !!(m.attachments && m.attachments.length);
@@ -5344,7 +5344,8 @@ function closeOrderDetailsModal() {
     closeRxBar();
     const bar = getRxBar(); rxTarget = id; row.classList.add("rx-active");
     const cur = (reacts[id] || {}).page;
-    bar.querySelectorAll("button[data-em]").forEach(b => { b.classList.remove("tapped"); b.classList.toggle("on", b.dataset.em === cur); });
+    const igChat = (activeConv() || {}).channel === "instagram";   // Instagram only supports the heart
+    bar.querySelectorAll("button[data-em]").forEach(b => { b.classList.remove("tapped"); b.classList.toggle("on", b.dataset.em === cur); b.style.display = igChat && b.dataset.em.replace(/\uFE0F/g, "") !== "\u2764" ? "none" : ""; });
     const m = (state.activeMessages || []).find(x => x.id === id);
     const txt = m && m.content && !/^\[[^\]]+\]$/.test(m.content) ? m.content : "";
     bar.querySelector(".rx-copy").hidden = !txt;
@@ -5385,7 +5386,7 @@ function closeOrderDetailsModal() {
     try{
       const body = { conversation_id: rxConv[id], message_id: id, action: want ? "react" : "unreact" };
       if(want) body.reaction = want;
-      const { data, error } = await supabase.functions.invoke("meta-action", { body });
+      const { data, error } = await supabase.functions.invoke((state.conversations.find(c => c.id === rxConv[id]) || {}).channel === "instagram" ? "ig-action" : "meta-action", { body });
       let res = data;
       if(error){ try{ res = await error.context.json(); }catch(_){ res = null; } }
       ok = !!(res && res.ok); if(!ok) msg = (res && res.error) || "";
@@ -5666,7 +5667,7 @@ function closeOrderDetailsModal() {
           els.composerForm.classList.remove("is-sending");
           return;
         }
-        if(sendUi) sendUi.setLabel("Sending to Messenger…");
+        if(sendUi) sendUi.setLabel(conv && conv.channel === "instagram" ? "Sending to Instagram…" : "Sending to Messenger…");
       }
       const sent = await sendLiveReply(conv, content, files, sendUi ? sendUi.remove : null);
       if(sendUi) sendUi.remove();
