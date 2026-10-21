@@ -7858,24 +7858,22 @@ html[data-theme="dark"] :is(#alertsTabContent,#notifTabContent) {
 
 :is(#alertsTabContent,#notifTabContent) .al-cards-wrap { display: flex; flex-direction: column; gap: 12px; }
 
-:is(#alertsTabContent,#notifTabContent) .glass-shadow {
-  box-shadow: 0 4px 6px rgba(0,0,0,0.05), 0 10px 22px rgba(0,0,0,0.08), inset 0 1px 1px rgba(255,255,255,0.8);
+/* Bubble card — same system as SV-Web cart/order cards. Hue per tone: order=cyan, proxy(Buy For Me)=orange, success(payment)=green */
+:is(#alertsTabContent,#notifTabContent) .tone-order   { --t: 10,155,220;  --td: 45,190,245; }
+:is(#alertsTabContent,#notifTabContent) .tone-proxy   { --t: 242,100,48;  --td: 255,140,90; }
+:is(#alertsTabContent,#notifTabContent) .tone-success { --t: 47,155,104;  --td: 62,200,130; }
+:is(#alertsTabContent,#notifTabContent) .tone-warning { --t: 244,169,34;  --td: 250,190,80; }
+:is(#alertsTabContent,#notifTabContent) .tone-danger  { --t: 217,83,83;   --td: 240,110,110; }
+:is(#alertsTabContent,#notifTabContent) .al-card.glass-shadow {
+  background: #fff;
+  border: 1px solid rgba(var(--t),.55);
+  box-shadow: 0 2px 5px rgba(15,22,33,.10), 0 10px 22px -6px rgba(var(--t),.42), inset 0 1.5px 0 rgba(255,255,255,1), inset 0 -3px 6px rgba(10,22,40,.06);
 }
-html[data-theme="dark"] :is(#alertsTabContent,#notifTabContent) .glass-shadow {
-  box-shadow: 0 4px 6px rgba(0,0,0,0.3), 0 10px 24px rgba(0,0,0,0.42), inset 0 1px 1px rgba(255,255,255,0.08), 0 0 0 1px rgba(255,255,255,0.04);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+html[data-theme="dark"] :is(#alertsTabContent,#notifTabContent) .al-card.glass-shadow {
+  background: linear-gradient(160deg,#1b3247 0%,#141f2f 100%);
+  border-color: rgba(var(--td),.5);
+  box-shadow: 0 2px 5px rgba(0,0,0,.35), 0 10px 22px -8px rgba(var(--td),.4), inset 0 1px 0 rgba(255,255,255,.07), inset 0 -2px 4px rgba(0,0,0,.2);
 }
-:is(#alertsTabContent,#notifTabContent) .tone-warning { background: #FEF6E9; border: 2px solid #FBE3B8; }
-:is(#alertsTabContent,#notifTabContent) .tone-danger  { background: #FBEEEE; border: 2px solid #F3C8C8; }
-:is(#alertsTabContent,#notifTabContent) .tone-success { background: #EAF5F0; border: 2px solid #BCDFCF; }
-:is(#alertsTabContent,#notifTabContent) .tone-order   { background: #EBF7FD; border: 2px solid #BFE4F5; }
-:is(#alertsTabContent,#notifTabContent) .tone-proxy   { background: #FEF0EA; border: 2px solid #FBCAB9; }
-html[data-theme="dark"] :is(#alertsTabContent,#notifTabContent) .tone-warning { background: rgba(93,64,13,0.55); border-color: rgba(166,115,23,0.5); }
-html[data-theme="dark"] :is(#alertsTabContent,#notifTabContent) .tone-danger  { background: rgba(82,32,32,0.55); border-color: rgba(148,56,56,0.5); }
-html[data-theme="dark"] :is(#alertsTabContent,#notifTabContent) .tone-success { background: rgba(18,59,40,0.55); border-color: rgba(32,105,71,0.5); }
-html[data-theme="dark"] :is(#alertsTabContent,#notifTabContent) .tone-order   { background: rgba(0,76,112,0.55); border-color: rgba(0,157,220,0.5); }
-html[data-theme="dark"] :is(#alertsTabContent,#notifTabContent) .tone-proxy   { background: rgba(109,45,22,0.55); border-color: rgba(198,82,39,0.5); }
 
 :is(#alertsTabContent,#notifTabContent) .tone-warning .al-actions-row { border-top-color: rgba(166,115,23,0.22); }
 :is(#alertsTabContent,#notifTabContent) .tone-danger  .al-actions-row { border-top-color: rgba(148,56,56,0.22); }
@@ -7889,7 +7887,7 @@ html[data-theme="dark"] :is(#alertsTabContent,#notifTabContent) .tone-order   .a
 html[data-theme="dark"] :is(#alertsTabContent,#notifTabContent) .tone-proxy   .al-actions-row { border-top-color: rgba(251,202,185,0.16); }
 
 :is(#alertsTabContent,#notifTabContent) .al-card {
-  border-radius: 18px;
+  border-radius: 16px;
   padding: 14px 15px 13px;
   position: relative;
   overflow: hidden;
@@ -8053,19 +8051,11 @@ html[data-theme="dark"] :is(#alertsTabContent,#notifTabContent) .order-summary-b
 :is(#alertsTabContent,#notifTabContent) .order-items-meta { text-align: right; font-size: 11px; font-weight: 600; color: var(--al-muted); }
 :is(#alertsTabContent,#notifTabContent) .order-items-meta strong { display: block; color: var(--al-txt); font-size: 12px; font-weight: 700; margin-bottom: 2px; }
 
-/* Source corner glow — soft gradient wash in the top-right corner, indicating where a payment originated */
-:is(#alertsTabContent,#notifTabContent) .tone-success.glow-local {
-  background: radial-gradient(170px 170px at 100% 0%, rgba(10,155,220,0.5), transparent 68%), #EAF5F0;
-}
-:is(#alertsTabContent,#notifTabContent) .tone-success.glow-proxy {
-  background: radial-gradient(170px 170px at 100% 0%, rgba(242,100,48,0.5), transparent 68%), #EAF5F0;
-}
-html[data-theme="dark"] :is(#alertsTabContent,#notifTabContent) .tone-success.glow-local {
-  background: radial-gradient(170px 170px at 100% 0%, rgba(28,179,238,0.5), transparent 68%), rgba(18,59,40,0.55);
-}
-html[data-theme="dark"] :is(#alertsTabContent,#notifTabContent) .tone-success.glow-proxy {
-  background: radial-gradient(170px 170px at 100% 0%, rgba(255,138,92,0.5), transparent 68%), rgba(18,59,40,0.55);
-}
+/* Source corner glow — gradient wash in the top-right corner, indicating where a payment originated (cyan = store, orange = Buy For Me) */
+:is(#alertsTabContent,#notifTabContent) .tone-success.glow-local { background: radial-gradient(170px 170px at 100% 0%, rgba(10,155,220,0.5), transparent 68%), #fff; }
+:is(#alertsTabContent,#notifTabContent) .tone-success.glow-proxy { background: radial-gradient(170px 170px at 100% 0%, rgba(242,100,48,0.5), transparent 68%), #fff; }
+html[data-theme="dark"] :is(#alertsTabContent,#notifTabContent) .tone-success.glow-local { background: radial-gradient(170px 170px at 100% 0%, rgba(28,179,238,0.5), transparent 68%), linear-gradient(160deg,#1b3247 0%,#141f2f 100%); }
+html[data-theme="dark"] :is(#alertsTabContent,#notifTabContent) .tone-success.glow-proxy { background: radial-gradient(170px 170px at 100% 0%, rgba(255,138,92,0.5), transparent 68%), linear-gradient(160deg,#1b3247 0%,#141f2f 100%); }
 
 /* Payment summary block */
 :is(#alertsTabContent,#notifTabContent) .payment-summary-block { display: flex; align-items: center; justify-content: space-between; margin-bottom: 9px; padding: 10px 12px; background: rgba(255,255,255,0.5); border-radius: 12px; }
