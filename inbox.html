@@ -5835,6 +5835,7 @@ function closeOrderDetailsModal() {
   const attMime = a => (a && (a.mime || a.type)) || "";
   const attKind = a => {
     const t = attMime(a), k = a && a.type;
+    if(k === "audio") return "audio";   // Instagram voice notes arrive as audio but with a video/mp4 mime
     if(/^image\//.test(t) || k === "image") return "image";
     if(/^video\//.test(t) || k === "video") return "video";
     if(/^audio\//.test(t) || k === "audio") return "audio";
