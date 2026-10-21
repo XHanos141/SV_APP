@@ -908,11 +908,11 @@ html[data-theme="dark"] .draft-row-amount { color: #ffffff; }
 }
 .src-badge.facebook  { background:rgba(24,119,242,0.1);  color:#1877F2; border-color:rgba(24,119,242,0.25); }
 .src-badge.whatsapp  { background:rgba(37,211,102,0.1);  color:#25D366; border-color:rgba(37,211,102,0.25); }
-.src-badge.website   { background:rgba(124,111,247,0.1); color:#7C6FF7; border-color:rgba(124,111,247,0.25); }
+.src-badge.website   { background:rgba(10,155,220,0.1); color:#0A9BDC; border-color:rgba(10,155,220,0.25); }
 .src-badge.instagram { background:rgba(214,42,123,0.1);  color:#d62a7b; border-color:rgba(214,42,123,0.25); }
 html[data-theme="dark"] .src-badge.facebook  { background:rgba(24,119,242,0.15); border-color:rgba(24,119,242,0.3); }
 html[data-theme="dark"] .src-badge.whatsapp  { background:rgba(37,211,102,0.15); border-color:rgba(37,211,102,0.3); }
-html[data-theme="dark"] .src-badge.website   { background:rgba(124,111,247,0.15);border-color:rgba(124,111,247,0.3); }
+html[data-theme="dark"] .src-badge.website   { background:rgba(10,155,220,0.15);border-color:rgba(10,155,220,0.3); }
 html[data-theme="dark"] .src-badge.instagram { background:rgba(214,42,123,0.15); border-color:rgba(214,42,123,0.3); }
 
 /* Status Dropdown */
@@ -6065,7 +6065,7 @@ html[data-theme="dark"] .tx-order-id {
   display:inline-flex; align-items:center; justify-content:center;
 }
 .tx-channel-tag.facebook  { background:rgba(24,119,242,0.1);  color:#1877F2; }
-.tx-channel-tag.website   { background:rgba(124,111,247,0.1); color:#7C6FF7; }
+.tx-channel-tag.website   { background:rgba(10,155,220,0.1); color:#0A9BDC; }
 .tx-channel-tag.whatsapp  { background:rgba(37,211,102,0.1);  color:#25D366; }
 .tx-channel-tag.instagram { background:rgba(214,42,123,0.1);  color:#d62a7b; }
 .tx-date {
@@ -13531,7 +13531,7 @@ function ovRenderOrder() {
 }
 
 function srcIconBg(name) {
-  return { WhatsApp: '#25D366', Facebook: '#1877F2', Website: '#7c6ff7', Instagram: 'linear-gradient(135deg,#f58529 0%,#dd2a7b 50%,#8134af 100%)' }[name] || '#334155';
+  return { WhatsApp: '#25D366', Facebook: '#1877F2', Website: '#0A9BDC', Instagram: 'linear-gradient(135deg,#f58529 0%,#dd2a7b 50%,#8134af 100%)' }[name] || '#334155';
 }
 function srcIconSvg(name) {
   const icons = {
@@ -28190,7 +28190,7 @@ const AL_PX_CHANNEL = {
   messenger: { label:'Messenger', color:'#1877F2', icon:'facebook' },
   facebook:  { label:'Messenger', color:'#1877F2', icon:'facebook' },
   instagram: { label:'Instagram', color:'#E1306C', icon:'instagram' },
-  website:   { label:'Website',   color:'#7c6ff7', icon:null }
+  website:   { label:'Website',   color:'#0A9BDC', icon:null }
 };
 
 function al_pxStatus(st){ return AL_PX_STATUS[st] || { label:String(st||'').replace(/_/g,' '), sev:'proxy' }; }
@@ -28906,7 +28906,7 @@ let draftReturns = []; // array to store draft returns
 
 /* source-icon helpers (the Overview copy lives inside the sv-ov-src iframe source, so the main app needs its own) */
 function srcIconBg(name) {
-  return { WhatsApp: '#25D366', Facebook: '#1877F2', Website: '#7c6ff7', Instagram: 'linear-gradient(135deg,#f58529 0%,#dd2a7b 50%,#8134af 100%)' }[name] || '#334155';
+  return { WhatsApp: '#25D366', Facebook: '#1877F2', Website: '#0A9BDC', Instagram: 'linear-gradient(135deg,#f58529 0%,#dd2a7b 50%,#8134af 100%)' }[name] || '#334155';
 }
 function srcIconSvg(name) {
   const icons = {
