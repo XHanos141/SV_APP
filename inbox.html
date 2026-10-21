@@ -5462,13 +5462,32 @@ function closeOrderDetailsModal() {
   const isNoteMsg = (m) => !!m && (m.sender_type === "note" || m.is_internal === true);
   let lastMsg = null;   // { sender, ts, row } of the newest bubble on screen
 
+  // Instagram delivers each customer photo as its own message: show photos sent within 15s of each other as ONE stack (display only; the DB rows stay separate)
+  function isIgPhoto(m){
+    return !!m && m.channel === "instagram" && m.sender_type === "customer" && /^\[image\]$/i.test(String(m.content || "").trim()) &&
+      Array.isArray(m.attachments) && m.attachments.length > 0 && m.attachments.every(a => a && !a.failed && a.type === "image");
+  }
+  function canMergeIgPhoto(prev, m){
+    return isIgPhoto(prev) && isIgPhoto(m) && (Date.parse(m.created_at) - Date.parse(prev._lastTs || prev.created_at)) < 15000;
+  }
+  function mergeIgPhotoRuns(messages){
+    const out = [];
+    messages.forEach(m => {
+      const prev = out[out.length - 1];
+      if(prev && canMergeIgPhoto(prev, m)) out[out.length - 1] = Object.assign({}, prev, { attachments: prev.attachments.concat(m.attachments), _lastTs: m.created_at });
+      else out.push(m);
+    });
+    return out;
+  }
+
   function renderMessages(messages){
     els.threadMessages.innerHTML = "";
     els.threadMessages.classList.remove("msgs-in"); void els.threadMessages.offsetWidth; els.threadMessages.classList.add("msgs-in");
     state.activeMessages = messages.slice();
     lastMsg = null;
     let lastDateStr = null;
-    messages.forEach((m, i) => {
+    const disp = mergeIgPhotoRuns(messages);
+    disp.forEach((m, i) => {
       const dateStr = new Date(m.created_at).toDateString();
       if(dateStr !== lastDateStr){
         els.threadMessages.appendChild(buildDayDivider(m.created_at));
@@ -5478,12 +5497,12 @@ function closeOrderDetailsModal() {
       const note = isNoteMsg(m);
       const ts = new Date(m.created_at).getTime();
       const tight = !note && !!lastMsg && lastMsg.sender === m.sender_type && (ts - lastMsg.ts) < GROUP_MS;
-      const next = messages[i + 1];
+      const next = disp[i + 1];
       const groupedWithNext = !note && !!next && !isNoteMsg(next) && next.sender_type === m.sender_type &&
         new Date(next.created_at).toDateString() === dateStr && (new Date(next.created_at).getTime() - ts) < GROUP_MS;
       const row = buildMessageRow(m, tight, !groupedWithNext);
       els.threadMessages.appendChild(row);
-      lastMsg = note ? null : { sender:m.sender_type, ts, row };
+      lastMsg = note ? null : { sender:m.sender_type, ts, row, m };
     });
     els.threadMessages.scrollTop = els.threadMessages.scrollHeight;
     const conv = state.conversations.find(c => c.id === state.activeConversationId);
@@ -5495,6 +5514,18 @@ function closeOrderDetailsModal() {
     if(m.sender_type === "admin" && !m.is_internal && pendingTexts.length){
       const pi = pendingTexts.findIndex(x => x.text === m.content);
       if(pi >= 0) pendingTexts[pi].remove();
+    }
+    if(lastMsg && lastMsg.m && lastMsg.row && lastMsg.row.isConnected && canMergeIgPhoto(lastMsg.m, m)){
+      const merged = Object.assign({}, lastMsg.m, { attachments: lastMsg.m.attachments.concat(m.attachments), _lastTs: m.created_at });
+      const old = lastMsg.row, nr = buildMessageRow(merged, old.classList.contains("tight"), true);
+      old.replaceWith(nr);
+      lastMsg = { sender:m.sender_type, ts:new Date(m.created_at).getTime(), row:nr, m:merged };
+      (state.activeMessages = state.activeMessages || []).push(m);
+      els.threadMessages.scrollTop = els.threadMessages.scrollHeight;
+      updateWindow(); updateTicks();
+      const cv = state.conversations.find(c => c.id === m.conversation_id);
+      if(cv){ cv.updated_at = m.created_at; if(!opts.skipLastMessage) cv.last_message = m.content || attLabel(m); }
+      return;
     }
     const dividers = els.threadMessages.querySelectorAll(".day-divider");
     const lastDivider = dividers[dividers.length - 1];
@@ -5510,7 +5541,7 @@ function closeOrderDetailsModal() {
     const row = buildMessageRow(m, tight, true);
     row.classList.add("msg-new");
     els.threadMessages.appendChild(row);
-    lastMsg = note ? null : { sender:m.sender_type, ts, row };
+    lastMsg = note ? null : { sender:m.sender_type, ts, row, m };
     els.threadMessages.scrollTop = els.threadMessages.scrollHeight;
     (state.activeMessages = state.activeMessages || []).push(m);
     updateWindow();
