@@ -3814,7 +3814,7 @@ function closeOrderDetailsModal() {
       const badges = r.channels.slice(0,3).map(ch => `<span class="channel-badge ${ch}">${channelBadgeSvg(ch)}</span>`).join("");
 
       let winTs = 0;
-      r.convs.forEach(x => { if(live(x.id) && x.channel === "messenger" && x.last_customer_message_at){ const t = Date.parse(x.last_customer_message_at); if(t > winTs) winTs = t; } });
+      r.convs.forEach(x => { if(live(x.id) && (x.channel === "messenger" || x.channel === "instagram") && x.last_customer_message_at){ const t = Date.parse(x.last_customer_message_at); if(t > winTs) winTs = t; } });
       const wi = winTs ? winBadgeInfo(winTs) : null;
       // our message is the latest one: customer's mini photo = seen, filled circle = delivered, hollow circle = sent
       // (Meta's read / delivery marks, 3s tolerance like the chat ticks)
@@ -5537,7 +5537,7 @@ function closeOrderDetailsModal() {
   var winTimer = null, winWasLocked = false;
   // ms left in the window; null when it doesn't apply (demo chats, channels not connected yet)
   function replyWindowLeft(conv){
-    if(!conv || !live(conv.id) || conv.channel !== "messenger") return null;
+    if(!conv || !live(conv.id) || (conv.channel !== "messenger" && conv.channel !== "instagram")) return null;
     if(!state.winReady) return null;                 // this chat's messages are still loading: don't guess
     let last = 0;
     (state.activeMessages || []).forEach(m => {
@@ -5606,7 +5606,7 @@ function closeOrderDetailsModal() {
       const body = { conversation_id:conv.id, text };
       if(files && files.length) body.attachments = files;
       if(extra) Object.assign(body, extra);
-      const { data, error } = await supabase.functions.invoke("meta-send", { body });
+      const { data, error } = await supabase.functions.invoke(conv.channel === "instagram" ? "ig-send" : "meta-send", { body });
       let res = data;
       if(error){ try{ res = await error.context.json(); }catch(_){ res = { ok:false, error:"Couldn't reach the server. Try again." }; } }
       if(beforeRows) beforeRows();             // drop the temporary "sending" bubble first
@@ -5637,7 +5637,7 @@ function closeOrderDetailsModal() {
     const conv = state.conversations.find(c => c.id === state.activeConversationId);
 
     if(live(state.activeConversationId) && !state.noteMode){
-      if(conv && conv.channel !== "messenger"){ showToast("Only Messenger replies are connected so far."); return; }
+      if(conv && conv.channel !== "messenger" && conv.channel !== "instagram"){ showToast("Only Messenger and Instagram replies are connected so far."); return; }
       if(replyLocked()){ showToast(WINDOW_CLOSED_MSG); updateWindow(); return; }
       if(!pendingAtts.length){
         const textUi = showSendingText(content);
