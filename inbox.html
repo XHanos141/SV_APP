@@ -2399,6 +2399,22 @@ html:not([data-theme="light"]) .odm-card { background: rgba(124,111,247,0.08); b
   .msg-thumb.is-loading, .msg-stack__card.is-loading{ background:linear-gradient(100deg,var(--surface-2) 30%,var(--surface) 50%,var(--surface-2) 70%); background-size:200% 100%; animation:ivShimmer 1.2s linear infinite; }
   @keyframes ivShimmer{ from{ background-position:200% 0; } to{ background-position:-200% 0; } }
   .msg-audio{ display:block; width:min(260px,68vw); height:40px; }
+  /* voice message bubble: same look as a text bubble (white/blue for the customer, blue for us) */
+  .msg-voice{ --vc-on:#2b74e3; --vc-off:rgba(43,116,227,.28); --vc-btn:#2b74e3; --vc-btn-fg:#fff; --vc-text:var(--text-1);
+    display:flex; align-items:center; gap:10px; width:min(250px,68vw); padding:8px 14px 8px 8px; border-radius:16px; color:var(--vc-text); }
+  .from-customer .msg-voice{ background:linear-gradient(160deg,#ffffff 0%,#eef4ff 100%); border:1px solid rgba(43,116,227,.5); border-bottom-left-radius:4px;
+    box-shadow:0 2px 4px rgba(15,22,33,.08), 0 12px 26px -6px rgba(43,116,227,.5), inset 0 1.5px 0 rgba(255,255,255,.95); }
+  html:not([data-theme="light"]) .from-customer .msg-voice{ background:linear-gradient(160deg,#1f3047 0%,#162130 100%); border-color:rgba(77,143,245,.45);
+    --vc-on:#6aa5ff; --vc-off:rgba(106,165,255,.3); box-shadow:0 2px 4px rgba(0,0,0,.3), 0 10px 24px -8px rgba(43,116,227,.45), inset 0 1px 0 rgba(255,255,255,.07); }
+  .from-admin .msg-voice{ --vc-on:#fff; --vc-off:rgba(255,255,255,.4); --vc-btn:#fff; --vc-btn-fg:#2b74e3; --vc-text:#fff; border:0; border-bottom-right-radius:4px;
+    background:linear-gradient(160deg,#3d84ee 0%,#2b74e3 100%); box-shadow:0 2px 3px rgba(26,85,194,.2), 0 8px 20px -6px rgba(43,116,227,.6); }
+  .msg-voice__btn{ flex:0 0 auto; width:36px; height:36px; border-radius:50%; border:0; background:var(--vc-btn); color:var(--vc-btn-fg); display:flex; align-items:center; justify-content:center; cursor:pointer; padding:0; box-shadow:0 2px 6px rgba(0,0,0,.18); }
+  .msg-voice__btn svg{ width:18px; height:18px; }
+  .msg-voice__btn:focus-visible, .msg-voice__bars:focus-visible{ outline:2px solid var(--vc-on); outline-offset:2px; }
+  .msg-voice__bars{ flex:1 1 auto; min-width:0; height:28px; display:flex; align-items:center; gap:2px; cursor:pointer; touch-action:none; }
+  .msg-voice__bars span{ flex:1 1 0; min-width:2px; border-radius:2px; background:var(--vc-off); transition:background .12s; }
+  .msg-voice__bars span.on{ background:var(--vc-on); }
+  .msg-voice__time{ flex:0 0 auto; font-size:12px; font-weight:600; font-variant-numeric:tabular-nums; min-width:34px; text-align:right; opacity:.85; }
   .msg-file--off{ opacity:.7; }
   .msg-img{ display:block; min-width:120px; min-height:90px; max-width:min(240px,68vw); max-height:260px; object-fit:cover; border-radius:14px; background:var(--surface-2); cursor:zoom-in; animation:svFade .3s ease both; }
   .msg-file{ display:flex; align-items:center; gap:10px; max-width:260px; padding:10px 12px; border-radius:14px; border:1px solid var(--hairline); background:var(--surface); color:var(--text-1); text-decoration:none; }
@@ -5959,6 +5975,56 @@ function closeOrderDetailsModal() {
       attQueue.set(a.path, waiters);
     });
   }
+  /* ---------- Voice message bubble (custom player) ---------- */
+  const VOICE_PLAY = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>';
+  const VOICE_PAUSE = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M6 5h4v14H6zM14 5h4v14h-4z"/></svg>';
+  let voiceActive = null;   // only one voice message plays at a time
+  function buildVoice(a){
+    const el = document.createElement("div"); el.className = "msg-voice";
+    const btn = document.createElement("button"); btn.type = "button"; btn.className = "msg-voice__btn"; btn.setAttribute("aria-label", "Play voice message"); btn.innerHTML = VOICE_PLAY;
+    const bars = document.createElement("div"); bars.className = "msg-voice__bars"; bars.tabIndex = 0; bars.setAttribute("role", "slider"); bars.setAttribute("aria-label", "Seek voice message"); bars.setAttribute("aria-valuemin", "0"); bars.setAttribute("aria-valuemax", "100"); bars.setAttribute("aria-valuenow", "0");
+    const N = 28; let seed = 0; const key = String(a.path || a.url || a.name || "voice");
+    for(let i = 0; i < key.length; i++) seed = (seed * 31 + key.charCodeAt(i)) >>> 0;
+    for(let i = 0; i < N; i++){ seed = (seed * 1664525 + 1013904223) >>> 0; const sp = document.createElement("span"); sp.style.height = (6 + Math.round((seed >>> 24) / 255 * 18)) + "px"; bars.appendChild(sp); }
+    const time = document.createElement("span"); time.className = "msg-voice__time"; time.textContent = "0:00";
+    el.append(btn, bars, time);
+
+    const au = document.createElement("audio"); au.preload = "metadata";
+    const fmt = t => { t = Math.max(0, Math.floor(t)); return Math.floor(t / 60) + ":" + String(t % 60).padStart(2, "0"); };
+    const dur = () => (isFinite(au.duration) && au.duration > 0) ? au.duration : 0;
+    const paint = () => {
+      const d = dur(), p = d ? Math.min(1, au.currentTime / d) : 0, on = Math.round(p * N);
+      Array.prototype.forEach.call(bars.children, (sp, i) => sp.classList.toggle("on", i < on));
+      bars.setAttribute("aria-valuenow", String(Math.round(p * 100)));
+      time.textContent = d ? fmt(au.currentTime > 0 && !au.ended ? d - au.currentTime : d) : fmt(au.currentTime);
+    };
+    const setIcon = () => { btn.innerHTML = au.paused ? VOICE_PLAY : VOICE_PAUSE; btn.setAttribute("aria-label", au.paused ? "Play voice message" : "Pause voice message"); };
+    au.addEventListener("loadedmetadata", () => {
+      if(au.duration === Infinity){ au.currentTime = 1e101; au.addEventListener("timeupdate", function fix(){ au.removeEventListener("timeupdate", fix); au.currentTime = 0; paint(); }); }
+      paint();
+    });
+    ["durationchange", "timeupdate", "seeked"].forEach(ev => au.addEventListener(ev, paint));
+    au.addEventListener("play", () => { voiceActive = au; setIcon(); });
+    au.addEventListener("pause", setIcon);
+    au.addEventListener("ended", () => { au.currentTime = 0; setIcon(); paint(); });
+    btn.addEventListener("click", e => {
+      e.stopPropagation();
+      if(!au.src) return;
+      if(au.paused){ if(voiceActive && voiceActive !== au) voiceActive.pause(); au.play().catch(() => {}); }
+      else au.pause();
+    });
+    const seekTo = ratio => { const d = dur(); if(!d) return; au.currentTime = Math.max(0, Math.min(1, ratio)) * d; paint(); };
+    bars.addEventListener("click", e => { e.stopPropagation(); const r = bars.getBoundingClientRect(); seekTo((e.clientX - r.left) / r.width); });
+    bars.addEventListener("keydown", e => {
+      const d = dur(); if(!d) return;
+      if(e.key === "ArrowRight"){ au.currentTime = Math.min(d, au.currentTime + 5); e.preventDefault(); }
+      else if(e.key === "ArrowLeft"){ au.currentTime = Math.max(0, au.currentTime - 5); e.preventDefault(); }
+    });
+    resolveAttUrl(a).then(u => { if(u) au.src = u; });
+    el.appendChild(au);
+    return el;
+  }
+
   function buildAttachments(list){
     const wrap = document.createElement("div");
     wrap.className = "msg-atts";
@@ -6086,10 +6152,7 @@ function closeOrderDetailsModal() {
         });
         thumbs.appendChild(box);
       }else if(kind === "audio"){
-        const au = document.createElement("audio");
-        au.className = "msg-audio"; au.controls = true; au.preload = "none";
-        resolveAttUrl(a).then(u => { if(u) au.src = u; });
-        wrap.appendChild(au);
+        wrap.appendChild(buildVoice(a));
       }else{
         const link = card("a", a.name || "File", fmtBytes(a.size || 0));
         link.target = "_blank"; link.rel = "noopener"; link.download = a.name || "file";
