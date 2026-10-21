@@ -2384,6 +2384,9 @@ html:not([data-theme="light"]) .odm-card { background: rgba(124,111,247,0.08); b
   .msg-thumb__play{ position:absolute; left:50%; top:50%; width:36px; height:36px; margin:-18px 0 0 -18px; border-radius:50%; background:rgba(0,0,0,.55); border:1.5px solid rgba(255,255,255,.85); color:#fff; display:flex; align-items:center; justify-content:center; pointer-events:none; }
   .msg-thumb__play svg{ width:16px; height:16px; margin-left:2px; }
   .msg-thumb:active{ transform:scale(.97); }
+  /* stickers / GIFs sent on their own: no grey photo frame, they sit directly on the chat background */
+  .msg-thumb--sticker{ width:132px; height:132px; background:transparent !important; border:0; border-radius:0; overflow:visible; animation:none !important; }
+  .msg-thumb--sticker img{ object-fit:contain; }
   .msg-stack{ position:relative; width:140px; height:122px; flex:0 0 auto; padding:0; border:0; background:none; cursor:pointer; display:block; -webkit-tap-highlight-color:transparent; transition:transform .15s ease; }
   .msg-stack:active{ transform:scale(.97); }
   .msg-stack__card{ position:absolute; left:18px; top:8px; width:104px; height:104px; border-radius:14px; overflow:hidden; border:1px solid var(--hairline); background:var(--surface-2); box-shadow:0 6px 16px rgba(0,0,0,.22); transform-origin:50% 100%; transform:translateX(var(--x,0px)) rotate(var(--r,0deg)); animation:msgFan .5s cubic-bezier(.22,1,.36,1) both; }
@@ -6133,6 +6136,7 @@ function closeOrderDetailsModal() {
         if(!thumbs){ thumbs = document.createElement("div"); thumbs.className = "msg-thumbs"; wrap.appendChild(thumbs); }
         const box = document.createElement("button");
         box.type = "button"; box.className = "msg-thumb"; box.setAttribute("aria-label", kind === "video" ? "Play video" : "Open photo");
+        if(kind === "image" && list.length === 1 && /^image\/(gif|webp)$/.test(attMime(a))){ box.classList.add("msg-thumb--sticker"); box.setAttribute("aria-label", "Open sticker"); }
         if(kind === "image"){
           const img = document.createElement("img");
           img.alt = a.name || "Photo"; img.loading = "lazy";
