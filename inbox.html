@@ -4334,10 +4334,19 @@ function closeOrderDetailsModal() {
       box.innerHTML = '<div class="empty-note">Search failed. Try again.</div>';
     }
   }
+  async function confirmFingerprint(){
+    let fp = null;
+    try{ fp = window.parent !== window ? window.parent.SVFingerprint : null; }catch(_){}
+    fp = fp || window.SVFingerprint;
+    if(!fp) return true;
+    try{ await fp.verify(); return true; }
+    catch(err){ showToast((err && err.message) || "Fingerprint confirmation failed"); return false; }
+  }
   async function linkConversation(customerId){
     const conv = sheet.conv, cl = hubClient();
     if(!conv || !conv.id || !live(conv.id) || !customerId || !cl) return;
     if(!conv.external_thread_id){ showToast("This chat has no platform id to link."); return; }
+    if(!(await confirmFingerprint())) return;
     try{
       const { error: e1 } = await cl.from("customer_channels").upsert(
         { customer_id:customerId, channel:conv.channel, external_id:conv.external_thread_id, display_name:conv.customer_name || null },
@@ -4361,6 +4370,7 @@ function closeOrderDetailsModal() {
   async function unlinkConversation(){
     const conv = sheet.conv, cl = hubClient();
     if(!conv || !conv.id || !live(conv.id) || !conv.customer_id || !cl) return;
+    if(!(await confirmFingerprint())) return;
     try{
       if(conv.external_thread_id){
         const { error: e1 } = await cl.from("customer_channels").delete().eq("channel", conv.channel).eq("external_id", conv.external_thread_id);
