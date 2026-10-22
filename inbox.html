@@ -5484,9 +5484,9 @@ function closeOrderDetailsModal() {
   const isNoteMsg = (m) => !!m && (m.sender_type === "note" || m.is_internal === true);
   let lastMsg = null;   // { sender, ts, row } of the newest bubble on screen
 
-  // Instagram delivers each customer photo as its own message: show photos sent within 15s of each other as ONE stack (display only; the DB rows stay separate)
+  // Instagram and WhatsApp deliver each customer photo as its own message: show photos sent within 15s of each other as ONE stack (display only; the DB rows stay separate)
   function isIgPhoto(m){
-    return !!m && m.channel === "instagram" && m.sender_type === "customer" && /^\[image\]$/i.test(String(m.content || "").trim()) &&
+    return !!m && (m.channel === "instagram" || m.channel === "whatsapp") && m.sender_type === "customer" && /^\[image\]$/i.test(String(m.content || "").trim()) &&
       Array.isArray(m.attachments) && m.attachments.length > 0 && m.attachments.every(a => a && !a.failed && a.type === "image");
   }
   function canMergeIgPhoto(prev, m){
