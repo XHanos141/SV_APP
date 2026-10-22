@@ -3752,8 +3752,9 @@ function closeOrderDetailsModal() {
       const unread = r.unread > 0;
       const rowCust = c.customer_key ? CUSTOMER_CACHE[c.customer_key] : null;
       const rowIsRegistered = !!rowCust && rowCust.status === "registered";
-      const avatarHtml = c.customer_avatar
-        ? `<img class="avatar" src="${escapeHtml(c.customer_avatar)}" alt="" onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'avatar-initials',style:'background:${hashColor(c.customer_name || "?")}',textContent:'${initials(c.customer_name)}'}))">`
+      const rowAvatar = (["messenger","instagram","whatsapp"].map(ch => (r.convs.find(x => x.channel === ch && x.customer_avatar) || {}).customer_avatar).find(Boolean)) || c.customer_avatar;
+      const avatarHtml = rowAvatar
+        ? `<img class="avatar" src="${escapeHtml(rowAvatar)}" alt="" onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'avatar-initials',style:'background:${hashColor(c.customer_name || "?")}',textContent:'${initials(c.customer_name)}'}))">`
         : `<div class="avatar-initials" style="background:${hashColor(c.customer_name || "?")}">${initials(c.customer_name)}</div>`;
       const badges = r.channels.slice(0,3).map(ch => `<span class="channel-badge ${ch}">${channelBadgeSvg(ch)}</span>`).join("");
 
