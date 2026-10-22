@@ -2181,6 +2181,28 @@ html:not([data-theme="light"]) .odm-card { background: rgba(124,111,247,0.08); b
   #csLinkSearch::placeholder{ color:var(--text-3); }
   #csLinkSearch:focus{ border-color:#7C6FF7; box-shadow:0 0 0 3px rgba(124,111,247,.12); }
   .cs-linkrow{ width:100%; text-align:left; background:none; border:0; border-bottom:1px solid var(--hairline); cursor:pointer; color:inherit; font:inherit; display:flex; align-items:center; gap:12px; }
+
+  /* ---------- Link to customer: centered blue popup ---------- */
+  .cust-sheet.is-popup{
+    left:50%; right:auto; top:50%; bottom:auto;
+    width:min(420px, calc(100vw - 32px));
+    max-height:min(560px, 80dvh);
+    border-radius:22px;
+    border:1px solid rgba(43,116,227,.35);
+    background:var(--surface);
+    box-shadow:0 24px 60px rgba(8,30,80,.45), 0 0 0 1px rgba(43,116,227,.08);
+    transform:translate(-50%,-46%) scale(.94); opacity:0;
+    transition:transform .26s var(--ease-out), opacity .2s ease, visibility 0s linear .26s;
+  }
+  .cust-sheet.is-popup.open{ transform:translate(-50%,-50%) scale(1); opacity:1; transition-delay:0s; }
+  .cust-sheet.is-popup .cs-head{ border-radius:22px 22px 0 0; background:linear-gradient(180deg,rgba(43,116,227,.16),rgba(43,116,227,.04)); border-bottom:1px solid rgba(43,116,227,.22); }
+  .cust-sheet.is-popup .cust-sheet__scroll{ padding:14px 16px 18px; }
+  .cs-linkview{ background:rgba(43,116,227,.07); border:1px solid rgba(43,116,227,.28); border-radius:16px; padding:12px; }
+  #csLinkSearch{ border-color:rgba(43,116,227,.45); background:var(--surface); }
+  #csLinkSearch:focus{ border-color:#2B74E3; box-shadow:0 0 0 3px rgba(43,116,227,.22); }
+  .cs-linkview .empty-note{ background:rgba(43,116,227,.08); border:1px dashed rgba(43,116,227,.4); color:#2B74E3; margin-top:10px; }
+  .cs-linkview .cs-linkrow:active{ background:rgba(43,116,227,.1); }
+  .cs-linkview .cust-list-row__id{ color:#2B74E3; }
   #hubSearch:focus{ border-color:#7C6FF7; box-shadow:0 0 0 3px rgba(124,111,247,.12); }
   .hub-count{ font-size:11px; font-weight:800; padding:4px 10px; border-radius:999px; background:rgba(255,255,255,.12); color:#fff; white-space:nowrap; }
   .hub-count:empty{ display:none; }
@@ -4279,7 +4301,6 @@ function closeOrderDetailsModal() {
   function buildLinkView(conv){
     const lbl = (CHANNEL_META[conv.channel] && CHANNEL_META[conv.channel].label) || "chat";
     return `<div class="cs-linkview">
-      <p class="cs-fineprint" style="margin:0 0 8px;text-align:left">Find the registered customer who owns this ${escapeHtml(lbl)} account (${escapeHtml(conv.customer_name || "unknown")}).</p>
       <input id="csLinkSearch" type="search" inputmode="search" placeholder="Search name, email, phone or CU-ID" autocomplete="off" aria-label="Search registered customers">
       <div id="csLinkResults"><div class="empty-note">Type at least 2 characters.</div></div>
     </div>`;
@@ -4542,6 +4563,8 @@ function closeOrderDetailsModal() {
     els.custSheetHead.innerHTML = buildSheetHead(cust);
     els.custSheetHead.classList.toggle("cs-head--slim", sheet.view === "profile");
     els.custSheetHead.classList.remove("is-condensed");
+    els.custSheet.classList.toggle("is-popup", sheet.view === "link");
+    if(sheet.view === "link") els.custSheet.classList.remove("is-full");
     els.custSheetScroll.innerHTML = sheet.view === "order" ? buildOrderDetail(cust)
       : sheet.view === "orders" ? buildAllOrders(cust)
       : sheet.view === "link" ? buildLinkView(sheet.conv)
