@@ -3468,7 +3468,7 @@ function closeOrderDetailsModal() {
 
   /* =========================================================
      SUPABASE WIRING
-     Fill these in, or leave blank to preview with mock data.
+     Normally unused: the inbox reuses the host app's signed-in admin client.
      ========================================================= */
   const SUPABASE_URL = "";       // e.g. "https://tlkoxltugvfwxmnrthvr.supabase.co"
   const SUPABASE_ANON_KEY = "";  // your anon public key
@@ -3523,117 +3523,12 @@ function closeOrderDetailsModal() {
     ordersCount: document.getElementById("ordersCount")
   };
 
-  /* ---------- Mock data (used only when Supabase isn't configured) ---------- */
-  // ---------- Mock customer identity records (backend: `customers` + `customer_channels` tables) ----------
-  // A customer_id links multiple conversations across different platforms to ONE real person.
-  // "registered" customers have a SuppVerse account (Customer ID, orders on file).
-  // "guest" customers have only chatted with us — no account, so no order history to show.
-  const MOCK_CUSTOMERS = {
-    cu1042: {
-      customer_id: "CU-1042",
-      name: "Tanvir Ahmed",
-      status: "registered",
-      match_confidence: "strong",   // matched by phone number across channels
-      phone: "01712-345678",
-      address: "House 14, Road 7, Dhanmondi, Dhaka 1205",   // mock
-      email: "tanvir.ahmed@gmail.com",
-      customer_since: "2025-11-08T00:00:00.000Z",   // mock
-      channels: ["messenger", "whatsapp"],
-      channel_handles: { messenger:"Tanvir Ahmed" },   // mock; live = customer_channels.display_name
-      current_order: { id:"SV-1014", payment_status:"Unpaid", amount:1800, status:"Pending", items:"Magnesium Glycinate", lines:[{ name:"Magnesium Glycinate", category:"supplement", subcategory:"Magnesium", qty:1, price:1800, spec:"400 mg \u2022 120 Capsules", sku:"DB-MAG-GLY-120" }], placed_at:new Date(Date.now()-6*86400000).toISOString() },
-      past_orders: [
-        { id:"SV-1012", payment_status:"Paid", payment_method:"bkash", txn:"BK3H8P2M1Z", sender:"01712345678", lines:[{ name:"Betaine HCL & Pepsin", category:"supplement", subcategory:"Digestive", qty:1, price:2400, spec:"650 mg \u2022 120 Capsules", sku:"DB-HCI-PEP-120" }], amount:2400, status:"Delivered", placed_at:new Date(Date.now()-32*86400000).toISOString() },
-        { id:"SV-1006", payment_status:"Paid", payment_method:"nagad", lines:[{ name:"Vitamin D3 + K2", category:"supplement", subcategory:"Vitamins", qty:1, price:1200, spec:"5000 IU \u2022 60 Capsules", sku:"DB-D3K2-60" }], amount:1200, status:"Delivered", placed_at:new Date(Date.now()-68*86400000).toISOString() }
-      ]
-    },
-    cu1103: {
-      customer_id: "CU-1103",
-      name: "Rakibul Islam",
-      status: "registered",
-      match_confidence: "strong",
-      phone: "01818-902233",
-      address: "Zindabazar, Sylhet 3100",   // mock
-      email: "rakibul.islam@yahoo.com",
-      customer_since: "2026-02-19T00:00:00.000Z",   // mock
-      channels: ["whatsapp"],
-      current_order: null,
-      past_orders: [
-        { id:"SV-1013", payment_status:"Paid", amount:3200, status:"Delivered", placed_at:new Date(Date.now()-14*86400000).toISOString() },
-        { id:"SV-1015", payment_status:"Paid", amount:950, status:"Shipped", placed_at:new Date(Date.now()-2*86400000).toISOString() },
-        { id:"SV-1016", payment_status:"Unpaid", amount:1500, status:"Cancelled", placed_at:new Date(Date.now()-52*86400000).toISOString() },
-        { id:"PX-1011", payment_status:"Paid", amount:36050, status:"Pending", placed_at:new Date(Date.now()-9*86400000).toISOString() },
-        { id:"RT-1001", payment_status:"Refunded", amount:950, status:"Returned", placed_at:new Date(Date.now()-1*86400000).toISOString() }
-      ]
-    },
-    guest_farzana: {
-      customer_id: null,
-      name: "Farzana Akter",
-      status: "guest",           // no SuppVerse account found — chat-only identity
-      match_confidence: "weak",  // matched by name similarity only — needs staff confirmation
-      phone: null,
-      email: null,
-      channels: ["instagram", "messenger"],
-      channel_handles: { instagram:"@farzana.akter", messenger:"Farzana Akter" },   // mock
-      first_seen: new Date(Date.now()-86400000).toISOString(),
-      current_order: null,
-      past_orders: []
-    }
-  };
-
-  const MOCK_CONVERSATIONS = [
-    { id:"m1", customer_name:"Nusrat Jahan", customer_avatar:"", customer_key:null, channel:"whatsapp", last_message:"Is the whey protein back in stock?", updated_at:new Date(Date.now()-2*60000).toISOString(), unread_count:2, convo_status:"waiting", assigned_to:null },
-    { id:"m2", customer_name:"Tanvir Ahmed", customer_avatar:"", customer_key:"cu1042", channel:"messenger", last_message:"Order #SV-1014 hasn't arrived yet", updated_at:new Date(Date.now()-58*60000).toISOString(), unread_count:1, convo_status:"assigned", assigned_to:"Shuvo" },
-    { id:"m3", customer_name:"Farzana Akter", customer_avatar:"", customer_key:"guest_farzana", channel:"instagram", last_message:"Can I get a discount on bulk order?", updated_at:new Date(Date.now()-3*3600000).toISOString(), unread_count:0, convo_status:"waiting", assigned_to:null },
-    { id:"m4", customer_name:"Rakibul Islam", customer_avatar:"", customer_key:"cu1103", channel:"whatsapp", last_message:"Thanks, received it in good condition!", updated_at:new Date(Date.now()-26*3600000).toISOString(), unread_count:0, convo_status:"done", assigned_to:"Shuvo" },
-    { id:"m5", customer_name:"Sadia Islam", customer_avatar:"", customer_key:null, channel:"messenger", last_message:"Do you ship to Chattogram?", updated_at:new Date(Date.now()-3*86400000).toISOString(), unread_count:3, convo_status:"waiting", assigned_to:null },
-    { id:"m6", customer_name:"Tanvir Ahmed", customer_avatar:"", customer_key:"cu1042", channel:"whatsapp", last_message:"Also is COD available?", updated_at:new Date(Date.now()-40*3600000).toISOString(), unread_count:0, convo_status:"done", assigned_to:"Ripa" },
-    { id:"m7", customer_name:"Farzana Akter", customer_avatar:"", customer_key:"guest_farzana", channel:"messenger", last_message:"Hi, is this the same SuppVerse from Instagram?", updated_at:new Date(Date.now()-5*3600000).toISOString(), unread_count:1, convo_status:"assigned", assigned_to:"Ripa" }
-  ];
-
-  const MOCK_MESSAGES = {
-    m1: [
-      { sender_type:"admin", content:"Hi Nusrat! Thanks for reaching out 😊", created_at:new Date(Date.now()-2*86400000).toISOString() },
-      { sender_type:"customer", content:"Hi, I wanted to ask about the whey protein", created_at:new Date(Date.now()-2*86400000+5*60000).toISOString() },
-      { sender_type:"admin", content:"Sure, which flavor are you looking for?", created_at:new Date(Date.now()-1*86400000).toISOString() },
-      { sender_type:"customer", content:"Chocolate, the 2kg pack", created_at:new Date(Date.now()-10*60000).toISOString() },
-      { sender_type:"customer", content:"Is the whey protein back in stock?", created_at:new Date(Date.now()-2*60000).toISOString() }
-    ],
-    m2: [
-      { sender_type:"customer", content:"Hello, I placed an order last week", created_at:new Date(Date.now()-3*3600000).toISOString() },
-      { sender_type:"admin", content:"Hi Tanvir, could you share your order ID?", created_at:new Date(Date.now()-2*3600000).toISOString() },
-      { sender_type:"customer", content:"It's SV-1014", created_at:new Date(Date.now()-70*60000).toISOString() },
-      { sender_type:"customer", content:"Order #SV-1014 hasn't arrived yet", created_at:new Date(Date.now()-58*60000).toISOString() }
-    ],
-    m3: [
-      { sender_type:"customer", content:"Hi! Love your products", created_at:new Date(Date.now()-1*86400000).toISOString() },
-      { sender_type:"admin", content:"Thank you so much! 🙏", created_at:new Date(Date.now()-1*86400000+8*60000).toISOString() },
-      { sender_type:"customer", content:"Can I get a discount on bulk order?", created_at:new Date(Date.now()-3*3600000).toISOString() }
-    ],
-    m4: [
-      { sender_type:"customer", content:"Package arrived today!", created_at:new Date(Date.now()-27*3600000).toISOString() },
-      { sender_type:"customer", content:"Thanks, received it in good condition!", created_at:new Date(Date.now()-26*3600000).toISOString() },
-      { sender_type:"admin", content:"So glad to hear that! Thanks for shopping with us 💚", created_at:new Date(Date.now()-25*3600000).toISOString() }
-    ],
-    m5: [
-      { sender_type:"customer", content:"Hi, do you deliver outside Dhaka?", created_at:new Date(Date.now()-4*86400000).toISOString() },
-      { sender_type:"admin", content:"Yes we do! Which city are you in?", created_at:new Date(Date.now()-3*86400000-3600000).toISOString() },
-      { sender_type:"customer", content:"Chattogram", created_at:new Date(Date.now()-3*86400000-1800000).toISOString() },
-      { sender_type:"customer", content:"Do you ship to Chattogram?", created_at:new Date(Date.now()-3*86400000).toISOString() }
-    ],
-    m6: [
-      { sender_type:"customer", content:"Hi it's Tanvir again, messaging from WhatsApp this time", created_at:new Date(Date.now()-41*3600000).toISOString() },
-      { sender_type:"customer", content:"Also is COD available?", created_at:new Date(Date.now()-40*3600000).toISOString() }
-    ],
-    m7: [
-      { sender_type:"customer", content:"Hi, is this the same SuppVerse from Instagram?", created_at:new Date(Date.now()-5*3600000).toISOString() }
-    ]
-  };
+  /* ---------- Customer identity cache ---------- */
+  // Filled at runtime from the `customers` table (see hydrateLinks), keyed by the conversation's customer_key.
+  const CUSTOMER_CACHE = {};
 
   /* ---------- Supabase data layer ---------- */
-  // Demo chats stay visible beside the live ones until the demo data is retired (set false to hide them).
-  const SHOW_DEMO = true;
-  const isDemoId = id => typeof id === "string" && /^m\d+$/.test(id);   // demo ids are m1, m2…; real ones are UUIDs
-  const live = id => !!supabase && !isDemoId(id);                        // true only for real conversations
+  const live = id => !!supabase && !!id;                                 // true once the admin Supabase client is connected
   const seenIds = new Set();                                              // message ids already on screen (realtime + own sends)
   // Same signed-in admin client the host app uses (RLS: admins only), so no second login and no key in this file.
   function adminClient(){
@@ -3648,7 +3543,7 @@ function closeOrderDetailsModal() {
       }catch(_){ client = null; }
     }
     if(!client){
-      state.conversations = MOCK_CONVERSATIONS;
+      state.conversations = [];
       render();
       return;
     }
@@ -3657,8 +3552,8 @@ function closeOrderDetailsModal() {
       await fetchConversations();
       subscribeRealtime();
     }catch(err){
-      console.error("Supabase init failed, falling back to mock data:", err);
-      state.conversations = MOCK_CONVERSATIONS;
+      console.error("Supabase init failed:", err);
+      state.conversations = [];
       render();
     }
   }
@@ -3671,11 +3566,11 @@ function closeOrderDetailsModal() {
 
     if(error){
       console.error("fetchConversations error:", error);
-      state.conversations = SHOW_DEMO ? MOCK_CONVERSATIONS : [];
+      state.conversations = [];
       render();
       return;
     }
-    state.conversations = (data || []).concat(SHOW_DEMO ? MOCK_CONVERSATIONS : []);
+    state.conversations = data || [];
     await hydrateLinks();
     render();
     updateTicks();
@@ -3752,7 +3647,7 @@ function closeOrderDetailsModal() {
         }
       }
       if(state.custTypeFilter !== "all"){
-        const cust = c.customer_key ? MOCK_CUSTOMERS[c.customer_key] : null;
+        const cust = c.customer_key ? CUSTOMER_CACHE[c.customer_key] : null;
         const custStatus = cust ? cust.status : "guest";
         if(custStatus !== state.custTypeFilter) return false;
       }
@@ -3833,7 +3728,7 @@ function closeOrderDetailsModal() {
     els.list.innerHTML = rows.map(r => {
       const c = r.latest;
       const unread = r.unread > 0;
-      const rowCust = c.customer_key ? MOCK_CUSTOMERS[c.customer_key] : null;
+      const rowCust = c.customer_key ? CUSTOMER_CACHE[c.customer_key] : null;
       const rowIsRegistered = !!rowCust && rowCust.status === "registered";
       const avatarHtml = c.customer_avatar
         ? `<img class="avatar" src="${escapeHtml(c.customer_avatar)}" alt="" onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'avatar-initials',style:'background:${hashColor(c.customer_name || "?")}',textContent:'${initials(c.customer_name)}'}))">`
@@ -4055,7 +3950,7 @@ function closeOrderDetailsModal() {
   const CHANNEL_ICON_CLASS = { messenger:"fb", instagram:"ig", whatsapp:"wa" };
 
   function getCustomerRecord(conv){
-    return conv.customer_key ? MOCK_CUSTOMERS[conv.customer_key] : null;
+    return conv.customer_key ? CUSTOMER_CACHE[conv.customer_key] : null;
   }
 
   /* ---------- Chat: status, channel switch, order strip, actions menu, composer modes ---------- */
@@ -4240,7 +4135,7 @@ function closeOrderDetailsModal() {
     applyComposerMode(b.dataset.mode === "note", true);
   });
 
-  /* ---------- Customer profile sheet (frontend-only; tags/notes live in local mock state) ---------- */
+  /* ---------- Customer profile sheet (frontend-only; tags/notes live in local state) ---------- */
   const profileLocal = {};            // { [customer_key]: { tags:[], notes:[{text, at}] } }
   const sheet = { conv:null, view:"profile", orderId:null, full:false, tagInput:false, noteForm:false, noteEdit:null, noteDel:null, lastFocus:null };
   const TAG_MAX = 8, TAG_LEN = 24, NOTE_LEN = 300;
@@ -4351,13 +4246,13 @@ function closeOrderDetailsModal() {
       }
     });
     const key = "link_" + c.customer_code;
-    MOCK_CUSTOMERS[key] = { customer_id:c.customer_code, name:c.name, status:"registered", phone:c.phone || null, email:c.email || null, address:c.address || null,
+    CUSTOMER_CACHE[key] = { customer_id:c.customer_code, name:c.name, status:"registered", phone:c.phone || null, email:c.email || null, address:c.address || null,
       customer_since:c.since, avatar_url:c.avatar_url || "", channels:chans, channel_handles:handles, current_orders:cur, past_orders:recs.filter(x => cur.indexOf(x) < 0) };
     linkCache[customerId] = { key, at:Date.now() };
     return key;
   }
   async function hydrateLinks(){
-    const liveConvs = (state.conversations || []).filter(c => c.customer_id && !isDemoId(c.id));
+    const liveConvs = (state.conversations || []).filter(c => c.customer_id);
     const ids = [...new Set(liveConvs.map(c => c.customer_id))];
     for(const id of ids){
       try{
@@ -4431,7 +4326,7 @@ function closeOrderDetailsModal() {
       conv.customer_id = customerId;
       const key = await loadLinkedCustomer(customerId, true);
       (state.conversations || []).forEach(c => { if(c.customer_id === customerId) c.customer_key = key || null; });
-      const rec = key ? MOCK_CUSTOMERS[key] : null;
+      const rec = key ? CUSTOMER_CACHE[key] : null;
       showToast(rec ? "Linked to " + (rec.name || "customer") : "Linked, but the profile couldn't be loaded");
       goView("profile");
       render();
@@ -5158,9 +5053,8 @@ function closeOrderDetailsModal() {
       }
       seenIds.clear(); messages.forEach(m => { if(m.id) seenIds.add(m.id); });
       subscribeMessagesRealtime(conv.id);
-    }else{
-      if(messagesRealtimeChannel && supabase){ supabase.removeChannel(messagesRealtimeChannel); messagesRealtimeChannel = null; }
-      messages = MOCK_MESSAGES[conv.id] || [];
+    }else if(messagesRealtimeChannel && supabase){
+      supabase.removeChannel(messagesRealtimeChannel); messagesRealtimeChannel = null;
     }
 
     renderMessages(messages);
@@ -5240,9 +5134,6 @@ function closeOrderDetailsModal() {
           console.error("deleteNote error:", error || "no row deleted (check delete policy)");
           b.disabled = false; card.classList.remove("confirming"); showToast("Couldn't delete note"); return;
         }
-      }else{
-        const arr = MOCK_MESSAGES[state.activeConversationId];
-        if(arr){ const i = arr.indexOf(m); if(i > -1) arr.splice(i, 1); }
       }
       row.classList.add("note-row--out"); setTimeout(() => row.remove(), 220); showToast("Note deleted");
     });
@@ -5623,7 +5514,7 @@ function closeOrderDetailsModal() {
   var REPLY_WINDOW_MS = 24 * 60 * 60 * 1000;
   var WINDOW_CLOSED_MSG = "The 24-hour reply window has closed. You can reply again after the customer messages you.";
   var winTimer = null, winWasLocked = false;
-  // ms left in the window; null when it doesn't apply (demo chats, channels not connected yet)
+  // ms left in the window; null when it doesn't apply (channels not connected yet)
   function replyWindowLeft(conv){
     if(!conv || !live(conv.id) || (conv.channel !== "messenger" && conv.channel !== "instagram" && conv.channel !== "whatsapp")) return null;
     if(!state.winReady) return null;                 // this chat's messages are still loading: don't guess
@@ -5806,9 +5697,6 @@ function closeOrderDetailsModal() {
           const open = els.threadMessages.querySelectorAll(".note-row:not([data-msg-id])");
           if(open.length) open[open.length - 1].dataset.msgId = ins.id;
         }
-      }else if(conv){
-        MOCK_MESSAGES[conv.id] = MOCK_MESSAGES[conv.id] || [];
-        MOCK_MESSAGES[conv.id].push(note);
       }
       return;
     }
@@ -5835,9 +5723,6 @@ function closeOrderDetailsModal() {
       if(conv){
         await supabase.from("conversations").update({ last_message: content || attLabel(message), updated_at: message.created_at }).eq("id", conv.id);
       }
-    }else if(conv){
-      MOCK_MESSAGES[conv.id] = MOCK_MESSAGES[conv.id] || [];
-      MOCK_MESSAGES[conv.id].push(message);
     }
   });
 
@@ -7252,7 +7137,7 @@ function closeOrderDetailsModal() {
       });
       const cur = recs.filter(o => o.status === "Pending" || o.status === "Shipped");
       const key = "live_" + code;
-      MOCK_CUSTOMERS[key] = { customer_id:c.customer_code, name:c.name, status:"registered", phone:c.phone || null, email:c.email || null, address:c.address || null,
+      CUSTOMER_CACHE[key] = { customer_id:c.customer_code, name:c.name, status:"registered", phone:c.phone || null, email:c.email || null, address:c.address || null,
         customer_since:c.since, avatar_url:c.avatar_url || "", channels:[], current_orders:cur, past_orders:recs.filter(o => cur.indexOf(o) < 0) };
       openCustomerPanel({ customer_key:key, customer_name:c.name, channel:null });
     }catch(err){ console.error("Open customer profile failed:", err); }
@@ -7312,7 +7197,7 @@ function closeOrderDetailsModal() {
 
   /* ---------- Orders screen (every order, tagged with its customer) ---------- */
   function openCustomerPanelByKey(key){
-    const cust = MOCK_CUSTOMERS[key];
+    const cust = CUSTOMER_CACHE[key];
     if(!cust) return;
     openCustomerPanel({ customer_key:key, customer_name:cust.name, channel:null });
   }
@@ -7335,7 +7220,7 @@ function closeOrderDetailsModal() {
 
   function renderOrdersList(){
     const allOrders = [];
-    Object.entries(MOCK_CUSTOMERS).forEach(([key, cust]) => {
+    Object.entries(CUSTOMER_CACHE).forEach(([key, cust]) => {
       const orders = [...(cust.current_order ? [cust.current_order] : []), ...(cust.past_orders || [])];
       orders.forEach(o => allOrders.push({ ...o, custKey:key, custName:cust.name, custId:cust.customer_id }));
     });
