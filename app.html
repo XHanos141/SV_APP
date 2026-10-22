@@ -2443,48 +2443,34 @@ html[data-theme="dark"] .voucher-empty-subtitle { color:rgba(255,255,255,0.4); }
 .voucher-create-btn svg { width:13px; height:13px; }
 
 /* ====== WEBSITE SECTION: SOFT EMBOSSED TWIN BADGES ====== */
-.web-neu-row {
-  display:flex; gap:10px;
-}
+.web-neu-row { display:flex; gap:10px; padding:2px 2px 8px; }
+/* Bubble card: Admin Panel = purple, Visit Website = cyan */
 .web-neu-badge {
+  --t: 10,155,220; --td: 45,190,245; --c: #0A9BDC; --cd: #38bdf8;
   flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center;
-  gap:8px; padding:16px 10px; border-radius:16px; border:none; cursor:pointer;
-  font-family:"Plus Jakarta Sans",sans-serif; font-size:12px; font-weight:700;
-  background:#eef1f7;
-  box-shadow: 6px 6px 14px rgba(163,177,198,0.5), -6px -6px 14px rgba(255,255,255,0.85);
-  transition: box-shadow 0.18s ease, transform 0.12s ease;
+  gap:8px; padding:16px 10px; border-radius:16px; cursor:pointer;
+  font-family:"Plus Jakarta Sans",sans-serif; font-size:12px; font-weight:700; color:var(--c);
+  background:#fff;
+  border:1px solid rgba(var(--t),.55);
+  box-shadow:0 2px 5px rgba(15,22,33,.10), 0 10px 22px -6px rgba(var(--t),.42), inset 0 1.5px 0 rgba(255,255,255,1), inset 0 -3px 6px rgba(10,22,40,.06);
+  transition:box-shadow .25s ease, transform .18s ease;
 }
-.web-neu-badge:active {
-  transform:scale(0.97);
-  box-shadow: inset 4px 4px 10px rgba(163,177,198,0.5), inset -4px -4px 10px rgba(255,255,255,0.85);
-}
+.web-neu-badge:active { transform:scale(0.97); }
+.web-neu-badge.web-neu-admin { --t: 124,111,247; --td: 160,150,255; --c: #7c6ff7; --cd: #a79dff; }
 .web-neu-icon {
   width:38px; height:38px; border-radius:12px; display:flex; align-items:center; justify-content:center;
-  box-shadow: 3px 3px 8px rgba(163,177,198,0.45), -3px -3px 8px rgba(255,255,255,0.9);
+  background:var(--c); color:#fff;
+  box-shadow:0 4px 10px -2px rgba(var(--t),.45), inset 0 1px 0 rgba(255,255,255,.35);
 }
-.web-neu-icon svg { width:19px; height:19px; }
-.web-neu-badge.web-neu-admin .web-neu-icon { background:linear-gradient(145deg,#e4f6ff,#cdeeff); }
-.web-neu-badge.web-neu-admin .web-neu-icon svg { color:#009ddc; }
-.web-neu-badge.web-neu-admin { color:#009ddc; }
-.web-neu-badge.web-neu-site .web-neu-icon { background:#009b72; box-shadow:3px 3px 8px rgba(0,155,114,.35), -3px -3px 8px rgba(255,255,255,0.9); }
-.web-neu-badge.web-neu-site .web-neu-icon svg { color:#ffffff; }
-.web-neu-badge.web-neu-site { color:#009b72; }
-
+.web-neu-icon svg { width:19px; height:19px; color:#fff; }
 html[data-theme="dark"] .web-neu-badge {
-  background:#1b2030;
-  box-shadow: 6px 6px 14px rgba(0,0,0,0.45), -6px -6px 14px rgba(255,255,255,0.03);
+  color:var(--cd);
+  background:linear-gradient(160deg,#1b3247 0%,#141f2f 100%);
+  border-color:rgba(var(--td),.5);
+  box-shadow:0 2px 5px rgba(0,0,0,.35), 0 10px 22px -8px rgba(var(--td),.4), inset 0 1px 0 rgba(255,255,255,.07), inset 0 -2px 4px rgba(0,0,0,.2);
 }
-html[data-theme="dark"] .web-neu-badge:active {
-  box-shadow: inset 4px 4px 10px rgba(0,0,0,0.45), inset -4px -4px 10px rgba(255,255,255,0.03);
-}
-html[data-theme="dark"] .web-neu-icon {
-  box-shadow: 3px 3px 8px rgba(0,0,0,0.4), -3px -3px 8px rgba(255,255,255,0.04);
-}
-html[data-theme="dark"] .web-neu-badge.web-neu-admin .web-neu-icon { background:linear-gradient(145deg,#173247,#0e2536); }
-html[data-theme="dark"] .web-neu-badge.web-neu-admin .web-neu-icon svg { color:#38bdf8; }
-html[data-theme="dark"] .web-neu-badge.web-neu-admin { color:#38bdf8; }
-html[data-theme="dark"] .web-neu-badge.web-neu-site .web-neu-icon { background:linear-gradient(145deg,#1f6b53,#0f4636); box-shadow:3px 3px 8px rgba(0,0,0,.4), -3px -3px 8px rgba(255,255,255,0.04); }
-html[data-theme="dark"] .web-neu-badge.web-neu-site { color:#34d399; }
+html[data-theme="dark"] .web-neu-badge.web-neu-admin { background:linear-gradient(160deg,#2a2850 0%,#1a1a36 100%); }
+html[data-theme="dark"] .web-neu-icon { box-shadow:0 4px 10px -2px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.2); }
 
 /* ====== PAYMENT SUCCESS POPUP ====== */
 .ps-overlay {
