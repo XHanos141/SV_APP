@@ -3389,6 +3389,19 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
 .tc-contact{font-size:13px;font-weight:500;color:var(--t2);line-height:1.7;text-align:center;margin-top:8px}
 .tc-contact a{color:var(--cyan);text-decoration:none;font-weight:600}
 .tc-contact a:hover{opacity:.75}
+/* Bubble cards — identical to SV-Web store .p-card / .trending-item (cyan) */
+.p-card,.trending-item{
+  border:1px solid rgba(10,155,220,.55);
+  background:var(--surface);
+  box-shadow:0 2px 5px rgba(15,22,33,.10),0 10px 22px -6px rgba(10,155,220,.42),inset 0 1.5px 0 rgba(255,255,255,1),inset 0 -3px 6px rgba(10,22,40,.06);
+  transition:transform .18s var(--ease),box-shadow .25s var(--ease);
+}
+.trending-item{border-radius:16px}
+body.dark-mode .p-card,body.dark-mode .trending-item{
+  border-color:rgba(45,190,245,.5);
+  background:linear-gradient(160deg,#1b3247 0%,#141f2f 100%);
+  box-shadow:0 2px 5px rgba(0,0,0,.35),0 10px 22px -8px rgba(45,190,245,.4),inset 0 1px 0 rgba(255,255,255,.07),inset 0 -2px 4px rgba(0,0,0,.2);
+}
 </style>
 </head>
 <body>
