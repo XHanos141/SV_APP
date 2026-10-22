@@ -2569,6 +2569,24 @@ html:not([data-theme="light"]) .odm-card { background: rgba(124,111,247,0.08); b
   html:not([data-theme="light"]) .oc-detail__inner{ background:#1A2235; border-color:rgba(45,190,245,0.32); }
   .oc-wrap.is-open .oc-detail__inner{ padding:12px; visibility:visible; transition-delay:0s; }
   .order-strip .oc-detail__inner{ max-height:44vh; overflow-y:auto; }
+  /* ---- Order cards = SV-Web orders.html look: bubble card (blue = store, orange = Buy For Me) ---- */
+  .oc-card{ border-radius:16px; border-color:rgba(10,155,220,.55);
+    box-shadow:0 2px 5px rgba(15,22,33,.10),0 10px 22px -6px rgba(10,155,220,.42),inset 0 1.5px 0 rgba(255,255,255,1),inset 0 -3px 6px rgba(10,22,40,.06); }
+  html:not([data-theme="light"]) .oc-card{ border-color:rgba(45,190,245,.5); background:linear-gradient(160deg,#1b3247 0%,#141f2f 100%);
+    box-shadow:0 2px 5px rgba(0,0,0,.35),0 10px 22px -8px rgba(45,190,245,.4),inset 0 1px 0 rgba(255,255,255,.07),inset 0 -2px 4px rgba(0,0,0,.2); }
+  .oc-card--px{ border-color:rgba(242,100,48,.55);
+    box-shadow:0 2px 5px rgba(15,22,33,.10),0 10px 22px -6px rgba(242,100,48,.40),inset 0 1.5px 0 rgba(255,255,255,1),inset 0 -3px 6px rgba(10,22,40,.06); }
+  html:not([data-theme="light"]) .oc-card--px{ border-color:rgba(255,140,90,.5);
+    box-shadow:0 2px 5px rgba(0,0,0,.35),0 10px 22px -8px rgba(255,140,90,.38),inset 0 1px 0 rgba(255,255,255,.07),inset 0 -2px 4px rgba(0,0,0,.2); }
+  .oc-card:hover{ border-color:rgba(10,155,220,.7); }
+  .oc-card--px:hover{ border-color:rgba(242,100,48,.75); }
+  .oc-card__pill{ border-radius:999px; padding:3px 10px; }
+  .oc-wrap{ margin-bottom:12px; }
+  .oc-wrap.is-open .oc-card{ box-shadow:none; }
+  .oc-detail__inner{ border-radius:0 0 16px 16px; border-color:rgba(10,155,220,.55); }
+  html:not([data-theme="light"]) .oc-detail__inner{ background:#141f2f; border-color:rgba(45,190,245,.5); }
+  .oc-wrap--px .oc-detail__inner{ border-color:rgba(242,100,48,.55); }
+  html:not([data-theme="light"]) .oc-wrap--px .oc-detail__inner{ border-color:rgba(255,140,90,.5); }
   .oc-detail__inner .odm-card, .oc-detail__inner .oc-items{ background:#fff; border:1px solid rgba(10,155,220,0.38); }
   html:not([data-theme="light"]) .oc-detail__inner .odm-card, html:not([data-theme="light"]) .oc-detail__inner .oc-items{ background:#141B2A; border-color:rgba(45,190,245,0.42); }
 
@@ -4691,7 +4709,7 @@ function closeOrderDetailsModal() {
     const px = /^PX-/.test(o.id);
     const created = odmDateTime(o.placed_at), statusAt = odmDateTime(o.status_at || o.placed_at);
     const pinnedBadge = pinnedOrderId(sheet.conv || activeConv()) === o.id ? `<span class="oc-pinbadge" aria-label="Pinned to chat"><svg viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 17v5"/><path d="M9 3h6l-1 6 3 3v2H7v-2l3-3-1-6Z"/></svg></span>` : "";
-    return `<div class="oc-wrap${pinnedBadge ? " is-pinned" : ""}">${pinnedBadge}<button type="button" class="oc-card" data-act="open-order" data-oid="${escAttr(o.id)}" aria-expanded="false" aria-label="${orderKind(o.id)} ${escAttr(o.id)}, ${escAttr(o.status)}. Show order details">
+    return `<div class="oc-wrap${pinnedBadge ? " is-pinned" : ""}${px ? " oc-wrap--px" : ""}">${pinnedBadge}<button type="button" class="oc-card${px ? " oc-card--px" : ""}" data-act="open-order" data-oid="${escAttr(o.id)}" aria-expanded="false" aria-label="${orderKind(o.id)} ${escAttr(o.id)}, ${escAttr(o.status)}. Show order details">
       <span class="oc-card__head">
         <span class="oc-card__left">
           <span class="oc-card__idrow"><span class="oc-card__label">Order ID</span><span class="oc-card__id${px ? " proxy" : ""}">${escapeHtml(o.id)}</span></span>
