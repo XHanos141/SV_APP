@@ -3741,7 +3741,7 @@ function closeOrderDetailsModal() {
       // our message is the latest one: customer's mini photo = seen, filled circle = delivered, hollow circle = sent
       // (Meta's read / delivery marks, 3s tolerance like the chat ticks)
       let seenHtml = "";
-      if(live(c.id) && (c.channel === "messenger" || c.channel === "instagram") && c.last_customer_message_at){
+      if(live(c.id) && (c.channel === "messenger" || c.channel === "instagram" || c.channel === "whatsapp") && c.last_customer_message_at){
         const upd = Date.parse(c.updated_at), lastCust = Date.parse(c.last_customer_message_at);
         if(upd > lastCust){
           const rd = c.read_watermark ? Date.parse(c.read_watermark) : 0, dl = c.delivered_watermark ? Date.parse(c.delivered_watermark) : 0;
@@ -5163,7 +5163,7 @@ function closeOrderDetailsModal() {
     const time = document.createElement("div");
     time.className = "msg-bubble__time";
     time.textContent = new Date(m.created_at).toLocaleTimeString(undefined, { hour:"numeric", minute:"2-digit", hour12:true });
-    const live_ = !!m.id && (m.channel === "messenger" || m.channel === "instagram");
+    const live_ = !!m.id && (m.channel === "messenger" || m.channel === "instagram" || m.channel === "whatsapp");
     if(live_ && m.sender_type === "admin") time.appendChild(buildTick(m.created_at));
     if(m.attachments && m.attachments.length) bubble.appendChild(buildAttachments(m.attachments));
     const hasAtts = !!(m.attachments && m.attachments.length);
