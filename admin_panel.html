@@ -1245,6 +1245,19 @@ fieldset:disabled :is(.img-thumb-item,.img-thumb-add,.img-thumb-remove){touch-ac
 .sz-result strong{font-family:var(--font-display);font-size:16px;font-weight:800;color:var(--text)}
 .sz-result strong.free{color:var(--green)}
 fieldset:disabled .sz-chip,fieldset:disabled .sz-add,fieldset:disabled .sz-link{pointer-events:none;opacity:.55}
+/* Bubble cards — identical to SV-Web store .p-card / .trending-item (cyan border, glow, inset gloss) so the preview shows exactly what customers see */
+.p-card,.trending-item{
+  border:1px solid rgba(10,155,220,.55);
+  background:var(--surface);
+  box-shadow:0 2px 5px rgba(15,22,33,.10),0 10px 22px -6px rgba(10,155,220,.42),inset 0 1.5px 0 rgba(255,255,255,1),inset 0 -3px 6px rgba(10,22,40,.06);
+  transition:transform .18s var(--ease),box-shadow .25s var(--ease);
+}
+.trending-item{border-radius:16px}
+body.dark-mode .p-card,body.dark-mode .trending-item{
+  border-color:rgba(45,190,245,.5);
+  background:linear-gradient(160deg,#1b3247 0%,#141f2f 100%);
+  box-shadow:0 2px 5px rgba(0,0,0,.35),0 10px 22px -8px rgba(45,190,245,.4),inset 0 1px 0 rgba(255,255,255,.07),inset 0 -2px 4px rgba(0,0,0,.2);
+}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script src="assets/js/supabase-config.js"></script>
