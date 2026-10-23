@@ -412,8 +412,9 @@ html[data-theme="dark"] .website-icon { background: rgba(14,165,233,0.15); }
 html[data-theme="dark"] .website-icon svg { color: #38bdf8; }
 .draft-icon svg { color: #d48c0a; }
 html[data-theme="dark"] .draft-icon svg { color: #F4A922; }
-.draft-badge { background: rgba(244,169,34,0.12); color: #d48c0a; }
-html[data-theme="dark"] .draft-badge { background: rgba(244,169,34,0.15); color: #F4A922; }
+/* every menu counter = the same green filled pill */
+.draft-badge, .export-badge, .menu-badge { background: #2f9b68; color: #fff; border-color: #2f9b68; box-shadow: 0 2px 6px rgba(47,155,104,0.32); }
+html[data-theme="dark"] .draft-badge, html[data-theme="dark"] .export-badge, html[data-theme="dark"] .menu-badge { background: #34b27b; color: #04210f; border-color: #34b27b; box-shadow: 0 2px 8px rgba(52,178,123,0.35); }
 
 /* DRAFT TOGGLE */
 .draft-toggle-wrap {
@@ -1870,8 +1871,6 @@ html[data-theme="dark"] .export-toast { background: #7C6FF7; }
 html[data-theme="dark"] .export-icon { background: rgba(47,155,104,0.15); }
 .export-icon svg { color: #2f9b68; }
 html[data-theme="dark"] .export-icon svg { color: #3bbf7f; }
-.export-badge { background: rgba(47,155,104,0.12); color: #2f9b68; }
-html[data-theme="dark"] .export-badge { background: rgba(47,155,104,0.15); color: #3bbf7f; }
 
 /* Saved calc card */
 .saved-calc-card {
@@ -13977,6 +13976,7 @@ function showToast(message, type = 'success') {
           </svg>
         </div>
         <span class="section-label">Voucher</span>
+        <span class="section-badge menu-badge" id="voucherBadge" style="display:none">0</span>
         <span class="section-chevron">&#8250;</span>
       </div>
       <div class="section-content" id="voucherContent">
@@ -14328,13 +14328,7 @@ function showToast(message, type = 'success') {
         <div class="drawer-nav-icon" style="background:rgba(124,111,247,0.12)">
           <svg viewBox="0 0 24 24" fill="none" stroke="#7c6ff7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/></svg>
         </div>
-        <span class="drawer-nav-label">Archived Products</span><span class="drawer-nav-chevron">&#8250;</span>
-      </div>
-      <div class="drawer-nav-item">
-        <div class="drawer-nav-icon" style="background:rgba(217,83,83,0.12)">
-          <svg viewBox="0 0 24 24" fill="none" stroke="#d95353" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 01-3.46 0"></path></svg>
-        </div>
-        <span class="drawer-nav-label">Notifications</span><span class="drawer-nav-chevron">&#8250;</span>
+        <span class="drawer-nav-label">Archived Products</span><span class="section-badge menu-badge" id="archivedBadge" style="display:none">0</span><span class="drawer-nav-chevron">&#8250;</span>
       </div>
       <div class="drawer-nav-item">
         <div class="drawer-nav-icon" style="background:rgba(244,169,34,0.12)">
@@ -18538,7 +18532,9 @@ function svMenuCounts() {
     draft: q('#draftCardsContainer .draft-card:not(.return-card):not(.paid-out):not(.delete-out)') + returns,
     imports: q('#importOrderCardsContainer .px-import-card'),
     notif: q('#notifTabContent .al-card'),
-    margin: margin
+    margin: margin,
+    voucher: (function () { try { return _svDrawerVouchers.filter(function (x) { return (x.derived_status || x.status) !== 'archived'; }).length; } catch (e) { return 0; } })(),
+    archived: (function () { try { return PRODUCTS_DATA.filter(function (p) { return p.archived; }).length; } catch (e) { return 0; } })()
   };
 }
 function svSyncMenuBadges(pop) {
@@ -18547,6 +18543,8 @@ function svSyncMenuBadges(pop) {
   svSetBadge(document.getElementById('importOrderBadge'), c.imports, pop);
   svSetBadge(document.getElementById('notifBadge'), c.notif, pop);
   svSetBadge(document.getElementById('marginBadge'), c.margin, pop);
+  svSetBadge(document.getElementById('voucherBadge'), c.voucher, pop);
+  svSetBadge(document.getElementById('archivedBadge'), c.archived, pop);
   const hb = document.getElementById('hamburgerBadge');
   if (hb) {
     const total = c.draft + c.imports + c.notif;
@@ -18571,6 +18569,33 @@ function svSyncMenuBadges(pop) {
     svSyncMenuBadges(false);
   };
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
+})();
+/* LIVE: keep every menu counter (and the hamburger total) current without opening anything.
+   Cheap array-based counts re-sync every 3s; server data (orders, alerts, products, vouchers) refreshes every 45s and on tab focus. */
+(function svLiveMenuCounters() {
+  let busy = false;
+  async function pull() {
+    if (document.hidden || busy) return; busy = true;
+    const run = async fn => { try { await fn(); } catch (e) {} };
+    try {
+      await Promise.all([
+        run(() => typeof loadOrdersFromSupabase === 'function' && loadOrdersFromSupabase()),
+        run(() => typeof loadProductsFromSupabase === 'function' && loadProductsFromSupabase()),
+        run(() => typeof renderDrawerVouchers === 'function' && renderDrawerVouchers()),
+        run(async () => {
+          if (typeof loadProxyRequests !== 'function' || typeof loadStoreOrderAlerts !== 'function') return;
+          const before = JSON.stringify([AL_PROXY, AL_STORE]);
+          await Promise.all([loadProxyRequests(), loadStoreOrderAlerts()]);
+          if (JSON.stringify([AL_PROXY, AL_STORE]) !== before && typeof renderAlertsTabNow === 'function') renderAlertsTabNow();
+        })
+      ]);
+      try { if (typeof al_renderNotifs === 'function') al_renderNotifs(); } catch (e) {}
+    } finally { busy = false; svSyncMenuBadges(true); }
+  }
+  setInterval(() => { if (!document.hidden) svSyncMenuBadges(true); }, 3000);
+  setInterval(pull, 45000);
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) { svSyncMenuBadges(true); pull(); } });
+  setTimeout(pull, 6000);
 })();
 function updateBadge() {
   svSyncMenuBadges(true);
