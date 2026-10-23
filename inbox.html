@@ -3180,6 +3180,16 @@ html:not([data-theme="light"]) .odm-card { background: rgba(124,111,247,0.08); b
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
           <input id="hubSearch" type="text" placeholder="Search name, email or phone..." autocomplete="off">
         </div>
+        <button type="button" class="chan-filter-btn" id="hubKindBtn" aria-haspopup="true" aria-expanded="false" aria-label="Filter subscribers by type" style="display:none">
+          <span class="chan-filter-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5h18l-7 8v6l-4-2v-4Z"/></svg></span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+          <span class="chan-filter-dot"></span>
+        </button>
+        <div class="chan-pop" id="hubKindPop" role="tablist" aria-label="Subscriber type">
+          <button class="filter-tab" role="tab" data-subkind="" aria-selected="true">Everyone</button>
+          <button class="filter-tab" role="tab" data-subkind="customer" aria-selected="false">Customers <span class="count" data-sub-count="customers"></span></button>
+          <button class="filter-tab" role="tab" data-subkind="guest" aria-selected="false">Guests <span class="count" data-sub-count="guests"></span></button>
+        </div>
       </div>
       <div class="status-tabs at-end" id="hubModeTabs" role="tablist" aria-label="Wishlist view" style="display:none">
         <button class="status-tab" role="tab" data-wlmode="product" aria-selected="true">By product</button>
@@ -3190,11 +3200,6 @@ html:not([data-theme="light"]) .odm-card { background: rgba(124,111,247,0.08); b
         <button class="status-tab" role="tab" data-substatus="pending" aria-selected="false">Pending <span class="count" data-sub-count="pending"></span></button>
         <button class="status-tab" role="tab" data-substatus="subscribed" aria-selected="false">Subscribed <span class="count" data-sub-count="subscribed"></span></button>
         <button class="status-tab" role="tab" data-substatus="unsubscribed" aria-selected="false">Unsubscribed <span class="count" data-sub-count="unsubscribed"></span></button>
-      </div>
-      <div class="status-tabs" id="hubKindTabs" role="tablist" aria-label="Subscriber type" style="display:none">
-        <button class="status-tab" role="tab" data-subkind="" aria-selected="true">Everyone</button>
-        <button class="status-tab" role="tab" data-subkind="customer" aria-selected="false">Customers <span class="count" data-sub-count="customers"></span></button>
-        <button class="status-tab" role="tab" data-subkind="guest" aria-selected="false">Guests <span class="count" data-sub-count="guests"></span></button>
       </div>
     </div>
   </header>
@@ -7232,7 +7237,8 @@ function closeOrderDetailsModal() {
   els.hubSearch = document.getElementById("hubSearch");
   els.hubModeTabs = document.getElementById("hubModeTabs");
   els.hubStatusTabs = document.getElementById("hubStatusTabs");
-  els.hubKindTabs = document.getElementById("hubKindTabs");
+  els.hubKindBtn = document.getElementById("hubKindBtn");
+  els.hubKindPop = document.getElementById("hubKindPop");
   els.hubTitle = document.getElementById("hubTitle");
 
   function hubClient(){
@@ -7312,9 +7318,15 @@ function closeOrderDetailsModal() {
     document.getElementById("customersView").dataset.hubTab = hub.tab;
     syncPills(els.hubModeTabs, hub.tab === "wishlist" && !hub.error, `[data-wlmode="${hub.wl.mode}"]`);
     syncPills(els.hubStatusTabs, hub.tab === "subscribers" && !hub.error, `[data-substatus="${hub.subs.status}"]`);
-    syncPills(els.hubKindTabs, hub.tab === "subscribers" && !hub.error, `[data-subkind="${hub.subs.kind}"]`);
+    {
+      const showKind = hub.tab === "subscribers" && !hub.error;
+      els.hubKindBtn.style.display = showKind ? "" : "none";
+      if(!showKind) els.hubKindPop.classList.remove("open");
+      els.hubKindBtn.classList.toggle("is-filtered", !!hub.subs.kind);
+      els.hubKindPop.querySelectorAll(".filter-tab").forEach(t => t.setAttribute("aria-selected", String(t.dataset.subkind === hub.subs.kind)));
+    }
     const c = hub.subs.counts;
-    document.querySelectorAll("#hubStatusTabs [data-sub-count], #hubKindTabs [data-sub-count]").forEach(n => { n.textContent = c ? c[n.dataset.subCount] : ""; });
+    document.querySelectorAll("#hubStatusTabs [data-sub-count], #hubKindPop [data-sub-count]").forEach(n => { n.textContent = c ? c[n.dataset.subCount] : ""; });
   }
   function emptyBlock(title, body){ return `<div class="cust-list-empty"><b>${escapeHtml(title)}</b>${escapeHtml(body)}</div>`; }
   function moreBtn(shown, total){ return shown < total ? `<button class="hub-chip hub-more" data-more>Load more (${total - shown} left)</button>` : ""; }
@@ -7754,9 +7766,18 @@ function closeOrderDetailsModal() {
   });
 
 
-  els.hubKindTabs.addEventListener("click", e => {
-    const b = e.target.closest("[data-subkind]");
-    if(b && b.dataset.subkind !== hub.subs.kind){ hub.subs.kind = b.dataset.subkind; syncHubHeader(); hubLoad(true); }
+  els.hubKindBtn.addEventListener("click", e => {
+    e.stopPropagation();
+    const open = !els.hubKindPop.classList.contains("open");
+    els.hubKindPop.classList.toggle("open", open); els.hubKindBtn.setAttribute("aria-expanded", String(open));
+  });
+  document.addEventListener("click", e => {
+    if(els.hubKindPop.classList.contains("open") && !els.hubKindPop.contains(e.target)){ els.hubKindPop.classList.remove("open"); els.hubKindBtn.setAttribute("aria-expanded", "false"); }
+  });
+  els.hubKindPop.addEventListener("click", e => {
+    const b = e.target.closest("[data-subkind]"); if(!b) return;
+    els.hubKindPop.classList.remove("open"); els.hubKindBtn.setAttribute("aria-expanded", "false");
+    if(b.dataset.subkind !== hub.subs.kind){ hub.subs.kind = b.dataset.subkind; syncHubHeader(); hubLoad(true); }
   });
   els.hubStatusTabs.addEventListener("click", e => {
     const b = e.target.closest("[data-substatus]");
