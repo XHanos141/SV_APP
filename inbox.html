@@ -4198,8 +4198,8 @@ function closeOrderDetailsModal() {
     els.composerInput.focus();
   });
   function applyComposerMode(note, focus){
-    renderQuoteBar();
     state.noteMode = note;
+    renderQuoteBar();
     els.composerForm.classList.toggle("note-mode", note);
     els.composerForm.querySelectorAll(".composer-mode").forEach(b => {
       const on = (b.dataset.mode === "note") === note;
