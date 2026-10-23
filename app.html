@@ -354,25 +354,25 @@ html[data-theme="dark"] .import-badge { background: rgba(124,111,247,0.18); colo
   justify-content: center;
   gap: 7px;
   padding: 13px 12px;
-  background: rgba(124,111,247,0.06);
-  border: 1.5px dashed rgba(124,111,247,0.35);
+  background: rgba(225,90,38,0.06);
+  border: 1.5px dashed rgba(225,90,38,0.35);
   border-radius: 12px;
-  color: #7c6ff7;
+  color: #E15A26;
   font-family: "Plus Jakarta Sans", sans-serif;
   font-size: 12.5px;
   font-weight: 700;
   cursor: pointer;
   transition: background 0.2s ease, border-color 0.2s ease;
 }
-.import-order-trigger:hover { background: rgba(124,111,247,0.12); border-color: rgba(124,111,247,0.55); }
-.import-order-trigger:active { background: rgba(124,111,247,0.18); }
+.import-order-trigger:hover { background: rgba(225,90,38,0.12); border-color: rgba(225,90,38,0.55); }
+.import-order-trigger:active { background: rgba(225,90,38,0.18); }
 .import-order-trigger svg { width: 14px; height: 14px; flex-shrink: 0; }
 html[data-theme="dark"] .import-order-trigger {
-  background: rgba(124,111,247,0.1);
-  border-color: rgba(124,111,247,0.3);
-  color: #a89dff;
+  background: rgba(225,90,38,0.1);
+  border-color: rgba(225,90,38,0.3);
+  color: #ff8a5c;
 }
-html[data-theme="dark"] .import-order-trigger:hover { background: rgba(124,111,247,0.16); border-color: rgba(124,111,247,0.45); }
+html[data-theme="dark"] .import-order-trigger:hover { background: rgba(225,90,38,0.16); border-color: rgba(225,90,38,0.45); }
 .import-order-hint {
   margin-top: 8px;
   font-size: 10.5px;
@@ -13948,7 +13948,7 @@ function showToast(message, type = 'success') {
           <div class="import-order-hint">Buy For Me orders you're sourcing for a customer show up here, separate from your local stock drafts.</div>
           <button class="import-order-trigger" id="importOrderTrigger" onclick="importOrder(event)">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-download"/></svg>
-            Import Order
+            Add Proxy Draft
           </button>
         </div>
       </div>
