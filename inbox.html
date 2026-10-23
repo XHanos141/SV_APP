@@ -369,11 +369,26 @@ input,textarea,select,[contenteditable="true"],.allow-select,.allow-select *{-we
   .conv-rcpt.delivered{ color:var(--text-2); }
   .conv-rcpt.delivered .rc{ fill:currentColor; }
   .conv-rcpt.delivered .ck{ stroke:var(--body-bg); }
-  .conv-win{ flex:0 0 auto; display:inline-flex; align-items:center; gap:3px; height:19px; padding:0 7px 0 5px; border-radius:10px; font-size:10.5px; font-weight:800; color:#2f9b68; background:rgba(47,155,104,.14); }
-  .conv-win svg{ width:11px; height:11px; }
+  /* reply window: one chip per channel, stacked in the gap left of the time column (grid keeps name / time / seen aligned) */
+  .conv-main{ flex:1; min-width:0; display:grid; grid-template-columns:minmax(0,1fr) auto auto; grid-template-rows:auto auto; align-items:center; }
+  .conv-main__top, .conv-main__bottom{ display:contents; }
+  .conv-name{ grid-column:1; grid-row:1; align-self:baseline; }
+  .conv-time{ grid-column:3; grid-row:1; margin-left:8px; align-self:baseline; }
+  .conv-snippet{ grid-column:1; grid-row:2; margin-top:2px; min-width:0; }
+  .conv-unread-badge, .conv-seen, .conv-rcpt{ grid-column:3; grid-row:2; justify-self:end; margin:2px 0 0 8px; }
+  .conv-wins{ grid-column:2; grid-row:1 / span 2; align-self:center; display:flex; flex-direction:column; align-items:stretch; gap:2px; margin:0 0 0 8px; }
+  .conv-win{ display:inline-flex; align-items:center; gap:3px; height:17px; padding:0 6px 0 2px; border-radius:9px; font-size:10px; font-weight:800; line-height:1; white-space:nowrap; color:#2f9b68; background:rgba(47,155,104,.14); }
+  .conv-win svg{ width:10px; height:10px; flex:0 0 auto; }
   .conv-win b{ font-weight:800; }
   .conv-win.warn{ color:#e08a10; background:rgba(244,169,34,.17); }
   .conv-win.low{ color:#d95353; background:rgba(217,83,83,.14); }
+  .conv-win.off{ color:var(--text-3); background:rgba(138,150,168,.16); }
+  .conv-win.tpl{ color:#009ddc; background:rgba(0,157,220,.14); }
+  .conv-win .wc-ch{ width:13px; height:13px; border-radius:50%; display:inline-flex; align-items:center; justify-content:center; flex:0 0 auto; }
+  .conv-win .wc-ch svg{ width:8px; height:8px; }
+  .conv-win .wc-ch.messenger{ background:var(--fb, #1877F2); }
+  .conv-win .wc-ch.whatsapp{ background:var(--wa, #25D366); }
+  .conv-win .wc-ch.instagram{ background:linear-gradient(135deg, var(--ig-a), var(--ig-b) 55%, var(--ig-c)); }
   .conv-snippet{
     display:block; flex:1; min-width:0;
     font-size:13px;
@@ -3851,12 +3866,37 @@ function closeOrderDetailsModal() {
     const h = Math.floor(left / 3600000), m = Math.max(1, Math.floor(left / 60000));
     return { text: h >= 1 ? h + "h" : m + "m", cls: left < 3600000 ? "low" : left < 6 * 3600000 ? "warn" : "", left };
   }
+  const WIN_LOCK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>';
+  const WIN_DOC = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h8l4 4v14H6z"/><path d="M9 12h6M9 16h6"/></svg>';
+  // one channel's chip: green / amber / red while open; grey lock once closed (WhatsApp: cyan "template" icon, a template can still be sent)
+  function winChipState(ch, ts){
+    const wi = ts ? winBadgeInfo(ts) : null;
+    if(wi) return { cls: wi.cls, body: "<b>" + wi.text + "</b>", title: "Time left to reply" };
+    if(ch === "whatsapp") return { cls: "tpl", body: WIN_DOC, title: "Window closed: send an approved template" };
+    return { cls: "off", body: WIN_LOCK, title: "Reply window closed" };
+  }
+  function winChipHtml(ch, ts){
+    const st = winChipState(ch, ts);
+    return `<span class="conv-win${st.cls ? " " + st.cls : ""}" data-ch="${ch}" data-ts="${ts || 0}" title="${st.title}"><span class="wc-ch ${ch}">${channelBadgeSvg(ch)}</span>${st.body}</span>`;
+  }
+  // chips for the channels this customer actually uses (one chip if one channel, up to three)
+  function winChipsHtml(r){
+    const chips = ["instagram", "messenger", "whatsapp"].map(ch => {
+      const cs = r.convs.filter(x => x.channel === ch && live(x.id));
+      if(!cs.length) return "";
+      let ts = 0;
+      cs.forEach(x => { if(x.last_customer_message_at){ const t = Date.parse(x.last_customer_message_at); if(t > ts) ts = t; } });
+      return winChipHtml(ch, ts);
+    }).join("");
+    return chips ? `<span class="conv-wins">${chips}</span>` : "";
+  }
   function refreshWinBadges(){
     document.querySelectorAll(".conv-win").forEach(el => {
-      const wi = winBadgeInfo(Number(el.dataset.ts));
-      if(!wi){ el.remove(); return; }
-      el.className = "conv-win" + (wi.cls ? " " + wi.cls : "");
-      el.querySelector("b").textContent = wi.text;
+      const st = winChipState(el.dataset.ch, Number(el.dataset.ts));
+      el.className = "conv-win" + (st.cls ? " " + st.cls : "");
+      el.title = st.title;
+      const lead = el.querySelector(".wc-ch");
+      el.innerHTML = ""; el.appendChild(lead); el.insertAdjacentHTML("beforeend", st.body);
     });
   }
   setInterval(refreshWinBadges, 30000);
@@ -3886,9 +3926,7 @@ function closeOrderDetailsModal() {
         : `<div class="avatar-initials" style="background:${hashColor(c.customer_name || "?")}">${initials(c.customer_name)}</div>`;
       const badges = r.channels.slice(0,3).map(ch => `<span class="channel-badge ${ch}">${channelBadgeSvg(ch)}</span>`).join("");
 
-      let winTs = 0;
-      r.convs.forEach(x => { if(live(x.id) && (x.channel === "messenger" || x.channel === "instagram" || x.channel === "whatsapp") && x.last_customer_message_at){ const t = Date.parse(x.last_customer_message_at); if(t > winTs) winTs = t; } });
-      const wi = winTs ? winBadgeInfo(winTs) : null;
+      const winHtml = winChipsHtml(r);
       // our message is the latest one: customer's mini photo = seen, filled circle = delivered, hollow circle = sent
       // (Meta's read / delivery marks, 3s tolerance like the chat ticks)
       let seenHtml = "";
@@ -3907,7 +3945,6 @@ function closeOrderDetailsModal() {
           }
         }
       }
-      const winHtml = wi ? `<span class="conv-win ${wi.cls}" data-ts="${winTs}" title="Time left to reply"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><b>${wi.text}</b></span>` : "";
 
       return `
         <button class="conv-row ${unread ? "is-unread" : ""}" data-id="${escapeHtml(c.id)}">
