@@ -340,6 +340,10 @@ html[data-theme="dark"] .section-header.expanded .section-chevron { color: rgba(
 html[data-theme="dark"] .import-icon { background: rgba(124,111,247,0.18); }
 .import-icon svg { color: #7c6ff7; }
 html[data-theme="dark"] .import-icon svg { color: #a89dff; }
+.proxy-icon { background: rgba(225,90,38,0.12); }
+html[data-theme="dark"] .proxy-icon { background: rgba(225,90,38,0.18); }
+.proxy-icon svg { color: #E15A26; }
+html[data-theme="dark"] .proxy-icon svg { color: #ff8a5c; }
 .import-badge { background: rgba(124,111,247,0.12); color: #7c6ff7; }
 html[data-theme="dark"] .import-badge { background: rgba(124,111,247,0.18); color: #a89dff; }
 
@@ -13929,11 +13933,11 @@ function showToast(message, type = 'success') {
 
     <!-- IMPORT ORDER -->
     <div class="collapsible-section" id="importOrderSection">
-      <div class="section-header import-icon" id="importOrderHeader" onclick="toggleSection('importOrder')">
-        <div class="section-icon import-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-download"/></svg>
+      <div class="section-header proxy-icon" id="importOrderHeader" onclick="toggleSection('importOrder')">
+        <div class="section-icon proxy-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><ellipse cx="12" cy="12" rx="4" ry="9"/><line x1="3" y1="12" x2="21" y2="12"/></svg>
         </div>
-        <span class="section-label">Import Order</span>
+        <span class="section-label">Proxy Draft</span>
         <span class="section-badge draft-badge" id="importOrderBadge" style="display:none">0</span>
         <span class="section-chevron">&#8250;</span>
       </div>
@@ -25201,7 +25205,7 @@ function updateReturnSummary() {
 function importOrder(event) {
   if (event) event.stopPropagation();
   // TODO: build import flow (paste/upload order text or file, parse into a draft card)
-  showToast("Import Order — coming soon");
+  showToast("Proxy Draft — coming soon");
 }
 
 /* ====== IMPORT ORDER (Buy For Me orders, live) ====== */
@@ -28281,7 +28285,7 @@ function al_proxyRequestCard(req){
     stRow = `<div class="px-st paid">${PX_TICK}<span>Customer has paid the order</span></div>`;
     primaryBtn = al_actionBtn('primary','check','Accept',`alPxAccept('${id}', this)`);
   } else if (['purchasing','ordered','shipped_intl','arrived_bd'].includes(req.status)) {
-    stRow = `<div class="px-st paid">${PX_TICK}<span>Accepted · tracking in Import Order</span></div>`;
+    stRow = `<div class="px-st paid">${PX_TICK}<span>Accepted · tracking in Proxy Draft</span></div>`;
     primaryBtn = `<button class="al-action-btn primary muted" disabled aria-disabled="true">${al_icon('check',13,'#fff',2.5)}<span>Accepted</span></button>`;
   }
   return `
@@ -28342,7 +28346,7 @@ async function alPxAccept(id, btn){
     if (btn) btn.disabled = false;
     return;
   } finally { _alPxBusy = false; }
-  showToast((req.px || 'Order') + ' accepted — moved to Import Order');
+  showToast((req.px || 'Order') + ' accepted — moved to Proxy Draft');
   await loadProxyRequests();
   IMP_ROWS = []; loadImportOrders();
   renderAlertsTabNow();
