@@ -2692,6 +2692,34 @@ html:not([data-theme="light"]) .odm-card { background: rgba(124,111,247,0.08); b
   .pk-btn--ghost{ background:var(--surface); color:var(--text-1); border:1px solid var(--hairline); }
   .pk-btn--card{ order:-1; flex:1 0 100%; background:var(--surface); color:var(--cyan); border:1.5px solid var(--cyan); }
   .pk-btn--card[disabled]{ opacity:.6; pointer-events:none; }
+  .msg-quote{ display:block; width:100%; text-align:left; margin:0 0 6px; padding:5px 9px; border-left:3px solid var(--cyan); border-radius:8px; background:rgba(127,127,127,.16); font-size:12px; line-height:1.3; cursor:pointer; }
+  .msg-quote b{ display:block; font-size:11px; font-weight:800; color:var(--cyan); margin-bottom:1px; }
+  .msg-quote span{ display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; opacity:.85; word-break:break-word; }
+  .msg-row.flash .msg-bubble{ animation:msgFlash 1.1s ease; }
+  @keyframes msgFlash{ 0%,60%{ box-shadow:0 0 0 3px rgba(0,157,220,.55); } 100%{ box-shadow:0 0 0 0 rgba(0,157,220,0); } }
+  .quote-bar{ flex:1 0 100%; display:flex; align-items:center; gap:8px; margin:0 0 6px; padding:6px 8px 6px 10px; border-left:3px solid var(--cyan); border-radius:10px; background:var(--surface-2, rgba(127,127,127,.14)); }
+  .quote-bar[hidden]{ display:none; }
+  .quote-bar__body{ flex:1; min-width:0; font-size:12px; }
+  .quote-bar__body b{ display:block; font-size:11px; font-weight:800; color:var(--cyan); }
+  .quote-bar__body span{ display:block; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; opacity:.85; }
+  .quote-bar__x{ width:28px; height:28px; border-radius:50%; display:flex; align-items:center; justify-content:center; flex:0 0 auto; }
+  .quote-bar__x svg{ width:14px; height:14px; }
+  .msg-failed{ display:flex; align-items:center; gap:6px; margin-top:3px; font-size:11.5px; font-weight:700; color:var(--red, #d95353); justify-content:flex-end; text-align:right; }
+  .msg-failed svg{ width:14px; height:14px; flex:0 0 auto; }
+  .msg-failed button{ font-weight:800; text-decoration:underline; color:inherit; }
+  .win-tpl{ margin-left:auto; flex:0 0 auto; padding:5px 12px; border-radius:100px; background:var(--cyan); color:#fff; font-size:12px; font-weight:800; }
+  .win-tpl[hidden]{ display:none; }
+  .tpl-back{ position:fixed; inset:0; z-index:90; background:rgba(0,0,0,.5); display:flex; align-items:flex-end; }
+  .tpl-sheet{ width:100%; max-height:82vh; overflow:auto; background:var(--surface); border-radius:18px 18px 0 0; padding:16px 16px 22px; animation:tplUp .24s ease both; }
+  @keyframes tplUp{ from{ transform:translateY(30px); opacity:0; } to{ transform:none; opacity:1; } }
+  .tpl-sheet h3{ margin:0 0 4px; font-size:16px; } .tpl-sheet p.sub{ margin:0 0 12px; font-size:12px; opacity:.75; }
+  .tpl-item{ display:block; width:100%; text-align:left; padding:10px 12px; margin:0 0 8px; border:1px solid var(--hairline); border-radius:12px; }
+  .tpl-item b{ display:block; font-size:13px; } .tpl-item span{ display:block; font-size:12px; opacity:.8; margin-top:2px; white-space:pre-wrap; }
+  .tpl-item[disabled]{ opacity:.45; }
+  .tpl-prev{ padding:10px 12px; border-radius:12px; background:rgba(127,127,127,.14); font-size:13px; white-space:pre-wrap; margin:0 0 10px; }
+  .tpl-sheet input{ width:100%; margin:0 0 8px; padding:10px 12px; border-radius:10px; border:1px solid var(--hairline); background:var(--surface-2, transparent); color:inherit; font:inherit; font-size:14px; }
+  .tpl-actions{ display:flex; gap:8px; margin-top:6px; } .tpl-actions button{ flex:1; padding:11px; border-radius:12px; font-weight:800; border:1px solid var(--hairline); }
+  .tpl-actions button.go{ background:var(--cyan); color:#fff; border-color:var(--cyan); } .tpl-actions button[disabled]{ opacity:.5; }
   .cap-off{ opacity:.4; filter:grayscale(1); }   /* muted: this channel can't do it (tap still explains why) */
   @media (prefers-reduced-motion:reduce){ *,*::before,*::after{ transition:none !important; animation:none !important; scroll-behavior:auto !important; } }
 </style>
@@ -2865,7 +2893,8 @@ html:not([data-theme="light"]) .odm-card { background: rgba(124,111,247,0.08); b
   <main class="thread-messages" id="threadMessages" aria-live="polite"></main>
 
   <form class="thread-composer" id="composerForm">
-    <div class="win-bar" id="winBar" hidden role="status" aria-live="polite"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><span id="winText"></span></div>
+    <div class="win-bar" id="winBar" hidden role="status" aria-live="polite"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><span id="winText"></span><button type="button" class="win-tpl" id="winTplBtn" hidden>Send template</button></div>
+    <div class="quote-bar" id="quoteBar" hidden><div class="quote-bar__body"><b id="quoteWho"></b><span id="quoteText"></span></div><button type="button" class="quote-bar__x" id="quoteX" aria-label="Cancel reply"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>
     <div class="composer-attachments" id="attachStrip" hidden></div>
     <div class="attach-menu" id="attachMenu" role="menu" aria-label="Attach">
       <button type="button" role="menuitem" data-pick="photo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="1.8"/><path d="m21 16-5-5-9 9"/></svg>Photo</button>
@@ -4169,6 +4198,7 @@ function closeOrderDetailsModal() {
     els.composerInput.focus();
   });
   function applyComposerMode(note, focus){
+    renderQuoteBar();
     state.noteMode = note;
     els.composerForm.classList.toggle("note-mode", note);
     els.composerForm.querySelectorAll(".composer-mode").forEach(b => {
@@ -5098,7 +5128,7 @@ function closeOrderDetailsModal() {
 
   async function loadMessages(conv){
     els.threadMessages.innerHTML = "";
-    closeRxBar(); Object.keys(reacts).forEach(k => delete reacts[k]);
+    closeRxBar(); clearQuote(); Object.keys(reacts).forEach(k => delete reacts[k]);
     state.winReady = false;
     els.threadMessages.style.visibility = "hidden";      // no empty-chat flash while messages load
     let messages = [];
@@ -5106,7 +5136,7 @@ function closeOrderDetailsModal() {
     if(live(conv.id)){
       const { data, error } = await supabase
         .from("messages")
-        .select("id, conversation_id, sender_type, is_internal, content, created_at, channel, author_name, attachments")
+        .select("id, conversation_id, sender_type, is_internal, content, created_at, channel, author_name, attachments, delivery_status, delivery_error, reply_to")
         .eq("conversation_id", conv.id)
         .order("created_at", { ascending:true });
       if(error){
@@ -5138,6 +5168,15 @@ function closeOrderDetailsModal() {
         const m = payload.new;
         if(m && m.id){ if(seenIds.has(m.id)) return; seenIds.add(m.id); }
         appendMessage(m);
+      })
+      .on("postgres_changes", { event:"UPDATE", schema:"public", table:"messages", filter:`conversation_id=eq.${conversationId}` }, (payload) => {
+        const m = payload.new; if(!m || !m.id) return;
+        const i = (state.activeMessages || []).findIndex(x => x.id === m.id);
+        if(i >= 0){ state.activeMessages[i].delivery_status = m.delivery_status; state.activeMessages[i].delivery_error = m.delivery_error; }
+        if(m.delivery_status === "failed"){
+          const row = els.threadMessages.querySelector('.msg-row[data-mid="' + m.id + '"]');
+          if(row && !row.querySelector(".msg-failed")){ const t = row.querySelector(".msg-tick"); if(t) t.remove(); row.classList.add("is-failed"); row.appendChild(buildFailed(m)); }
+        }
       })
       .on("postgres_changes", { event:"*", schema:"public", table:"message_reactions", filter:`conversation_id=eq.${conversationId}` }, () => {
         loadReactions(conversationId);
@@ -5220,6 +5259,7 @@ function closeOrderDetailsModal() {
     if(m.id) row.dataset.mid = m.id;
     const bubble = document.createElement("div");
     bubble.className = "msg-bubble";
+    if(m.reply_to) bubble.appendChild(buildQuote(m.reply_to));
     const text = document.createElement("div");
     text.className = "msg-bubble__text";
     text.textContent = m.content;
@@ -5227,17 +5267,72 @@ function closeOrderDetailsModal() {
     time.className = "msg-bubble__time";
     time.textContent = new Date(m.created_at).toLocaleTimeString(undefined, { hour:"numeric", minute:"2-digit", hour12:true });
     const live_ = !!m.id && (m.channel === "messenger" || m.channel === "instagram" || m.channel === "whatsapp");
-    if(live_ && m.sender_type === "admin") time.appendChild(buildTick(m.created_at));
-    if(m.attachments && m.attachments.length) bubble.appendChild(buildAttachments(m.attachments));
-    const hasAtts = !!(m.attachments && m.attachments.length);
+    const attList = (m.attachments || []).filter(a => a && a.type !== "template");   // a sent template is just its text
+    if(live_ && m.sender_type === "admin" && m.delivery_status !== "failed") time.appendChild(buildTick(m.created_at));
+    if(attList.length) bubble.appendChild(buildAttachments(attList));
+    const hasAtts = attList.length > 0;
     const isPlaceholder = /^\[(image|video|audio|file|location|fallback|template|sticker|share|card|receipt)\]$/i.test(String(m.content || "").trim());
     if((m.content && !(hasAtts && isPlaceholder)) || !hasAtts) bubble.appendChild(text);
     if(showTime) bubble.appendChild(time);
     row.appendChild(bubble);
-    if(live_ && m.sender_type === "customer") row.dataset.rx = "1";   // long-press to react
+    if(live_) row.dataset.rx = "1";   // long-press: react (customer messages), reply, copy
+    if(live_ && m.sender_type === "admin") row.dataset.rxown = "1";
+    if(m.delivery_status === "failed"){ row.classList.add("is-failed"); row.appendChild(buildFailed(m)); }
     if(m.id) renderReactionsFor(row);
     return row;
   }
+
+  /* ---------- Quote-reply + "Not delivered" ---------- */
+  function msgSnippet(m){
+    const t = String(m.content || "").trim(), ph = /^\[(\w+)\]$/.exec(t);
+    if(t && !ph) return t;
+    const a = (m.attachments && m.attachments[0] && m.attachments[0].type) || (ph ? ph[1] : "");
+    return ({ image:"Photo", video:"Video", audio:"Voice message", file:"File", location:"Location", card:"Product card", receipt:"Receipt", sticker:"Sticker", template:"Template" })[a] || "Message";
+  }
+  function msgWho(m){
+    const c = activeConv();
+    return m.sender_type === "customer" ? ((c && c.customer_name) || "Customer") : (m.author_name || "You");
+  }
+  function buildQuote(id){
+    const q = (state.activeMessages || []).find(x => x.id === id);
+    const b = document.createElement("button"); b.type = "button"; b.className = "msg-quote"; b.dataset.qid = id;
+    const who = document.createElement("b"), sn = document.createElement("span");
+    who.textContent = q ? msgWho(q) : "Reply"; sn.textContent = q ? msgSnippet(q) : "Original message";
+    b.appendChild(who); b.appendChild(sn);
+    return b;
+  }
+  function buildFailed(m){
+    const d = document.createElement("div"); d.className = "msg-failed"; d.dataset.fid = m.id || "";
+    d.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7.5v5.5M12 16.5v.01"/></svg>';
+    const t = document.createElement("span"); t.textContent = "Not delivered" + (m.delivery_error ? " · " + m.delivery_error : ""); d.appendChild(t);
+    if(m.content && !/^\[[^\]]+\]$/.test(m.content)){ const r = document.createElement("button"); r.type = "button"; r.dataset.retry = m.id; r.textContent = "Retry"; d.appendChild(r); }
+    return d;
+  }
+  function renderQuoteBar(){
+    const bar = document.getElementById("quoteBar"); if(!bar) return;
+    bar.hidden = !state.quote || !!state.noteMode;
+    if(state.quote){ document.getElementById("quoteWho").textContent = state.quote.who; document.getElementById("quoteText").textContent = state.quote.text; }
+  }
+  function setQuote(id){
+    const m = (state.activeMessages || []).find(x => x.id === id); if(!m) return;
+    state.quote = { id, who:msgWho(m), text:msgSnippet(m) };
+    renderQuoteBar(); els.composerInput.focus({ preventScroll:true });
+  }
+  function clearQuote(){ state.quote = null; renderQuoteBar(); }
+  document.addEventListener("click", (e) => {
+    if(e.target.closest("#quoteX")){ clearQuote(); return; }
+    const q = e.target.closest(".msg-quote");
+    if(q && els.threadMessages.contains(q)){
+      const row = els.threadMessages.querySelector('.msg-row[data-mid="' + q.dataset.qid + '"]');
+      if(row){ row.scrollIntoView({ block:"center", behavior:"smooth" }); row.classList.remove("flash"); void row.offsetWidth; row.classList.add("flash"); setTimeout(() => row.classList.remove("flash"), 1200); }
+      return;
+    }
+    const rt = e.target.closest("[data-retry]");
+    if(rt && els.threadMessages.contains(rt)){
+      const m = (state.activeMessages || []).find(x => x.id === rt.dataset.retry);
+      if(m){ els.composerInput.value = m.content; autoResizeComposer(); updateSendState(); els.composerInput.focus({ preventScroll:true }); showToast("Edit if needed, then send again"); }
+    }
+  });
 
   /* ---------- Ticks (sent / delivered / seen) + emoji reactions ---------- */
   var COPY_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="11" height="11" rx="2.5"/><path d="M5 15V6.5A2.5 2.5 0 0 1 7.5 4H15"/></svg>';
@@ -5331,11 +5426,15 @@ function closeOrderDetailsModal() {
       const b = document.createElement("button"); b.type = "button"; b.textContent = em; b.dataset.em = em;
       b.style.setProperty("--i", i); b.setAttribute("aria-label", "React " + em); bar.appendChild(b);
     });
+    const rp = document.createElement("button"); rp.type = "button"; rp.className = "rx-reply"; rp.dataset.act = "reply";
+    rp.style.setProperty("--i", RX_EMOJI.length); rp.setAttribute("aria-label", "Reply");
+    rp.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14 4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 6 6v3"/></svg>'; bar.appendChild(rp);
     const cp = document.createElement("button"); cp.type = "button"; cp.className = "rx-copy"; cp.dataset.act = "copy";
-    cp.style.setProperty("--i", RX_EMOJI.length); cp.setAttribute("aria-label", "Copy text"); cp.innerHTML = COPY_ICON; bar.appendChild(cp);
+    cp.style.setProperty("--i", RX_EMOJI.length + 1); cp.setAttribute("aria-label", "Copy text"); cp.innerHTML = COPY_ICON; bar.appendChild(cp);
     bar.addEventListener("click", (e) => {
       const b = e.target.closest("button"); if(!b || !rxTarget) return;
       const id = rxTarget;
+      if(b.dataset.act === "reply"){ closeRxBar(); setQuote(id); return; }
       if(b.dataset.act === "copy"){ const m = (state.activeMessages || []).find(x => x.id === id); closeRxBar(); copyText(m && m.content); return; }
       if(!b.dataset.em) return;
       b.classList.add("tapped");                                       // pop, then close and react
@@ -5355,11 +5454,11 @@ function closeOrderDetailsModal() {
     const bar = getRxBar(); rxTarget = id; row.classList.add("rx-active");
     const cur = (reacts[id] || {}).page;
     const igChat = (activeConv() || {}).channel === "instagram";   // Instagram only supports the heart
-    const waChat = (activeConv() || {}).channel === "whatsapp";    // WhatsApp reactions can't be sent from here yet: copy only
-    bar.querySelectorAll("button[data-em]").forEach(b => { b.classList.remove("tapped"); b.classList.toggle("on", b.dataset.em === cur); b.style.display = waChat || (igChat && b.dataset.em.replace(/\uFE0F/g, "") !== "\u2764") ? "none" : ""; });
+    const own = row.dataset.rxown === "1";                          // our own messages: reply / copy only
+    bar.querySelectorAll("button[data-em]").forEach(b => { b.classList.remove("tapped"); b.classList.toggle("on", b.dataset.em === cur); b.style.display = own || (igChat && b.dataset.em.replace(/\uFE0F/g, "") !== "\u2764") ? "none" : ""; });
+    const rpb = bar.querySelector(".rx-reply"); if(rpb) rpb.hidden = !!state.noteMode;
     const m = (state.activeMessages || []).find(x => x.id === id);
     const txt = m && m.content && !/^\[[^\]]+\]$/.test(m.content) ? m.content : "";
-    if(waChat && !txt){ closeRxBar(); showToast("WhatsApp reactions can't be sent from here yet"); return; }
     bar.querySelector(".rx-copy").hidden = !txt;
     bar.classList.remove("open"); void bar.offsetWidth; bar.classList.add("open");   // restart the pop-in
     const bb = (row.querySelector(".msg-bubble") || row).getBoundingClientRect(), w = bar.offsetWidth, h = bar.offsetHeight;
@@ -5399,7 +5498,7 @@ function closeOrderDetailsModal() {
     try{
       const body = { conversation_id: rxConv[id], message_id: id, action: want ? "react" : "unreact" };
       if(want) body.reaction = want;
-      const { data, error } = await supabase.functions.invoke((state.conversations.find(c => c.id === rxConv[id]) || {}).channel === "instagram" ? "ig-action" : "meta-action", { body });
+      const { data, error } = await supabase.functions.invoke((state.conversations.find(c => c.id === rxConv[id]) || {}).channel === "instagram" ? "ig-action" : ((state.conversations.find(c => c.id === rxConv[id]) || {}).channel === "whatsapp" ? "wa-action" : "meta-action"), { body });
       let res = data;
       if(error){ try{ res = await error.context.json(); }catch(_){ res = null; } }
       ok = !!(res && res.ok); if(!ok) msg = (res && res.error) || "";
@@ -5585,7 +5684,7 @@ function closeOrderDetailsModal() {
   var CHANNEL_CAPS = {
     messenger:{ label:"Messenger", file:true,  fileNote:"",                                  imgTypes:null,                   imgMB:25, vidTypes:null,                  vidMB:25, react:"all",   productCard:true,  receiptCard:true  },
     instagram:{ label:"Instagram", file:"pdf", fileNote:"Instagram only accepts PDF files",  imgTypes:/^image\/(jpeg|png|gif)$/, accept:"image/jpeg,image/png,image/gif,video/mp4", imgMB:8,  vidTypes:/^video\/mp4$/,       vidMB:25, react:"heart", productCard:false, receiptCard:false },
-    whatsapp: { label:"WhatsApp",  file:true,  fileNote:"",                                  imgTypes:/^image\/(jpeg|png)$/,     accept:"image/jpeg,image/png,video/mp4", imgMB:5,  vidTypes:/^video\/mp4$/,       vidMB:16, react:false,   productCard:false, receiptCard:false }
+    whatsapp: { label:"WhatsApp",  file:true,  fileNote:"",                                  imgTypes:/^image\/(jpeg|png)$/,     accept:"image/jpeg,image/png,video/mp4", imgMB:5,  vidTypes:/^video\/mp4$/,       vidMB:16, react:"all",   productCard:true , receiptCard:false }
   };
   function capsOf(conv){ return (conv && CHANNEL_CAPS[conv.channel]) || null; }
   // null = no limits known (demo / unconnected chats): everything stays enabled
@@ -5634,8 +5733,12 @@ function closeOrderDetailsModal() {
     bar.hidden = !closed;          // the time left now shows on the chat list; only the "closed" note stays here
     if(closed){
       bar.className = "win-bar closed";
-      txt.textContent = "24-hour reply window closed. You can reply again after the customer messages you. Private notes still work.";
+      const wa = !!conv && conv.channel === "whatsapp";
+      txt.textContent = wa ? "24-hour reply window closed. Send an approved template, or wait for the customer to reply." : "24-hour reply window closed. You can reply again after the customer messages you. Private notes still work.";
     }
+    const tb = document.getElementById("winTplBtn");
+    if(tb) tb.hidden = !(closed && conv && conv.channel === "whatsapp" && !state.noteMode);
+    renderQuoteBar();
     els.composerForm.classList.toggle("win-closed", closed);
     const locked = closed && !state.noteMode;
     els.composerInput.disabled = locked;
@@ -5643,6 +5746,60 @@ function closeOrderDetailsModal() {
     if(locked) els.composerInput.placeholder = "Reply window closed";
     updateSendState();
   }
+
+  /* ---------- WhatsApp templates (the only thing allowed after the 24h window) ---------- */
+  var tplCache = null;
+  function closeTplSheet(){ const t = document.getElementById("tplBack"); if(t) t.remove(); }
+  async function openTplSheet(){
+    const conv = activeConv(); if(!conv || conv.channel !== "whatsapp") return;
+    closeTplSheet();
+    const back = document.createElement("div"); back.className = "tpl-back"; back.id = "tplBack";
+    back.innerHTML = '<div class="tpl-sheet" role="dialog" aria-label="Send a WhatsApp template"><h3>Send a template</h3><p class="sub">Approved templates can be sent after the 24-hour window.</p><div id="tplBody">Loading\u2026</div></div>';
+    back.addEventListener("click", (e) => { if(e.target === back) closeTplSheet(); });
+    document.body.appendChild(back);
+    const body = back.querySelector("#tplBody");
+    try{
+      if(!tplCache){
+        const { data, error } = await supabase.functions.invoke("wa-templates", { body:{} });
+        let res = data; if(error){ try{ res = await error.context.json(); }catch(_){ res = null; } }
+        if(!res || !res.ok){ body.textContent = (res && res.error) || "Couldn't load templates."; return; }
+        tplCache = res.templates || [];
+      }
+    }catch(err){ console.error("templates failed:", err); body.textContent = "Couldn't load templates."; return; }
+    const list = tplCache;
+    if(!list.length){ body.textContent = "No approved templates yet. Create one in Meta Business Manager, then reopen this."; return; }
+    body.innerHTML = "";
+    list.forEach(t => {
+      const b = document.createElement("button"); b.type = "button"; b.className = "tpl-item"; b.disabled = !t.usable;
+      const n = document.createElement("b"); n.textContent = t.name.replace(/_/g, " ") + " \u00b7 " + t.language;
+      const sp = document.createElement("span"); sp.textContent = t.usable ? t.body : (t.reason || "Can't be sent from here yet");
+      b.appendChild(n); b.appendChild(sp);
+      if(t.usable) b.addEventListener("click", () => showTplFill(t, body));
+      body.appendChild(b);
+    });
+  }
+  function showTplFill(t, body){
+    body.innerHTML = "";
+    const prev = document.createElement("div"); prev.className = "tpl-prev"; body.appendChild(prev);
+    const vals = [];
+    const render = () => { prev.textContent = t.body.replace(/\{\{\s*(\d+)\s*\}\}/g, (_, n) => (vals[Number(n) - 1] || "").trim() || "{{" + n + "}}"); go.disabled = vals.slice(0, t.vars).some(v => !(v || "").trim()) || vals.length < t.vars; };
+    const actions = document.createElement("div"); actions.className = "tpl-actions";
+    const back = document.createElement("button"); back.type = "button"; back.textContent = "Back"; back.addEventListener("click", openTplSheet);
+    const go = document.createElement("button"); go.type = "button"; go.className = "go"; go.textContent = "Send"; go.disabled = t.vars > 0;
+    for(let i = 0; i < t.vars; i++){
+      const inp = document.createElement("input"); inp.placeholder = "Value for {{" + (i + 1) + "}}"; inp.maxLength = 120;
+      inp.addEventListener("input", () => { vals[i] = inp.value; render(); }); body.appendChild(inp);
+    }
+    actions.appendChild(back); actions.appendChild(go); body.appendChild(actions); render();
+    go.addEventListener("click", async () => {
+      const conv = activeConv(); if(!conv) return;
+      go.disabled = true; go.textContent = "Sending\u2026";
+      const components = t.vars ? [{ type:"body", parameters:Array.from({ length:t.vars }, (_, i) => ({ type:"text", text:(vals[i] || "").trim() })) }] : null;
+      const ok = await sendLiveReply(conv, "", null, null, { template:{ name:t.name, language:t.language, preview:prev.textContent, ...(components ? { components } : {}) } });
+      if(ok) closeTplSheet(); else { go.disabled = false; go.textContent = "Send"; }
+    });
+  }
+  document.addEventListener("click", (e) => { if(e.target.closest("#winTplBtn")) openTplSheet(); });
 
   function autoResizeComposer(){
     els.composerInput.style.height = "auto";
@@ -5672,6 +5829,7 @@ function closeOrderDetailsModal() {
       const body = { conversation_id:conv.id, text };
       if(files && files.length) body.attachments = files;
       if(extra) Object.assign(body, extra);
+      if(state.quote && !state.noteMode && !(extra && (extra.template || extra.receipt))) body.reply_to = state.quote.id;
       const { data, error } = await supabase.functions.invoke(conv.channel === "instagram" ? "ig-send" : conv.channel === "whatsapp" ? "wa-send" : "meta-send", { body });
       let res = data;
       if(error){ try{ res = await error.context.json(); }catch(_){ res = { ok:false, error:"Couldn't reach the server. Try again." }; } }
@@ -5686,6 +5844,7 @@ function closeOrderDetailsModal() {
         return false;
       }
       if(res.warning) showToast(res.warning);
+      if(body.reply_to) clearQuote();
       return true;
     }catch(err){
       console.error("sendLiveReply failed:", err);
