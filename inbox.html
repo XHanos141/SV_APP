@@ -2687,6 +2687,7 @@ html:not([data-theme="light"]) .odm-card { background: rgba(124,111,247,0.08); b
   .pk-btn--ghost{ background:var(--surface); color:var(--text-1); border:1px solid var(--hairline); }
   .pk-btn--card{ order:-1; flex:1 0 100%; background:var(--surface); color:var(--cyan); border:1.5px solid var(--cyan); }
   .pk-btn--card[disabled]{ opacity:.6; pointer-events:none; }
+  .cap-off{ opacity:.4; filter:grayscale(1); }   /* muted: this channel can't do it (tap still explains why) */
   @media (prefers-reduced-motion:reduce){ *,*::before,*::after{ transition:none !important; animation:none !important; scroll-behavior:auto !important; } }
 </style>
 <script>
@@ -5344,9 +5345,11 @@ function closeOrderDetailsModal() {
     const bar = getRxBar(); rxTarget = id; row.classList.add("rx-active");
     const cur = (reacts[id] || {}).page;
     const igChat = (activeConv() || {}).channel === "instagram";   // Instagram only supports the heart
-    bar.querySelectorAll("button[data-em]").forEach(b => { b.classList.remove("tapped"); b.classList.toggle("on", b.dataset.em === cur); b.style.display = igChat && b.dataset.em.replace(/\uFE0F/g, "") !== "\u2764" ? "none" : ""; });
+    const waChat = (activeConv() || {}).channel === "whatsapp";    // WhatsApp reactions can't be sent from here yet: copy only
+    bar.querySelectorAll("button[data-em]").forEach(b => { b.classList.remove("tapped"); b.classList.toggle("on", b.dataset.em === cur); b.style.display = waChat || (igChat && b.dataset.em.replace(/\uFE0F/g, "") !== "\u2764") ? "none" : ""; });
     const m = (state.activeMessages || []).find(x => x.id === id);
     const txt = m && m.content && !/^\[[^\]]+\]$/.test(m.content) ? m.content : "";
+    if(waChat && !txt){ closeRxBar(); showToast("WhatsApp reactions can't be sent from here yet"); return; }
     bar.querySelector(".rx-copy").hidden = !txt;
     bar.classList.remove("open"); void bar.offsetWidth; bar.classList.add("open");   // restart the pop-in
     const bb = (row.querySelector(".msg-bubble") || row).getBoundingClientRect(), w = bar.offsetWidth, h = bar.offsetHeight;
@@ -5369,6 +5372,7 @@ function closeOrderDetailsModal() {
   var rxWant = {}, rxSent = {}, rxBusy = {}, rxTimers = {}, rxConv = {};
   // Tap an emoji: show it at once, then send only the latest choice once taps settle (one request at a time per message)
   function sendReaction(id, emoji){
+    if(!capOk("react")){ showToast(`${capsOf(activeConv()).label} reactions can't be sent from here yet`); return; }
     const cur = (reacts[id] || {}).page || null;
     const target = cur === emoji ? null : emoji;
     setPageReact(id, target);
@@ -5566,6 +5570,26 @@ function closeOrderDetailsModal() {
   var REPLY_WINDOW_MS = 24 * 60 * 60 * 1000;
   var WINDOW_CLOSED_MSG = "The 24-hour reply window has closed. You can reply again after the customer messages you.";
   var winTimer = null, winWasLocked = false;
+
+  /* ---------- What each channel can do (unsupported tools stay muted for that chat) ---------- */
+  var CHANNEL_CAPS = {
+    messenger:{ label:"Messenger", file:true,  fileNote:"",                                  imgTypes:null,                   imgMB:25, vidTypes:null,                  vidMB:25, react:"all",   productCard:true,  receiptCard:true  },
+    instagram:{ label:"Instagram", file:"pdf", fileNote:"Instagram only accepts PDF files",  imgTypes:/^image\/(jpeg|png|gif)$/, accept:"image/jpeg,image/png,image/gif,video/mp4", imgMB:8,  vidTypes:/^video\/mp4$/,       vidMB:25, react:"heart", productCard:false, receiptCard:false },
+    whatsapp: { label:"WhatsApp",  file:true,  fileNote:"",                                  imgTypes:/^image\/(jpeg|png)$/,     accept:"image/jpeg,image/png,video/mp4", imgMB:5,  vidTypes:/^video\/mp4$/,       vidMB:16, react:false,   productCard:false, receiptCard:false }
+  };
+  function capsOf(conv){ return (conv && CHANNEL_CAPS[conv.channel]) || null; }
+  // null = no limits known (demo / unconnected chats): everything stays enabled
+  function capOk(feature){ const c = capsOf(activeConv()); return !c || !!c[feature]; }
+  function applyChannelCaps(){
+    const conv = activeConv(), c = capsOf(conv);
+    const off = { file: !!c && !c.file, card: !!c && !c.productCard };
+    document.querySelectorAll('[data-tool="file"],[data-pick="file"]').forEach(b => b.classList.toggle("cap-off", off.file));
+    document.querySelectorAll("[data-pk-card]").forEach(b => b.classList.toggle("cap-off", off.card));
+    const doc = document.getElementById("fileInDoc");
+    if(doc) doc.accept = (c && c.file === "pdf") ? ".pdf,application/pdf" : ".pdf,.doc,.docx,.xls,.xlsx,.txt,.csv,application/pdf,text/plain,text/csv";
+    const ph = document.getElementById("fileInPhoto");
+    if(ph) ph.accept = (c && c.accept) || "image/jpeg,image/png,image/webp,image/gif,video/mp4,video/quicktime,video/webm";
+  }
   // ms left in the window; null when it doesn't apply (channels not connected yet)
   function replyWindowLeft(conv){
     if(!conv || !live(conv.id) || (conv.channel !== "messenger" && conv.channel !== "instagram" && conv.channel !== "whatsapp")) return null;
@@ -5584,6 +5608,7 @@ function closeOrderDetailsModal() {
   function updateWindow(){
     const bar = document.getElementById("winBar"), txt = document.getElementById("winText");
     if(!bar || !txt) return;
+    applyChannelCaps();
     const conv = activeConv();
     const left = replyWindowLeft(conv);
     if(left === null){
@@ -5813,6 +5838,7 @@ function closeOrderDetailsModal() {
     if(!b) return;
     setAttachMenu(false);
     if(b.dataset.pick === "product"){ openProductPicker(); return; }
+    if(b.dataset.pick === "file" && !capOk("file") && !state.noteMode){ showToast(`${capsOf(activeConv()).label} doesn't support files`); return; }
     document.getElementById({ photo:"fileInPhoto", camera:"fileInCamera", file:"fileInDoc" }[b.dataset.pick]).click();
   });
   ["fileInPhoto", "fileInCamera", "fileInDoc"].forEach(id => {
@@ -5825,6 +5851,20 @@ function closeOrderDetailsModal() {
       if(pendingAtts.length >= ATT_MAX_FILES){ showToast(`You can attach up to ${ATT_MAX_FILES} files at a time`); break; }
       if(!ATT_OK.test(file.type)){ showToast(`${file.name}: this file type isn't supported`); continue; }
       if(file.size > ATT_MAX_BYTES){ showToast(`${file.name} is larger than 25 MB`); continue; }
+      const cc = capsOf(activeConv());
+      if(cc && !state.noteMode){
+        const t = file.type, mb = file.size / 1048576;
+        if(/^image\//.test(t)){
+          if(cc.imgTypes && !cc.imgTypes.test(t)){ showToast(`${cc.label} doesn't accept this image type (${t.replace("image/", "").toUpperCase()})`); continue; }
+          if(mb > cc.imgMB && !/^image\/(jpeg|png)$/.test(t)){ showToast(`${file.name} is over ${cc.label}'s ${cc.imgMB} MB photo limit`); continue; }   // big jpeg/png are reduced automatically on send
+        }else if(/^video\//.test(t)){
+          if(cc.vidTypes && !cc.vidTypes.test(t)){ showToast(`${cc.label} only accepts MP4 videos`); continue; }
+          if(mb > cc.vidMB){ showToast(`${file.name} is over ${cc.label}'s ${cc.vidMB} MB video limit`); continue; }
+        }else{
+          if(!cc.file){ showToast(`${cc.label} doesn't support files`); continue; }
+          if(cc.file === "pdf" && t !== "application/pdf"){ showToast(cc.fileNote); continue; }
+        }
+      }
       pendingAtts.push({ id:++attSeq, file, name:file.name, type:file.type, size:file.size, url:isImg(file.type) ? URL.createObjectURL(file) : "" });
     }
     renderAttStrip();
@@ -6335,6 +6375,7 @@ function closeOrderDetailsModal() {
       if(k === "note") applyComposerMode(!state.noteMode, true);
       else if(k === "product") pinBtn.click();
       else if(k === "quick") qBtn.click();
+      else if(k === "file" && !capOk("file") && !state.noteMode) showToast(`${capsOf(activeConv()).label} doesn't support files`);
       else document.getElementById({ photo:"fileInPhoto", camera:"fileInCamera", file:"fileInDoc" }[k]).click();
     });
   })();
@@ -6601,7 +6642,7 @@ function closeOrderDetailsModal() {
       ${facts.length ? `<dl class="pk-facts">${facts.map(f => `<dt>${escapeHtml(f.k)}</dt><dd>${f.h || escapeHtml(f.t)}</dd>`).join("")}</dl>` : ""}
       ${sec("About", i.desc)}${i.benefits.length ? sec("Benefits", i.benefits.map(b => "• " + b).join("\n")) : ""}${sec("How to use", i.usage)}${sec("Caution", i.caution)}
       <div class="pk-actions">
-        <button type="button" class="pk-btn pk-btn--card" data-pk-card="${escapeHtml(i.id)}">${CARD_SVG}Send as card</button>
+        <button type="button" class="pk-btn pk-btn--card${capOk("productCard") ? "" : " cap-off"}" data-pk-card="${escapeHtml(i.id)}">${CARD_SVG}Send as card</button>
         <button type="button" class="pk-btn pk-btn--primary" data-pk-send="${escapeHtml(i.id)}">Send details</button>
         <button type="button" class="pk-btn pk-btn--ghost" data-pk-pin="${escapeHtml(i.id)}">${PIN_SVG}${isPinned ? "Unpin" : "Pin"}</button>
         <button type="button" class="pk-btn pk-btn--ghost pk-btn--icon" data-pk-link="${escapeHtml(i.id)}" aria-label="Add product link to message">${LINK_SVG}</button>
@@ -6678,7 +6719,7 @@ function closeOrderDetailsModal() {
     const conv = activeConv(); if(!conv) return;
     if(state.noteMode){ showToast("Switch to Reply to send a card"); return; }
     if(!live(conv.id)){ showToast("Cards can only be sent in live Messenger chats"); return; }
-    if(conv.channel !== "messenger"){ showToast("Cards work on Messenger only"); return; }
+    if(!capOk("productCard")){ showToast(`${capsOf(conv).label} doesn't support product cards. Use Send details instead`); return; }
     if(replyLocked()){ showToast(WINDOW_CLOSED_MSG); updateWindow(); return; }
     if(!i.slug){ showToast("This product has no web page yet"); return; }
     const facts = pkFacts(i);
@@ -6722,7 +6763,7 @@ function closeOrderDetailsModal() {
   async function sendReceiptCard(oid){
     const conv = activeConv(); if(!conv || !oid) return;
     if(state.noteMode){ showToast("Switch to Reply to send a receipt"); return; }
-    if(!live(conv.id) || conv.channel !== "messenger"){ showToast("Receipts can only be sent in live Messenger chats"); return; }
+    if(!live(conv.id) || !capOk("receiptCard")){ showToast(live(conv.id) ? `${capsOf(conv).label} doesn't support receipt cards` : "Receipts can only be sent in live Messenger chats"); return; }
     if(!conv.customer_id){ showToast("Link this chat to a customer first"); return; }
     if(replyLocked()){ showToast(WINDOW_CLOSED_MSG); updateWindow(); return; }
     closeCustomerPanel();
