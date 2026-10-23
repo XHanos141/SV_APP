@@ -1248,6 +1248,8 @@ fieldset:disabled .sz-chip,fieldset:disabled .sz-add,fieldset:disabled .sz-link{
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script src="assets/js/supabase-config.js"></script>
+<script src="assets/js/sv-fingerprint.js"></script>
+<script src="assets/js/sv-admin-fp-gate.js"></script>
 <script>
 /* SuppVerse BD — responsive product image helper
  * New admin uploads are stored as <base>-1200.webp with sibling files
@@ -1470,6 +1472,7 @@ fieldset:disabled .sz-chip,fieldset:disabled .sz-add,fieldset:disabled .sz-link{
     if(!session){ show('Not signed in. Open this from the main app.'); return; }
     var check = await sb.rpc('is_active_admin', { uid: session.user.id });
     if(check.error || !check.data){ show('This account is not an active admin.'); return; }
+    try{ SVAdminFpGate.install(); }catch(e){ console.error(e); show('Could not start fingerprint protection.'); return; }
     hide();
   } catch(e){
     show('Could not verify admin access.');
