@@ -2181,6 +2181,56 @@ html:not([data-theme="light"]) .odm-card { background: rgba(124,111,247,0.08); b
   #csLinkSearch::placeholder{ color:var(--text-3); }
   #csLinkSearch:focus{ border-color:#7C6FF7; box-shadow:0 0 0 3px rgba(124,111,247,.12); }
   .cs-linkrow{ width:100%; text-align:left; background:none; border:0; border-bottom:1px solid var(--hairline); cursor:pointer; color:inherit; font:inherit; display:flex; align-items:center; gap:12px; }
+  /* ---------- Campaign composer ---------- */
+  #campView{ position:fixed; inset:0; z-index:90; background:var(--body-bg); display:flex; flex-direction:column; }
+  #campView[hidden]{ display:none; }
+  .cmp-scroll{ flex:1; overflow-y:auto; padding:14px 14px 40px; -webkit-overflow-scrolling:touch; }
+  .cmp-head-btn{ height:38px; padding:0 14px; border-radius:12px; border:1px solid rgba(255,255,255,.18); background:rgba(255,255,255,.08); color:#fff; font:700 13px var(--font-body); }
+  .sub-actions{ display:flex; gap:8px; padding:12px 12px 0; }
+  .sub-actions button{ flex:1; height:42px; border-radius:12px; border:1px solid rgba(43,116,227,.35); background:rgba(43,116,227,.1); color:var(--inbox-blue-t); font:700 13px var(--font-body); }
+  .sub-actions button.is-primary{ background:linear-gradient(135deg,#2b74e3,#1b56b8); color:#fff; border-color:transparent; }
+  .cmp-card{ width:100%; text-align:left; border:1px solid var(--hairline); background:var(--surface); border-radius:16px; padding:14px; margin-bottom:10px; color:var(--text-1); font-family:var(--font-body); }
+  .cmp-card__top{ display:flex; align-items:center; justify-content:space-between; gap:10px; }
+  .cmp-card__subj{ font:700 15px var(--font-head); line-height:1.3; word-break:break-word; }
+  .cmp-card__meta{ margin-top:6px; font-size:12px; color:var(--text-2); display:flex; flex-wrap:wrap; gap:6px 12px; }
+  .cmp-pill{ flex-shrink:0; padding:3px 10px; border-radius:999px; font:700 11px var(--font-body); background:var(--surface-2); color:var(--text-2); }
+  .cmp-pill.is-sent{ background:rgba(0,155,114,.16); color:var(--green); }
+  .cmp-pill.is-sending{ background:rgba(43,116,227,.16); color:var(--inbox-blue-t); }
+  .cmp-pill.is-failed{ background:rgba(217,83,83,.16); color:var(--red); }
+  .cmp-label{ display:block; margin:16px 2px 6px; font:700 12px var(--font-body); letter-spacing:.04em; text-transform:uppercase; color:var(--text-2); }
+  .cmp-label small{ float:right; text-transform:none; letter-spacing:0; font-weight:600; color:var(--text-3); }
+  .cmp-input, .cmp-text{ width:100%; border-radius:14px; border:1px solid var(--hairline); background:var(--surface); color:var(--text-1); font:500 15px var(--font-body); padding:12px 14px; outline:none; }
+  .cmp-text{ min-height:160px; resize:vertical; line-height:1.55; }
+  .cmp-input:focus, .cmp-text:focus{ border-color:#2b74e3; box-shadow:0 0 0 3px rgba(43,116,227,.2); }
+  .cmp-input:disabled, .cmp-text:disabled{ opacity:.7; }
+  .cmp-chips{ display:flex; flex-wrap:wrap; gap:8px; }
+  .cmp-chip{ height:38px; padding:0 14px; border-radius:999px; border:1px solid var(--hairline); background:var(--surface); color:var(--text-2); font:700 13px var(--font-body); }
+  .cmp-chip.on{ background:rgba(43,116,227,.16); border-color:rgba(43,116,227,.55); color:var(--inbox-blue-t); }
+  .cmp-aud{ margin-top:8px; font-size:13px; color:var(--text-2); }
+  .cmp-aud b{ color:var(--text-1); }
+  .cmp-aud.is-zero b{ color:var(--orange); }
+  .cmp-prev{ margin-top:6px; border-radius:18px; overflow:hidden; background:#f2f6fb; padding:14px; }
+  .cmp-prev__card{ background:#fff; border-radius:16px; overflow:hidden; color:#0f1621; font-family:Arial,Helvetica,sans-serif; }
+  .cmp-prev__head{ background:#002248; color:#fff; font-weight:800; font-size:17px; padding:16px 18px; }
+  .cmp-prev__head span{ color:#f26430; }
+  .cmp-prev__body{ padding:20px 18px; }
+  .cmp-prev__body h2{ margin:0 0 12px; font-size:18px; line-height:1.3; }
+  .cmp-prev__body p{ margin:0 0 12px; font-size:14px; line-height:1.6; color:#2a3444; }
+  .cmp-prev .cmp-link{ color:#009ddc; word-break:break-all; }
+  .cmp-prev__btn{ display:inline-block; background:#009ddc; color:#fff; font-weight:700; font-size:13px; padding:11px 22px; border-radius:11px; }
+  .cmp-prev__foot{ padding:12px 18px; background:#f7f9fc; font-size:11px; color:#8a95a6; line-height:1.6; }
+  .cmp-actions{ display:flex; flex-direction:column; gap:10px; margin-top:22px; }
+  .cmp-btn{ height:48px; border-radius:14px; border:1px solid var(--hairline); background:var(--surface); color:var(--text-1); font:700 14px var(--font-body); }
+  .cmp-btn.is-primary{ background:linear-gradient(135deg,#2b74e3,#1b56b8); color:#fff; border-color:transparent; box-shadow:0 6px 18px rgba(43,116,227,.35); }
+  .cmp-btn.is-danger{ color:var(--red); }
+  .cmp-btn:disabled{ opacity:.55; }
+  .cmp-confirm{ position:absolute; inset:0; z-index:5; display:flex; align-items:center; justify-content:center; padding:20px; background:rgba(5,12,24,.62); }
+  .cmp-confirm[hidden]{ display:none; }
+  .cmp-confirm__box{ width:min(380px,100%); background:var(--surface); border:1px solid rgba(43,116,227,.35); border-radius:22px; padding:22px 20px; text-align:center; }
+  .cmp-confirm__box h3{ margin:0 0 8px; font:800 19px var(--font-head); color:var(--text-1); }
+  .cmp-confirm__box p{ margin:0 0 18px; font-size:14px; line-height:1.55; color:var(--text-2); }
+  .cmp-confirm__row{ display:flex; gap:10px; }
+  .cmp-confirm__row .cmp-btn{ flex:1; }
   .sub-stats{ display:flex; gap:8px; padding:10px 12px 4px; }
   .sub-stat{ flex:1; border-radius:14px; padding:10px 12px; background:var(--surface-2); border:1px solid var(--border,rgba(0,0,0,.08)); }
   .sub-stat b{ display:block; font-size:20px; font-weight:800; line-height:1.1; }
@@ -3072,6 +3122,20 @@ html:not([data-theme="light"]) .odm-card { background: rgba(124,111,247,0.08); b
   <div class="cust-sheet__handle"></div>
   <div class="cs-head" id="custSheetHead"></div>
   <div class="cust-sheet__scroll" id="custSheetScroll"></div>
+</div>
+
+<div id="campView" hidden>
+  <header class="inbox-header">
+    <div class="inbox-header__top">
+      <button class="inbox-back-btn" id="campBack" type="button" aria-label="Back">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+      </button>
+      <h1 class="inbox-header__title" id="campTitle">Campaigns</h1>
+      <div class="header-actions"><button class="cmp-head-btn" id="campHeadBtn" type="button">+ New</button></div>
+    </div>
+  </header>
+  <div class="cmp-scroll" id="campScroll"></div>
+  <div class="cmp-confirm" id="campConfirm" hidden></div>
 </div>
 
 <div id="customersView" hidden>
@@ -7233,7 +7297,8 @@ function closeOrderDetailsModal() {
       const d = hub.subs;
       count = d.counts ? `${d.counts.all} total` : "";
       const k = d.counts || {};
-      html = d.counts ? `<div class="sub-stats"><div class="sub-stat"><b>${k.subscribed || 0}</b><small>Subscribed</small></div><div class="sub-stat"><b>${k.sub_customers || 0}</b><small>Customers</small></div><div class="sub-stat"><b>${k.sub_guests || 0}</b><small>Guests</small></div></div>` : ""
+      html = `<div class="sub-actions"><button type="button" class="is-primary" data-sub-act="new">+ New campaign</button><button type="button" data-sub-act="list">Campaigns</button></div>`
+        + (d.counts ? `<div class="sub-stats"><div class="sub-stat"><b>${k.subscribed || 0}</b><small>Subscribed</small></div><div class="sub-stat"><b>${k.sub_customers || 0}</b><small>Customers</small></div><div class="sub-stat"><b>${k.sub_guests || 0}</b><small>Guests</small></div></div>` : "")
         + (d.rows.length ? d.rows.map(subscriberRowHtml).join("") + moreBtn(d.rows.length, d.total)
           : ((hub.q || d.status || d.kind) ? emptyBlock("No matches", "No subscriber matches that search or filter.") : emptyBlock("No subscribers yet", "Emails entered in the landing-page signup box will appear here as Pending.")));
     }else{
@@ -7437,6 +7502,212 @@ function closeOrderDetailsModal() {
     const b = e.target.closest("[data-wlmode]");
     if(b && b.dataset.wlmode !== hub.wl.mode){ hub.wl.mode = b.dataset.wlmode; hubRender(); }
   });
+  /* ---------- Campaign composer ---------- */
+  const camp = { list:[], d:null, ro:false, aud:null, busy:false, poll:null };
+  const CMP_TOPICS = [["news","News"],["offers","Offers"],["shipment","Shipment"],["announcements","Announcements"]];
+  const CMP_AUD = [["all","Everyone"],["customers","Customers"],["guests","Guests"]];
+  const campEl = id => document.getElementById(id);
+  const newDraft = () => ({ id:null, subject:"", preview:"", body:"", topic:"news", btnLabel:"", btnUrl:"", audience:"all" });
+
+  function cmpBodyHtml(raw){
+    return String(raw || "").trim().split(/\n{2,}/).filter(Boolean).map(p => "<p>" + escapeHtml(p)
+      .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
+      .replace(/(https:\/\/[^\s<]+)/g, '<span class="cmp-link">$1</span>')
+      .replace(/\n/g, "<br>") + "</p>").join("");
+  }
+  function cmpPreviewHtml(d){
+    const btn = d.btnUrl && /^https:\/\//i.test(d.btnUrl) ? `<div style="margin-top:6px"><span class="cmp-prev__btn">${escapeHtml(d.btnLabel || "Open")}</span></div>` : "";
+    return `<div class="cmp-prev"><div class="cmp-prev__card"><div class="cmp-prev__head">SuppVerse <span>BD</span></div>
+      <div class="cmp-prev__body"><h2>${escapeHtml(d.subject || "Your subject")}</h2>${cmpBodyHtml(d.body) || "<p style=\"color:#8a95a6\">Your message appears here.</p>"}${btn}</div>
+      <div class="cmp-prev__foot">You're receiving this because you subscribed to SuppVerse BD updates.<br><u>Unsubscribe</u></div></div></div>`;
+  }
+  function cmpErr(err){
+    const m = String((err && (err.message || err.details)) || err || "");
+    if(/not authorized/i.test(m)) return "Admin access required";
+    if(/https/i.test(m)) return "Button link must start with https://";
+    if(/Subject required/i.test(m)) return "Add a subject first";
+    if(/Message required/i.test(m)) return "Write a message first";
+    if(/already sent/i.test(m)) return "This campaign was already sent";
+    return m || "Something went wrong";
+  }
+  async function cmpInvoke(action, id){
+    const c = hubClient();
+    if(!c) throw new Error("Open the inbox from the admin app while signed in.");
+    const { data, error } = await c.functions.invoke("send-campaign", { body:{ action, campaign_id:id } });
+    if(error){
+      let j = null; try{ j = await error.context.json(); }catch(_){}
+      throw new Error(({ mail_unavailable:"Email service isn't set up", no_recipients:"No subscribers match this audience and topic", already_sent:"This campaign was already sent", send_failed:"Email provider rejected the send" })[j && j.error] || (j && j.error) || error.message);
+    }
+    return data;
+  }
+
+  function campShow(show){ campEl("campView").hidden = !show; document.body.style.overflow = show ? "hidden" : ""; }
+  async function openCampaigns(){ campShow(true); await campList(); }
+  function campClose(){ clearInterval(camp.poll); camp.poll = null; campShow(false); }
+
+  async function campList(){
+    camp.d = null;
+    campEl("campTitle").textContent = "Campaigns";
+    campEl("campHeadBtn").hidden = false;
+    const box = campEl("campScroll");
+    box.innerHTML = `<div class="cust-list-empty"><b>Loading…</b></div>`;
+    try{
+      camp.list = await hubRpc("admin_list_campaigns", { p_limit:50, p_offset:0 }) || [];
+      renderCampList();
+      clearInterval(camp.poll); camp.poll = null;
+      if(camp.list.some(x => x.status === "sending")){
+        let n = 0;
+        camp.poll = setInterval(async () => {
+          if(camp.d || ++n > 40){ clearInterval(camp.poll); camp.poll = null; return; }
+          try{ camp.list = await hubRpc("admin_list_campaigns", { p_limit:50, p_offset:0 }) || []; renderCampList(); }catch(_){}
+          if(!camp.list.some(x => x.status === "sending")){ clearInterval(camp.poll); camp.poll = null; }
+        }, 4000);
+      }
+    }catch(err){ box.innerHTML = `<div class="cust-list-empty"><b>Couldn't load campaigns</b>${escapeHtml(cmpErr(err))}</div>`; }
+  }
+  function renderCampList(){
+    if(camp.d) return;
+    const box = campEl("campScroll");
+    if(!camp.list.length){ box.innerHTML = `<div class="cust-list-empty"><b>No campaigns yet</b>Tap + New to write your first email to subscribers.</div>`; return; }
+    const topic = t => (CMP_TOPICS.find(x => x[0] === t) || [0, t])[1];
+    box.innerHTML = camp.list.map(c => {
+      const st = { draft:"Draft", sending:"Sending…", sent:"Sent", failed:"Failed" }[c.status] || c.status;
+      const stats = c.status === "draft" ? "" : `<span>${c.sent_count}/${c.total_count} sent</span>${c.failed_count ? `<span style="color:var(--red)">${c.failed_count} failed</span>` : ""}`;
+      return `<button type="button" class="cmp-card" data-camp="${escapeHtml(c.id)}">
+        <div class="cmp-card__top"><div class="cmp-card__subj">${escapeHtml(c.subject)}</div><span class="cmp-pill is-${escapeHtml(c.status)}">${st}</span></div>
+        <div class="cmp-card__meta"><span>${escapeHtml(topic(c.topic))}</span><span>${escapeHtml(({ all:"Everyone", customers:"Customers", guests:"Guests" })[c.audience] || "")}</span>${stats}<span>${escapeHtml(fmtDate(c.sent_at || c.created_at))}</span></div></button>`;
+    }).join("");
+  }
+
+  function campEdit(d, ro){
+    camp.d = d; camp.ro = !!ro; camp.aud = null;
+    clearInterval(camp.poll); camp.poll = null;
+    campEl("campTitle").textContent = ro ? "Campaign" : (d.id ? "Edit draft" : "New campaign");
+    campEl("campHeadBtn").hidden = true;
+    const dis = ro ? " disabled" : "";
+    const chips = (arr, key) => `<div class="cmp-chips">${arr.map(([v, l]) => `<button type="button" class="cmp-chip${d[key] === v ? " on" : ""}" data-cmp-${key}="${v}"${dis}>${l}</button>`).join("")}</div>`;
+    campEl("campScroll").innerHTML = `
+      <span class="cmp-label">Topic</span>${chips(CMP_TOPICS, "topic")}
+      <span class="cmp-label">Subject <small id="cmpSubjN">${d.subject.length}/150</small></span>
+      <input class="cmp-input" id="cmpSubject" maxlength="150" placeholder="e.g. New arrivals are here"${dis} value="${escapeHtml(d.subject)}">
+      <span class="cmp-label">Preview text <small>optional</small></span>
+      <input class="cmp-input" id="cmpPreview" maxlength="150" placeholder="Short line shown in the inbox list"${dis} value="${escapeHtml(d.preview)}">
+      <span class="cmp-label">Message <small>**bold** · https:// links</small></span>
+      <textarea class="cmp-text" id="cmpBody" placeholder="Write your message. Leave a blank line between paragraphs."${dis}>${escapeHtml(d.body)}</textarea>
+      <span class="cmp-label">Button <small>optional</small></span>
+      <input class="cmp-input" id="cmpBtnLabel" maxlength="40" placeholder="Button text, e.g. Shop now"${dis} value="${escapeHtml(d.btnLabel)}">
+      <input class="cmp-input" id="cmpBtnUrl" maxlength="500" inputmode="url" placeholder="https://…" style="margin-top:8px"${dis} value="${escapeHtml(d.btnUrl)}">
+      <span class="cmp-label">Send to</span>${chips(CMP_AUD, "audience")}
+      <div class="cmp-aud" id="cmpAud"></div>
+      <span class="cmp-label">Preview</span><div id="cmpPrev">${cmpPreviewHtml(d)}</div>
+      ${ro ? `<div class="cmp-actions"><button type="button" class="cmp-btn" data-cmp-act="back">Back to campaigns</button></div>` : `
+      <div class="cmp-actions">
+        <button type="button" class="cmp-btn is-primary" data-cmp-act="send">Send to subscribers</button>
+        <button type="button" class="cmp-btn" data-cmp-act="test">Send test to me</button>
+        <button type="button" class="cmp-btn" data-cmp-act="save">Save draft</button>
+        ${d.id ? `<button type="button" class="cmp-btn is-danger" data-cmp-act="delete">Delete draft</button>` : ""}
+      </div>`}`;
+    campAud();
+  }
+  function campRead(){
+    const d = camp.d; if(!d || camp.ro) return;
+    d.subject = campEl("cmpSubject").value; d.preview = campEl("cmpPreview").value; d.body = campEl("cmpBody").value;
+    d.btnLabel = campEl("cmpBtnLabel").value; d.btnUrl = campEl("cmpBtnUrl").value;
+  }
+  async function campAud(){
+    const d = camp.d, el = campEl("cmpAud"); if(!d || !el) return;
+    el.textContent = "Counting…";
+    try{
+      const n = await hubRpc("admin_campaign_audience", { p_audience:d.audience, p_topic:d.topic });
+      if(camp.d !== d) return;
+      camp.aud = n;
+      el.classList.toggle("is-zero", !n);
+      el.innerHTML = n ? `Will send to <b>${n}</b> subscribed ${n === 1 ? "person" : "people"}` : `<b>No one</b> is subscribed for this topic and audience yet`;
+    }catch(_){ el.textContent = ""; }
+  }
+  async function campSave(){
+    campRead();
+    const d = camp.d;
+    d.id = await hubRpc("admin_save_campaign", { p_id:d.id, p_subject:d.subject, p_preview:d.preview, p_body:d.body, p_topic:d.topic, p_button_label:d.btnLabel, p_button_url:d.btnUrl, p_audience:d.audience });
+    return d.id;
+  }
+  function campBusy(on){ camp.busy = on; document.querySelectorAll("#campScroll .cmp-btn").forEach(b => b.disabled = on); }
+
+  async function campAct(act){
+    if(camp.busy) return;
+    if(act === "back"){ campList(); return; }
+    campBusy(true);
+    try{
+      if(act === "save"){ await campSave(); showToast("Draft saved"); }
+      else if(act === "test"){
+        const id = await campSave(); const r = await cmpInvoke("test", id);
+        showToast("Test sent to " + r.to);
+      }else if(act === "delete"){
+        if(camp.d.id) await hubRpc("admin_delete_campaign", { p_id:camp.d.id });
+        showToast("Draft deleted"); await campList(); return;
+      }else if(act === "send"){
+        const id = await campSave();
+        await campAud();
+        const n = camp.aud || 0;
+        if(!n){ showToast("No subscribers to send to"); return; }
+        campConfirm(id, n);
+      }
+    }catch(err){ showToast(cmpErr(err)); }
+    finally{ campBusy(false); }
+  }
+  function campConfirm(id, n){
+    const c = campEl("campConfirm");
+    c.innerHTML = `<div class="cmp-confirm__box"><h3>Send to ${n} ${n === 1 ? "person" : "people"}?</h3>
+      <p>"${escapeHtml(camp.d.subject)}" will be emailed to subscribed ${n === 1 ? "person" : "people"} now. This can't be undone.</p>
+      <div class="cmp-confirm__row"><button type="button" class="cmp-btn" data-cmp-act="cancel">Cancel</button><button type="button" class="cmp-btn is-primary" data-cmp-act="confirm">Send</button></div></div>`;
+    c.hidden = false;
+    c.onclick = async e => {
+      const b = e.target.closest("[data-cmp-act]"); if(!b) return;
+      if(b.dataset.cmpAct === "cancel"){ c.hidden = true; return; }
+      if(b.dataset.cmpAct !== "confirm" || camp.busy) return;
+      camp.busy = true; b.disabled = true;
+      try{
+        if(!(await confirmFingerprint())) return;
+        const r = await cmpInvoke("send", id);
+        c.hidden = true;
+        showToast(`Sending to ${r.total}…`);
+        await campList();
+      }catch(err){ showToast(cmpErr(err)); }
+      finally{ camp.busy = false; b.disabled = false; }
+    };
+  }
+
+  campEl("campBack").addEventListener("click", () => { if(camp.d){ campList(); } else { campClose(); } });
+  campEl("campHeadBtn").addEventListener("click", () => campEdit(newDraft(), false));
+  campEl("campScroll").addEventListener("click", e => {
+    const card = e.target.closest("[data-camp]");
+    if(card){
+      const c = camp.list.find(x => x.id === card.dataset.camp); if(!c) return;
+      campEdit({ id:c.id, subject:c.subject || "", preview:c.preview_text || "", body:c.body || "", topic:c.topic, btnLabel:c.button_label || "", btnUrl:c.button_url || "", audience:c.audience }, c.status !== "draft");
+      return;
+    }
+    const act = e.target.closest("[data-cmp-act]"); if(act){ campAct(act.dataset.cmpAct); return; }
+    if(!camp.d || camp.ro) return;
+    const t = e.target.closest("[data-cmp-topic]"), a = e.target.closest("[data-cmp-audience]");
+    if(t || a){
+      campRead();
+      if(t) camp.d.topic = t.dataset.cmpTopic; else camp.d.audience = a.dataset.cmpAudience;
+      const sc = campEl("campScroll").scrollTop; campEdit(camp.d, false); campEl("campScroll").scrollTop = sc;
+    }
+  });
+  campEl("campScroll").addEventListener("input", e => {
+    if(!camp.d || camp.ro || !e.target.matches(".cmp-input, .cmp-text")) return;
+    campRead();
+    campEl("cmpSubjN").textContent = camp.d.subject.length + "/150";
+    campEl("cmpPrev").innerHTML = cmpPreviewHtml(camp.d);
+  });
+  campEl("customersListScroll").addEventListener("click", e => {
+    const b = e.target.closest("[data-sub-act]"); if(!b) return;
+    if(b.dataset.subAct === "new"){ campShow(true); campEdit(newDraft(), false); }
+    else openCampaigns();
+  });
+
+
   els.hubKindTabs.addEventListener("click", e => {
     const b = e.target.closest("[data-subkind]");
     if(b && b.dataset.subkind !== hub.subs.kind){ hub.subs.kind = b.dataset.subkind; syncHubHeader(); hubLoad(true); }
