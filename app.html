@@ -308,7 +308,6 @@ html[data-theme="dark"] .section-header.expanded .section-chevron { color: rgba(
   display: grid;
   grid-template-rows: 0fr;
   transition: grid-template-rows 0.38s cubic-bezier(0.4, 0, 0.2, 1);
-  will-change: grid-template-rows;
 }
 .section-content.expanded {
   grid-template-rows: 1fr;
@@ -1719,7 +1718,6 @@ html[data-theme="dark"] .st-row-header.expanded .st-row-chevron { color: rgba(25
   display: grid;
   grid-template-rows: 0fr;
   transition: grid-template-rows 0.34s cubic-bezier(0.4, 0, 0.2, 1);
-  will-change: grid-template-rows;
 }
 .st-row-content.expanded { grid-template-rows: 1fr; }
 .st-row-inner {
@@ -8384,6 +8382,17 @@ html[data-theme="dark"] :is(#alertsTabContent,#notifTabContent) .rq-tag { border
 .drawer-nav-icon.nav-ic-archive svg, .drawer-nav-icon.nav-ic-help svg { stroke: #fff; }
 html[data-theme="dark"] .section-icon.draft-icon svg, html[data-theme="dark"] .section-icon.proxy-icon svg, html[data-theme="dark"] .section-icon.website-icon svg, html[data-theme="dark"] .section-icon.voucher-icon svg,
 html[data-theme="dark"] .section-icon.settings-icon svg, html[data-theme="dark"] .section-icon.calc-icon svg, html[data-theme="dark"] .section-icon.export-icon svg, html[data-theme="dark"] .section-icon.import-icon svg { color: #fff; }
+/* ---- Menu expand / collapse polish ---- */
+.section-inner, .st-row-inner { visibility: hidden; transition-property: opacity, transform, padding, visibility; }
+.section-content.expanded > .section-inner, .st-row-content.expanded > .st-row-inner { visibility: visible; }
+.section-inner { transition-duration: 0.28s, 0.28s, 0.38s, 0s; transition-delay: 0s, 0s, 0s, 0.38s; }
+.section-content.expanded > .section-inner { transition-duration: 0.3s, 0.3s, 0.38s, 0s; transition-delay: 0.08s, 0.08s, 0s, 0s; }
+.st-row-inner { transition-duration: 0.24s, 0.24s, 0.34s, 0s; transition-delay: 0s, 0s, 0s, 0.34s; }
+.st-row-content.expanded > .st-row-inner { transition-duration: 0.26s, 0.26s, 0.34s, 0s; transition-delay: 0.06s, 0.06s, 0s, 0s; }
+.section-chevron, .st-row-chevron { will-change: transform; }
+@media (prefers-reduced-motion: reduce) {
+  .section-content, .section-inner, .st-row-content, .st-row-inner, .section-chevron, .st-row-chevron { transition-duration: 0.01s !important; transition-delay: 0s !important; }
+}
 </style>
 <base target="_blank">
 <div class="modal-overlay" id="orderDetailsModal" onclick="if(event.target===this)closeOrderDetailsModal()">
@@ -18363,7 +18372,7 @@ window.addEventListener('storage', function (e) {
 });
 
 /* SECTIONS */
-const sectionState = { notif: false, draft: true, calc: false, settings: false, margin: false, voucher: false, website: false };
+const sectionState = { notif: false, draft: true, importOrder: false, calc: false, settings: false, margin: false, voucher: false, website: false };
 
 function openCreateVoucher() { openIssueVoucherModal(); }
 
@@ -18480,10 +18489,20 @@ function closePaySuccess() {
 }
 
 function toggleSection(name) {
-  sectionState[name] = !sectionState[name];
   const h = document.getElementById(name + "Header"), c = document.getElementById(name + "Content");
-  if (h) h.classList.toggle("expanded", sectionState[name]);
-  if (c) c.classList.toggle("expanded", sectionState[name]);
+  if (!c) return;
+  const open = !c.classList.contains("expanded");     /* DOM is the source of truth -> can never get out of sync */
+  sectionState[name] = open;
+  if (h) h.classList.toggle("expanded", open);
+  c.classList.toggle("expanded", open);
+  if (open) {                                          /* after the expand finishes, bring a tall menu fully into view */
+    clearTimeout(c._svScroll);
+    c._svScroll = setTimeout(() => {
+      if (!c.classList.contains("expanded")) return;
+      const sec = c.closest(".collapsible-section") || c;
+      try { sec.scrollIntoView({ behavior: "smooth", block: "nearest" }); } catch (e) { sec.scrollIntoView(false); }
+    }, 400);
+  }
 }
 
 /* SETTINGS ROWS — accordion behaviour, one open at a time */
@@ -28743,10 +28762,13 @@ function renderAlertsTabNow() {
 function al_renderNotifs() {
   const nc = document.getElementById('notifTabContent');
   if (!nc) return;
-  nc.innerHTML = '<div class="al-cards-wrap al-no-anim">' +
+  const html = '<div class="al-cards-wrap al-no-anim">' +
     al_lowStockCard() + al_outOfStockCard() + al_expiryCard() +
     al_expiredCard() +
   '</div>';
+  if (nc._svHtml === html && nc.firstChild) return;   /* unchanged -> leave the DOM (and any running expand animation) alone */
+  nc._svHtml = html;
+  nc.innerHTML = html;
   document.querySelectorAll(':is(#alertsTabContent,#notifTabContent) .al-card:not([data-group])').forEach(c => c.setAttribute('data-group', 'stock'));
   al_equalizeCardHeights();
   al_initSwipeToDismiss();
