@@ -8382,6 +8382,8 @@ html[data-theme="dark"] :is(#alertsTabContent,#notifTabContent) .rq-tag { border
 .drawer-nav-icon.nav-ic-archive svg, .drawer-nav-icon.nav-ic-help svg { stroke: #fff; }
 html[data-theme="dark"] .section-icon.draft-icon svg, html[data-theme="dark"] .section-icon.proxy-icon svg, html[data-theme="dark"] .section-icon.website-icon svg, html[data-theme="dark"] .section-icon.voucher-icon svg,
 html[data-theme="dark"] .section-icon.settings-icon svg, html[data-theme="dark"] .section-icon.calc-icon svg, html[data-theme="dark"] .section-icon.export-icon svg, html[data-theme="dark"] .section-icon.import-icon svg { color: #fff; }
+/* FLIP snap: switch layout instantly (no transitions) inside the section being toggled */
+.sv-noanim, .sv-noanim * { transition: none !important; }
 /* ---- Menu expand / collapse polish ---- */
 .section-inner, .st-row-inner { visibility: hidden; transition-property: opacity, transform, padding, visibility; }
 .section-content.expanded > .section-inner, .st-row-content.expanded > .st-row-inner { visibility: visible; }
@@ -18488,20 +18490,109 @@ function closePaySuccess() {
   }
 }
 
+/* MENU EXPAND / COLLAPSE — compositor-driven (FLIP).
+   The section is switched to its final layout in ONE style/layout pass, then everything below it slides with GPU transforms
+   (curtain reveal). No per-frame layout or style work -> stays smooth on slow phones even with a very large page. */
+const SV_MENU_ANIM = (function () {
+  const DUR = 340, EASE = 'cubic-bezier(0.32,0.72,0,1)';
+  const panel = () => document.getElementById('drawerPanel');
+  function opaqueBg(el) {
+    for (; el; el = el.parentElement) {
+      const c = getComputedStyle(el).backgroundColor;
+      if (c && c !== 'transparent' && !/,\s*0\)$/.test(c)) return c;
+    }
+    return getComputedStyle(document.documentElement).getPropertyValue('--bg') || '#fff';
+  }
+  function flowAfter(anchor) {
+    const stop = panel(), out = [];
+    for (let n = anchor; n && n !== stop && n !== document.body; n = n.parentElement)
+      for (let sib = n.nextElementSibling; sib; sib = sib.nextElementSibling) {
+        const pos = getComputedStyle(sib).position;
+        if (pos === 'static' || pos === 'relative') out.push(sib);
+      }
+    return out;
+  }
+  const tops = list => list.map(e => e.getBoundingClientRect().top);
+  function reset(job) {
+    clearTimeout(job.timer);
+    job.sibs.forEach(e => { e.style.transition = ''; e.style.transform = ''; e.style.willChange = ''; e.style.background = ''; e.style.position = ''; e.style.zIndex = ''; });
+    if (job.inner) { job.inner.style.transition = ''; job.inner.style.opacity = ''; }
+    job.anchor.classList.remove('sv-noanim');
+  }
+  function snap(job) {                       /* finish a running animation immediately */
+    if (!job || job.done) return; job.done = true; reset(job);
+    if (job.finish) job.finish();
+  }
+  function run(anchor, content, header, name, open, state) {
+    snap(content._svJob);
+    const reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const inner = content.firstElementChild;
+    const apply = (isOpen) => { if (header) header.classList.toggle('expanded', isOpen); content.classList.toggle('expanded', isOpen); };
+    anchor.classList.add('sv-noanim');
+    const sibs = flowAfter(anchor), before = tops(sibs);
+    const job = { anchor, inner, sibs, done: false, timer: 0 }; content._svJob = job;
+    if (reduce || !sibs.length && !open) { apply(open); void anchor.offsetHeight; reset(job); job.done = true; return; }
+    if (open) {
+      content.classList.add('expanded'); void anchor.offsetHeight;   /* final layout, one pass */
+      const after = tops(sibs), bg = opaqueBg(anchor);
+      const d = after.map((t, i) => t - before[i]);
+      if (!d.some(v => Math.abs(v) > 0.5)) { if (header) header.classList.add('expanded'); reset(job); job.done = true; return; }
+      sibs.forEach((e, i) => { e.style.position = 'relative'; e.style.zIndex = '2'; e.style.background = bg; e.style.willChange = 'transform'; e.style.transition = 'none'; e.style.transform = 'translateY(' + (-d[i]) + 'px)'; });
+      if (inner) { inner.style.transition = 'none'; inner.style.opacity = '0'; }
+      void anchor.offsetHeight;
+      anchor.classList.remove('sv-noanim');
+      if (header) header.classList.add('expanded');               /* chevron animates with the curtain */
+      requestAnimationFrame(() => {
+        sibs.forEach(e => { e.style.transition = 'transform ' + DUR + 'ms ' + EASE; e.style.transform = 'translateY(0)'; });
+        if (inner) { inner.style.transition = 'opacity 260ms ease 60ms'; inner.style.opacity = '1'; }
+      });
+      job.finish = null;
+    } else {
+      const h = content.getBoundingClientRect().height, bg = opaqueBg(anchor);
+      if (header) header.classList.remove('expanded');         /* chevron turns right away; content stays until the curtain closes */
+      sibs.forEach(e => { e.style.position = 'relative'; e.style.zIndex = '2'; e.style.background = bg; e.style.willChange = 'transform'; });
+      anchor.classList.remove('sv-noanim'); void anchor.offsetHeight;
+      requestAnimationFrame(() => {
+        sibs.forEach(e => { e.style.transition = 'transform ' + DUR + 'ms ' + EASE; e.style.transform = 'translateY(' + (-h) + 'px)'; });
+        if (inner) { inner.style.transition = 'opacity 200ms ease'; inner.style.opacity = '0'; }
+      });
+      job.finish = () => { anchor.classList.add('sv-noanim'); content.classList.remove('expanded'); void anchor.offsetHeight; anchor.classList.remove('sv-noanim'); };
+    }
+    job.timer = setTimeout(() => snap(job), DUR + 60);
+  }
+  return { run };
+})();
+
+/* While the menu is open, pause the page's always-running glow/pulse animations behind it so the drawer gets every frame. */
+(function svPauseBackdropAnimations() {
+  let paused = [];
+  const onChange = e => {
+    if (e.target.checked) {
+      const dp = document.getElementById('drawerPanel');
+      paused = document.getAnimations().filter(a => {
+        try { return typeof CSSAnimation !== 'undefined' && a instanceof CSSAnimation && a.playState === 'running' && a.effect.getTiming().iterations === Infinity && a.effect.target && !(dp && dp.contains(a.effect.target)); } catch (err) { return false; }
+      });
+      paused.forEach(a => { try { a.pause(); } catch (err) {} });
+    } else { paused.forEach(a => { try { a.play(); } catch (err) {} }); paused = []; }
+  };
+  document.querySelectorAll('input[id="menuState"]').forEach(cb => cb.addEventListener('change', onChange));
+})();
+
 function toggleSection(name) {
   const h = document.getElementById(name + "Header"), c = document.getElementById(name + "Content");
   if (!c) return;
-  const open = !c.classList.contains("expanded");     /* DOM is the source of truth -> can never get out of sync */
-  sectionState[name] = open;
-  if (h) h.classList.toggle("expanded", open);
-  c.classList.toggle("expanded", open);
-  if (open) {                                          /* after the expand finishes, bring a tall menu fully into view */
+  const anchor = c.closest(".collapsible-section") || c.parentElement;
+  const cur = c._svWanted === undefined ? c.classList.contains("expanded") : c._svWanted;
+  const willOpen = !cur;
+  c._svWanted = willOpen;
+  sectionState[name] = willOpen;
+  SV_MENU_ANIM.run(anchor, c, h, name, willOpen, sectionState);
+  if (willOpen) {                                      /* once open, bring a tall menu fully into view */
     clearTimeout(c._svScroll);
     c._svScroll = setTimeout(() => {
       if (!c.classList.contains("expanded")) return;
-      const sec = c.closest(".collapsible-section") || c;
-      try { sec.scrollIntoView({ behavior: "smooth", block: "nearest" }); } catch (e) { sec.scrollIntoView(false); }
-    }, 400);
+      try { anchor.scrollIntoView({ behavior: "smooth", block: "nearest" }); } catch (e) { anchor.scrollIntoView(false); }
+    }, 420);
   }
 }
 
