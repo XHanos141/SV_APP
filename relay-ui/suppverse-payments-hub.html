@@ -189,11 +189,10 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 .tx.k5{display:flex;align-items:stretch;padding:0;overflow:hidden;position:relative;border-color:color-mix(in srgb,var(--c) 30%,var(--line))}
 .tx.verified{--c:var(--green)}.tx.pending{--c:var(--orange)}.tx.review{--c:var(--purple)}.tx.rejected{--c:var(--red)}.tx.expired{--c:#8fa0b6}
 /* tinted glass card — SV-Web cart "Order Summary" recipe (soft tint, 2px light border, soft shadow); hue follows status */
-.tx.k5{background:var(--s1);border:2px solid color-mix(in srgb,var(--c) 30%,#fff);border-radius:18px;
+.tx.k5{border:2px solid transparent;background:linear-gradient(var(--s1),var(--s1)) padding-box,linear-gradient(90deg,color-mix(in srgb,var(--c) 30%,#fff) 0,color-mix(in srgb,var(--c) 30%,#fff) calc(100% - 150px),var(--c) calc(100% - 96px)) border-box;border-radius:18px;
   box-shadow:0 4px 6px rgba(0,0,0,.05),0 10px 20px rgba(0,0,0,.08),inset 0 1px 1px rgba(255,255,255,.8);
   transition:transform .18s var(--ease),box-shadow .25s var(--ease)}
-.tx.k5:hover{border-color:color-mix(in srgb,var(--c) 30%,#fff)}
-[data-theme=dark] .tx.k5{background:#0f1a28;border-color:color-mix(in srgb,var(--c) 42%,#0f1a28);
+[data-theme=dark] .tx.k5{background:linear-gradient(#0f1a28,#0f1a28) padding-box,linear-gradient(90deg,color-mix(in srgb,var(--c) 42%,#0f1a28) 0,color-mix(in srgb,var(--c) 42%,#0f1a28) calc(100% - 150px),var(--c) calc(100% - 96px)) border-box;
   box-shadow:0 4px 6px rgba(0,0,0,.3),0 10px 20px rgba(0,0,0,.4),inset 0 1px 1px rgba(255,255,255,.1),0 0 0 1px rgba(255,255,255,.05)}
 .k5 .kin{flex:1;min-width:0;display:flex;align-items:center;gap:11px;padding:13px 14px;background:linear-gradient(90deg,color-mix(in srgb,var(--c) 22%,transparent) 0%,color-mix(in srgb,var(--c) 10%,transparent) 50%,color-mix(in srgb,var(--c) 3%,transparent) 82%,color-mix(in srgb,var(--c) 0%,transparent) 100%)}
 .k5 .tx-mid .oid{margin-top:5px}
