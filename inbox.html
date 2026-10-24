@@ -2644,17 +2644,16 @@ html:not([data-theme="light"]) .odm-card { background: rgba(43,116,227,0.08); bo
 
   /* ---------- Order card dropdown (same card everywhere) ---------- */
   .oc-wrap{ margin-bottom:8px; }
-  .oc-wrap .oc-card{ margin-bottom:0; transition:border-color .15s, background .15s, border-radius .25s var(--ease-out); }
+  .oc-wrap{ contain:layout style; }
+  .oc-wrap .oc-card{ margin-bottom:0; transition:border-color .15s, background .15s, box-shadow .3s ease; -webkit-tap-highlight-color:transparent; }
   .oc-card__chev{ transform:rotate(90deg); transition:transform .3s var(--ease-out); }
   .oc-wrap.is-open .oc-card__chev{ transform:rotate(-90deg); }
-  .oc-wrap.is-open .oc-card{ border-bottom-left-radius:0; border-bottom-right-radius:0; border-bottom-color:transparent; }
-  .oc-detail{ display:grid; grid-template-rows:0fr; opacity:0; transition:grid-template-rows .34s var(--ease-out), opacity .24s ease; }
-  .oc-wrap.is-open .oc-detail{ grid-template-rows:1fr; opacity:1; }
-  .oc-detail__inner{ min-height:0; overflow:hidden; display:flex; flex-direction:column; gap:14px; padding:0 12px;
-    background:var(--surface); border:1px solid rgba(10,155,220,0.30); border-top:0; border-radius:0 0 12px 12px;
-    visibility:hidden; transition:padding .34s var(--ease-out), visibility 0s linear .34s; }
+  .oc-wrap.is-shown .oc-card{ border-bottom-left-radius:0; border-bottom-right-radius:0; border-bottom-color:transparent; }
+  .oc-detail{ display:none; overflow:hidden; }
+  .oc-detail[data-show]{ display:block; }
+  .oc-detail__inner{ display:flex; flex-direction:column; gap:14px; padding:12px;
+    background:var(--surface); border:1px solid rgba(10,155,220,0.30); border-top:0; border-radius:0 0 12px 12px; }
   html:not([data-theme="light"]) .oc-detail__inner{ background:#1A2235; border-color:rgba(45,190,245,0.32); }
-  .oc-wrap.is-open .oc-detail__inner{ padding:12px; visibility:visible; transition-delay:0s; }
   .order-strip .oc-detail__inner{ max-height:44vh; overflow-y:auto; }
   /* ---- Order cards = SV-Web orders.html look: bubble card (blue = store, orange = Buy For Me) ---- */
   .oc-card{ border-radius:16px; border-color:rgba(10,155,220,.55);
@@ -2669,7 +2668,7 @@ html:not([data-theme="light"]) .odm-card { background: rgba(43,116,227,0.08); bo
   .oc-card--px:hover{ border-color:rgba(242,100,48,.75); }
   .oc-card__pill{ border-radius:999px; padding:3px 10px; }
   .oc-wrap{ margin-bottom:12px; }
-  .oc-wrap.is-open .oc-card{ box-shadow:none; }
+  .oc-wrap.is-shown .oc-card{ box-shadow:none; }
   .oc-detail__inner{ border-radius:0 0 16px 16px; border-color:rgba(10,155,220,.55); }
   html:not([data-theme="light"]) .oc-detail__inner{ background:#141f2f; border-color:rgba(45,190,245,.5); }
   .oc-wrap--px .oc-detail__inner{ border-color:rgba(242,100,48,.55); }
@@ -4657,12 +4656,29 @@ function closeOrderDetailsModal() {
     if(!conv || !live(conv.id) || conv.channel !== "messenger" || !conv.customer_id || !/^(SV|PX)-/.test(String(oid))) return "";
     return `<button type="button" class="cs-btn cs-btn--block cs-btn--primary" data-act="send-receipt" data-oid="${escAttr(oid)}" style="margin-top:10px">${RECEIPT_SVG}Send receipt card</button>`;
   }
+  function ocAnimate(wrap, open){
+    const d = wrap.querySelector(".oc-detail"); if(!d) return;
+    const cur = d._a ? d.getBoundingClientRect().height : (d.hasAttribute("data-show") ? d.offsetHeight : 0);
+    if(d._a){ d._a.cancel(); d._a = null; }
+    const reduce = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if(open){
+      wrap.classList.add("is-shown"); d.setAttribute("data-show", "1");
+      const to = d.offsetHeight;
+      if(reduce || !d.animate || to < 2){ return; }
+      const a = d._a = d.animate([{ height:cur + "px", opacity:cur ? cur / to : 0 }, { height:to + "px", opacity:1 }], { duration:340, easing:"cubic-bezier(.22,1,.36,1)" });
+      a.onfinish = () => { d._a = null; wrap.scrollIntoView({ block:"nearest", behavior:"smooth" }); };
+    }else{
+      if(!cur || reduce || !d.animate){ wrap.classList.remove("is-shown"); d.removeAttribute("data-show"); return; }
+      const a = d._a = d.animate([{ height:cur + "px", opacity:1 }, { height:"0px", opacity:0 }], { duration:260, easing:"cubic-bezier(.4,0,.2,1)", fill:"forwards" });
+      a.onfinish = () => { d._a = null; wrap.classList.remove("is-shown"); d.removeAttribute("data-show"); a.cancel(); };
+    }
+  }
   function toggleOrderDropdown(card){
     const wrap = card.closest(".oc-wrap"); if(!wrap) return;
     const open = !wrap.classList.contains("is-open");
     if(open){
       wrap.parentElement.querySelectorAll(".oc-wrap.is-open").forEach(w => {
-        w.classList.remove("is-open"); w.querySelector(".oc-card").setAttribute("aria-expanded", "false");
+        w.classList.remove("is-open"); w.querySelector(".oc-card").setAttribute("aria-expanded", "false"); ocAnimate(w, false);
       });
       wrap.querySelector(".oc-detail__inner").innerHTML = orderDetailsInner(card.dataset.oid)
         || `<div class="cust-inline-empty">No details recorded for this order.</div>`;
@@ -4670,7 +4686,7 @@ function closeOrderDetailsModal() {
     }
     wrap.classList.toggle("is-open", open);
     card.setAttribute("aria-expanded", open ? "true" : "false");
-    if(open) setTimeout(() => wrap.scrollIntoView({ block:"nearest", behavior:"smooth" }), 340);
+    ocAnimate(wrap, open);
   }
   function openOrderModal(oid){
     const cust = getSheetCustomer();
