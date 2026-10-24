@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en" data-theme="light">
 <head>
+<script src="../assets/js/sv-back.js"></script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>SuppVerse BD · Payments Hub</title>
@@ -715,6 +716,8 @@ function setView(v){
 }
 document.querySelectorAll('.nav-item').forEach(b=>b.onclick=()=>setView(b.dataset.v));
 $('#pmStrip').onclick=()=>setView('set');
+/* Back button: one step at a time — sheet first, then any other tab returns to Overview */
+if(window.SVBack)SVBack.registerHook(()=>{const sh=$('#sheet');if(sh&&sh.classList.contains('on')){closeSheet();return true}const cur=document.body.dataset.view||'ov';if(cur!=='ov'){setView('ov');return true}return false});
 function mt(t){const e=$('#mt');e.textContent=t;e.classList.add('show');clearTimeout(mt.t);mt.t=setTimeout(()=>e.classList.remove('show'),2600)}
 
 /* retry queue (demo) */
