@@ -2359,7 +2359,10 @@ html:not([data-theme="light"]) .odm-card { background: rgba(43,116,227,0.08); bo
   .hub-sub{ display:flex; align-items:center; gap:10px; padding:7px 0; }
   .hub-sub + .hub-sub{ border-top:1px solid var(--hairline); }
   .hub-sub__main{ flex:1; min-width:0; }
-  .hub-sub__name{ font-size:13px; font-weight:700; color:var(--text-1); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .hub-sub .cust-list-row__avatar{ width:36px; height:36px; flex:0 0 auto; font-size:13px; }
+  .hub-sub__head{ display:flex; align-items:center; gap:7px; min-width:0; }
+  .hub-sub__head .cust-list-row__id{ margin-top:0; flex:0 0 auto; }
+  .hub-sub__name{ min-width:0; font-size:13px; font-weight:700; color:var(--text-1); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
   .hub-link{ flex:0 0 auto; font-size:11.5px; font-weight:800; color:var(--cyan); padding:5px 10px; border-radius:8px; border:1px solid var(--hairline); }
   .hub-note{ margin:4px 4px 10px; padding:10px 12px; border-radius:12px; font-size:12px; line-height:1.45; color:var(--text-2);
     background:rgba(244,169,34,.1); border:1px solid rgba(244,169,34,.28); }
@@ -7533,7 +7536,7 @@ function closeOrderDetailsModal() {
     return list.map(g => `
       ${wishlistCardHtml(g)}
       <div class="hub-detail" hidden>${g.customers.map(c => `
-        <div class="hub-sub"><div class="hub-sub__main"><div class="hub-sub__name">${escapeHtml(c.name || "Unnamed customer")}</div><div class="hub-row__sub">${escapeHtml([c.code, c.email].filter(Boolean).join(" · "))}</div></div>
+        <div class="hub-sub">${avatarHtml(c.name, c.avatar_url)}<div class="hub-sub__main"><div class="hub-sub__head"><span class="hub-sub__name">${escapeHtml(c.name || "Unnamed customer")}</span>${c.code ? `<span class="cust-list-row__id">${escapeHtml(c.code)}</span>` : ""}</div>${c.email ? `<div class="hub-row__sub">${escapeHtml(c.email)}</div>` : ""}</div>
         ${c.code ? `<button class="hub-link" data-focus-cust="${escapeHtml(c.code)}">View</button>` : ""}</div>`).join("")}</div>`).join("");
   }
   function wishlistByCustomerHtml(q){
