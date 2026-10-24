@@ -2089,6 +2089,7 @@ html:not([data-theme="light"]) .odm-card { background: rgba(43,116,227,0.08); bo
   .cust-sheet{ transition:transform .38s var(--ease-out), border-radius .3s var(--ease-out), visibility 0s linear .38s; will-change:transform; }
   .cust-sheet.open{ transition-delay:0s; }
   .cust-sheet-backdrop{ transition:opacity .3s var(--ease-out); }
+  .cust-sheet__scroll{ overflow-anchor:none; }
   .cust-sheet__scroll.sheet-swap-fwd { animation:svInFwd  .3s var(--ease-out) both; }
   .cust-sheet__scroll.sheet-swap-back{ animation:svInBack .28s var(--ease-out) both; }
   .cs-chip.sv-pop{ animation:svPop .32s var(--ease-spring) both; }
@@ -2648,8 +2649,8 @@ html:not([data-theme="light"]) .odm-card { background: rgba(43,116,227,0.08); bo
   .oc-wrap .oc-card{ margin-bottom:0; transition:border-color .15s, background .15s, box-shadow .3s ease; -webkit-tap-highlight-color:transparent; }
   .oc-card__chev{ transform:rotate(90deg); transition:transform .3s var(--ease-out); }
   .oc-wrap.is-open .oc-card__chev{ transform:rotate(-90deg); }
-  .oc-wrap.is-shown .oc-card{ border-bottom-left-radius:0; border-bottom-right-radius:0; border-bottom-color:transparent; }
-  .oc-detail{ display:none; overflow:hidden; }
+  .oc-wrap.is-shown .oc-card{ border-bottom-left-radius:0; border-bottom-right-radius:0; }
+  .oc-detail{ display:none; overflow:hidden; margin-top:-1px; }
   .oc-detail[data-show]{ display:block; }
   .oc-detail__inner{ display:flex; flex-direction:column; gap:14px; padding:12px;
     background:var(--surface); border:1px solid rgba(10,155,220,0.30); border-top:0; border-radius:0 0 12px 12px; }
@@ -4778,10 +4779,15 @@ function closeOrderDetailsModal() {
     if(back && back.isConnected && typeof back.focus === "function") back.focus({ preventScroll:true });
   }
   els.custSheetBackdrop.addEventListener("click", closeCustomerPanel);
+  let csScrollRaf = 0;
   els.custSheetScroll.addEventListener("scroll", () => {
-    if(!els.custSheetHead.classList.contains("cs-head--slim")) return;
-    const card = document.getElementById("csIdCard"); if(!card) return;
-    els.custSheetHead.classList.toggle("is-condensed", els.custSheetScroll.scrollTop > card.offsetTop + card.offsetHeight - 24);
+    if(csScrollRaf) return;
+    csScrollRaf = requestAnimationFrame(() => {
+      csScrollRaf = 0;
+      if(!els.custSheetHead.classList.contains("cs-head--slim")) return;
+      const card = document.getElementById("csIdCard"); if(!card) return;
+      els.custSheetHead.classList.toggle("is-condensed", els.custSheetScroll.scrollTop > card.offsetTop + card.offsetHeight - 24);
+    });
   }, { passive:true });
 
   function animateSheetFull(full){
