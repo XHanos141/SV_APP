@@ -3449,7 +3449,7 @@ function escapeHtml(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(
     try{
       var ta = document.createElement('textarea'); ta.value = text; ta.setAttribute('readonly','');
       ta.style.cssText = 'position:fixed;top:0;left:0;opacity:0;'; document.body.appendChild(ta);
-      ta.select(); ta.setSelectionRange(0, text.length);
+      ta.style.fontSize='16px'; ta.focus({preventScroll:true}); ta.select(); ta.setSelectionRange(0, text.length);
       var ok = document.execCommand('copy'); document.body.removeChild(ta); return ok;
     }catch(e){ return false; }
   }
@@ -4429,7 +4429,7 @@ function closeOrderDetailsModal() {
     try{
       const ta = document.createElement("textarea");
       ta.value = text; ta.setAttribute("readonly", ""); ta.style.cssText = "position:fixed;top:0;left:0;opacity:0;";
-      document.body.appendChild(ta); ta.select(); ta.setSelectionRange(0, text.length);
+      document.body.appendChild(ta); ta.style.fontSize="16px"; ta.focus({preventScroll:true}); ta.select(); ta.setSelectionRange(0, text.length);
       const ok = document.execCommand("copy");
       document.body.removeChild(ta);
       return ok;
