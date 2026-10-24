@@ -3712,6 +3712,7 @@ function closeOrderDetailsModal() {
     try{ return window.parent !== window ? (window.parent.svSupabase || null) : null; }catch(_){ return null; }
   }
   async function initSupabase(){
+    if(!state.loadStatus){ state.loadStatus = "loading"; render(); }
     let client = adminClient();
     if(!client && SUPABASE_URL && SUPABASE_ANON_KEY){
       try{
@@ -3720,19 +3721,26 @@ function closeOrderDetailsModal() {
       }catch(_){ client = null; }
     }
     if(!client){
-      state.conversations = [];
+      if(initTries++ < 10){ setTimeout(initSupabase, 800); return; }
+      state.loadStatus = "error";
       render();
       return;
     }
     try{
       supabase = client;
       await fetchConversations();
-      subscribeRealtime();
+      if(!realtimeChannel) subscribeRealtime();
     }catch(err){
       console.error("Supabase init failed:", err);
-      state.conversations = [];
+      state.loadStatus = state.conversations.length ? "ok" : "error";
       render();
+      scheduleListRetry();
     }
+  }
+  let initTries = 0, listRetryTimer = null, listRetryN = 0;
+  function scheduleListRetry(){
+    if(listRetryTimer || listRetryN >= 6) return;
+    listRetryTimer = setTimeout(() => { listRetryTimer = null; listRetryN++; fetchConversations(); }, Math.min(1500 * Math.pow(2, listRetryN), 15000));
   }
 
   async function fetchConversations(){
@@ -3743,15 +3751,24 @@ function closeOrderDetailsModal() {
 
     if(error){
       console.error("fetchConversations error:", error);
-      state.conversations = [];
+      if(!state.conversations.length) state.loadStatus = "error";
       render();
+      scheduleListRetry();
       return;
     }
+    listRetryN = 0;
+    state.loadStatus = "ok";
     state.conversations = data || [];
     await hydrateLinks();
     render();
     updateTicks();
   }
+
+  document.addEventListener("visibilitychange", () => { if(document.visibilityState === "visible" && supabase) fetchConversations(); });
+  window.addEventListener("online", () => { if(supabase) fetchConversations(); else { initTries = 0; initSupabase(); } });
+  document.addEventListener("click", e => {
+    if(e.target.closest("#listRetryBtn")){ listRetryN = 0; state.loadStatus = "loading"; render(); if(supabase) fetchConversations(); else { initTries = 0; initSupabase(); } }
+  });
 
   function subscribeRealtime(){
     realtimeChannel = supabase
@@ -3928,6 +3945,16 @@ function closeOrderDetailsModal() {
     placeStatusSlide();
     const rows = groupRows(getFiltered());
 
+    if(rows.length === 0 && !state.conversations.length && state.loadStatus !== "ok"){
+      els.list.innerHTML = state.loadStatus === "error"
+        ? `<div class="empty-state">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 5h16v11a2 2 0 0 1-2 2H9l-5 4V5Z"/></svg>
+            <p>Couldn't load conversations.</p>
+            <button type="button" class="cs-btn" id="listRetryBtn" style="margin-top:12px">Try again</button>
+          </div>`
+        : `<div class="empty-state"><p>Loading conversations…</p></div>`;
+      return;
+    }
     if(rows.length === 0){
       els.list.innerHTML = `
         <div class="empty-state">
