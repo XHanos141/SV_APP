@@ -2791,13 +2791,14 @@ html:not([data-theme="light"]) .odm-card { background: rgba(43,116,227,0.08); bo
   .msg-quote span{ display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; opacity:.85; word-break:break-word; }
   .msg-row.flash .msg-bubble{ animation:msgFlash 1.1s ease; }
   @keyframes msgFlash{ 0%,60%{ box-shadow:0 0 0 3px rgba(0,157,220,.55); } 100%{ box-shadow:0 0 0 0 rgba(0,157,220,0); } }
-  .quote-bar{ flex:1 0 100%; display:flex; align-items:center; gap:8px; margin:0 0 6px; padding:6px 8px 6px 10px; border-left:3px solid var(--cyan); border-radius:10px; background:var(--surface-2, rgba(127,127,127,.14)); }
+  .quote-bar{ flex:1 0 100%; min-width:0; max-width:100%; box-sizing:border-box; display:flex; align-items:center; gap:8px; margin:0 0 6px; padding:6px 8px 6px 10px; border-left:3px solid var(--cyan); border-radius:10px; background:var(--surface-2, rgba(127,127,127,.14)); }
   .quote-bar[hidden]{ display:none; }
   .quote-bar{ animation:qbIn .26s cubic-bezier(.22,1,.36,1) both; }
   @keyframes qbIn{ from{ opacity:0; transform:translateY(8px) scale(.98); } to{ opacity:1; transform:none; } }
   .quote-bar__body{ flex:1; min-width:0; font-size:12px; }
   .quote-bar__body b{ display:block; font-size:11px; font-weight:800; color:var(--cyan); }
-  .quote-bar__body span{ display:block; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; opacity:.85; }
+  .quote-bar__body span{ display:block; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; opacity:.85; max-width:100%; }
+  .quote-bar__body b{ overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
   .quote-bar__x{ width:28px; height:28px; border-radius:50%; display:flex; align-items:center; justify-content:center; flex:0 0 auto; }
   .quote-bar__x svg{ width:14px; height:14px; }
   .msg-failed{ display:flex; align-items:center; gap:6px; margin-top:3px; font-size:11.5px; font-weight:700; color:var(--red, #d95353); justify-content:flex-end; text-align:right; }
@@ -5936,8 +5937,8 @@ function closeOrderDetailsModal() {
   // Text replies show at once with a small spinner; the real message replaces it when Meta has it
   var pendingTexts = [];
   var liveSendQueue = Promise.resolve();      // text replies go out one at a time, in the order they were sent
-  function showSendingText(text){
-    const row = buildMessageRow({ sender_type:"admin", content:text, created_at:new Date().toISOString(), channel:"messenger" }, false, true);
+  function showSendingText(text, quoteId){
+    const row = buildMessageRow({ sender_type:"admin", content:text, created_at:new Date().toISOString(), channel:"messenger", ...(quoteId ? { reply_to:quoteId } : {}) }, false, true);
     row.classList.add("msg-new", "msg-sending-text");
     const t = row.querySelector(".msg-bubble__time");
     if(t){ const sp = document.createElement("span"); sp.className = "msg-sending__dot"; t.appendChild(sp); }
@@ -6101,12 +6102,13 @@ function closeOrderDetailsModal() {
   document.getElementById("sendBtn").addEventListener("mousedown", (e) => e.preventDefault());
 
   // Sends a reply to the real customer through the meta-send Edge Function (admin session, 24h rule enforced there).
-  async function sendLiveReply(conv, text, files, beforeRows, extra){
+  async function sendLiveReply(conv, text, files, beforeRows, extra, quote){
     try{
       const body = { conversation_id:conv.id, text };
       if(files && files.length) body.attachments = files;
       if(extra) Object.assign(body, extra);
-      if(state.quote && !state.noteMode && !(extra && (extra.template || extra.receipt))) body.reply_to = state.quote.id;
+      const qt = quote !== undefined ? quote : (state.quote && !state.noteMode ? state.quote : null);
+      if(qt && !(extra && (extra.template || extra.receipt))) body.reply_to = qt.id;
       const { data, error } = await supabase.functions.invoke(conv.channel === "instagram" ? "ig-send" : conv.channel === "whatsapp" ? "wa-send" : "meta-send", { body });
       let res = data;
       if(error){ try{ res = await error.context.json(); }catch(_){ res = { ok:false, error:"Couldn't reach the server. Try again." }; } }
@@ -6121,7 +6123,7 @@ function closeOrderDetailsModal() {
         return false;
       }
       if(res.warning) showToast(res.warning);
-      if(body.reply_to) clearQuote();
+      if(body.reply_to && quote === undefined) clearQuote();
       return true;
     }catch(err){
       console.error("sendLiveReply failed:", err);
@@ -6142,13 +6144,16 @@ function closeOrderDetailsModal() {
       if(conv && conv.channel !== "messenger" && conv.channel !== "instagram" && conv.channel !== "whatsapp"){ showToast("This channel is not connected yet."); return; }
       if(replyLocked()){ showToast(WINDOW_CLOSED_MSG); updateWindow(); return; }
       if(!pendingAtts.length){
-        const textUi = showSendingText(content);
+        const q = state.quote && !state.noteMode ? state.quote : null;
+        const textUi = showSendingText(content, q ? q.id : null);
+        if(q) clearQuote();
         els.composerInput.value = ""; autoResizeComposer(); updateSendState(); syncQuickReplies();   // clear at once
-        const job = liveSendQueue.then(() => sendLiveReply(conv, content, null, textUi.remove));
+        const job = liveSendQueue.then(() => sendLiveReply(conv, content, null, textUi.remove, null, q));
         liveSendQueue = job.catch(() => {});
         const ok = await job;
         textUi.remove();
         if(!ok){                                   // not sent: put the text back so it can be retried
+          if(q && !state.quote){ state.quote = q; renderQuoteBar(); }
           const cur = els.composerInput.value;
           els.composerInput.value = content + (cur ? "\n" + cur : "");
           autoResizeComposer(); updateSendState(); syncQuickReplies();
