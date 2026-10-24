@@ -2463,6 +2463,12 @@ html:not([data-theme="light"]) .odm-card { background: rgba(43,116,227,0.08); bo
   .from-admin .msg-reacts .rx-row{ left:-2px; }        /* our bubble: bottom-left corner */
   .rx-chip{ display:flex; align-items:center; justify-content:center; height:21px; min-width:25px; padding:0 5px; font-size:13px; line-height:1; border-radius:100px; background:linear-gradient(rgba(43,116,227,.24), rgba(43,116,227,.24)), var(--surface); box-shadow:0 0 0 2px var(--body-bg), 0 2px 6px rgba(0,0,0,.2); }
   /* long-press a customer message: emoji row pops in; tapping an emoji pops it */
+  .msg-row[data-mid]:not(.is-note){ touch-action:pan-y; }
+  .sw-ico{ position:fixed; z-index:60; left:0; top:0; width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+    background:var(--surface); color:var(--inbox-blue); border:1px solid var(--hairline); box-shadow:0 2px 8px rgba(8,20,40,.18);
+    opacity:0; pointer-events:none; will-change:transform,opacity; }
+  .sw-ico svg{ width:17px; height:17px; }
+  .sw-ico.armed{ background:var(--inbox-blue); color:#fff; border-color:transparent; }
   .msg-row[data-rx] .msg-bubble{ -webkit-user-select:none; user-select:none; -webkit-touch-callout:none; -webkit-tap-highlight-color:transparent; transition:transform .22s var(--ease-out); }
   .msg-row.rx-active .msg-bubble{ transform:scale(.965); }
   .rx-bar{ position:fixed; z-index:60; display:none; align-items:center; gap:1px; padding:5px 7px; background:var(--surface); border:1px solid var(--hairline); border-radius:100px; box-shadow:0 14px 34px rgba(0,0,0,.36); }
@@ -5728,6 +5734,68 @@ function closeOrderDetailsModal() {
     if(rxTarget && !(e.target.closest && e.target.closest("#rxBar"))) closeRxBar();
   }, true);
   els.threadMessages.addEventListener("scroll", closeRxBar, { passive:true });
+
+  /* swipe a message sideways to reply (customer bubbles: swipe right, ours: swipe left) — like Messenger / Instagram */
+  (function(){
+    var SW_TRIGGER = 56, sw = null, swSuppress = 0, ico = null;
+    function getIco(){
+      if(ico) return ico;
+      ico = document.createElement("div"); ico.className = "sw-ico"; ico.setAttribute("aria-hidden", "true");
+      ico.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14 4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 6 6v3"/></svg>';
+      document.body.appendChild(ico); return ico;
+    }
+    function travel(d){ return d < 64 ? d : Math.min(64 + (d - 64) * 0.25, 92); }
+    function reset(animate){
+      if(!sw) return;
+      var row = sw.row, s = sw; sw = null;
+      row.style.transition = animate ? "transform .24s cubic-bezier(.22,1,.36,1)" : "none";
+      row.style.transform = "";
+      if(ico){ ico.style.transition = "opacity .18s ease"; ico.style.opacity = "0"; ico.classList.remove("armed"); }
+      setTimeout(function(){ row.style.transition = ""; }, 260);
+    }
+    els.threadMessages.addEventListener("pointerdown", function(e){
+      if(e.pointerType === "mouse" || state.noteMode) return;
+      var row = e.target.closest && e.target.closest(".msg-row[data-mid]");
+      if(!row || row.classList.contains("is-note") || !e.target.closest(".msg-bubble")) return;
+      if(e.target.closest(".msg-voice, button, a, input, textarea, [data-retry]")) return;
+      var r = row.getBoundingClientRect();
+      sw = { row:row, id:row.dataset.mid, x:e.clientX, y:e.clientY, pid:e.pointerId, dir:row.classList.contains("from-customer") ? 1 : -1, on:false, armed:false, rect:r };
+    });
+    els.threadMessages.addEventListener("pointermove", function(e){
+      if(!sw || e.pointerId !== sw.pid) return;
+      var dx = e.clientX - sw.x, dy = e.clientY - sw.y, d = dx * sw.dir;
+      if(!sw.on){
+        if(Math.abs(dy) > 8 && Math.abs(dy) > Math.abs(dx)){ sw = null; return; }
+        if(d < -10){ sw = null; return; }
+        if(d > 10 && d > Math.abs(dy) * 1.4){
+          sw.on = true; rxCancel(); closeRxBar();
+          sw.row.style.transition = "none";
+          var i = getIco(); i.style.transition = "none";
+        }else return;
+      }
+      if(d < 0) d = 0;
+      var t = travel(d), i = getIco(), p = Math.min(t / SW_TRIGGER, 1);
+      sw.row.style.transform = "translateX(" + (t * sw.dir) + "px)";
+      var gx = sw.dir === 1 ? sw.rect.left + t / 2 : sw.rect.right - t / 2;
+      i.style.transform = "translate(" + (gx - 16) + "px," + (sw.rect.top + sw.rect.height / 2 - 16) + "px) scale(" + (0.5 + 0.5 * p) + ")";
+      i.style.opacity = String(p);
+      var armed = d >= SW_TRIGGER;
+      if(armed !== sw.armed){ sw.armed = armed; i.classList.toggle("armed", armed); if(armed && navigator.vibrate){ try{ navigator.vibrate(10); }catch(_){} } }
+    });
+    function end(e, cancel){
+      if(!sw || (e && e.pointerId !== sw.pid)) return;
+      if(sw.on){
+        swSuppress = Date.now() + 400;
+        if(!cancel && sw.armed) setQuote(sw.id);
+        reset(true);
+      }else sw = null;
+    }
+    els.threadMessages.addEventListener("pointerup", function(e){ end(e, false); });
+    els.threadMessages.addEventListener("pointercancel", function(e){ end(e, true); });
+    document.addEventListener("click", function(e){
+      if(Date.now() < swSuppress && els.threadMessages.contains(e.target)){ e.preventDefault(); e.stopPropagation(); swSuppress = 0; }
+    }, true);
+  })();
 
   /* Messages from the same sender within 5 minutes read as one group: tight spacing, time only on the last one */
   const GROUP_MS = 5 * 60 * 1000;
