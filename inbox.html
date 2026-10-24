@@ -4438,7 +4438,7 @@ function closeOrderDetailsModal() {
     try{ if (prev && prev.focus) prev.focus({preventScroll:true}); }catch(e){}
     return ok;
   }
-  async function copyText(text){
+  async function copyValue(text){
     if (legacyCopy(text)) return true;
     try{ if (navigator.clipboard){ await navigator.clipboard.writeText(text); return true; } }catch(e){}
     return false;
@@ -5192,7 +5192,7 @@ function closeOrderDetailsModal() {
       case "copy": {
         const val = el.dataset.copy;
         if(!val){ showToast("Nothing to copy"); break; }
-        copyText(val).then(ok => {
+        copyValue(val).then(ok => {
           if(ok){ flashCopied(el); showToast(el.dataset.what === "Customer ID" ? "Customer ID " + val + " copied" : (el.dataset.what || "Value") + " copied"); }
           else showToast("Couldn't copy — select and copy manually");
         });
