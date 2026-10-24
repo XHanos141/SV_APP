@@ -3213,6 +3213,8 @@ html:not([data-theme="light"]) .odm-card { background: rgba(43,116,227,0.08); bo
         <button class="status-tab" role="tab" data-substatus="" aria-selected="true">All <span class="count" data-sub-count="all"></span></button>
         <button class="status-tab" role="tab" data-substatus="pending" aria-selected="false">Pending <span class="count" data-sub-count="pending"></span></button>
         <button class="status-tab" role="tab" data-substatus="subscribed" aria-selected="false">Subscribed <span class="count" data-sub-count="subscribed"></span></button>
+        <button class="status-tab" role="tab" data-subkind="customer" aria-selected="false">Customers <span class="count" data-sub-count="customers"></span></button>
+        <button class="status-tab" role="tab" data-subkind="guest" aria-selected="false">Guests <span class="count" data-sub-count="guests"></span></button>
       </div>
     </div>
   </header>
@@ -7397,9 +7399,9 @@ function closeOrderDetailsModal() {
     }
     document.getElementById("customersView").dataset.hubTab = hub.tab;
     syncPills(els.hubModeTabs, hub.tab === "wishlist" && !hub.error, `[data-wlmode="${hub.wl.mode}"]`);
-    syncPills(els.hubStatusTabs, hub.tab === "subscribers" && !hub.error, `[data-substatus="${hub.subs.status}"]`);
+    syncPills(els.hubStatusTabs, hub.tab === "subscribers" && !hub.error, hub.subs.kind ? `[data-subkind="${hub.subs.kind}"]` : `[data-substatus="${hub.subs.status}"]`);
     {
-      const showKind = hub.tab === "subscribers" && !hub.error;
+      const showKind = false;
       els.hubKindBtn.style.display = showKind ? "" : "none";
       if(!showKind) els.hubKindPop.classList.remove("open");
       els.hubKindBtn.classList.toggle("is-filtered", !!hub.subs.kind);
@@ -7433,7 +7435,6 @@ function closeOrderDetailsModal() {
       count = d.counts ? `${d.counts.all} total` : "";
       const k = d.counts || {};
       html = `<div class="sub-actions"><button type="button" class="is-primary" data-sub-act="new">+ New campaign</button><button type="button" data-sub-act="list">Campaigns</button></div>`
-        + (d.counts ? `<div class="sub-stats"><div class="sub-stat"><b>${k.subscribed || 0}</b><small>Subscribed</small></div><div class="sub-stat"><b>${k.sub_customers || 0}</b><small>Customers</small></div><div class="sub-stat"><b>${k.sub_guests || 0}</b><small>Guests</small></div></div>` : "")
         + (d.rows.length ? d.rows.map(subscriberRowHtml).join("") + moreBtn(d.rows.length, d.total)
           : ((hub.q || d.status || d.kind) ? emptyBlock("No matches", "No subscriber matches that search or filter.") : emptyBlock("No subscribers yet", "Emails entered in the landing-page signup box will appear here as Pending.")));
     }else{
@@ -7860,8 +7861,10 @@ function closeOrderDetailsModal() {
     if(b.dataset.subkind !== hub.subs.kind){ hub.subs.kind = b.dataset.subkind; syncHubHeader(); hubLoad(true); }
   });
   els.hubStatusTabs.addEventListener("click", e => {
+    const k = e.target.closest("[data-subkind]");
+    if(k){ if(k.dataset.subkind !== hub.subs.kind || hub.subs.status){ hub.subs.kind = k.dataset.subkind; hub.subs.status = ""; syncHubHeader(); hubLoad(true); } return; }
     const b = e.target.closest("[data-substatus]");
-    if(b && b.dataset.substatus !== hub.subs.status){ hub.subs.status = b.dataset.substatus; syncHubHeader(); hubLoad(true); }
+    if(b && (b.dataset.substatus !== hub.subs.status || hub.subs.kind)){ hub.subs.status = b.dataset.substatus; hub.subs.kind = ""; syncHubHeader(); hubLoad(true); }
   });
   els.customersListScroll.addEventListener("click", e => {        // tap a wishlist photo -> the same zoom gallery as the pinned product (does not expand the row)
     const t = e.target.closest(".wl-thumb"); if(!t) return;
