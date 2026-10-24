@@ -8367,6 +8367,23 @@ html[data-theme="dark"] :is(#alertsTabContent,#notifTabContent) .rq-tag { border
 :is(#alertsTabContent,#notifTabContent) .px-cust { display:flex; align-items:center; gap:10px; min-width:0; }
 :is(#alertsTabContent,#notifTabContent) .px-avatar { width:34px; height:34px; border-radius:50%; flex-shrink:0; object-fit:cover; background:linear-gradient(135deg,#0A9BDC,#4fb7ea); display:flex; align-items:center; justify-content:center; font-family:'Plus Jakarta Sans',sans-serif; font-weight:800; font-size:13px; color:#fff; overflow:hidden; }
 :is(#alertsTabContent,#notifTabContent) .px-avatar img { width:100%; height:100%; object-fit:cover; display:block; }
+/* ---- Drawer menu icons: gradient badges in each menu's own colour (white glyph) ---- */
+:root .section-icon.draft-icon { background: linear-gradient(145deg,#4cc9f6 0%,#0a8fd0 100%); box-shadow: 0 4px 10px -3px rgba(10,155,220,0.55), inset 0 1px 0 rgba(255,255,255,0.38), inset 0 -2px 3px rgba(0,0,0,0.12); }
+:root .section-icon.proxy-icon { background: linear-gradient(145deg,#ff9a6e 0%,#e15a26 100%); box-shadow: 0 4px 10px -3px rgba(225,90,38,0.55), inset 0 1px 0 rgba(255,255,255,0.38), inset 0 -2px 3px rgba(0,0,0,0.12); }
+:root .section-icon.website-icon { background: linear-gradient(145deg,#4fc3f7 0%,#0284c7 100%); box-shadow: 0 4px 10px -3px rgba(2,132,199,0.5), inset 0 1px 0 rgba(255,255,255,0.38), inset 0 -2px 3px rgba(0,0,0,0.12); }
+:root .section-icon.voucher-icon { background: linear-gradient(145deg,#f27d7d 0%,#d04343 100%); box-shadow: 0 4px 10px -3px rgba(217,83,83,0.5), inset 0 1px 0 rgba(255,255,255,0.38), inset 0 -2px 3px rgba(0,0,0,0.12); }
+:root .section-icon.settings-icon { background: linear-gradient(145deg,#a79cff 0%,#6a5ce8 100%); box-shadow: 0 4px 10px -3px rgba(124,111,247,0.55), inset 0 1px 0 rgba(255,255,255,0.38), inset 0 -2px 3px rgba(0,0,0,0.12); }
+:root .section-icon.calc-icon { background: linear-gradient(145deg,#34dcf2 0%,#0a9db8 100%); box-shadow: 0 4px 10px -3px rgba(8,145,178,0.5), inset 0 1px 0 rgba(255,255,255,0.38), inset 0 -2px 3px rgba(0,0,0,0.12); }
+:root .section-icon.export-icon { background: linear-gradient(145deg,#46c88a 0%,#238f5d 100%); box-shadow: 0 4px 10px -3px rgba(47,155,104,0.5), inset 0 1px 0 rgba(255,255,255,0.38), inset 0 -2px 3px rgba(0,0,0,0.12); }
+:root .section-icon.import-icon { background: linear-gradient(145deg,#a79cff 0%,#6a5ce8 100%); box-shadow: 0 4px 10px -3px rgba(124,111,247,0.55), inset 0 1px 0 rgba(255,255,255,0.38), inset 0 -2px 3px rgba(0,0,0,0.12); }
+:root .drawer-nav-icon.nav-ic-archive { background: linear-gradient(145deg,#a79cff 0%,#6a5ce8 100%); box-shadow: 0 4px 10px -3px rgba(124,111,247,0.55), inset 0 1px 0 rgba(255,255,255,0.38), inset 0 -2px 3px rgba(0,0,0,0.12); }
+:root .drawer-nav-icon.nav-ic-help { background: linear-gradient(145deg,#ffc455 0%,#e8920a 100%); box-shadow: 0 4px 10px -3px rgba(244,169,34,0.55), inset 0 1px 0 rgba(255,255,255,0.38), inset 0 -2px 3px rgba(0,0,0,0.12); }
+.section-icon.draft-icon svg, .section-icon.proxy-icon svg, .section-icon.website-icon svg, .section-icon.voucher-icon svg,
+.section-icon.settings-icon svg, .section-icon.calc-icon svg, .section-icon.export-icon svg, .section-icon.import-icon svg,
+.drawer-nav-icon.nav-ic-archive svg, .drawer-nav-icon.nav-ic-help svg { color: #fff; filter: drop-shadow(0 1px 1px rgba(0,0,0,0.18)); }
+.drawer-nav-icon.nav-ic-archive svg, .drawer-nav-icon.nav-ic-help svg { stroke: #fff; }
+html[data-theme="dark"] .section-icon.draft-icon svg, html[data-theme="dark"] .section-icon.proxy-icon svg, html[data-theme="dark"] .section-icon.website-icon svg, html[data-theme="dark"] .section-icon.voucher-icon svg,
+html[data-theme="dark"] .section-icon.settings-icon svg, html[data-theme="dark"] .section-icon.calc-icon svg, html[data-theme="dark"] .section-icon.export-icon svg, html[data-theme="dark"] .section-icon.import-icon svg { color: #fff; }
 </style>
 <base target="_blank">
 <div class="modal-overlay" id="orderDetailsModal" onclick="if(event.target===this)closeOrderDetailsModal()">
@@ -14329,13 +14346,13 @@ function showToast(message, type = 'success') {
     <!-- BOTTOM NAV LINKS -->
     <div class="drawer-nav">
       <div class="drawer-nav-item" onclick="openArchivedProductsPanel()">
-        <div class="drawer-nav-icon" style="background:rgba(124,111,247,0.12)">
+        <div class="drawer-nav-icon nav-ic-archive">
           <svg viewBox="0 0 24 24" fill="none" stroke="#7c6ff7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/></svg>
         </div>
         <span class="drawer-nav-label">Archived Products</span><span class="section-badge menu-badge" id="archivedBadge" style="display:none">0</span><span class="drawer-nav-chevron">&#8250;</span>
       </div>
       <div class="drawer-nav-item">
-        <div class="drawer-nav-icon" style="background:rgba(244,169,34,0.12)">
+        <div class="drawer-nav-icon nav-ic-help">
           <svg viewBox="0 0 24 24" fill="none" stroke="#F4A922" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
         </div>
         <span class="drawer-nav-label">Help</span><span class="drawer-nav-chevron">&#8250;</span>
